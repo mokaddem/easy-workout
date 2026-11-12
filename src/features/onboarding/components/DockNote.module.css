@@ -1,0 +1,18 @@
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 0 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.note svg {
+  flex: none;
+  color: var(--color-text-subtle);
+}
+.note b {
+  color: var(--color-text);
+  font-weight: 600;
+}

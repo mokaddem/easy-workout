@@ -1,0 +1,245 @@
+{
+  "session": {
+    "title": "Séance",
+    "cardioDay": "Jour cardio",
+    "quick": "Séance express",
+    "letterName": "Séance {{letter}}",
+    "estimated": "estimées",
+    "exercises_one": "exercice",
+    "exercises_other": "exercices",
+    "exercisesCount_one": "{{count}} exercice",
+    "exercisesCount_other": "{{count}} exercices",
+    "equipment": "Matériel",
+    "warmup": "Échauffement",
+    "warmupMeta_one": "{{count}} exercice, environ {{minutes}} min",
+    "warmupMeta_other": "{{count}} exercices, environ {{minutes}} min",
+    "main": "Bloc principal",
+    "blocks_one": "{{count}} bloc",
+    "blocks_other": "{{count}} blocs",
+    "finisher": "Fin de séance",
+    "cardio": "Cardio",
+    "backToProgramme": "Retour au programme",
+    "missingTitle": "Séance introuvable",
+    "missingBody": "Cette séance ne fait pas partie du programme en cours.",
+    "longer": "<b>Plus longue que d’habitude</b>, environ {{minutes}} min de plus que tes {{budget}} min : séries ajoutées cette semaine.",
+    "notNext": "Ce n’est pas la prochaine séance : la rotation suit l’ordre.",
+    "sameEveryWeek": "Même séance chaque semaine : le jour cardio ne suit pas les phases.",
+    "context": "{{name}}, semaine {{week}} sur {{total}}",
+    "previewNote": "Aperçu d’une autre semaine. Ta séance du jour reste celle de la semaine {{week}}.",
+    "backToWeek": "Revenir à la semaine {{week}}"
+  },
+  "week": {
+    "group": "Semaine du programme",
+    "label": "Semaine {{week}}",
+    "title": "Semaine {{week}}, {{phase}}",
+    "current": "En cours",
+    "preview": "Aperçu",
+    "test": "Test de la semaine : le plus de {{names}} possible."
+  },
+  "changes": {
+    "intro": "Par rapport à la semaine {{week}} :",
+    "moreSets_one": "<b>une série de plus</b> sur {{count}} exercice",
+    "moreSets_other": "<b>une série de plus</b> sur {{count}} exercices",
+    "fewerSets_one": "<b>moins de séries</b> sur {{count}} exercice",
+    "fewerSets_other": "<b>moins de séries</b> sur {{count}} exercices",
+    "effort": "<b>{{to}}</b> au lieu de {{from}}",
+    "firstSet": "première série à <b>{{effort}}</b>",
+    "lastSet": "dernière série à <b>{{effort}}</b>",
+    "cardio": "cardio <b>{{minutes}} min</b>",
+    "none": "Rien ne change par rapport à la semaine {{week}}."
+  },
+  "group": {
+    "superset_one": "Superset, {{count}} tour",
+    "superset_other": "Superset, {{count}} tours",
+    "circuit_one": "Circuit, {{count}} tour",
+    "circuit_other": "Circuit, {{count}} tours",
+    "ruleSuperset": "Enchaîne {{items}}, puis {{rest}} s de repos.",
+    "ruleCircuit": "Les {{count}} à la suite, puis {{rest}} s de repos."
+  },
+  "delta": {
+    "set_one": "{{sign}}{{count}} série",
+    "set_other": "{{sign}}{{count}} séries",
+    "round_one": "{{sign}}{{count}} tour",
+    "round_other": "{{sign}}{{count}} tours",
+    "min_one": "{{sign}}{{count}} min",
+    "min_other": "{{sign}}{{count}} min"
+  },
+  "rx": {
+    "perDumbbell": "par haltère",
+    "perKettlebell": "par kettlebell",
+    "addedLoad": "en plus",
+    "setsReps": "séries × reps",
+    "setsRepsSide": "séries × reps par côté",
+    "setsTime": "séries × durée",
+    "setsTimeSide": "séries × durée par côté",
+    "time": "durée",
+    "timeSide": "durée par côté",
+    "rest": "Repos",
+    "tempo": "Tempo",
+    "firstSet": "Première série : {{effort}}",
+    "lastSet": "Dernière série : {{effort}}",
+    "maxHint": "Max : le plus de reps propres possible",
+    "whyAbout": "Pourquoi {{name}} ?",
+    "duration": "durée",
+    "speed": "vitesse",
+    "incline": "inclinaison",
+    "rounds": "tours",
+    "work": "effort",
+    "recovery": "récup.",
+    "total": "total"
+  },
+  "hero": {
+    "weekOf": "Semaine {{week}} sur {{total}}",
+    "week": "Semaine",
+    "of": "sur {{total}}",
+    "phase": "Phase {{name}}"
+  },
+  "phase": {
+    "readapt": {
+      "summary": "Séries plus faciles : tu reprends en douceur et tu trouves tes repères.",
+      "goal": "Apprendre les mouvements et trouver les bonnes charges, sans courbatures qui bloquent."
+    },
+    "volume": {
+      "summary": "Plus de volume : une série de plus sur les premiers exercices de chaque séance.",
+      "goal": "Plus de travail pour construire du muscle, sans aller jusqu’à l’échec."
+    },
+    "intensity": {
+      "summary": "Des charges plus lourdes sur la première série, des séries suivantes un peu plus légères.",
+      "goal": "Monter en charge : la première série est dure, les suivantes restent propres."
+    },
+    "peak": {
+      "summary": "La semaine des charges maximales, avec juste une rep ou deux en réserve.",
+      "goal": "Aller chercher tes meilleures charges avant de te laisser récupérer."
+    },
+    "deload": {
+      "summary": "Semaine allégée : moins de séries pour récupérer avant le prochain cycle.",
+      "goal": "Récupérer pour repartir plus fort, puis mesurer ta progression."
+    },
+    "weeks_one": "Semaine {{from}} sur {{total}}",
+    "weeks_other": "Semaines {{from}} à {{to}} sur {{total}}",
+    "goal": "Objectif",
+    "effort": "Effort",
+    "changes": "Ce qui change",
+    "repsInTank_one": "rep en réserve",
+    "repsInTank_other": "reps en réserve",
+    "effortHelp_one": "Arrête chaque série quand tu pourrais encore en faire une propre.",
+    "effortHelp_other": "Arrête chaque série quand tu pourrais encore en faire {{count}} propres.",
+    "effortHelpFailure": "Va jusqu’au bout de la série, tant que la technique reste propre.",
+    "bullet": {
+      "rir": {
+        "all-sets": "<b>{{effort}}</b> sur chaque série",
+        "first-set": "<b>{{effort}}</b> sur la première série, puis des séries un peu plus légères",
+        "last-set": "<b>{{effort}}</b> sur la dernière série"
+      },
+      "extraSets_one": "<b>+{{add}} série</b> sur le premier exercice de chaque séance",
+      "extraSets_other": "<b>+{{add}} série</b> sur les {{count}} premiers exercices de chaque séance",
+      "volume": "<b>{{pct}} % du volume</b> : moins de séries",
+      "cardio": "<b>+{{minutes}} min</b> de cardio en fin de séance, si le temps le permet",
+      "maxTest": "<b>Test max</b> en fin de semaine : {{names}}"
+    },
+    "sameLoads": "Mêmes exercices ; les charges montent quand tu atteins le haut de la fourchette.",
+    "close": "Fermer"
+  },
+  "whyCard": {
+    "title": "Pourquoi ce programme ?",
+    "schedule_one": "Une séance par semaine, adaptée à ton planning.",
+    "schedule_other": "{{sessions}} séances par semaine, adaptées à ton planning.",
+    "goal": "Construit pour ton objectif : {{goal}}.",
+    "bodyweight": "Rien que le poids du corps, une chaise, une table et une porte.",
+    "equipment": "Choisi avec le matériel que tu possèdes.",
+    "all": "Toutes les raisons",
+    "gotIt": "Compris"
+  },
+  "banner": {
+    "title": "Programme à mettre à jour",
+    "outOfDate": "Ton profil ou ton matériel a changé depuis la création de ce programme. Un nouveau programme peut en tenir compte.",
+    "needsNew": "Ton objectif ou ton nombre de jours a changé : le découpage des séances ne correspond plus.",
+    "generate": "Générer un nouveau programme",
+    "keep": "Garder celui-ci"
+  },
+  "nudge": {
+    "title_one": "{{count}} exercice adapté faute de matériel",
+    "title_other": "{{count}} exercices adaptés faute de matériel",
+    "sub": "Voir ce qu’il vaut la peine d’acheter"
+  },
+  "next": {
+    "label": "Prochaine séance",
+    "details": "Voir la séance"
+  },
+  "start": "Commencer la séance",
+  "rotation": {
+    "title": "Rotation",
+    "intro": "Toujours dans l’ordre. Un jour manqué décale la rotation ; rien n’est sauté. Touche une phase pour voir ce qui change.",
+    "table": "Séances par semaine",
+    "short": {
+      "lower": "Jambes",
+      "upper": "Haut",
+      "full": "Full"
+    },
+    "cardio": "Cardio",
+    "weekShort": "S{{week}}",
+    "state": {
+      "done": "Semaine {{week}} : faite",
+      "next": "Semaine {{week}} : prochaine séance",
+      "todo": "Semaine {{week}} : à faire",
+      "later": "Semaine {{week}} : plus tard"
+    }
+  },
+  "sessions": {
+    "title": "Séances"
+  },
+  "meta": {
+    "withCardio_one": "{{weeks}} semaines, {{count}} séance (+ {{cardio}} jour cardio) par semaine",
+    "withCardio_other": "{{weeks}} semaines, {{count}} séances (+ {{cardio}} jour cardio) par semaine",
+    "plain_one": "{{weeks}} semaines, {{count}} séance par semaine",
+    "plain_other": "{{weeks}} semaines, {{count}} séances par semaine"
+  },
+  "menu": {
+    "button": "Options du programme",
+    "variant": "Essayer une autre variante",
+    "variantHint": "Change des exercices secondaires. Tu vois les changements avant de valider.",
+    "profile": "Modifier le profil",
+    "equipment": "Modifier le matériel"
+  },
+  "preview": {
+    "variantEyebrow": "Autre variante",
+    "newEyebrow": "Nouveau programme",
+    "noneTitle": "Aucune autre variante pour l’instant",
+    "noneBody": "Avec ton matériel actuel, chaque exercice est déjà le meilleur choix disponible. Du matériel en plus ouvre d’autres options.",
+    "sameExercises": "Mêmes exercices",
+    "sessionsInstead_one": "séance au lieu de {{old}}",
+    "sessionsInstead_other": "séances au lieu de {{old}}",
+    "exercisesChange_one": "exercice change",
+    "exercisesChange_other": "exercices changent",
+    "keptVariant": "Même découpage, mêmes durées. Tu restes en semaine {{week}}.",
+    "keptNewSplit": "Avec {{days}} jours par semaine, le découpage change. Tous les exercices peuvent changer.",
+    "keptNew": "Même découpage, mêmes durées. Les charges et les doses suivent ton profil actuel.",
+    "today": "Aujourd’hui",
+    "new": "Nouveau",
+    "removed": "Retiré",
+    "restart": "Le nouveau programme repart en semaine 1. Tes séances passées restent dans ton historique.",
+    "useVariant": "Utiliser cette variante",
+    "useNew": "Utiliser ce programme",
+    "keepCurrent": "Garder l’actuelle",
+    "keepCurrentNew": "Garder l’actuel",
+    "doneNew": "Nouveau programme en place",
+    "doneVariant": "Variante en place"
+  },
+  "why": {
+    "title": "Pourquoi ce programme ?",
+    "schedule": "Ton planning",
+    "scheduleTitle": "{{days}} jours, {{minutes}} min",
+    "goal": "Ton objectif et ton niveau",
+    "goalTitle": "{{goal}}, {{level}}",
+    "equipment": "Ton matériel",
+    "bodyweightOnly": "Poids du corps seulement",
+    "close": "Compris"
+  },
+  "whySheet": {
+    "eyebrow": "Pourquoi cet exercice",
+    "first": "Premier exercice de la séance : le mouvement principal, quand tu es le plus frais.",
+    "plain": "Le choix classique pour ce mouvement, adapté à ton matériel et à ton niveau.",
+    "cue": "Point clé",
+    "close": "Compris"
+  }
+}

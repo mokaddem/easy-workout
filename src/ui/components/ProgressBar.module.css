@@ -1,0 +1,42 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.label {
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.bar {
+  height: 8px;
+  border-radius: var(--radius-xs);
+  background: var(--color-track);
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-accent-line);
+  transition: width var(--duration-base) var(--ease-move);
+}
+.segs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+}
+.segs > i {
+  height: 6px;
+  border-radius: var(--radius-xs);
+  background: var(--color-track);
+  transition: background-color var(--duration-base) var(--ease-move);
+}
+.segs > i.done {
+  background: var(--color-text-subtle);
+}
+.segs > i.cur {
+  background: var(--color-accent-line);
+}

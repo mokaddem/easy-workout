@@ -1,0 +1,30 @@
+{
+  "title": "Quick session",
+  "intro": "Outside your programme. Nothing is saved until you start it.",
+  "duration": "Duration",
+  "min": "min",
+  "minutesLabel_one": "{{count}} minute",
+  "minutesLabel_other": "{{count}} minutes",
+  "focus": "Focus",
+  "about": {
+    "full": "Full body: legs, push, pull and core.",
+    "upper": "Upper body: pushing and pulling, arms and shoulders.",
+    "lower": "Lower body: thighs, glutes and calves.",
+    "push": "Push: chest, shoulders and triceps.",
+    "pull": "Pull: back, biceps and rear shoulders.",
+    "core": "Core: abs, obliques and lower back.",
+    "cardio": "Cardio: intervals or walking, depending on your equipment."
+  },
+  "equipment": "Equipment today",
+  "allEquipment": "All my equipment",
+  "allEquipmentHint": "What you have set up",
+  "noEquipmentHint": "No equipment",
+  "compose": "Build my session",
+  "backToChoices": "Back to choices",
+  "notSaved": "Not saved until you start it.",
+  "shuffle": "Shuffle",
+  "shuffled_one": "Session shuffled: {{count}} exercise changed",
+  "shuffled_other": "Session shuffled: {{count}} exercises changed",
+  "noOther": "No other combination with this equipment.",
+  "start": "Start"
+}

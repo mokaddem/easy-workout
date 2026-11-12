@@ -36,7 +36,13 @@ const selectionNote = (sel: Selection, slot: SlotSpec, itemIndex?: number): Pend
   const notes: PendingNote[] = [];
   switch (sel.method) {
     case 'preferred':
-      notes.push({ code: 'exercise-preferred', params: base, ...at });
+      notes.push({
+        code: 'exercise-preferred',
+        params: sel.instead
+          ? { ...base, instead: sel.instead.id, missing: sel.instead.missing.join(',') }
+          : base,
+        ...at,
+      });
       break;
     case 'easier-variant':
       notes.push({

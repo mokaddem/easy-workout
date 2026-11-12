@@ -1,0 +1,40 @@
+.btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active {
+  background: var(--color-press-overlay);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.outline {
+  box-shadow: inset 0 0 0 var(--border-control) var(--color-line-strong);
+}
+.outline:focus-visible {
+  box-shadow:
+    inset 0 0 0 var(--border-control) var(--color-line-strong),
+    var(--focus-ring);
+}
+.sunken {
+  background: var(--color-surface-sunken);
+}
+.player {
+  width: var(--tap-player);
+  height: var(--tap-player);
+}
+.btn:disabled {
+  color: var(--color-text-disabled);
+  cursor: default;
+}

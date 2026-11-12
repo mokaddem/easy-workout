@@ -5,7 +5,12 @@ import type {
   LoadType,
   MovementPattern,
 } from '../../domain';
-import { equipmentCapabilities, usableSetups, type EquipmentCapabilities } from '../equipment';
+import {
+  equipmentCapabilities,
+  missingKinds,
+  usableSetups,
+  type EquipmentCapabilities,
+} from '../equipment';
 import { tieBreak } from './hash';
 import { externalLoad } from './loads';
 import type { Context, SlotRole, SlotSpec } from './types';
@@ -113,6 +118,8 @@ export interface Selection {
   from?: string;
   /** Set when an advanced trainee was moved one step up a bodyweight chain. */
   harderFrom?: string;
+  /** The slot's first choice, when the equipment ruled it out, and what it lacked. */
+  instead?: { id: string; missing: string[] };
 }
 
 const needsJumpRope = (setup: readonly EquipmentRequirement[]) =>
@@ -305,6 +312,11 @@ export const selectExercise = (
     if (setup) preferred.push({ exercise, setup, method: 'preferred' });
   }
   picked = preferred[0] ?? null;
+  const firstChoice = slot.prefer?.[0] ? ctx.catalogue.get(slot.prefer[0]) : undefined;
+  if (picked && firstChoice && picked.exercise.id !== firstChoice.id) {
+    const missing = missingKinds(firstChoice, capabilities);
+    if (missing.length > 0) picked = { ...picked, instead: { id: firstChoice.id, missing } };
+  }
   // A seed varies only the slots where another preferred exercise does the job as well:
   // no lighter kind of load and not a regression of the first choice.
   if (picked && ctx.seed !== 0 && VARIABLE_ROLES.includes(slot.role)) {

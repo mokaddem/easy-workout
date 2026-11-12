@@ -1,0 +1,50 @@
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.opt {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  font-stretch: var(--font-width-label);
+  font-size: var(--type-label-size-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-move),
+    color var(--duration-fast) var(--ease-move);
+}
+.opt:active {
+  background: var(--color-press-overlay);
+}
+.opt[aria-checked='true'] {
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+}
+.opt:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.opt:disabled {
+  color: var(--color-text-disabled);
+  cursor: default;
+  background: none;
+}

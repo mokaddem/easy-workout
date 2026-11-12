@@ -78,6 +78,22 @@ export const usableSetups = (
 ): EquipmentRequirement[][] =>
   exercise.equipment.filter((setup) => setup.every((req) => meetsRequirement(req, capabilities)));
 
+/**
+ * The equipment kinds the closest unmet setup is missing (fewest unmet requirements wins).
+ * Empty when the exercise is available.
+ */
+export const missingKinds = (exercise: Exercise, capabilities: EquipmentCapabilities): string[] => {
+  let best: string[] | null = null;
+  for (const setup of exercise.equipment) {
+    const unmet = setup
+      .filter((req) => !meetsRequirement(req, capabilities))
+      .map((req) => req.kind);
+    if (unmet.length === 0) return [];
+    if (!best || unmet.length < best.length) best = unmet;
+  }
+  return [...new Set(best ?? [])];
+};
+
 export const isExerciseAvailable = (
   exercise: Exercise,
   capabilities: EquipmentCapabilities,

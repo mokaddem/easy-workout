@@ -9,6 +9,7 @@ import type {
 } from '../../domain';
 import { availableExercises, equipmentCapabilities, meetsRequirement } from '../equipment';
 import { ownedWeights } from './loads';
+import { programmeChanges, type SlotChange } from './diff';
 import { generateProgramme } from './programme';
 
 export type PurchaseCost = 'low' | 'medium' | 'high';
@@ -253,31 +254,6 @@ const goalWeight = (key: keyof Metrics, goal: Profile['goal']): number => {
   return 1;
 };
 
-/** The exercise (or cardio modality) each slot of each session ended up with. */
-const choices = (p: Programme): Map<string, string> => {
-  const map = new Map<string, string>();
-  for (const n of notesOf(p)) {
-    const session = n.ref?.sessionId;
-    if (!session) continue;
-    if (n.code.startsWith('exercise-') && n.code !== 'exercise-harder-variant')
-      map.set(`${session}|${String(n.params.slot)}`, String(n.params.exerciseId));
-    if (n.code === 'slot-dropped') map.set(`${session}|${String(n.params.slot)}`, '');
-    if (n.code === 'cardio-modality')
-      map.set(
-        `${session}|cardio-${n.ref?.section}-${n.ref?.blockIndex}`,
-        String(n.params.exerciseId),
-      );
-  }
-  return map;
-};
-
-export interface SlotChange {
-  sessionId: string;
-  slot: string;
-  from?: string;
-  to?: string;
-}
-
 export interface PurchaseAdvice {
   id: string;
   item: EquipmentItem;
@@ -302,16 +278,18 @@ export const buyNext = (
   profile: Profile,
   equipment: EquipmentInventory,
   exercises: readonly Exercise[] = defaultCatalogue,
+  /** Purchases tried so far, out of those that apply: 0 … total. */
+  onProgress?: (done: number, total: number) => void,
 ): PurchaseAdvice[] => {
   const byId = new Map(exercises.map((e) => [e.id, e]));
   const before = generateProgramme({ profile, equipment }, exercises);
   const baseMetrics = measure(before, equipment, byId);
-  const baseChoices = choices(before);
   const baseAvailable = availableExercises(exercises, equipment).length;
 
   const advice: PurchaseAdvice[] = [];
-  for (const option of PURCHASE_OPTIONS) {
-    if (!option.applies(equipment, profile)) continue;
+  const options = PURCHASE_OPTIONS.filter((option) => option.applies(equipment, profile));
+  for (const [tried, option] of options.entries()) {
+    onProgress?.(tried, options.length);
     const inventory = [...equipment, option.item];
     const after = generateProgramme({ profile, equipment: inventory }, exercises);
     const metrics = measure(after, inventory, byId);
@@ -328,16 +306,7 @@ export const buyNext = (
     }
     if (score <= 0) continue;
 
-    const afterChoices = choices(after);
-    const changes: SlotChange[] = [];
-    for (const key of new Set([...baseChoices.keys(), ...afterChoices.keys()])) {
-      const from = baseChoices.get(key) || undefined;
-      const to = afterChoices.get(key) || undefined;
-      if (from === to) continue;
-      const [sessionId = '', slot = ''] = key.split('|');
-      changes.push({ sessionId, slot, ...(from ? { from } : {}), ...(to ? { to } : {}) });
-    }
-
+    const changes = programmeChanges(before, after);
     const rounded = Math.round(score * 100) / 100;
     advice.push({
       id: option.id,
@@ -350,5 +319,6 @@ export const buyNext = (
       changes,
     });
   }
+  onProgress?.(options.length, options.length);
   return advice.sort((a, b) => b.value - a.value || b.score - a.score || a.id.localeCompare(b.id));
 };

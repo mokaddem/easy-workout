@@ -53,3 +53,18 @@ describe('what to buy next', () => {
     expect(buyNext(profile('muscle'), equipmentSets['well-equipped']!)).toEqual([]);
   });
 });
+
+describe('buyNext progress', () => {
+  it('reports purchases tried from 0 to the total', () => {
+    const calls: [number, number][] = [];
+    buyNext(
+      { goal: 'muscle', level: 'intermediate', daysPerWeek: 3, sessionMinutes: 45 },
+      [],
+      undefined,
+      (done, total) => calls.push([done, total]),
+    );
+    const total = calls[0]![1];
+    expect(total).toBeGreaterThan(0);
+    expect(calls.map(([done]) => done)).toEqual(Array.from({ length: total + 1 }, (_, i) => i));
+  });
+});

@@ -1,0 +1,66 @@
+/* One phone-width column, centred on wider screens. */
+.shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  height: 100dvh;
+  margin-inline: auto;
+  background: var(--color-bg);
+}
+
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Sticky headers stick below the screen's top padding (the safe area); this strip hides
+   content scrolling past behind the status bar. */
+.shell::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: var(--z-sticky);
+  height: env(safe-area-inset-top, 0px);
+  background: var(--color-bg);
+  content: '';
+  pointer-events: none;
+}
+
+/* The tab bar clears the home indicator, so a dock above it doesn't need to. */
+.shell[data-tabbar] {
+  --dock-safe-bottom: 0px;
+}
+
+/* Screen entrances: transform and opacity only, never delaying input. */
+@keyframes screen-forward {
+  from {
+    opacity: 0;
+    transform: translateX(var(--motion-distance-md));
+  }
+}
+@keyframes screen-back {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--motion-distance-md)));
+  }
+}
+@keyframes screen-fade {
+  from {
+    opacity: 0;
+  }
+}
+.screen[data-entrance='forward'] {
+  animation: screen-forward var(--duration-slow) var(--ease-snap) backwards;
+}
+.screen[data-entrance='back'] {
+  animation: screen-back var(--duration-slow) var(--ease-snap) backwards;
+}
+.screen[data-entrance='fade'] {
+  animation: screen-fade var(--duration-base) var(--ease-move) backwards;
+}

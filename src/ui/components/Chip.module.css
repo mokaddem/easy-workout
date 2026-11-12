@@ -1,0 +1,45 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  border: var(--border-control) solid var(--color-line-strong);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  font-size: 15px;
+  font-stretch: var(--font-width-label);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-move),
+    border-color var(--duration-fast) var(--ease-move);
+}
+.chip:active {
+  background: var(--color-press-overlay);
+}
+.chip[aria-pressed='true'] {
+  background: var(--color-surface-inverse);
+  border-color: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+}
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.chip:disabled {
+  color: var(--color-text-disabled);
+  border-color: var(--color-line);
+  cursor: default;
+}
+.check {
+  stroke-width: 2.5;
+}

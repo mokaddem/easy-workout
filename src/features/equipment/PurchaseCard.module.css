@@ -1,0 +1,111 @@
+.card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.well {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.id {
+  display: grid;
+  flex: 1;
+  gap: var(--space-2);
+  min-width: 0;
+  justify-items: start;
+}
+.name {
+  margin: 0;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 0 12px 0 10px;
+  border: var(--border-hairline) solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-caption-size);
+  font-weight: var(--font-weight-bold);
+}
+.bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.bars i {
+  width: 4px;
+  border-radius: 1px;
+  background: var(--color-line-strong);
+}
+.bars i:nth-child(1) {
+  height: 6px;
+}
+.bars i:nth-child(2) {
+  height: 9px;
+}
+.bars i:nth-child(3) {
+  height: 12px;
+}
+.bars i.on {
+  background: var(--color-text);
+}
+.fig {
+  display: grid;
+  justify-items: end;
+  margin: 0;
+  max-width: 6rem;
+  text-align: right;
+}
+.num {
+  font-size: var(--type-numeral-m-size);
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: var(--type-numeral-line);
+}
+.fig small {
+  font-size: var(--type-caption-size);
+  color: var(--color-text-muted);
+}
+.list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  border-top: var(--border-hairline) solid var(--color-line);
+  list-style: none;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+.list li {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  color: var(--color-text-muted);
+}
+.list li :global(svg) {
+  margin-top: 2px;
+}
+.list b {
+  color: var(--color-text);
+}
+.more {
+  justify-self: start;
+  margin-left: calc(var(--space-3) * -1);
+}

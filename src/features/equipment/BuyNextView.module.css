@@ -1,0 +1,62 @@
+.view {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+.intro {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+.computing {
+  display: grid;
+  gap: var(--space-3);
+}
+.computingTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--type-label-size);
+  font-weight: var(--type-label-weight);
+  font-stretch: var(--type-label-width);
+}
+.skeleton {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: var(--border-hairline) solid var(--color-line);
+}
+.skeletonHead {
+  display: flex;
+  gap: var(--space-3);
+}
+.skeletonId {
+  display: grid;
+  flex: 1;
+  gap: var(--space-2);
+  align-content: center;
+}
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+.none {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+}
+.none h3 {
+  margin: 0;
+  font-size: var(--type-headline-size);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.none p {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  color: var(--color-text-muted);
+}

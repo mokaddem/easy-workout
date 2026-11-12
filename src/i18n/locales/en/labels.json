@@ -1,0 +1,143 @@
+{
+  "goal": {
+    "muscle": "Muscle gain",
+    "recomposition": "Fat loss, recomposition",
+    "general-fitness": "General fitness"
+  },
+  "level": {
+    "beginner": "Beginner",
+    "returning": "Returning",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "pattern": {
+    "push-horizontal": "Horizontal push",
+    "push-vertical": "Vertical push",
+    "pull-horizontal": "Horizontal pull",
+    "pull-vertical": "Vertical pull",
+    "squat": "Squat",
+    "hinge": "Hip hinge",
+    "lunge": "Lunge",
+    "hip-extension": "Hip extension",
+    "hip-abduction": "Hip abduction",
+    "knee-flexion": "Knee flexion",
+    "calf-raise": "Calf raise",
+    "elbow-flexion": "Biceps",
+    "elbow-extension": "Triceps",
+    "chest-isolation": "Chest isolation",
+    "shoulder-isolation": "Shoulder isolation",
+    "shrug": "Shrug",
+    "core-anti-extension": "Anti-extension core",
+    "core-anti-lateral": "Side core",
+    "core-flexion": "Trunk flexion",
+    "core-rotation": "Trunk rotation",
+    "spinal-extension": "Back extension",
+    "carry": "Carry",
+    "locomotion": "Locomotion",
+    "conditioning": "Conditioning",
+    "mobility": "Mobility"
+  },
+  "muscle": {
+    "chest": "Chest",
+    "front-delts": "Front delts",
+    "side-delts": "Side delts",
+    "rear-delts": "Rear delts",
+    "triceps": "Triceps",
+    "biceps": "Biceps",
+    "forearms": "Forearms",
+    "traps": "Traps",
+    "upper-back": "Upper back",
+    "lats": "Lats",
+    "lower-back": "Lower back",
+    "abs": "Abs",
+    "obliques": "Obliques",
+    "hip-flexors": "Hip flexors",
+    "glutes": "Glutes",
+    "quads": "Quads",
+    "hamstrings": "Hamstrings",
+    "adductors": "Adductors",
+    "abductors": "Abductors",
+    "calves": "Calves"
+  },
+  "equipment": {
+    "dumbbell": "Dumbbells",
+    "dumbbell-adjustable": "Adjustable dumbbells",
+    "dumbbell-fixed": "Fixed dumbbells",
+    "kettlebell": "Kettlebells",
+    "band": "Resistance bands",
+    "mini-band": "Mini bands",
+    "weight-belt": "Dip belt",
+    "weight-vest": "Weight vest",
+    "pull-up-bar": "Pull-up bar",
+    "dip-bars": "Dip bars",
+    "bench": "Bench",
+    "treadmill": "Treadmill",
+    "stationary-bike": "Exercise bike",
+    "rower": "Rowing machine",
+    "jump-rope": "Jump rope",
+    "ab-wheel": "Ab wheel",
+    "suspension-trainer": "Suspension trainer",
+    "chair": "Chair",
+    "wall": "Wall",
+    "door": "Door (band anchor)",
+    "table": "Sturdy table",
+    "mat": "Floor mat"
+  },
+  "band": {
+    "extra-light": "Extra light",
+    "light": "Light",
+    "medium": "Medium",
+    "heavy": "Heavy",
+    "extra-heavy": "Extra heavy"
+  },
+  "bandLoad": {
+    "extra-light": "Extra light band",
+    "light": "Light band",
+    "medium": "Medium band",
+    "heavy": "Heavy band",
+    "extra-heavy": "Extra heavy band"
+  },
+  "mount": {
+    "doorway": "Doorway",
+    "wall": "Wall",
+    "ceiling": "Ceiling",
+    "freestanding": "Freestanding"
+  },
+  "focus": {
+    "full": "Full body",
+    "upper": "Upper body",
+    "lower": "Lower body",
+    "push": "Push",
+    "pull": "Pull",
+    "core": "Core",
+    "cardio": "Cardio"
+  },
+  "modality": {
+    "incline-walk": "Incline walk",
+    "treadmill-walk": "Treadmill walk",
+    "bike": "Bike",
+    "rower": "Rower",
+    "jump-rope": "Jump rope",
+    "step-intervals": "Bodyweight intervals",
+    "brisk-walk": "Brisk walk"
+  },
+  "cost": {
+    "low": "Low cost",
+    "medium": "Medium cost",
+    "high": "High cost"
+  },
+  "effort": {
+    "failure": "To failure",
+    "rir_one": "{{count}} rep in the tank",
+    "rir_other": "{{count}} reps in the tank"
+  },
+  "bodyweight": "Bodyweight",
+  "unit": {
+    "kg": "kg",
+    "min": "min",
+    "s": "s",
+    "kmh": "km/h",
+    "pct": "%",
+    "reps": "reps"
+  }
+}

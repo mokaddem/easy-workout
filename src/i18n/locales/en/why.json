@@ -1,0 +1,72 @@
+{
+  "title": "Why",
+  "split": {
+    "base_one": "{{count}} session a week: {{layout}}.",
+    "base_other": "{{count}} sessions a week: {{layout}}.",
+    "short": "Sessions under 30 min: the whole body every time."
+  },
+  "splitReplaced": "Not enough equipment for a {{template}} session: it is replaced by full body.",
+  "dose": {
+    "goal": {
+      "muscle": "Muscle gain: sets of 6 to 12 reps, 90 to 120 s of rest.",
+      "recomposition": "Recomposition: sets of 8 to 15 reps, 60 to 90 s of rest, with circuits and a finisher.",
+      "general-fitness": "General fitness: 2 to 3 sets of 10 to 15 reps, 45 to 75 s of rest, more cardio and core work."
+    },
+    "level": {
+      "beginner": "Beginner: one set fewer, more margin on every set and easier variations.",
+      "returning": "Returning: a beginner’s volume, with an intermediate’s choice of exercises.",
+      "intermediate": "Intermediate: the reference dose.",
+      "advanced": "Advanced: one extra set and harder variations."
+    }
+  },
+  "replaces": "Replaces {{instead}}: no {{missing}}.",
+  "ranked": "The best ranked for the “{{pattern}}” movement with your equipment and level.",
+  "easierFrom": "Easier version of {{from}}, for your level.",
+  "easier": "Easier version, for your level.",
+  "harderFrom": "Harder version of {{from}}, for your level.",
+  "harder": "Harder version, for your level.",
+  "fallback": "Your equipment doesn’t allow the usual movement ({{wanted}}): this one comes close.",
+  "slotDropped": "No {{patterns}} exercise: your equipment doesn’t allow it, so the slot is removed.",
+  "loadStart": "Starting load: {{kg}} kg, about {{pct}}% of your bodyweight, rounded down to the weights you own.",
+  "loadStartAssumed": "Bodyweight not set: the calculation starts from {{bodyweight}} kg. Week 1 is for adjusting.",
+  "loadBand": "{{band}} to start, based on your level.",
+  "loadUnloaded": "No added weight for now: it comes once you reach the top of the range with clean reps.",
+  "rampUp": "Ramp-up sets before the first heavy set, building up to {{kg}} kg.",
+  "finisherSkipped": "No conditioning finisher: it doesn’t serve your goal.",
+  "cardioModality": "{{modality}}: the cardio that fits your equipment best.",
+  "cardioUnavailable": "No cardio is possible with your equipment: it is removed.",
+  "balanceAdded": "One set added on {{name}} to balance pushing and pulling.",
+  "balanceRemoved": "One set removed on {{name}} to balance pushing and pulling.",
+  "timeFit": {
+    "block-added": "One exercise added to fill your {{budget}} min.",
+    "block-dropped": "One exercise removed to fit your {{budget}} min.",
+    "finisher-dropped": "Finisher removed to fit your {{budget}} min.",
+    "finisher-lengthened": "Finisher lengthened to fill your {{budget}} min.",
+    "finisher-shortened": "Finisher shortened to fit your {{budget}} min.",
+    "rests-shortened": "Rests shortened by {{seconds}} s to fit your {{budget}} min.",
+    "round-added": "One round added to fill your {{budget}} min.",
+    "rounds-trimmed": "One round removed to fit your {{budget}} min.",
+    "set-added": "One set added to fill your {{budget}} min.",
+    "sets-trimmed": "One set removed to fit your {{budget}} min.",
+    "warmup-shortened": "Warm-up shortened to fit your {{budget}} min.",
+    "other": "Session adjusted for your {{budget}} min."
+  },
+  "maxTest": "A max test of {{name}} closes the cycle to measure your progress.",
+  "quick": "A {{minutes}} min session, {{focus}}: no progression, not saved until you start it.",
+  "template": {
+    "push": "Push",
+    "pull": "Pull",
+    "lower-core": "Lower body and core",
+    "upper-density": "Upper body, density",
+    "lower-metabolic": "Metabolic lower body",
+    "cardio": "Cardio day",
+    "upper-a": "Upper body",
+    "upper-b": "Upper body",
+    "lower-a": "Lower body",
+    "lower-b": "Lower body",
+    "full-a": "Full body",
+    "full-b": "Full body",
+    "full-c": "Full body",
+    "core": "Core"
+  }
+}

@@ -1,0 +1,14 @@
+.dock {
+  position: sticky;
+  bottom: 0;
+  flex: none;
+  margin-top: auto;
+  display: grid;
+  gap: var(--space-2);
+  /* Above a tab bar the home indicator is already cleared, so the shell sets this to 0. */
+  padding: var(--space-3) var(--space-4)
+    calc(var(--space-3) + var(--dock-safe-bottom, env(safe-area-inset-bottom, 0px)));
+  background: var(--color-bg);
+  border-top: var(--border-hairline) solid var(--color-line);
+  z-index: var(--z-sticky);
+}

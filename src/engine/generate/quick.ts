@@ -80,7 +80,11 @@ export const generateQuickSession = (
   const title = FOCUS_TITLE[input.focus];
   const session = buildSession(tpl, ctx, newSelectionState(), {
     id: `quick-${input.focus}`,
-    name: { fr: `Séance express — ${title.fr}`, en: `Quick session — ${title.en}` },
+    // The cardio focus is named after its modality, added by the session builder.
+    name:
+      input.focus === 'cardio'
+        ? { fr: 'Séance express', en: 'Quick session' }
+        : { fr: `Séance express — ${title.fr}`, en: `Quick session — ${title.en}` },
     budget: input.minutes,
     // Exactly the minutes asked for; at home, intervals win over a walk outside.
     cardioPlace: 'finisher',

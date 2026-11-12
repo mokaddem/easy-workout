@@ -1,0 +1,30 @@
+{
+  "title": "Séance rapide",
+  "intro": "Hors programme. Rien n’est enregistré tant que tu ne la commences pas.",
+  "duration": "Durée",
+  "min": "min",
+  "minutesLabel_one": "{{count}} minute",
+  "minutesLabel_other": "{{count}} minutes",
+  "focus": "Focus",
+  "about": {
+    "full": "Full body : jambes, poussée, tirage et gainage.",
+    "upper": "Haut du corps : poussée et tirage, bras et épaules.",
+    "lower": "Bas du corps : cuisses, fessiers et mollets.",
+    "push": "Push : pectoraux, épaules et triceps.",
+    "pull": "Pull : dos, biceps et arrière des épaules.",
+    "core": "Gainage : abdominaux, obliques et bas du dos.",
+    "cardio": "Cardio : intervalles ou marche, selon ton matériel."
+  },
+  "equipment": "Matériel aujourd’hui",
+  "allEquipment": "Tout mon matériel",
+  "allEquipmentHint": "Ce que tu as déclaré",
+  "noEquipmentHint": "Aucun matériel",
+  "compose": "Composer la séance",
+  "backToChoices": "Retour aux choix",
+  "notSaved": "Pas enregistrée tant que tu ne la commences pas.",
+  "shuffle": "Mélanger",
+  "shuffled_one": "Séance mélangée : {{count}} exercice a changé",
+  "shuffled_other": "Séance mélangée : {{count}} exercices ont changé",
+  "noOther": "Pas d’autre combinaison avec ce matériel.",
+  "start": "Commencer"
+}

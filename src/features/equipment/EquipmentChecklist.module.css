@@ -1,0 +1,24 @@
+.list {
+  display: grid;
+  gap: var(--space-6);
+}
+.group {
+  display: grid;
+  gap: var(--space-3);
+}
+.groupName {
+  margin: 0;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.cards {
+  display: grid;
+  gap: var(--space-3);
+}
+.hint {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  color: var(--color-text-muted);
+}

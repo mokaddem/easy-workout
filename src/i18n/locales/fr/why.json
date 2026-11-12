@@ -1,0 +1,72 @@
+{
+  "title": "Pourquoi",
+  "split": {
+    "base_one": "{{count}} séance par semaine : {{layout}}.",
+    "base_other": "{{count}} séances par semaine : {{layout}}.",
+    "short": "Séances de moins de 30 min : le corps entier à chaque fois."
+  },
+  "splitReplaced": "Pas assez de matériel pour une séance {{template}} : elle est remplacée par du full body.",
+  "dose": {
+    "goal": {
+      "muscle": "Prise de muscle : séries de 6 à 12 reps, 90 à 120 s de repos.",
+      "recomposition": "Recomposition : séries de 8 à 15 reps, 60 à 90 s de repos, avec circuits et finisher.",
+      "general-fitness": "Forme générale : 2 à 3 séries de 10 à 15 reps, 45 à 75 s de repos, plus de cardio et de gainage."
+    },
+    "level": {
+      "beginner": "Débutant : une série de moins, plus de marge à chaque série et des variantes plus faciles.",
+      "returning": "Reprise : le volume d’un débutant, avec le choix d’exercices d’un intermédiaire.",
+      "intermediate": "Intermédiaire : la dose de référence.",
+      "advanced": "Avancé : une série de plus et des variantes plus difficiles."
+    }
+  },
+  "replaces": "Remplace {{instead}} : pas de {{missing}}.",
+  "ranked": "Le mieux classé pour le mouvement « {{pattern}} » avec ton matériel et ton niveau.",
+  "easierFrom": "Version plus facile de {{from}}, pour ton niveau.",
+  "easier": "Version plus facile, pour ton niveau.",
+  "harderFrom": "Version plus difficile de {{from}}, pour ton niveau.",
+  "harder": "Version plus difficile, pour ton niveau.",
+  "fallback": "Ton matériel ne permet pas le mouvement habituel ({{wanted}}) : celui-ci s’en rapproche.",
+  "slotDropped": "Pas d’exercice de {{patterns}} : ton matériel ne le permet pas, la place est retirée.",
+  "loadStart": "Charge de départ : {{kg}} kg, soit environ {{pct}} % de ton poids de corps, arrondi vers le bas à tes poids disponibles.",
+  "loadStartAssumed": "Poids de corps non renseigné : le calcul part de {{bodyweight}} kg. La semaine 1 sert à ajuster.",
+  "loadBand": "{{band}} pour commencer, d’après ton niveau.",
+  "loadUnloaded": "Sans charge ajoutée pour l’instant : elle vient une fois le haut de la fourchette atteint en reps propres.",
+  "rampUp": "Séries d’approche avant la première série lourde, pour monter jusqu’à {{kg}} kg.",
+  "finisherSkipped": "Pas de finisher de conditionnement : il ne sert pas ton objectif.",
+  "cardioModality": "{{modality}} : le cardio le plus adapté à ton matériel.",
+  "cardioUnavailable": "Pas de cardio possible avec ton matériel : il est retiré.",
+  "balanceAdded": "Une série ajoutée sur {{name}} pour équilibrer poussée et tirage.",
+  "balanceRemoved": "Une série retirée sur {{name}} pour équilibrer poussée et tirage.",
+  "timeFit": {
+    "block-added": "Un exercice ajouté pour remplir tes {{budget}} min.",
+    "block-dropped": "Un exercice retiré pour tenir dans tes {{budget}} min.",
+    "finisher-dropped": "Finisher retiré pour tenir dans tes {{budget}} min.",
+    "finisher-lengthened": "Finisher allongé pour remplir tes {{budget}} min.",
+    "finisher-shortened": "Finisher raccourci pour tenir dans tes {{budget}} min.",
+    "rests-shortened": "Repos raccourcis de {{seconds}} s pour tenir dans tes {{budget}} min.",
+    "round-added": "Un tour ajouté pour remplir tes {{budget}} min.",
+    "rounds-trimmed": "Un tour retiré pour tenir dans tes {{budget}} min.",
+    "set-added": "Une série ajoutée pour remplir tes {{budget}} min.",
+    "sets-trimmed": "Une série retirée pour tenir dans tes {{budget}} min.",
+    "warmup-shortened": "Échauffement raccourci pour tenir dans tes {{budget}} min.",
+    "other": "Séance ajustée pour tes {{budget}} min."
+  },
+  "maxTest": "Un test max de {{name}} clôt le cycle pour mesurer ta progression.",
+  "quick": "Séance de {{minutes}} min, {{focus}} : sans progression, pas enregistrée tant que tu ne la commences pas.",
+  "template": {
+    "push": "Push",
+    "pull": "Pull",
+    "lower-core": "Bas du corps et gainage",
+    "upper-density": "Haut du corps, densité",
+    "lower-metabolic": "Bas du corps métabolique",
+    "cardio": "Jour cardio",
+    "upper-a": "Haut du corps",
+    "upper-b": "Haut du corps",
+    "lower-a": "Bas du corps",
+    "lower-b": "Bas du corps",
+    "full-a": "Full body",
+    "full-b": "Full body",
+    "full-c": "Full body",
+    "core": "Gainage"
+  }
+}

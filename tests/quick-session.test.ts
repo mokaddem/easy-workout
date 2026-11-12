@@ -177,3 +177,16 @@ describe(`quick sessions — ${cases.length} combinations`, () => {
     expect(new Set([0, 1, 2, 3, 4].map(push)).size).toBeGreaterThan(1);
   });
 });
+
+describe('quick session names', () => {
+  it('names a cardio session once, after its modality', () => {
+    const { session } = generateQuickSession({
+      profile: { goal: 'recomposition', level: 'intermediate', daysPerWeek: 3, sessionMinutes: 45 },
+      equipment: [],
+      minutes: 20,
+      focus: 'cardio',
+    });
+    expect(session.name.en).not.toMatch(/cardio.*cardio/i);
+    expect(session.name.fr).toMatch(/^Séance express — /);
+  });
+});

@@ -1,0 +1,143 @@
+{
+  "goal": {
+    "muscle": "Prise de muscle",
+    "recomposition": "Perte de gras, recomposition",
+    "general-fitness": "Forme générale"
+  },
+  "level": {
+    "beginner": "Débutant",
+    "returning": "Reprise",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé"
+  },
+  "pattern": {
+    "push-horizontal": "Poussée horizontale",
+    "push-vertical": "Poussée verticale",
+    "pull-horizontal": "Tirage horizontal",
+    "pull-vertical": "Tirage vertical",
+    "squat": "Squat",
+    "hinge": "Charnière de hanche",
+    "lunge": "Fente",
+    "hip-extension": "Extension de hanche",
+    "hip-abduction": "Abduction de hanche",
+    "knee-flexion": "Flexion de genou",
+    "calf-raise": "Mollets",
+    "elbow-flexion": "Biceps",
+    "elbow-extension": "Triceps",
+    "chest-isolation": "Isolation pectoraux",
+    "shoulder-isolation": "Isolation épaules",
+    "shrug": "Haussement d’épaules",
+    "core-anti-extension": "Gainage anti-extension",
+    "core-anti-lateral": "Gainage latéral",
+    "core-flexion": "Flexion du buste",
+    "core-rotation": "Rotation du buste",
+    "spinal-extension": "Extension du dos",
+    "carry": "Porté",
+    "locomotion": "Déplacement",
+    "conditioning": "Conditionnement",
+    "mobility": "Mobilité"
+  },
+  "muscle": {
+    "chest": "Pectoraux",
+    "front-delts": "Épaules (avant)",
+    "side-delts": "Épaules (côté)",
+    "rear-delts": "Épaules (arrière)",
+    "triceps": "Triceps",
+    "biceps": "Biceps",
+    "forearms": "Avant-bras",
+    "traps": "Trapèzes",
+    "upper-back": "Haut du dos",
+    "lats": "Dorsaux",
+    "lower-back": "Bas du dos",
+    "abs": "Abdos",
+    "obliques": "Obliques",
+    "hip-flexors": "Fléchisseurs de hanche",
+    "glutes": "Fessiers",
+    "quads": "Quadriceps",
+    "hamstrings": "Ischios",
+    "adductors": "Adducteurs",
+    "abductors": "Abducteurs",
+    "calves": "Mollets"
+  },
+  "equipment": {
+    "dumbbell": "Haltères",
+    "dumbbell-adjustable": "Haltères réglables",
+    "dumbbell-fixed": "Haltères fixes",
+    "kettlebell": "Kettlebells",
+    "band": "Élastiques",
+    "mini-band": "Mini-bandes",
+    "weight-belt": "Ceinture de lest",
+    "weight-vest": "Gilet lesté",
+    "pull-up-bar": "Barre de traction",
+    "dip-bars": "Barres à dips",
+    "bench": "Banc",
+    "treadmill": "Tapis de course",
+    "stationary-bike": "Vélo d’appartement",
+    "rower": "Rameur",
+    "jump-rope": "Corde à sauter",
+    "ab-wheel": "Roue abdominale",
+    "suspension-trainer": "Sangles de suspension",
+    "chair": "Chaise",
+    "wall": "Mur",
+    "door": "Porte (ancrage)",
+    "table": "Table solide",
+    "mat": "Tapis de sol"
+  },
+  "band": {
+    "extra-light": "Très léger",
+    "light": "Léger",
+    "medium": "Moyen",
+    "heavy": "Fort",
+    "extra-heavy": "Très fort"
+  },
+  "bandLoad": {
+    "extra-light": "Élastique très léger",
+    "light": "Élastique léger",
+    "medium": "Élastique moyen",
+    "heavy": "Élastique fort",
+    "extra-heavy": "Élastique très fort"
+  },
+  "mount": {
+    "doorway": "Cadre de porte",
+    "wall": "Mur",
+    "ceiling": "Plafond",
+    "freestanding": "Sur pied"
+  },
+  "focus": {
+    "full": "Full body",
+    "upper": "Haut du corps",
+    "lower": "Bas du corps",
+    "push": "Push",
+    "pull": "Pull",
+    "core": "Gainage",
+    "cardio": "Cardio"
+  },
+  "modality": {
+    "incline-walk": "Marche inclinée",
+    "treadmill-walk": "Marche sur tapis",
+    "bike": "Vélo",
+    "rower": "Rameur",
+    "jump-rope": "Corde à sauter",
+    "step-intervals": "Intervalles au poids du corps",
+    "brisk-walk": "Marche rapide"
+  },
+  "cost": {
+    "low": "Coût faible",
+    "medium": "Coût moyen",
+    "high": "Coût élevé"
+  },
+  "effort": {
+    "failure": "Jusqu'à l'échec",
+    "rir_one": "{{count}} rep en réserve",
+    "rir_other": "{{count}} reps en réserve"
+  },
+  "bodyweight": "Poids du corps",
+  "unit": {
+    "kg": "kg",
+    "min": "min",
+    "s": "s",
+    "kmh": "km/h",
+    "pct": "%",
+    "reps": "reps"
+  }
+}

@@ -1,0 +1,25 @@
+.spinner {
+  flex: none;
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  animation: spin 800ms linear infinite;
+}
+.track {
+  stroke: currentColor;
+  opacity: 0.25;
+}
+.arc {
+  stroke: currentColor;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* The spinner is progress information: it slows down rather than stopping. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2400ms;
+  }
+}

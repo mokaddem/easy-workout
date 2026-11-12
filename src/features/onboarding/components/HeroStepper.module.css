@@ -1,0 +1,77 @@
+.big {
+  display: grid;
+  gap: 10px;
+  padding: 0 var(--space-4);
+}
+.label {
+  padding: 0 4px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.track {
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  gap: 8px;
+  min-height: 100px;
+  padding: 0 12px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+}
+.form .track {
+  min-height: 88px;
+}
+.btn {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--elevation-1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--duration-instant) var(--ease-snap);
+}
+.btn svg {
+  stroke-width: 2.5;
+}
+.btn:active {
+  transform: scale(var(--motion-scale-press));
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.btn:disabled {
+  background: transparent;
+  color: var(--color-text-disabled);
+  box-shadow: none;
+  cursor: default;
+}
+.value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+.num {
+  font-size: var(--font-size-96);
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--type-numeral-tracking);
+  line-height: 0.8;
+}
+.form .num {
+  font-size: var(--font-size-72);
+}
+.unit {
+  font-size: var(--font-size-24);
+  font-weight: 700;
+  font-stretch: var(--font-width-title);
+  color: var(--color-text-muted);
+}

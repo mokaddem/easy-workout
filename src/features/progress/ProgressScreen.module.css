@@ -1,0 +1,47 @@
+.chart {
+  position: relative;
+  height: 200px;
+  margin-top: var(--space-2);
+  overflow: hidden;
+  border: var(--border-hairline) dashed var(--color-line-strong);
+  border-radius: var(--radius-lg);
+}
+
+.grid {
+  position: absolute;
+  inset: 16px 16px 36px 44px;
+  background-image: linear-gradient(var(--color-line) 1px, transparent 1px);
+  background-size: 100% 25%;
+}
+
+.y {
+  position: absolute;
+  top: 10px;
+  bottom: 30px;
+  left: 14px;
+  display: grid;
+  align-content: space-between;
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.x {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  left: 44px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  font-stretch: var(--font-width-label);
+}
+
+.emptyBody {
+  display: grid;
+  gap: 10px;
+  padding-top: var(--space-2);
+}

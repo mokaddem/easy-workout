@@ -1,0 +1,96 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: var(--tap-comfort);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  border: var(--border-control) solid transparent;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  font-stretch: var(--type-label-width);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--duration-fast) var(--ease-snap),
+    background-color var(--duration-fast) var(--ease-move);
+}
+.btn:active {
+  transform: scale(var(--motion-scale-press));
+  transition-duration: var(--duration-instant), var(--duration-fast);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.primary:active {
+  background: var(--color-accent-pressed);
+}
+.secondary {
+  border-color: var(--color-line-strong);
+  color: var(--color-text);
+}
+.secondary:active {
+  background: var(--color-press-overlay);
+}
+.ghost {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+  padding: 0 var(--space-3);
+}
+.ghost:active {
+  background: var(--color-press-overlay);
+}
+.destructive {
+  background: var(--color-danger);
+  color: var(--color-on-danger);
+}
+.destructive:active {
+  background: var(--color-danger-pressed);
+}
+.destructive-outline {
+  border-color: var(--color-danger-text);
+  color: var(--color-danger-text);
+}
+.destructive-outline:active {
+  background: var(--color-danger-tint);
+}
+.block {
+  display: flex;
+  width: 100%;
+}
+.player {
+  min-height: var(--tap-player);
+  font-size: var(--font-size-21);
+}
+.btn:disabled {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-disabled);
+  border-color: transparent;
+  text-decoration: none;
+  cursor: default;
+  transform: none;
+}
+.ghost:disabled {
+  background: none;
+}
+.secondary:disabled,
+.destructive-outline:disabled {
+  background: none;
+}
+/* Keeps its look while busy; only taps are ignored. */
+.loading {
+  cursor: progress;
+}

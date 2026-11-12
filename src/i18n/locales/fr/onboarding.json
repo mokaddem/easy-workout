@@ -1,0 +1,93 @@
+{
+  "title": "Configuration",
+  "step": "Étape {{n}} sur {{total}}",
+  "generate": "Générer mon programme",
+  "reps": "reps par série",
+  "goal": {
+    "title": "Ton objectif",
+    "intro": "Tes 8 semaines se construisent autour de lui. Tu pourras le changer plus tard.",
+    "label": "Objectif",
+    "muscle": "Construire du muscle avec des charges qui montent.",
+    "recomposition": "Perdre du gras sans perdre de muscle. Circuits et finishers.",
+    "general-fitness": "Force, cardio et gainage, en équilibre.",
+    "error": "Choisis ton objectif pour continuer."
+  },
+  "level": {
+    "title": "Ton niveau",
+    "intro": "Il règle le volume, l’effort demandé et les variantes de départ.",
+    "label": "Niveau",
+    "beginner": "Peu ou pas de musculation jusqu’ici.",
+    "returning": "Tu t’es déjà entraîné, mais pas ces derniers mois.",
+    "intermediate": "Entraînement régulier depuis 6 mois ou plus.",
+    "advanced": "Des années de pratique. Tu connais tes charges.",
+    "error": "Choisis ton niveau pour continuer."
+  },
+  "schedule": {
+    "title": "Ton rythme",
+    "days": "Séances par semaine",
+    "daysLess": "Une séance de moins",
+    "daysMore": "Une séance de plus",
+    "minutes": "Minutes par séance, échauffement compris",
+    "minutesLess": "5 minutes de moins",
+    "minutesMore": "5 minutes de plus",
+    "week": "Ta semaine",
+    "noFixedDays": "Pas de jour fixe : tu fais la suivante quand tu peux.",
+    "short": "Moins de 30 min : chaque séance travaille tout le corps.",
+    "desc": {
+      "2": "Deux séances complètes qui alternent.",
+      "3": "Trois séances complètes qui alternent.",
+      "4": "Haut et bas du corps, deux fois chacun.",
+      "5": "Une zone par séance, plus de volume par muscle.",
+      "6": "Les 5 séances, plus un jour de cardio doux.",
+      "rotating": "Trois séances complètes qui tournent sur tes {{days}} jours."
+    }
+  },
+  "equipment": {
+    "title": "Ton matériel",
+    "intro": "Coche ce que tu as et règle-le comme chez toi. Les charges proposées partent de là.",
+    "none": "Rien à cocher ? Les séances se font alors au poids du corps, avec une chaise, un mur et une porte.",
+    "count": "exercices possibles"
+  },
+  "bodyweight": {
+    "title": "Ton poids",
+    "intro": "Il sert à estimer tes charges de départ.",
+    "label": "Poids de corps",
+    "field": "Poids de corps en kilogrammes",
+    "skip": "Laissé vide, les charges de départ partent de 70 kg. Tu pourras l’ajouter dans ton profil.",
+    "error": "Entre un poids entre 30 et 250 kg, ou laisse vide."
+  },
+  "summary": {
+    "title": "Récapitulatif",
+    "goal": "Objectif",
+    "level": "Niveau",
+    "schedule": "Rythme",
+    "equipment": "Matériel",
+    "editGoal": "Modifier l’objectif",
+    "editLevel": "Modifier le niveau",
+    "editSchedule": "Modifier le rythme",
+    "editEquipment": "Modifier le matériel",
+    "scheduleValue": "{{days}} séances de {{minutes}} min, {{split}}",
+    "split": {
+      "full": "corps entier",
+      "2": "corps entier",
+      "3": "corps entier",
+      "4": "haut et bas du corps",
+      "5": "une zone par séance",
+      "6": "une zone par séance et un jour de cardio"
+    },
+    "exercises_one": "{{count}} exercice",
+    "exercises_other": "{{count}} exercices",
+    "bodyweightOnly": "Poids du corps",
+    "more": "+{{count}}"
+  },
+  "generating": {
+    "title": "On construit ton programme",
+    "weeks": "semaines",
+    "split": "Répartition : {{split}}",
+    "exercises": "Exercices choisis parmi les {{count}} permis par ton matériel",
+    "loads": "Charges de départ pour {{kg}} kg",
+    "loadsDefault": "Charges de départ estimées",
+    "phases": "Phases sur les 8 semaines",
+    "error": "La génération n’a pas abouti. Réessaie."
+  }
+}

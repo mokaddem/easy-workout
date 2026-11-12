@@ -660,7 +660,7 @@ const templates: SessionTemplate[] = [
   },
   {
     key: 'upper-density',
-    title: text('Upper densité', 'Upper-body density'),
+    title: text('Haut du corps, densité', 'Upper-body density'),
     focus: text('Circuits', 'Circuits'),
     warmup: upperDensityWarmup,
     main: [

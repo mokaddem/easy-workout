@@ -3,4 +3,6 @@ export type { GenerateInput } from './types';
 export { generateQuickSession, QUICK_FOCUSES } from './quick';
 export type { QuickFocus, QuickSession, QuickSessionInput } from './quick';
 export { buyNext, PURCHASE_OPTIONS } from './buy-next';
-export type { PurchaseAdvice, PurchaseCost, SlotChange } from './buy-next';
+export type { PurchaseAdvice, PurchaseCost } from './buy-next';
+export { programmeChanges } from './diff';
+export type { SlotChange } from './diff';

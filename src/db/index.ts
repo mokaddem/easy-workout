@@ -19,6 +19,8 @@ export type SettingsRecord = Settings & { id: 'settings' };
 export type ProgrammeRecord = Programme & {
   status: 'active' | 'completed' | 'archived';
   startedAt?: DateTime;
+  /** The one-time "why this programme" card was dismissed. */
+  whySeen?: boolean;
 };
 export type CustomSessionRecord = Session & { updatedAt: DateTime };
 

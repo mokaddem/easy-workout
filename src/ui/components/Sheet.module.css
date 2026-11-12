@@ -1,0 +1,98 @@
+.root {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  z-index: var(--z-sheet);
+  overflow: hidden;
+}
+.root:not([open]) {
+  display: none;
+}
+.root::backdrop {
+  background: none;
+}
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-scrim);
+}
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  gap: var(--space-3);
+  max-width: var(--layout-max-width);
+  max-height: 90%;
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-surface-raised);
+  box-shadow: var(--elevation-3);
+}
+.grabber {
+  justify-self: center;
+  width: 40px;
+  height: 5px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-line-strong);
+}
+.title {
+  margin: 0;
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.description {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* Open and close: scrim fades over base, panel rises over slow; exits take about 70 %. */
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-lg));
+  }
+}
+@keyframes panel-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-lg));
+  }
+}
+.root[open] .scrim {
+  animation: scrim-in var(--duration-base) var(--ease-move);
+}
+.root[open] .panel {
+  animation: panel-in var(--duration-slow) var(--ease-snap);
+}
+.root[data-closing] .scrim {
+  animation: scrim-out calc(var(--duration-base) * 0.7) var(--ease-exit) forwards;
+}
+.root[data-closing] .panel {
+  animation: panel-out calc(var(--duration-slow) * 0.7) var(--ease-exit) forwards;
+  pointer-events: none;
+}

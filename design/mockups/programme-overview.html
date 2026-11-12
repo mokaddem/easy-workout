@@ -182,7 +182,6 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
 .tempo__seg.is-active b { color: var(--color-on-accent); }
 .tempo__seg > span, .tempo__seg > b { position: relative; }
 
-
 /* ---------- screen: programme overview ---------- */
 .appbar { display: flex; align-items: center; gap: 12px; padding: 6px 12px 6px var(--layout-gutter); flex: none; }
 .appbar__text { flex: 1; min-width: 0; display: grid; }
@@ -229,6 +228,324 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
 .tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
 .tab.is-current { color: var(--color-text); font-weight: 700; }
 .tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+
+/* ================================================================== */
+/* Programme, session and quick-session screens                         */
+/* ================================================================== */
+
+/* ---------- shared screen chrome ---------- */
+.appbar--nav { min-height: 56px; padding-left: 4px; }
+.appbar--nav .appbar__title { font-size: var(--font-size-18); }
+.dock-bar { flex: none; display: flex; gap: 10px; padding: 12px 16px; background: var(--color-bg); box-shadow: var(--elevation-2); position: relative; z-index: var(--z-sticky); }
+.dock-bar .btn { min-height: var(--tap-player); }
+.dock-bar__main { flex: 1; }
+.dock-bar__note { display: grid; gap: 10px; flex: 1; }
+.dock-bar__note p { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+.icon-well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.icon-well--sm { width: 40px; height: 40px; }
+.section-title { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+
+/* ---------- notice: inline information, not an action ---------- */
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.notice .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 1px; }
+.notice b { font-weight: 700; }
+
+/* ---------- banner: something about the programme needs a decision ---------- */
+.banner { margin: 8px 16px 0; padding: 16px; display: grid; gap: 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-control) solid var(--color-line-strong); }
+.banner__head { display: flex; gap: 14px; align-items: flex-start; }
+.banner__text { display: grid; gap: 4px; }
+.banner__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.banner__actions { display: grid; gap: 4px; }
+.banner__actions .btn--ghost { justify-self: start; min-height: var(--tap-min); padding: 0 4px; }
+
+/* ---------- why card: shown once after generation ---------- */
+.whycard { margin: 16px 16px 0; padding: 20px; display: grid; gap: 16px; }
+.whycard__list { display: grid; gap: 12px; }
+.whycard__list li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; align-items: start; font-size: var(--type-body-size); line-height: 1.4; }
+.whycard__list .i { color: var(--color-text-muted); margin-top: 1px; }
+.whycard__actions { display: flex; gap: 8px; align-items: center; }
+.whycard__actions .btn--secondary { flex: 1; }
+
+/* ---------- nudge row: links to the equipment editor ---------- */
+.nudge { margin: 16px 16px 0; display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 8px 12px 14px; text-align: left; width: calc(100% - 32px); }
+.nudge:active { background: var(--color-press-overlay); }
+.nudge:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.nudge__text { flex: 1; display: grid; gap: 2px; }
+.nudge__title { font-size: var(--font-size-16); font-weight: 700; line-height: 1.3; }
+.nudge__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; }
+.nudge > .i { color: var(--color-text-muted); }
+
+/* ---------- menu (popover) ---------- */
+.menu-catch { position: absolute; inset: 0; z-index: var(--z-sheet); }
+.menu { position: absolute; z-index: calc(var(--z-sheet) + 1); top: 98px; right: 12px; width: 300px; padding: 6px; border-radius: var(--radius-lg); background: var(--color-surface-raised); box-shadow: var(--elevation-3); border: var(--border-hairline) solid var(--color-line); display: grid; }
+.menu__item { display: grid; grid-template-columns: 24px 1fr; column-gap: 14px; align-items: center; min-height: 56px; padding: 8px 12px; border-radius: var(--radius-md); text-align: left; }
+.menu__item:active { background: var(--color-press-overlay); }
+.menu__item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.menu__item .i { color: var(--color-text-muted); }
+.menu__label { font-size: var(--font-size-16); font-weight: 600; line-height: 1.3; }
+.menu__hint { grid-column: 2; font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.menu__sep { height: 1px; margin: 4px 12px; background: var(--color-line); }
+
+/* ---------- sheets ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); max-height: calc(100% - 64px); display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { align-self: center; flex: none; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 8px var(--layout-gutter) 20px; display: grid; gap: 20px; align-content: start; }
+.sheet__body::-webkit-scrollbar { display: none; }
+.sheet__foot { flex: none; display: grid; gap: 8px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); }
+.sheet__foot--plain { border-top: 0; padding-top: 4px; }
+.sheet__eyebrow { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sheet__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+
+/* ---------- facts list (existing) tweaks ---------- */
+.facts--muted li { color: var(--color-text-muted); font-weight: 600; }
+
+/* ================================================================== */
+/* Session detail                                                       */
+/* ================================================================== */
+
+/* Session identity: the rotation letter is the hero */
+.sd-head { padding: 4px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.sd-id { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: end; }
+.sd-letter { font-size: var(--font-size-144); line-height: 0.74; margin-left: -4px; }
+.sd-letter--icon { width: 96px; height: 106px; display: grid; place-items: center; border-radius: var(--radius-lg); background: var(--color-surface-sunken); }
+.sd-letter--icon .i { width: 56px; height: 56px; stroke-width: 1.6; }
+.sd-id__text { display: grid; gap: 6px; padding-bottom: 2px; }
+.sd-id__text .t-display { font-size: var(--font-size-48); text-wrap: balance; }
+.sd-id__text .t-display.is-long { font-size: var(--font-size-36); }
+.sd-kicker { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.sd-sub { font-size: var(--type-body-size); color: var(--color-text-muted); line-height: 1.35; }
+.sd-stats { display: flex; align-items: flex-end; gap: 24px; }
+.sd-stat { display: grid; gap: 4px; }
+.sd-stat .num { font-size: var(--font-size-36); }
+.sd-stat .num small { font-size: var(--font-size-21); font-weight: 800; color: var(--color-text-muted); margin-left: 2px; letter-spacing: 0; }
+.sd-stat__label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.sd-gear { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sd-gear span { display: inline-flex; align-items: center; gap: 6px; }
+.sd-gear .i { width: 20px; height: 20px; }
+
+/* Week ruler: 8 equal cells, full bleed so each cell clears 48 px */
+.wk { padding: 28px 0 0; display: grid; gap: 12px; }
+.wk__head { padding: 0 var(--layout-gutter); display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.wk__state { font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); white-space: nowrap; }
+.wk__state--preview { color: var(--color-text); padding: 2px 10px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); }
+.wkr { display: grid; grid-template-columns: repeat(8, 1fr); border-top: var(--border-hairline) solid var(--color-line); border-bottom: var(--border-hairline) solid var(--color-line); }
+.wkr__cell { position: relative; min-height: 56px; display: grid; place-items: center; font-size: var(--font-size-24); color: var(--color-text-muted); border-left: var(--border-hairline) solid var(--color-line); transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.wkr__cell:first-child { border-left: 0; }
+.wkr__cell:active { background: var(--color-press-overlay); }
+.wkr__cell:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.wkr__cell[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); border-left-color: transparent; }
+.wkr__cell.is-done { color: var(--color-text-subtle); }
+.wkr__cell.is-now::after { content: ''; position: absolute; left: 50%; bottom: 7px; width: 14px; height: 4px; margin-left: -7px; border-radius: var(--radius-xs); background: var(--color-accent-line); }
+.wkr__cell.is-now[aria-checked="true"]::after { background: var(--color-on-inverse); }
+.wkr__cell .num { line-height: 1; }
+.wkp { display: grid; grid-template-columns: repeat(8, 1fr); column-gap: 4px; padding: 0 2px; }
+.wkp span { padding-top: 6px; border-top: var(--border-strong) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-title); color: var(--color-text-muted); line-height: 1.15; text-align: center; white-space: nowrap; overflow: hidden; }
+.wkp span.is-sel { color: var(--color-text); border-top-color: var(--color-text); }
+.wk__delta { padding: 4px var(--layout-gutter) 0; font-size: var(--type-body-size); line-height: 1.45; color: var(--color-text-muted); }
+.wk__delta b { color: var(--color-text); font-weight: 700; }
+
+/* Sections */
+.sd-sec { padding: 32px var(--layout-gutter) 0; display: grid; gap: 4px; }
+.sd-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
+.sd-sec__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); font-weight: 600; white-space: nowrap; }
+.sd-sec:last-child { padding-bottom: 28px; }
+
+/* Disclosure (warm-up) */
+.disc { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 8px 4px 8px 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); text-align: left; }
+.disc:active { background: var(--color-press-overlay); }
+.disc:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.disc__text { flex: 1; display: grid; gap: 2px; }
+.disc__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.disc__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.disc__chev { width: 48px; height: 48px; display: grid; place-items: center; color: var(--color-text-muted); transition: transform var(--duration-base) var(--ease-move); }
+.disc[aria-expanded="true"] { border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom-color: transparent; }
+.disc[aria-expanded="true"] .disc__chev { transform: rotate(180deg); }
+.disc-body { margin-top: -4px; padding: 0 14px 6px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); border-top: 0; }
+.wu { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline; padding: 12px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.wu__name { font-size: var(--font-size-16); font-weight: 600; line-height: 1.3; }
+.wu__rx { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wu__meta { grid-column: 1 / -1; font-size: 13px; color: var(--color-text-muted); }
+
+/* Prescription row: one exercise */
+.rx { display: grid; grid-template-columns: 26px 1fr 48px; column-gap: 8px; padding: 14px 0 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.rx:first-of-type { border-top: 0; }
+.rx__idx { font-size: var(--font-size-21); color: var(--color-text-subtle); padding-top: 5px; line-height: 1; }
+.rx__name { align-self: center; font-size: var(--font-size-21); line-height: 1.12; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; padding: 2px 0; }
+.rx__why { margin: -6px -8px 0 0; color: var(--color-text-muted); }
+.rx__body { grid-column: 2 / 4; display: grid; gap: 10px; padding-top: 8px; }
+.rx__nums { display: flex; align-items: flex-start; gap: 24px; }
+.rx__cell { display: grid; gap: 5px; min-width: 0; }
+.rx__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.rx__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; }
+.rx__w { font-size: var(--font-size-21); line-height: 1.05; font-weight: 800; font-stretch: var(--font-width-display); padding-top: 4px; }
+.rx__w--muted { color: var(--color-text-muted); }
+.rx__u { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.rx__facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--type-meta-size); line-height: 1.3; color: var(--color-text-muted); }
+.rx__facts b { color: var(--color-text); font-weight: 700; }
+.delta { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.whyline { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text); }
+.whyline .i { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--color-text-muted); }
+
+/* Group block: superset or circuit, bracketed */
+.grp { display: grid; grid-template-columns: 26px 1fr; column-gap: 8px; padding: 14px 0 6px; border-top: var(--border-hairline) solid var(--color-line); }
+.grp__head { grid-column: 2; display: grid; gap: 2px; padding-bottom: 6px; }
+.grp__title { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.2; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.grp__title .num { font-size: var(--font-size-24); line-height: 1; }
+.grp__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.grp__items { grid-column: 1 / -1; display: grid; margin-left: 11px; padding-left: 15px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.grp__items .rx { grid-template-columns: 22px 1fr 48px; padding: 10px 0 14px; border-top: var(--border-hairline) solid var(--color-line); }
+.grp__items .rx:first-child { border-top: 0; }
+.grp__items .rx__idx { font-size: var(--font-size-16); padding-top: 6px; font-weight: 800; font-stretch: var(--font-width-title); }
+.grp__items .rx__name { font-size: var(--font-size-18); }
+.grp__items .rx__n { font-size: var(--font-size-24); line-height: 1; }
+.grp__items .rx__n small { font-size: var(--font-size-16); }
+.grp__items .rx__w { font-size: var(--font-size-18); padding-top: 2px; }
+.grp__items .rx__nums { gap: 20px; }
+.grp__items .rx__body { padding-top: 4px; gap: 6px; }
+
+/* Cardio: steady state */
+.cardio { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 4px 26px; }
+.cardio__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.cardio__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; }
+.cardio--big { grid-template-columns: auto auto; row-gap: 14px; }
+.cardio--big > :first-child { grid-column: 1 / -1; }
+.cardio--big > :first-child .cardio__n { font-size: var(--type-numeral-l-size); }
+.cardio--big > :first-child .cardio__n small { font-size: var(--font-size-24); }
+/* Cardio: intervals */
+.ivl { display: grid; gap: 12px; }
+.ivl__nums { display: flex; align-items: flex-start; gap: 22px; }
+.ivl__bars { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+.ivl__bars i { display: block; border-radius: 2px; }
+.ivl__bars i.w { height: 100%; background: var(--color-text); }
+.ivl__bars i.r { height: 34%; background: var(--color-text-subtle); }
+.ivl__legend { display: flex; gap: 16px; font-size: 13px; color: var(--color-text-muted); font-weight: 600; }
+.ivl__legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ivl__legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Exercise thumbnail placeholder (the animation slot at 72 px) */
+.thumb { width: 72px; height: 72px; flex: none; position: relative; overflow: hidden; border-radius: var(--radius-sm); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); border: var(--border-hairline) solid var(--color-line); color: var(--color-text-subtle); display: grid; place-items: center; }
+.thumb svg.i { width: 34px; height: 34px; stroke-width: 1.5; }
+
+/* Skeleton */
+.sk { display: block; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+
+/* ================================================================== */
+/* Why sheet                                                            */
+/* ================================================================== */
+.reasons { display: grid; gap: 22px; }
+.reason-grp { display: grid; gap: 10px; }
+.reason-grp__head { display: grid; grid-template-columns: 40px 1fr; column-gap: 12px; align-items: center; }
+.reason-grp__input { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.15; }
+.reason-grp__label { font-size: 13px; color: var(--color-text-muted); font-weight: 600; }
+.reason-list { display: grid; margin-left: 19px; padding-left: 33px; border-left: var(--border-strong) solid var(--color-line); }
+.reason-list li { padding: 8px 0; font-size: var(--type-body-size); line-height: 1.45; border-top: var(--border-hairline) solid var(--color-line); }
+.reason-list li:first-child { border-top: 0; padding-top: 2px; }
+.reason-list b { font-weight: 700; }
+.cue { display: grid; gap: 4px; padding: 14px 16px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.cue__label { font-size: 13px; font-weight: 700; color: var(--color-text-muted); }
+.cue p { font-size: var(--type-body-size); line-height: 1.45; }
+
+/* ================================================================== */
+/* Change preview                                                       */
+/* ================================================================== */
+.cp-head { display: grid; gap: 8px; }
+.cp-count { display: flex; align-items: flex-end; gap: 12px; }
+.cp-count .num { font-size: var(--font-size-96); line-height: 0.76; }
+.cp-count__label { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 2px; }
+.cp-kept { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.cp-kept .i { width: 18px; height: 18px; margin-top: 1px; color: var(--color-text); stroke-width: 2.5; }
+.cp-sess { display: grid; gap: 2px; }
+.cp-sess__name { font-size: var(--type-meta-size); font-weight: 700; color: var(--color-text-muted); padding-bottom: 4px; }
+.swap { display: grid; grid-template-columns: 18px 1fr; column-gap: 12px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.cp-sess__name + .swap { border-top: 0; padding-top: 4px; }
+.swap__rail { grid-row: 1 / 3; position: relative; }
+.swap__rail::before { content: ''; position: absolute; left: 4px; top: 7px; width: 10px; height: 10px; border-radius: 50%; border: var(--border-strong) solid var(--color-text-subtle); box-sizing: border-box; }
+.swap__rail::after { content: ''; position: absolute; left: 8px; top: 18px; bottom: 9px; width: 2px; background: var(--color-line-strong); }
+.swap__rail i { position: absolute; left: 3px; bottom: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-text); }
+.swap__old { font-size: 15px; color: var(--color-text-muted); line-height: 1.35; }
+.swap__new { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.25; padding-top: 6px; }
+.swap__where { font-size: 13px; color: var(--color-text-subtle); font-weight: 600; }
+.swap--add .swap__rail::before, .swap--add .swap__rail::after { display: none; }
+.swap--add .swap__rail i { top: 6px; bottom: auto; }
+
+/* ================================================================== */
+/* Quick session                                                        */
+/* ================================================================== */
+.qs { padding: 4px var(--layout-gutter) 28px; display: grid; gap: 24px; }
+.qs__intro { display: grid; gap: 8px; }
+.qs-field { display: grid; gap: 12px; }
+.qs-field__hint { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tile { min-height: 64px; display: grid; place-content: center; justify-items: center; gap: 4px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.tile .num { font-size: var(--font-size-36); line-height: 0.9; }
+.tile span:last-child { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.tile:active { background: var(--color-press-overlay); }
+.tile:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.tile[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.tile[aria-checked="true"] span:last-child { color: var(--color-on-inverse); }
+.chip[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-checked="false"] .i { display: none; }
+.seg--tall .seg__opt { min-height: 56px; display: grid; align-content: center; gap: 2px; padding: 4px 8px; line-height: 1.15; }
+.seg--tall .seg__opt small { font-size: 12px; font-weight: 600; font-stretch: var(--font-width-text); opacity: 0.8; }
+.toast-slot { position: absolute; left: 16px; right: 16px; bottom: 196px; z-index: var(--z-toast); }
+
+/* ================================================================== */
+/* Placeholders                                                         */
+/* ================================================================== */
+.empty { padding: 24px var(--layout-gutter) 28px; display: grid; gap: 16px; align-content: start; }
+.empty__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.empty .t-body { color: var(--color-text-muted); max-width: 32em; }
+.chart-ghost { position: relative; height: 200px; margin-top: 8px; border-radius: var(--radius-lg); border: var(--border-hairline) dashed var(--color-line-strong); overflow: hidden; }
+.chart-ghost__grid { position: absolute; inset: 16px 16px 36px 44px; background-image: linear-gradient(var(--color-line) 1px, transparent 1px); background-size: 100% 25%; }
+.chart-ghost__y { position: absolute; left: 14px; top: 10px; bottom: 30px; display: grid; align-content: space-between; font-size: 12px; font-weight: 600; color: var(--color-text-subtle); font-variant-numeric: tabular-nums; }
+.chart-ghost__x { position: absolute; left: 44px; right: 16px; bottom: 10px; display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; font-stretch: var(--font-width-label); color: var(--color-text-subtle); }
+.chart-ghost__msg { position: absolute; left: 44px; right: 16px; top: 50%; transform: translateY(-60%); text-align: center; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+
+/* ---------- overview additions ---------- */
+.scroll > .hero:first-child { padding-top: 20px; }
+.whycard + .hero, .banner + .hero { padding-top: 28px; }
+.grid--6 { grid-template-columns: 24px repeat(6, 36px) 1fr; column-gap: 4px; row-gap: 8px; }
+.grid--3 { grid-template-columns: 26px repeat(3, 44px) 1fr; column-gap: 8px; row-gap: 8px; }
+.grid .cellwrap { display: block; }
+.grid--6 .cell { height: 40px; }
+.grid--3 .cell { height: 40px; }
+.grid__col--icon { color: var(--color-text-muted); }
+.grid__col--icon .i { width: 20px; height: 20px; margin: 2px 0 3px; }
+.i--xs { width: 16px; height: 16px; }
+.grid--6 .phase { font-size: 13px; padding-left: 8px; }
+button.phase { position: relative; text-align: left; margin: -4px 0; min-height: 48px; border-left: 0; padding-left: 12px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+button.phase::after { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px; background: var(--color-line-strong); }
+button.phase--now::after { background: var(--color-accent-line); }
+button.phase:active { background: var(--color-press-overlay); }
+button.phase:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.slist { padding: 8px var(--layout-gutter) 28px; display: grid; gap: 10px; }
+.slist__rows { display: grid; }
+.srow { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 8px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.srow:first-child { border-top: 0; }
+.srow:active { background: var(--color-press-overlay); }
+.srow:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.srow__id { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.srow__id .num { font-size: var(--font-size-36); line-height: 1; }
+.srow__text { flex: 1; display: grid; gap: 2px; }
+.srow__name { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.srow__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.srow > .i { color: var(--color-text-muted); }
+.menu-catch + .menu { }
+.phs-ruler { margin: 0 calc(-1 * var(--layout-gutter)); }
+.phs-ruler .wkr__cell[aria-checked="true"] + .wkr__cell[aria-checked="true"] { border-left-color: transparent; }
+.phs { display: grid; gap: 0; margin: 0; }
+.phs__row { display: grid; gap: 6px; padding: 14px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.phs__row:first-child { border-top: 0; padding-top: 0; }
+.phs dt { font-size: var(--type-meta-size); font-weight: 700; color: var(--color-text-muted); }
+.phs dd { margin: 0; font-size: var(--type-body-size); line-height: 1.45; display: grid; gap: 6px; }
+.phs__effort { display: flex; align-items: baseline; gap: 10px; font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+.phs__effort .num { font-size: var(--font-size-48); }
+.phs__note { color: var(--color-text-muted); }
+.phs__list { display: grid; gap: 8px; }
+.phs__list li { padding-left: 16px; position: relative; }
+.phs__list li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 1px; background: var(--color-text-subtle); }
 </style>
 </head>
 <body>
@@ -258,6 +575,21 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
   <symbol id="i-treadmill" viewBox="0 0 24 24"><path d="M3 17.5h12.5a2.5 2.5 0 0 0 2.4-1.8L20.5 6"/><path d="M18 6h4.5"/><path d="M5 20.5h10"/></symbol>
   <symbol id="i-bench" viewBox="0 0 24 24"><path d="M3 10.5h18"/><path d="M6 10.5v8M18 10.5v8"/><path d="M4 18.5h4M16 18.5h4"/></symbol>
 </svg>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.6a2.4 2.4 0 1 1 3.3 2.2c-.6.3-1 .8-1 1.4v.5"/><path d="M12 16.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3.5 7h3c4.5 0 5.5 10 10 10h3.5"/><path d="M3.5 17h3c1.5 0 2.6-1.2 3.4-2.8M13.6 9.8C14.4 8.2 15.5 7 17 7h3"/><path d="M17.5 4.5L20 7l-2.5 2.5M17.5 14.5L20 17l-2.5 2.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8.5h14l-1.2 11.5H6.2z"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.5s-7-4.2-7-9.4A3.9 3.9 0 0 1 12 7.8a3.9 3.9 0 0 1 7 2.3c0 5.2-7 9.4-7 9.4z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a7.5 7.5 0 1 1 15 0"/><path d="M12 17l3.6-4.6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 4h10M7 20h10"/><path d="M8 4c0 4.5 8 5.5 8 8s-8 3.5-8 8M16 4c0 4.5-8 5.5-8 8s8 3.5 8 8"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-person-run" viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="1.8"/><path d="M6 21l3.5-5.5 3 2.5 1-5.5"/><path d="M8 10.5l3.5-3 4 2.5 2.5 3"/><path d="M13.5 13l2.5 2.5"/></symbol>
+</svg>
 
 <header class="mock-bar">
   <span class="mock-bar__title" data-en="Current programme">Programme en cours</span>
@@ -273,11 +605,10 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
         <div class="appbar">
           <div class="appbar__text">
             <span class="appbar__title t-headline">Recomposition</span>
-            <span class="t-meta muted" data-en="8 weeks, 5 sessions a week">8 semaines, 5 séances par semaine</span>
+            <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
           </div>
-          <button class="icon-btn" type="button" aria-label="Réglages du programme" data-en-label="Programme settings"><svg class="i"><use href="#i-sliders"/></svg></button>
+          <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
         </div>
-
         <div class="scroll">
           <section class="hero">
             <div class="hero__week" role="img" aria-label="Semaine 3 sur 8" data-en-label="Week 3 of 8">
@@ -287,10 +618,9 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
             <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
             <div class="hero__phase">
               <h1 class="t-display" data-en="Volume phase">Phase volume</h1>
-              <p class="t-body muted" data-en="One extra set on the first two exercises of each session. Cardio goes up to 4 × 20 min.">Une série de plus sur les deux premiers exercices de chaque séance. Le cardio passe à 4 × 20 min.</p>
+              <p class="t-body muted" data-en="One extra set on the first two exercises of each session. The walk at the end gets longer.">Une série de plus sur les deux premiers exercices de chaque séance. La marche de fin de séance s’allonge.</p>
             </div>
           </section>
-
           <article class="next card">
             <div>
               <p class="next__label t-meta" data-en="Next session">Prochaine séance</p>
@@ -298,71 +628,324 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
               <p class="t-body next__muscles" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p>
             </div>
             <ul class="facts">
-              <li><svg class="i"><use href="#i-clock"/></svg><span>~45 min</span></li>
+              <li><svg class="i"><use href="#i-clock"/></svg><span>~55 min</span></li>
               <li><svg class="i"><use href="#i-list"/></svg><span data-en="7 exercises">7 exercices</span></li>
-              <li><svg class="i"><use href="#i-incline"/></svg><span data-en="Incline walk, 20 min">Marche inclinée, 20 min</span></li>
+              <li><svg class="i"><use href="#i-incline"/></svg><span data-en="Incline walk, 19 min">Marche inclinée, 19 min</span></li>
             </ul>
-            <button class="btn btn--primary btn--block btn--player" type="button" data-en="Start session">Commencer la séance</button>
+            <button class="btn btn--primary btn--block btn--player" type="button"><span data-en="Start session">Commencer la séance</span></button>
           </article>
-
           <section class="rot" aria-labelledby="rot-title">
             <div class="rot__intro">
               <h2 class="t-headline" id="rot-title">Rotation</h2>
-              <p class="t-meta muted" data-en="Always A to E in order. A missed day shifts the rotation; nothing is skipped.">Toujours de A à E, dans l’ordre. Un jour manqué décale la rotation&#8239;; rien n’est sauté.</p>
+              <p class="t-meta muted" data-en="Always in order. A missed day shifts the rotation; nothing is skipped. Tap a phase to see what changes.">Toujours dans l’ordre. Un jour manqué décale la rotation&#8239;; rien n’est sauté. Touche une phase pour voir ce qui change.</p>
             </div>
-            <div class="grid" role="table" aria-label="Séances par semaine" data-en-label="Sessions by week">
-              <span></span>
-              <span class="grid__col"><b>A</b><span>Push</span></span>
-              <span class="grid__col"><b>B</b><span>Pull</span></span>
-              <span class="grid__col"><b>C</b><span data-en="Legs">Jambes</span></span>
-              <span class="grid__col"><b>D</b><span>Upper</span></span>
-              <span class="grid__col"><b>E</b><span>Full</span></span>
-              <span></span>
-
-              <!-- week 1 -->
-              <span class="grid__wk" data-en="W1">S1</span>
-              <span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span>
-              <span class="phase" style="grid-row: span 2" data-en="Ramp-up">Réadaptation</span>
-              <!-- week 2 -->
-              <span class="grid__wk" data-en="W2">S2</span>
-              <span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span>
-              <!-- week 3: current -->
-              <span class="grid__now" style="grid-area: 4 / 1 / 5 / -1" aria-hidden="true"></span>
-              <span class="grid__wk" style="grid-area: 4 / 1; color: var(--color-text)" data-en="W3">S3</span>
-              <span class="cell cell--next" style="grid-area: 4 / 2">A</span><span class="cell cell--todo" style="grid-area: 4 / 3">B</span><span class="cell cell--todo" style="grid-area: 4 / 4">C</span><span class="cell cell--todo" style="grid-area: 4 / 5">D</span><span class="cell cell--todo" style="grid-area: 4 / 6">E</span>
-              <span class="phase phase--now" style="grid-area: 4 / 7 / span 2 / 8" data-en="Volume">Volume</span>
-              <!-- week 4 -->
-              <span class="grid__wk" data-en="W4">S4</span>
-              <span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span>
-              <!-- week 5 -->
-              <span class="grid__wk" data-en="W5">S5</span>
-              <span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span>
-              <span class="phase" style="grid-row: span 2" data-en="Intensity">Intensité</span>
-              <!-- week 6 -->
-              <span class="grid__wk" data-en="W6">S6</span>
-              <span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span>
-              <!-- week 7 -->
-              <span class="grid__wk" data-en="W7">S7</span>
-              <span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span>
-              <span class="phase" data-en="Peak">Pic</span>
-              <!-- week 8 -->
-              <span class="grid__wk" data-en="W8">S8</span>
-              <span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span><span class="cell cell--later"></span>
-              <span class="phase" data-en="Deload + test">Deload + test</span>
+            <div class="grid grid--6" role="table" aria-label="Séances par semaine" data-en-label="Sessions by week">
+              <span></span><span class="grid__col"><b>A</b><span>Push</span></span><span class="grid__col"><b>B</b><span>Pull</span></span><span class="grid__col"><b>C</b><span data-en="Legs">Jambes</span></span><span class="grid__col grid__col--icon"><svg class="i i--sm"><use href="#i-heart"/></svg><span>Cardio</span></span><span class="grid__col"><b>D</b><span>Upper</span></span><span class="grid__col"><b>E</b><span>Full</span></span><span></span>
+              <span class="grid__wk" style="grid-area: 2 / 1" data-en="W1">S1</span><span style="grid-area: 2 / 2" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 3" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 4" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 5" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 6" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 7" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><button class="phase" type="button" style="grid-area: 2 / 8 / span 2 / 9" aria-label="Phase réadaptation, détails" data-en-label="Ramp-up phase, details"><span data-en="Ramp-up">Réadaptation</span></button><span class="grid__wk" style="grid-area: 3 / 1" data-en="W2">S2</span><span style="grid-area: 3 / 2" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 3" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 4" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 5" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 6" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 7" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span class="grid__now" style="grid-area: 4 / 1 / 5 / -1" aria-hidden="true"></span><span class="grid__wk" style="grid-area: 4 / 1; color: var(--color-text)" data-en="W3">S3</span><span style="grid-area: 4 / 2" class="cellwrap"><span class="cell cell--next">A</span></span><span style="grid-area: 4 / 3" class="cellwrap"><span class="cell cell--todo">B</span></span><span style="grid-area: 4 / 4" class="cellwrap"><span class="cell cell--todo">C</span></span><span style="grid-area: 4 / 5" class="cellwrap"><span class="cell cell--todo"><svg class="i i--xs"><use href="#i-heart"/></svg></span></span><span style="grid-area: 4 / 6" class="cellwrap"><span class="cell cell--todo">D</span></span><span style="grid-area: 4 / 7" class="cellwrap"><span class="cell cell--todo">E</span></span><button class="phase phase--now" type="button" style="grid-area: 4 / 8 / span 2 / 9" aria-label="Phase volume, détails" data-en-label="Volume phase, details"><span>Volume</span></button><span class="grid__wk" style="grid-area: 5 / 1" data-en="W4">S4</span><span style="grid-area: 5 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 7" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 6 / 1" data-en="W5">S5</span><span style="grid-area: 6 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 6 / 8 / span 2 / 9" aria-label="Phase intensité, détails" data-en-label="Intensity phase, details"><span data-en="Intensity">Intensité</span></button><span class="grid__wk" style="grid-area: 7 / 1" data-en="W6">S6</span><span style="grid-area: 7 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 7" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 8 / 1" data-en="W7">S7</span><span style="grid-area: 8 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 8 / 8 / span 1 / 9" aria-label="Phase pic, détails" data-en-label="Peak phase, details"><span data-en="Peak">Pic</span></button><span class="grid__wk" style="grid-area: 9 / 1" data-en="W8">S8</span><span style="grid-area: 9 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 9 / 8 / span 1 / 9" aria-label="Phase deload + test, détails" data-en-label="Deload + test phase, details"><span>Deload + test</span></button>
             </div>
           </section>
+          <section class="slist" aria-labelledby="slist-title">
+            <h2 class="t-headline" id="slist-title" data-en="Sessions">Séances</h2>
+            <div class="slist__rows"><button class="srow" type="button"><span class="srow__id"><span class="num">A</span></span><span class="srow__text"><span class="srow__name">Push</span><span class="srow__meta">~48 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">B</span></span><span class="srow__text"><span class="srow__name">Pull</span><span class="srow__meta">~49 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">C</span></span><span class="srow__text"><span class="srow__name" data-en="Lower body and core">Jambes et gainage</span><span class="srow__meta">~49 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><svg class="i"><use href="#i-heart"/></svg></span><span class="srow__text"><span class="srow__name" data-en="Active recovery">Récupération active</span><span class="srow__meta">~40 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">D</span></span><span class="srow__text"><span class="srow__name" data-en="Upper-body density">Haut du corps densité</span><span class="srow__meta">~42 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">E</span></span><span class="srow__text"><span class="srow__name" data-en="Lower body and metabolic full body">Jambes et full body métabolique</span><span class="srow__meta">~47 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button></div>
+          </section>
         </div>
-
-        <nav class="tabbar" aria-label="Navigation">
-          <a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a>
-          <a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a>
-          <a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a>
-          <a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a>
-        </nav>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
       </div>
       <div class="homebar" aria-hidden="true"></div>
     </div>
     <figcaption data-en="Week 3, before session A">Semaine 3, avant la séance A</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline" data-en="General fitness">Forme générale</span>
+            <span class="t-meta muted" data-en="8 weeks, 3 sessions a week">8 semaines, 3 séances par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <article class="whycard card" aria-labelledby="whyc-title">
+            <h2 class="t-title" id="whyc-title" data-en="Why this programme?">Pourquoi ce programme ?</h2>
+            <ul class="whycard__list">
+              <li><svg class="i"><use href="#i-calendar"/></svg><span data-en="Three full-body sessions: every muscle works three times a week.">Trois séances full body&#8239;: chaque muscle travaille trois fois par semaine.</span></li>
+              <li><svg class="i"><use href="#i-gauge"/></svg><span data-en="Two sets per exercise and easier variants, to start well.">Deux séries par exercice, des variantes plus faciles pour bien démarrer.</span></li>
+              <li><svg class="i"><use href="#i-user"/></svg><span data-en="Just bodyweight, a chair, a table and a door.">Rien que le poids du corps, une chaise, une table et une porte.</span></li>
+            </ul>
+            <div class="whycard__actions">
+              <button class="btn btn--secondary" type="button"><span data-en="All the reasons">Toutes les raisons</span></button>
+              <button class="btn btn--ghost" type="button"><span data-en="Got it">Compris</span></button>
+            </div>
+          </article>
+          <section class="hero">
+            <div class="hero__week" role="img" aria-label="Semaine 1 sur 8" data-en-label="Week 1 of 8">
+              <span class="hero__label" data-en="Week">Semaine</span>
+              <span class="hero__row"><span class="num hero__n">1</span><span class="num hero__of" data-en="of 8">sur 8</span></span>
+            </div>
+            <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="hero__phase">
+              <h1 class="t-display" data-en="Ramp-up phase">Phase réadaptation</h1>
+              <p class="t-body muted" data-en="Three reps in the tank on every set: you ease in and find your marks.">Trois reps en réserve sur chaque série&#8239;: tu reprends en douceur et tu trouves tes repères.</p>
+            </div>
+          </section>
+          <article class="next card">
+            <div>
+              <p class="next__label t-meta" data-en="Next session">Prochaine séance</p>
+              <h2 class="t-display next__title" data-en="Session A — Full body">Séance A — Full body</h2>
+              <p class="t-body next__muscles" data-en="Legs, push, pull, core">Jambes, poussée, tirage, gainage</p>
+            </div>
+            <ul class="facts">
+              <li><svg class="i"><use href="#i-clock"/></svg><span>~39 min</span></li>
+              <li><svg class="i"><use href="#i-list"/></svg><span data-en="9 exercises">9 exercices</span></li>
+              <li><svg class="i"><use href="#i-heart"/></svg><span>Step jacks, 10 min</span></li>
+            </ul>
+            <button class="btn btn--primary btn--block btn--player" type="button"><span data-en="Start session">Commencer la séance</span></button>
+          </article>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Right after generation: one-time “Why this programme?” card">Juste après la génération&#8239;: carte «&#8239;Pourquoi ce programme&#8239;?&#8239;», une seule fois</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline" data-en="General fitness">Forme générale</span>
+            <span class="t-meta muted" data-en="8 weeks, 3 sessions a week">8 semaines, 3 séances par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <article class="next card">
+            <div>
+              <p class="next__label t-meta" data-en="Next session">Prochaine séance</p>
+              <h2 class="t-display next__title" data-en="Session A — Full body">Séance A — Full body</h2>
+              <p class="t-body next__muscles" data-en="Legs, push, pull, core">Jambes, poussée, tirage, gainage</p>
+            </div>
+            <ul class="facts">
+              <li><svg class="i"><use href="#i-clock"/></svg><span>~39 min</span></li>
+              <li><svg class="i"><use href="#i-list"/></svg><span data-en="9 exercises">9 exercices</span></li>
+              <li><svg class="i"><use href="#i-heart"/></svg><span>Step jacks, 10 min</span></li>
+            </ul>
+            <button class="btn btn--primary btn--block btn--player" type="button"><span data-en="Start session">Commencer la séance</span></button>
+          </article>
+          <button class="nudge card" type="button">
+            <span class="icon-well"><svg class="i"><use href="#i-bag"/></svg></span>
+            <span class="nudge__text">
+              <span class="nudge__title" data-en="6 exercises adapted for missing gear">6 exercices adaptés faute de matériel</span>
+              <span class="nudge__sub" data-en="See what is worth buying next">Voir ce qu’il vaut la peine d’acheter</span>
+            </span>
+            <svg class="i"><use href="#i-chev-right"/></svg>
+          </button>
+          <section class="rot" aria-labelledby="rot-title-bw">
+            <div class="rot__intro">
+              <h2 class="t-headline" id="rot-title-bw">Rotation</h2>
+              <p class="t-meta muted" data-en="A to C, in order. Tap a phase to see what changes.">De A à C, dans l’ordre. Touche une phase pour voir ce qui change.</p>
+            </div>
+            <div class="grid grid--3" role="table" aria-label="Séances par semaine" data-en-label="Sessions by week">
+              <span></span><span class="grid__col"><b>A</b><span>Full</span></span><span class="grid__col"><b>B</b><span>Full</span></span><span class="grid__col"><b>C</b><span>Full</span></span><span></span>
+              <span class="grid__now" style="grid-area: 2 / 1 / 3 / -1" aria-hidden="true"></span><span class="grid__wk" style="grid-area: 2 / 1; color: var(--color-text)" data-en="W1">S1</span><span style="grid-area: 2 / 2" class="cellwrap"><span class="cell cell--next">A</span></span><span style="grid-area: 2 / 3" class="cellwrap"><span class="cell cell--todo">B</span></span><span style="grid-area: 2 / 4" class="cellwrap"><span class="cell cell--todo">C</span></span><button class="phase phase--now" type="button" style="grid-area: 2 / 5 / span 3 / 6" aria-label="Phase réadaptation, détails" data-en-label="Ramp-up phase, details"><span data-en="Ramp-up">Réadaptation</span></button><span class="grid__wk" style="grid-area: 3 / 1" data-en="W2">S2</span><span style="grid-area: 3 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 3 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 3 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 4 / 1" data-en="W3">S3</span><span style="grid-area: 4 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 4 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 4 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 5 / 1" data-en="W4">S4</span><span style="grid-area: 5 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 4" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 5 / 5 / span 2 / 6" aria-label="Phase volume, détails" data-en-label="Volume phase, details"><span>Volume</span></button><span class="grid__wk" style="grid-area: 6 / 1" data-en="W5">S5</span><span style="grid-area: 6 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 7 / 1" data-en="W6">S6</span><span style="grid-area: 7 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 4" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 7 / 5 / span 2 / 6" aria-label="Phase intensité, détails" data-en-label="Intensity phase, details"><span data-en="Intensity">Intensité</span></button><span class="grid__wk" style="grid-area: 8 / 1" data-en="W7">S7</span><span style="grid-area: 8 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 9 / 1" data-en="W8">S8</span><span style="grid-area: 9 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 4" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 9 / 5 / span 1 / 6" aria-label="Phase deload + test, détails" data-en-label="Deload + test phase, details"><span>Deload + test</span></button>
+            </div>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Further down: “what to buy” nudge when gear is missing">Plus bas&#8239;: incitation «&#8239;quoi acheter&#8239;» quand du matériel manque</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline">Recomposition</span>
+            <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="banner" aria-labelledby="out-title">
+            <div class="banner__head">
+              <span class="icon-well icon-well--sm"><svg class="i"><use href="#i-refresh"/></svg></span>
+              <div class="banner__text">
+                <h2 class="banner__title" id="out-title" data-en="Your equipment changed">Ton matériel a changé</h2>
+                <p class="t-meta muted" data-en="This programme was built without the pull-up bar. A new one can use it.">Ce programme a été fait sans la barre de traction. Un nouveau programme peut l’utiliser.</p>
+              </div>
+            </div>
+            <div class="banner__actions">
+              <button class="btn btn--secondary btn--block" type="button"><span data-en="Generate a new programme">Générer un nouveau programme</span></button>
+              <button class="btn btn--ghost" type="button"><span data-en="Keep this one">Garder celui-ci</span></button>
+            </div>
+          </section>
+          <section class="hero">
+            <div class="hero__week" role="img" aria-label="Semaine 3 sur 8" data-en-label="Week 3 of 8">
+              <span class="hero__label" data-en="Week">Semaine</span>
+              <span class="hero__row"><span class="num hero__n">3</span><span class="num hero__of" data-en="of 8">sur 8</span></span>
+            </div>
+            <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="hero__phase">
+              <h1 class="t-display" data-en="Volume phase">Phase volume</h1>
+              <p class="t-body muted" data-en="One extra set on the first two exercises of each session. The walk at the end gets longer.">Une série de plus sur les deux premiers exercices de chaque séance. La marche de fin de séance s’allonge.</p>
+            </div>
+          </section>
+          <article class="next card">
+            <div>
+              <p class="next__label t-meta" data-en="Next session">Prochaine séance</p>
+              <h2 class="t-display next__title" data-en="Session A — Push">Séance A — Push</h2>
+              <p class="t-body next__muscles" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p>
+            </div>
+            <ul class="facts">
+              <li><svg class="i"><use href="#i-clock"/></svg><span>~55 min</span></li>
+              <li><svg class="i"><use href="#i-list"/></svg><span data-en="7 exercises">7 exercices</span></li>
+              <li><svg class="i"><use href="#i-incline"/></svg><span data-en="Incline walk, 19 min">Marche inclinée, 19 min</span></li>
+            </ul>
+            <button class="btn btn--primary btn--block btn--player" type="button"><span data-en="Start session">Commencer la séance</span></button>
+          </article>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Programme outdated after an equipment change">Programme dépassé après un changement de matériel</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline">Recomposition</span>
+            <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="rot" aria-labelledby="rot-title">
+            <div class="rot__intro">
+              <h2 class="t-headline" id="rot-title">Rotation</h2>
+              <p class="t-meta muted" data-en="Always in order. A missed day shifts the rotation; nothing is skipped. Tap a phase to see what changes.">Toujours dans l’ordre. Un jour manqué décale la rotation&#8239;; rien n’est sauté. Touche une phase pour voir ce qui change.</p>
+            </div>
+            <div class="grid grid--6" role="table" aria-label="Séances par semaine" data-en-label="Sessions by week">
+              <span></span><span class="grid__col"><b>A</b><span>Push</span></span><span class="grid__col"><b>B</b><span>Pull</span></span><span class="grid__col"><b>C</b><span data-en="Legs">Jambes</span></span><span class="grid__col grid__col--icon"><svg class="i i--sm"><use href="#i-heart"/></svg><span>Cardio</span></span><span class="grid__col"><b>D</b><span>Upper</span></span><span class="grid__col"><b>E</b><span>Full</span></span><span></span>
+              <span class="grid__wk" style="grid-area: 2 / 1" data-en="W1">S1</span><span style="grid-area: 2 / 2" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 3" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 4" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 5" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 6" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 7" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><button class="phase" type="button" style="grid-area: 2 / 8 / span 2 / 9" aria-label="Phase réadaptation, détails" data-en-label="Ramp-up phase, details"><span data-en="Ramp-up">Réadaptation</span></button><span class="grid__wk" style="grid-area: 3 / 1" data-en="W2">S2</span><span style="grid-area: 3 / 2" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 3" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 4" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 5" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 6" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 7" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span class="grid__now" style="grid-area: 4 / 1 / 5 / -1" aria-hidden="true"></span><span class="grid__wk" style="grid-area: 4 / 1; color: var(--color-text)" data-en="W3">S3</span><span style="grid-area: 4 / 2" class="cellwrap"><span class="cell cell--next">A</span></span><span style="grid-area: 4 / 3" class="cellwrap"><span class="cell cell--todo">B</span></span><span style="grid-area: 4 / 4" class="cellwrap"><span class="cell cell--todo">C</span></span><span style="grid-area: 4 / 5" class="cellwrap"><span class="cell cell--todo"><svg class="i i--xs"><use href="#i-heart"/></svg></span></span><span style="grid-area: 4 / 6" class="cellwrap"><span class="cell cell--todo">D</span></span><span style="grid-area: 4 / 7" class="cellwrap"><span class="cell cell--todo">E</span></span><button class="phase phase--now" type="button" style="grid-area: 4 / 8 / span 2 / 9" aria-label="Phase volume, détails" data-en-label="Volume phase, details"><span>Volume</span></button><span class="grid__wk" style="grid-area: 5 / 1" data-en="W4">S4</span><span style="grid-area: 5 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 7" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 6 / 1" data-en="W5">S5</span><span style="grid-area: 6 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 6 / 8 / span 2 / 9" aria-label="Phase intensité, détails" data-en-label="Intensity phase, details"><span data-en="Intensity">Intensité</span></button><span class="grid__wk" style="grid-area: 7 / 1" data-en="W6">S6</span><span style="grid-area: 7 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 7" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 8 / 1" data-en="W7">S7</span><span style="grid-area: 8 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 8 / 8 / span 1 / 9" aria-label="Phase pic, détails" data-en-label="Peak phase, details"><span data-en="Peak">Pic</span></button><span class="grid__wk" style="grid-area: 9 / 1" data-en="W8">S8</span><span style="grid-area: 9 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 9 / 8 / span 1 / 9" aria-label="Phase deload + test, détails" data-en-label="Deload + test phase, details"><span>Deload + test</span></button>
+            </div>
+          </section>
+          <section class="slist" aria-labelledby="slist-title">
+            <h2 class="t-headline" id="slist-title" data-en="Sessions">Séances</h2>
+            <div class="slist__rows"><button class="srow" type="button"><span class="srow__id"><span class="num">A</span></span><span class="srow__text"><span class="srow__name">Push</span><span class="srow__meta">~48 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">B</span></span><span class="srow__text"><span class="srow__name">Pull</span><span class="srow__meta">~49 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">C</span></span><span class="srow__text"><span class="srow__name" data-en="Lower body and core">Jambes et gainage</span><span class="srow__meta">~49 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><svg class="i"><use href="#i-heart"/></svg></span><span class="srow__text"><span class="srow__name" data-en="Active recovery">Récupération active</span><span class="srow__meta">~40 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">D</span></span><span class="srow__text"><span class="srow__name" data-en="Upper-body density">Haut du corps densité</span><span class="srow__meta">~42 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button><button class="srow" type="button"><span class="srow__id"><span class="num">E</span></span><span class="srow__text"><span class="srow__name" data-en="Lower body and metabolic full body">Jambes et full body métabolique</span><span class="srow__meta">~47 min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button></div>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Week 3, further down: rotation with the cardio day, session list">Semaine 3, plus bas&#8239;: rotation avec le jour cardio, liste des séances</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline">Recomposition</span>
+            <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
+          </div>
+          <button class="icon-btn icon-btn--filled" type="button" aria-haspopup="menu" aria-expanded="true" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="hero">
+            <div class="hero__week" role="img" aria-label="Semaine 3 sur 8" data-en-label="Week 3 of 8">
+              <span class="hero__label" data-en="Week">Semaine</span>
+              <span class="hero__row"><span class="num hero__n">3</span><span class="num hero__of" data-en="of 8">sur 8</span></span>
+            </div>
+            <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="hero__phase">
+              <h1 class="t-display" data-en="Volume phase">Phase volume</h1>
+              <p class="t-body muted" data-en="One extra set on the first two exercises of each session. The walk at the end gets longer.">Une série de plus sur les deux premiers exercices de chaque séance. La marche de fin de séance s’allonge.</p>
+            </div>
+          </section>
+          <article class="next card">
+            <div>
+              <p class="next__label t-meta" data-en="Next session">Prochaine séance</p>
+              <h2 class="t-display next__title" data-en="Session A — Push">Séance A — Push</h2>
+              <p class="t-body next__muscles" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p>
+            </div>
+            <ul class="facts">
+              <li><svg class="i"><use href="#i-clock"/></svg><span>~55 min</span></li>
+              <li><svg class="i"><use href="#i-list"/></svg><span data-en="7 exercises">7 exercices</span></li>
+              <li><svg class="i"><use href="#i-incline"/></svg><span data-en="Incline walk, 19 min">Marche inclinée, 19 min</span></li>
+            </ul>
+            <button class="btn btn--primary btn--block btn--player" type="button"><span data-en="Start session">Commencer la séance</span></button>
+          </article>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="menu-catch" aria-hidden="true"></div>
+        <div class="menu" role="menu" aria-label="Options du programme" data-en-label="Programme options">
+          <button class="menu__item" type="button" role="menuitem"><svg class="i"><use href="#i-shuffle"/></svg><span class="menu__label" data-en="Try another variation">Essayer une autre variante</span><span class="menu__hint" data-en="Swaps some accessory exercises. Main lifts stay.">Change des exercices secondaires. Les exercices principaux restent.</span></button>
+          <span class="menu__sep" aria-hidden="true"></span>
+          <button class="menu__item" type="button" role="menuitem"><svg class="i"><use href="#i-user"/></svg><span class="menu__label" data-en="Edit profile">Modifier le profil</span></button>
+          <button class="menu__item" type="button" role="menuitem"><svg class="i"><use href="#i-dumbbell"/></svg><span class="menu__label" data-en="Edit equipment">Modifier le matériel</span></button>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Options button: small menu">Bouton options&#8239;: petit menu</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline">Recomposition</span>
+            <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="rot" aria-labelledby="rot-title">
+            <div class="rot__intro">
+              <h2 class="t-headline" id="rot-title">Rotation</h2>
+              <p class="t-meta muted" data-en="Always in order. A missed day shifts the rotation; nothing is skipped. Tap a phase to see what changes.">Toujours dans l’ordre. Un jour manqué décale la rotation&#8239;; rien n’est sauté. Touche une phase pour voir ce qui change.</p>
+            </div>
+            <div class="grid grid--6" role="table" aria-label="Séances par semaine" data-en-label="Sessions by week">
+              <span></span><span class="grid__col"><b>A</b><span>Push</span></span><span class="grid__col"><b>B</b><span>Pull</span></span><span class="grid__col"><b>C</b><span data-en="Legs">Jambes</span></span><span class="grid__col grid__col--icon"><svg class="i i--sm"><use href="#i-heart"/></svg><span>Cardio</span></span><span class="grid__col"><b>D</b><span>Upper</span></span><span class="grid__col"><b>E</b><span>Full</span></span><span></span>
+              <span class="grid__wk" style="grid-area: 2 / 1" data-en="W1">S1</span><span style="grid-area: 2 / 2" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 3" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 4" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 5" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 6" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 2 / 7" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><button class="phase" type="button" style="grid-area: 2 / 8 / span 2 / 9" aria-label="Phase réadaptation, détails" data-en-label="Ramp-up phase, details"><span data-en="Ramp-up">Réadaptation</span></button><span class="grid__wk" style="grid-area: 3 / 1" data-en="W2">S2</span><span style="grid-area: 3 / 2" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 3" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 4" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 5" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 6" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span style="grid-area: 3 / 7" class="cellwrap"><span class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span></span><span class="grid__now" style="grid-area: 4 / 1 / 5 / -1" aria-hidden="true"></span><span class="grid__wk" style="grid-area: 4 / 1; color: var(--color-text)" data-en="W3">S3</span><span style="grid-area: 4 / 2" class="cellwrap"><span class="cell cell--next">A</span></span><span style="grid-area: 4 / 3" class="cellwrap"><span class="cell cell--todo">B</span></span><span style="grid-area: 4 / 4" class="cellwrap"><span class="cell cell--todo">C</span></span><span style="grid-area: 4 / 5" class="cellwrap"><span class="cell cell--todo"><svg class="i i--xs"><use href="#i-heart"/></svg></span></span><span style="grid-area: 4 / 6" class="cellwrap"><span class="cell cell--todo">D</span></span><span style="grid-area: 4 / 7" class="cellwrap"><span class="cell cell--todo">E</span></span><button class="phase phase--now" type="button" style="grid-area: 4 / 8 / span 2 / 9" aria-label="Phase volume, détails" data-en-label="Volume phase, details"><span>Volume</span></button><span class="grid__wk" style="grid-area: 5 / 1" data-en="W4">S4</span><span style="grid-area: 5 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 5 / 7" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 6 / 1" data-en="W5">S5</span><span style="grid-area: 6 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 6 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 6 / 8 / span 2 / 9" aria-label="Phase intensité, détails" data-en-label="Intensity phase, details"><span data-en="Intensity">Intensité</span></button><span class="grid__wk" style="grid-area: 7 / 1" data-en="W6">S6</span><span style="grid-area: 7 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 7 / 7" class="cellwrap"><span class="cell cell--later"></span></span><span class="grid__wk" style="grid-area: 8 / 1" data-en="W7">S7</span><span style="grid-area: 8 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 8 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 8 / 8 / span 1 / 9" aria-label="Phase pic, détails" data-en-label="Peak phase, details"><span data-en="Peak">Pic</span></button><span class="grid__wk" style="grid-area: 9 / 1" data-en="W8">S8</span><span style="grid-area: 9 / 2" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 3" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 4" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 5" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 6" class="cellwrap"><span class="cell cell--later"></span></span><span style="grid-area: 9 / 7" class="cellwrap"><span class="cell cell--later"></span></span><button class="phase" type="button" style="grid-area: 9 / 8 / span 1 / 9" aria-label="Phase deload + test, détails" data-en-label="Deload + test phase, details"><span>Deload + test</span></button>
+            </div>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog" aria-labelledby="ph-title">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div>
+              <p class="sheet__eyebrow" data-en="Weeks 3 and 4 of 8">Semaines 3 et 4 sur 8</p>
+              <h2 class="sheet__title" id="ph-title">Volume</h2>
+            </div>
+            <div class="phs-ruler"><div><div class="wkr" role="radiogroup" aria-label="Semaine du programme" data-en-label="Programme week"><button class="wkr__cell is-done" type="button" role="radio" aria-checked="false" aria-label="Semaine 1" data-en-label="Week 1"><span class="num">1</span></button><button class="wkr__cell is-done" type="button" role="radio" aria-checked="false" aria-label="Semaine 2" data-en-label="Week 2"><span class="num">2</span></button><button class="wkr__cell is-now" type="button" role="radio" aria-checked="true" aria-label="Semaine 3" data-en-label="Week 3"><span class="num">3</span></button><button class="wkr__cell" type="button" role="radio" aria-checked="true" aria-label="Semaine 4" data-en-label="Week 4"><span class="num">4</span></button><button class="wkr__cell" type="button" role="radio" aria-checked="false" aria-label="Semaine 5" data-en-label="Week 5"><span class="num">5</span></button><button class="wkr__cell" type="button" role="radio" aria-checked="false" aria-label="Semaine 6" data-en-label="Week 6"><span class="num">6</span></button><button class="wkr__cell" type="button" role="radio" aria-checked="false" aria-label="Semaine 7" data-en-label="Week 7"><span class="num">7</span></button><button class="wkr__cell" type="button" role="radio" aria-checked="false" aria-label="Semaine 8" data-en-label="Week 8"><span class="num">8</span></button></div><div class="wkp" aria-hidden="true"><span style="grid-column: span 2" data-en="Ramp-up">Réadaptation</span><span class="is-sel" style="grid-column: span 2">Volume</span><span style="grid-column: span 2" data-en="Intensity">Intensité</span><span style="grid-column: span 1" data-en="Peak">Pic</span><span style="grid-column: span 1">Deload</span></div></div></div>
+            <dl class="phs">
+              <div class="phs__row"><dt data-en="Focus">Objectif</dt><dd data-en="More work to build muscle, without going to failure.">Plus de travail pour construire du muscle, sans aller jusqu’à l’échec.</dd></div>
+              <div class="phs__row"><dt>Effort</dt><dd><span class="phs__effort"><span class="num">2</span><span data-en="reps in the tank">reps en réserve</span></span><span class="phs__note" data-en="End each set when you could still do two clean reps.">Arrête chaque série quand tu pourrais encore en faire deux propres.</span></dd></div>
+              <div class="phs__row"><dt data-en="What changes">Ce qui change</dt><dd><ul class="phs__list"><li data-en="&lt;b&gt;+1 set&lt;/b&gt; on the first two exercises of each session"><b>+1 série</b> sur les deux premiers exercices de chaque séance</li><li data-en="&lt;b&gt;+5 min&lt;/b&gt; of cardio at the end, when time allows"><b>+5 min</b> de cardio en fin de séance, si le temps le permet</li><li data-en="Same exercises; loads go up when you reach the top of the range">Mêmes exercices&#8239;; les charges montent quand tu atteins le haut de la fourchette</li></ul></dd></div>
+            </dl>
+          </div>
+          <div class="sheet__foot sheet__foot--plain">
+            <button class="btn btn--secondary btn--block" type="button"><span data-en="Close">Fermer</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Tap a phase: phase sheet">Toucher une phase&#8239;: feuille de phase</figcaption>
   </figure>
 </main>
 
@@ -450,6 +1033,25 @@ svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; hei
   applyLang();
 })();
 
+</script>
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var radio = e.target.closest('[role="radio"]');
+    if (radio) {
+      var group = radio.closest('[role="radiogroup"]');
+      group.querySelectorAll('[role="radio"]').forEach(function (r) { r.setAttribute('aria-checked', String(r === radio)); });
+      return;
+    }
+    var disc = e.target.closest('.disc');
+    if (disc) {
+      var open = disc.getAttribute('aria-expanded') !== 'true';
+      disc.setAttribute('aria-expanded', String(open));
+      var body = document.getElementById(disc.getAttribute('aria-controls'));
+      if (body) body.hidden = !open;
+    }
+  });
+})();
 </script>
 </body>
 </html>

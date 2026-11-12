@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Programme sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans);
+  font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--lg { width: 28px; height: 28px; }
+svg.i--fill { fill: currentColor; stroke: none; }
+
+.mock-bar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+}
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; margin-right: auto; }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device {
+  position: relative; width: 390px; height: 844px; flex: none;
+  display: flex; flex-direction: column;
+  border-radius: 48px; overflow: hidden; isolation: isolate;
+  background: var(--color-bg); color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28);
+}
+@media (max-width: 440px) {
+  .mock-stage { padding: 16px 0 48px; gap: 32px; }
+  .mock-bar { padding: 10px 16px; }
+  .device { border-radius: 0; box-shadow: none; }
+}
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; letter-spacing: 0.01em; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); }
+.t-exercise { font-size: var(--type-exercise-size); line-height: var(--type-exercise-line); font-weight: var(--type-exercise-weight); font-stretch: var(--type-exercise-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-headline { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-body { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+.t-body-lg { font-size: var(--type-body-size-lg); line-height: 1.45; }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.t-label { font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); }
+.muted { color: var(--color-text-muted); }
+.subtle { color: var(--color-text-subtle); }
+
+/* ---------- buttons ---------- */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: var(--tap-comfort); padding: 0 var(--space-6);
+  border-radius: var(--radius-md); border: var(--border-control) solid transparent;
+  font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width);
+  transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move);
+}
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); }
+.btn--destructive { background: var(--color-danger); color: var(--color-on-danger); }
+.btn--destructive-outline { border-color: var(--color-danger-text); color: var(--color-danger-text); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.btn[disabled] { background: var(--color-surface-sunken); color: var(--color-text-disabled); border-color: transparent; cursor: default; }
+
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn--filled { background: var(--color-surface-sunken); }
+.icon-btn--player { width: var(--tap-player); height: var(--tap-player); }
+
+/* ---------- stepper ---------- */
+.stepper { display: inline-flex; align-items: center; border-radius: var(--radius-md); background: var(--color-surface-sunken); flex: none; }
+.stepper__btn { width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; border-radius: var(--radius-md); color: var(--color-text); }
+.stepper__btn:active { background: var(--color-press-overlay); }
+.stepper__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.stepper__btn[disabled] { color: var(--color-text-disabled); }
+.stepper__value { min-width: 84px; display: inline-flex; align-items: baseline; justify-content: center; gap: 3px; padding: 0 2px; }
+.stepper__value .num { font-size: var(--type-numeral-s-size); line-height: 1; }
+.stepper__unit { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.stepper--player .stepper__btn { width: var(--tap-player); height: var(--tap-player); }
+.stepper--player .stepper__value { min-width: 96px; }
+.stepper--player .stepper__value .num { font-size: var(--type-numeral-m-size); }
+
+/* ---------- segmented control ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- chips ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); }
+.chip .i { width: 18px; height: 18px; stroke-width: 2.5; }
+.chip[aria-pressed="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-pressed="false"] .i { display: none; }
+.chip--static { min-height: 32px; padding: 0; border: 0; border-radius: 0; color: var(--color-text); cursor: default; }
+.chip--static .i { color: var(--color-text-muted); }
+.chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- cards, rows ---------- */
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+
+/* ---------- checkbox mark ---------- */
+.check { width: 28px; height: 28px; border-radius: var(--radius-sm); display: grid; place-items: center; border: var(--border-strong) solid var(--color-line-strong); flex: none; transition: background-color var(--duration-fast) var(--ease-move); }
+.check .i { width: 18px; height: 18px; stroke-width: 3; opacity: 0; }
+.is-on .check { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.is-on .check .i { opacity: 1; }
+
+/* ---------- progress ---------- */
+.bar { height: 8px; border-radius: var(--radius-xs); background: var(--color-track); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--color-accent-line); border-radius: inherit; }
+.segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.segs > i { height: 6px; border-radius: var(--radius-xs); background: var(--color-track); }
+.segs > i.done { background: var(--color-text-subtle); }
+.segs > i.cur { background: var(--color-accent-line); }
+
+/* ---------- toast ---------- */
+.toast { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 20px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: var(--elevation-3); font-weight: 600; font-size: 15px; }
+.toast__text { flex: 1; line-height: 1.3; }
+.toast .btn { min-height: var(--tap-min); color: var(--color-on-inverse); border-radius: var(--radius-pill); }
+
+/* ---------- animation slot placeholder ---------- */
+.anim-slot {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%);
+  border: var(--border-hairline) solid var(--color-line);
+  color: var(--color-text-subtle);
+}
+.anim-slot__floor { position: absolute; inset: auto 0 0 0; width: 100%; height: 46%; stroke: var(--color-line); stroke-width: 1; fill: none; }
+svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; height: 76px; margin: -38px 0 0 -38px; stroke-width: 1.4; color: var(--color-text-subtle); opacity: 0.9; }
+.anim-slot__tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--color-bg); color: var(--color-text-muted); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); }
+.anim-slot__cue { position: absolute; left: 16px; right: 16px; bottom: 14px; text-align: center; color: var(--color-text-muted); font-weight: 600; font-size: 15px; line-height: 1.3; text-wrap: balance; }
+
+/* ---------- tempo indicator ---------- */
+.tempo { display: grid; gap: 4px; }
+.tempo__seg { position: relative; overflow: hidden; display: grid; align-content: center; gap: 2px; min-height: 52px; padding: 0 10px; border-radius: var(--radius-xs); background: var(--color-surface-sunken); color: var(--color-text-muted); font-weight: 700; font-stretch: var(--font-width-label); font-size: 13px; line-height: 1.1; white-space: nowrap; }
+.tempo__seg b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; color: var(--color-text); font-variant-numeric: tabular-nums; }
+.tempo__seg.is-active { background: var(--color-accent); color: var(--color-on-accent); }
+.tempo__seg.is-active b { color: var(--color-on-accent); }
+.tempo__seg > span, .tempo__seg > b { position: relative; }
+
+/* ---------- screen: programme overview ---------- */
+.appbar { display: flex; align-items: center; gap: 12px; padding: 6px 12px 6px var(--layout-gutter); flex: none; }
+.appbar__text { flex: 1; min-width: 0; display: grid; }
+.appbar__title { font-size: var(--font-size-21); }
+
+.hero { padding: 20px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.hero__week { display: grid; gap: 8px; }
+.hero__label { font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.hero__row { display: flex; align-items: flex-end; gap: 12px; }
+.hero__n { font-size: var(--font-size-144); line-height: 0.74; margin-left: -6px; }
+.hero__of { font-size: var(--font-size-48); color: var(--color-text-muted); line-height: 0.8; }
+.hero__phase { display: grid; gap: 6px; padding-top: 6px; }
+.hero__phase .t-display { font-size: var(--font-size-36); }
+.hero .segs > i { height: 8px; }
+
+.next { margin: 28px 16px 0; padding: 20px 20px 20px; display: grid; gap: 16px; }
+.next__label { font-weight: 600; color: var(--color-text-muted); }
+.next__title { font-size: var(--font-size-36); }
+.next__muscles { color: var(--color-text-muted); margin-top: 6px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.facts li { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; }
+.facts .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+
+.rot { padding: 36px var(--layout-gutter) 24px; display: grid; gap: 16px; }
+.rot__intro { display: grid; gap: 4px; }
+.grid { position: relative; display: grid; grid-template-columns: 26px repeat(5, 40px) 1fr; column-gap: 6px; row-gap: 6px; align-items: center; }
+.grid__col { display: grid; justify-items: center; gap: 0; padding-bottom: 4px; }
+.grid__col b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.1; }
+.grid__col span { font-size: var(--type-caption-size); color: var(--color-text-muted); font-weight: 600; font-stretch: var(--font-width-label); }
+.grid__wk { font-size: 14px; font-weight: 700; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.cell { height: 36px; border-radius: var(--radius-sm); display: grid; place-items: center; font-weight: 800; font-size: 16px; font-stretch: var(--font-width-title); }
+.cell--done { background: var(--color-complete); color: var(--color-on-complete); }
+.cell--done .i { width: 18px; height: 18px; stroke-width: 3; }
+.cell--next { background: var(--color-accent); color: var(--color-on-accent); font-size: 18px; box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-accent-line); }
+.cell--todo { border: var(--border-control) solid var(--color-line-strong); color: var(--color-text-muted); }
+.cell--later { border: var(--border-hairline) solid var(--color-line); }
+.grid__now { grid-column: 1 / -1; height: 48px; margin: 0 -10px; border-radius: var(--radius-md); background: var(--color-accent-tint); z-index: 0; }
+.grid > *:not(.grid__now) { position: relative; z-index: 1; }
+.phase { align-self: stretch; display: flex; align-items: center; padding-left: 10px; border-left: var(--border-strong) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; color: var(--color-text-muted); }
+.phase--now { color: var(--color-text); border-left-color: var(--color-accent-line); }
+
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); }
+.tab { position: relative; display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); text-align: center; line-height: 1.1; }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+
+/* ================================================================== */
+/* Programme, session and quick-session screens                         */
+/* ================================================================== */
+
+/* ---------- shared screen chrome ---------- */
+.appbar--nav { min-height: 56px; padding-left: 4px; }
+.appbar--nav .appbar__title { font-size: var(--font-size-18); }
+.dock-bar { flex: none; display: flex; gap: 10px; padding: 12px 16px; background: var(--color-bg); box-shadow: var(--elevation-2); position: relative; z-index: var(--z-sticky); }
+.dock-bar .btn { min-height: var(--tap-player); }
+.dock-bar__main { flex: 1; }
+.dock-bar__note { display: grid; gap: 10px; flex: 1; }
+.dock-bar__note p { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+.icon-well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.icon-well--sm { width: 40px; height: 40px; }
+.section-title { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+
+/* ---------- notice: inline information, not an action ---------- */
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.notice .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 1px; }
+.notice b { font-weight: 700; }
+
+/* ---------- banner: something about the programme needs a decision ---------- */
+.banner { margin: 8px 16px 0; padding: 16px; display: grid; gap: 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-control) solid var(--color-line-strong); }
+.banner__head { display: flex; gap: 14px; align-items: flex-start; }
+.banner__text { display: grid; gap: 4px; }
+.banner__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.banner__actions { display: grid; gap: 4px; }
+.banner__actions .btn--ghost { justify-self: start; min-height: var(--tap-min); padding: 0 4px; }
+
+/* ---------- why card: shown once after generation ---------- */
+.whycard { margin: 16px 16px 0; padding: 20px; display: grid; gap: 16px; }
+.whycard__list { display: grid; gap: 12px; }
+.whycard__list li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; align-items: start; font-size: var(--type-body-size); line-height: 1.4; }
+.whycard__list .i { color: var(--color-text-muted); margin-top: 1px; }
+.whycard__actions { display: flex; gap: 8px; align-items: center; }
+.whycard__actions .btn--secondary { flex: 1; }
+
+/* ---------- nudge row: links to the equipment editor ---------- */
+.nudge { margin: 16px 16px 0; display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 8px 12px 14px; text-align: left; width: calc(100% - 32px); }
+.nudge:active { background: var(--color-press-overlay); }
+.nudge:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.nudge__text { flex: 1; display: grid; gap: 2px; }
+.nudge__title { font-size: var(--font-size-16); font-weight: 700; line-height: 1.3; }
+.nudge__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; }
+.nudge > .i { color: var(--color-text-muted); }
+
+/* ---------- menu (popover) ---------- */
+.menu-catch { position: absolute; inset: 0; z-index: var(--z-sheet); }
+.menu { position: absolute; z-index: calc(var(--z-sheet) + 1); top: 98px; right: 12px; width: 300px; padding: 6px; border-radius: var(--radius-lg); background: var(--color-surface-raised); box-shadow: var(--elevation-3); border: var(--border-hairline) solid var(--color-line); display: grid; }
+.menu__item { display: grid; grid-template-columns: 24px 1fr; column-gap: 14px; align-items: center; min-height: 56px; padding: 8px 12px; border-radius: var(--radius-md); text-align: left; }
+.menu__item:active { background: var(--color-press-overlay); }
+.menu__item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.menu__item .i { color: var(--color-text-muted); }
+.menu__label { font-size: var(--font-size-16); font-weight: 600; line-height: 1.3; }
+.menu__hint { grid-column: 2; font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.menu__sep { height: 1px; margin: 4px 12px; background: var(--color-line); }
+
+/* ---------- sheets ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); max-height: calc(100% - 64px); display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { align-self: center; flex: none; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 8px var(--layout-gutter) 20px; display: grid; gap: 20px; align-content: start; }
+.sheet__body::-webkit-scrollbar { display: none; }
+.sheet__foot { flex: none; display: grid; gap: 8px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); }
+.sheet__foot--plain { border-top: 0; padding-top: 4px; }
+.sheet__eyebrow { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sheet__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+
+/* ---------- facts list (existing) tweaks ---------- */
+.facts--muted li { color: var(--color-text-muted); font-weight: 600; }
+
+/* ================================================================== */
+/* Session detail                                                       */
+/* ================================================================== */
+
+/* Session identity: the rotation letter is the hero */
+.sd-head { padding: 4px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.sd-id { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: end; }
+.sd-letter { font-size: var(--font-size-144); line-height: 0.74; margin-left: -4px; }
+.sd-letter--icon { width: 96px; height: 106px; display: grid; place-items: center; border-radius: var(--radius-lg); background: var(--color-surface-sunken); }
+.sd-letter--icon .i { width: 56px; height: 56px; stroke-width: 1.6; }
+.sd-id__text { display: grid; gap: 6px; padding-bottom: 2px; }
+.sd-id__text .t-display { font-size: var(--font-size-48); text-wrap: balance; }
+.sd-id__text .t-display.is-long { font-size: var(--font-size-36); }
+.sd-kicker { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.sd-sub { font-size: var(--type-body-size); color: var(--color-text-muted); line-height: 1.35; }
+.sd-stats { display: flex; align-items: flex-end; gap: 24px; }
+.sd-stat { display: grid; gap: 4px; }
+.sd-stat .num { font-size: var(--font-size-36); }
+.sd-stat .num small { font-size: var(--font-size-21); font-weight: 800; color: var(--color-text-muted); margin-left: 2px; letter-spacing: 0; }
+.sd-stat__label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.sd-gear { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sd-gear span { display: inline-flex; align-items: center; gap: 6px; }
+.sd-gear .i { width: 20px; height: 20px; }
+
+/* Week ruler: 8 equal cells, full bleed so each cell clears 48 px */
+.wk { padding: 28px 0 0; display: grid; gap: 12px; }
+.wk__head { padding: 0 var(--layout-gutter); display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.wk__state { font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); white-space: nowrap; }
+.wk__state--preview { color: var(--color-text); padding: 2px 10px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); }
+.wkr { display: grid; grid-template-columns: repeat(8, 1fr); border-top: var(--border-hairline) solid var(--color-line); border-bottom: var(--border-hairline) solid var(--color-line); }
+.wkr__cell { position: relative; min-height: 56px; display: grid; place-items: center; font-size: var(--font-size-24); color: var(--color-text-muted); border-left: var(--border-hairline) solid var(--color-line); transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.wkr__cell:first-child { border-left: 0; }
+.wkr__cell:active { background: var(--color-press-overlay); }
+.wkr__cell:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.wkr__cell[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); border-left-color: transparent; }
+.wkr__cell.is-done { color: var(--color-text-subtle); }
+.wkr__cell.is-now::after { content: ''; position: absolute; left: 50%; bottom: 7px; width: 14px; height: 4px; margin-left: -7px; border-radius: var(--radius-xs); background: var(--color-accent-line); }
+.wkr__cell.is-now[aria-checked="true"]::after { background: var(--color-on-inverse); }
+.wkr__cell .num { line-height: 1; }
+.wkp { display: grid; grid-template-columns: repeat(8, 1fr); column-gap: 4px; padding: 0 2px; }
+.wkp span { padding-top: 6px; border-top: var(--border-strong) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-title); color: var(--color-text-muted); line-height: 1.15; text-align: center; white-space: nowrap; overflow: hidden; }
+.wkp span.is-sel { color: var(--color-text); border-top-color: var(--color-text); }
+.wk__delta { padding: 4px var(--layout-gutter) 0; font-size: var(--type-body-size); line-height: 1.45; color: var(--color-text-muted); }
+.wk__delta b { color: var(--color-text); font-weight: 700; }
+
+/* Sections */
+.sd-sec { padding: 32px var(--layout-gutter) 0; display: grid; gap: 4px; }
+.sd-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
+.sd-sec__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); font-weight: 600; white-space: nowrap; }
+.sd-sec:last-child { padding-bottom: 28px; }
+
+/* Disclosure (warm-up) */
+.disc { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 8px 4px 8px 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); text-align: left; }
+.disc:active { background: var(--color-press-overlay); }
+.disc:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.disc__text { flex: 1; display: grid; gap: 2px; }
+.disc__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.disc__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.disc__chev { width: 48px; height: 48px; display: grid; place-items: center; color: var(--color-text-muted); transition: transform var(--duration-base) var(--ease-move); }
+.disc[aria-expanded="true"] { border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom-color: transparent; }
+.disc[aria-expanded="true"] .disc__chev { transform: rotate(180deg); }
+.disc-body { margin-top: -4px; padding: 0 14px 6px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); border-top: 0; }
+.wu { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: baseline; padding: 12px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.wu__name { font-size: var(--font-size-16); font-weight: 600; line-height: 1.3; }
+.wu__rx { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wu__meta { grid-column: 1 / -1; font-size: 13px; color: var(--color-text-muted); }
+
+/* Prescription row: one exercise */
+.rx { display: grid; grid-template-columns: 26px 1fr 48px; column-gap: 8px; padding: 14px 0 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.rx:first-of-type { border-top: 0; }
+.rx__idx { font-size: var(--font-size-21); color: var(--color-text-subtle); padding-top: 5px; line-height: 1; }
+.rx__name { align-self: center; font-size: var(--font-size-21); line-height: 1.12; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; padding: 2px 0; }
+.rx__why { margin: -6px -8px 0 0; color: var(--color-text-muted); }
+.rx__body { grid-column: 2 / 4; display: grid; gap: 10px; padding-top: 8px; }
+.rx__nums { display: flex; align-items: flex-start; gap: 24px; }
+.rx__cell { display: grid; gap: 5px; min-width: 0; }
+.rx__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.rx__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; }
+.rx__w { font-size: var(--font-size-21); line-height: 1.05; font-weight: 800; font-stretch: var(--font-width-display); padding-top: 4px; }
+.rx__w--muted { color: var(--color-text-muted); }
+.rx__u { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.rx__facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--type-meta-size); line-height: 1.3; color: var(--color-text-muted); }
+.rx__facts b { color: var(--color-text); font-weight: 700; }
+.delta { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.whyline { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text); }
+.whyline .i { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--color-text-muted); }
+
+/* Group block: superset or circuit, bracketed */
+.grp { display: grid; grid-template-columns: 26px 1fr; column-gap: 8px; padding: 14px 0 6px; border-top: var(--border-hairline) solid var(--color-line); }
+.grp__head { grid-column: 2; display: grid; gap: 2px; padding-bottom: 6px; }
+.grp__title { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.2; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.grp__title .num { font-size: var(--font-size-24); line-height: 1; }
+.grp__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.grp__items { grid-column: 1 / -1; display: grid; margin-left: 11px; padding-left: 15px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.grp__items .rx { grid-template-columns: 22px 1fr 48px; padding: 10px 0 14px; border-top: var(--border-hairline) solid var(--color-line); }
+.grp__items .rx:first-child { border-top: 0; }
+.grp__items .rx__idx { font-size: var(--font-size-16); padding-top: 6px; font-weight: 800; font-stretch: var(--font-width-title); }
+.grp__items .rx__name { font-size: var(--font-size-18); }
+.grp__items .rx__n { font-size: var(--font-size-24); line-height: 1; }
+.grp__items .rx__n small { font-size: var(--font-size-16); }
+.grp__items .rx__w { font-size: var(--font-size-18); padding-top: 2px; }
+.grp__items .rx__nums { gap: 20px; }
+.grp__items .rx__body { padding-top: 4px; gap: 6px; }
+
+/* Cardio: steady state */
+.cardio { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 4px 26px; }
+.cardio__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.cardio__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; }
+.cardio--big { grid-template-columns: auto auto; row-gap: 14px; }
+.cardio--big > :first-child { grid-column: 1 / -1; }
+.cardio--big > :first-child .cardio__n { font-size: var(--type-numeral-l-size); }
+.cardio--big > :first-child .cardio__n small { font-size: var(--font-size-24); }
+/* Cardio: intervals */
+.ivl { display: grid; gap: 12px; }
+.ivl__nums { display: flex; align-items: flex-start; gap: 22px; }
+.ivl__bars { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+.ivl__bars i { display: block; border-radius: 2px; }
+.ivl__bars i.w { height: 100%; background: var(--color-text); }
+.ivl__bars i.r { height: 34%; background: var(--color-text-subtle); }
+.ivl__legend { display: flex; gap: 16px; font-size: 13px; color: var(--color-text-muted); font-weight: 600; }
+.ivl__legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ivl__legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Exercise thumbnail placeholder (the animation slot at 72 px) */
+.thumb { width: 72px; height: 72px; flex: none; position: relative; overflow: hidden; border-radius: var(--radius-sm); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); border: var(--border-hairline) solid var(--color-line); color: var(--color-text-subtle); display: grid; place-items: center; }
+.thumb svg.i { width: 34px; height: 34px; stroke-width: 1.5; }
+
+/* Skeleton */
+.sk { display: block; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+
+/* ================================================================== */
+/* Why sheet                                                            */
+/* ================================================================== */
+.reasons { display: grid; gap: 22px; }
+.reason-grp { display: grid; gap: 10px; }
+.reason-grp__head { display: grid; grid-template-columns: 40px 1fr; column-gap: 12px; align-items: center; }
+.reason-grp__input { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.15; }
+.reason-grp__label { font-size: 13px; color: var(--color-text-muted); font-weight: 600; }
+.reason-list { display: grid; margin-left: 19px; padding-left: 33px; border-left: var(--border-strong) solid var(--color-line); }
+.reason-list li { padding: 8px 0; font-size: var(--type-body-size); line-height: 1.45; border-top: var(--border-hairline) solid var(--color-line); }
+.reason-list li:first-child { border-top: 0; padding-top: 2px; }
+.reason-list b { font-weight: 700; }
+.cue { display: grid; gap: 4px; padding: 14px 16px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.cue__label { font-size: 13px; font-weight: 700; color: var(--color-text-muted); }
+.cue p { font-size: var(--type-body-size); line-height: 1.45; }
+
+/* ================================================================== */
+/* Change preview                                                       */
+/* ================================================================== */
+.cp-head { display: grid; gap: 8px; }
+.cp-count { display: flex; align-items: flex-end; gap: 12px; }
+.cp-count .num { font-size: var(--font-size-96); line-height: 0.76; }
+.cp-count__label { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 2px; }
+.cp-kept { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.cp-kept .i { width: 18px; height: 18px; margin-top: 1px; color: var(--color-text); stroke-width: 2.5; }
+.cp-sess { display: grid; gap: 2px; }
+.cp-sess__name { font-size: var(--type-meta-size); font-weight: 700; color: var(--color-text-muted); padding-bottom: 4px; }
+.swap { display: grid; grid-template-columns: 18px 1fr; column-gap: 12px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.cp-sess__name + .swap { border-top: 0; padding-top: 4px; }
+.swap__rail { grid-row: 1 / 3; position: relative; }
+.swap__rail::before { content: ''; position: absolute; left: 4px; top: 7px; width: 10px; height: 10px; border-radius: 50%; border: var(--border-strong) solid var(--color-text-subtle); box-sizing: border-box; }
+.swap__rail::after { content: ''; position: absolute; left: 8px; top: 18px; bottom: 9px; width: 2px; background: var(--color-line-strong); }
+.swap__rail i { position: absolute; left: 3px; bottom: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-text); }
+.swap__old { font-size: 15px; color: var(--color-text-muted); line-height: 1.35; }
+.swap__new { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.25; padding-top: 6px; }
+.swap__where { font-size: 13px; color: var(--color-text-subtle); font-weight: 600; }
+.swap--add .swap__rail::before, .swap--add .swap__rail::after { display: none; }
+.swap--add .swap__rail i { top: 6px; bottom: auto; }
+
+/* ================================================================== */
+/* Quick session                                                        */
+/* ================================================================== */
+.qs { padding: 4px var(--layout-gutter) 28px; display: grid; gap: 24px; }
+.qs__intro { display: grid; gap: 8px; }
+.qs-field { display: grid; gap: 12px; }
+.qs-field__hint { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tile { min-height: 64px; display: grid; place-content: center; justify-items: center; gap: 4px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.tile .num { font-size: var(--font-size-36); line-height: 0.9; }
+.tile span:last-child { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.tile:active { background: var(--color-press-overlay); }
+.tile:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.tile[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.tile[aria-checked="true"] span:last-child { color: var(--color-on-inverse); }
+.chip[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-checked="false"] .i { display: none; }
+.seg--tall .seg__opt { min-height: 56px; display: grid; align-content: center; gap: 2px; padding: 4px 8px; line-height: 1.15; }
+.seg--tall .seg__opt small { font-size: 12px; font-weight: 600; font-stretch: var(--font-width-text); opacity: 0.8; }
+.toast-slot { position: absolute; left: 16px; right: 16px; bottom: 196px; z-index: var(--z-toast); }
+
+/* ================================================================== */
+/* Placeholders                                                         */
+/* ================================================================== */
+.empty { padding: 24px var(--layout-gutter) 28px; display: grid; gap: 16px; align-content: start; }
+.empty__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.empty .t-body { color: var(--color-text-muted); max-width: 32em; }
+.chart-ghost { position: relative; height: 200px; margin-top: 8px; border-radius: var(--radius-lg); border: var(--border-hairline) dashed var(--color-line-strong); overflow: hidden; }
+.chart-ghost__grid { position: absolute; inset: 16px 16px 36px 44px; background-image: linear-gradient(var(--color-line) 1px, transparent 1px); background-size: 100% 25%; }
+.chart-ghost__y { position: absolute; left: 14px; top: 10px; bottom: 30px; display: grid; align-content: space-between; font-size: 12px; font-weight: 600; color: var(--color-text-subtle); font-variant-numeric: tabular-nums; }
+.chart-ghost__x { position: absolute; left: 44px; right: 16px; bottom: 10px; display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; font-stretch: var(--font-width-label); color: var(--color-text-subtle); }
+.chart-ghost__msg { position: absolute; left: 44px; right: 16px; top: 50%; transform: translateY(-60%); text-align: center; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+
+.hero .t-display { font-size: var(--font-size-36); }
+.cp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cp-split__col { display: grid; gap: 6px; align-content: start; }
+.cp-split__col:first-child { color: var(--color-text-muted); }
+.cp-split__col ul { display: grid; gap: 6px; }
+.cp-split__row { display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: var(--font-size-16); font-weight: 600; }
+.cp-split__l { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); font-size: var(--font-size-24); line-height: 1; color: var(--color-text); }
+.cp-split__col:last-child .cp-split__l { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-incline" viewBox="0 0 24 24"><path d="M3 19h18L21 8z"/><path d="M16 19v-3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <!-- equipment -->
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-belt" viewBox="0 0 24 24"><path d="M3 6.5c3 1.3 6 2 9 2s6-.7 9-2"/><path d="M8.5 8.2L12 14l3.5-5.8"/><rect x="8" y="14" width="8" height="6" rx="1.5"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M2.5 7h19M5 4v6M19 4v6"/><path d="M9.5 7v3.5M14.5 7v3.5"/><circle cx="12" cy="15.5" r="2.5"/></symbol>
+  <symbol id="i-treadmill" viewBox="0 0 24 24"><path d="M3 17.5h12.5a2.5 2.5 0 0 0 2.4-1.8L20.5 6"/><path d="M18 6h4.5"/><path d="M5 20.5h10"/></symbol>
+  <symbol id="i-bench" viewBox="0 0 24 24"><path d="M3 10.5h18"/><path d="M6 10.5v8M18 10.5v8"/><path d="M4 18.5h4M16 18.5h4"/></symbol>
+</svg>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.6a2.4 2.4 0 1 1 3.3 2.2c-.6.3-1 .8-1 1.4v.5"/><path d="M12 16.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3.5 7h3c4.5 0 5.5 10 10 10h3.5"/><path d="M3.5 17h3c1.5 0 2.6-1.2 3.4-2.8M13.6 9.8C14.4 8.2 15.5 7 17 7h3"/><path d="M17.5 4.5L20 7l-2.5 2.5M17.5 14.5L20 17l-2.5 2.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8.5h14l-1.2 11.5H6.2z"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.5s-7-4.2-7-9.4A3.9 3.9 0 0 1 12 7.8a3.9 3.9 0 0 1 7 2.3c0 5.2-7 9.4-7 9.4z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a7.5 7.5 0 1 1 15 0"/><path d="M12 17l3.6-4.6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 4h10M7 20h10"/><path d="M8 4c0 4.5 8 5.5 8 8s-8 3.5-8 8M16 4c0 4.5-8 5.5-8 8s8 3.5 8 8"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-person-run" viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="1.8"/><path d="M6 21l3.5-5.5 3 2.5 1-5.5"/><path d="M8 10.5l3.5-3 4 2.5 2.5 3"/><path d="M13.5 13l2.5 2.5"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Programme: “why” and change preview sheets">Programme&#8239;: feuilles «&#8239;pourquoi&#8239;» et aperçu des changements</span>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+<div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline" data-en="General fitness">Forme générale</span>
+            <span class="t-meta muted" data-en="8 weeks, 3 sessions a week">8 semaines, 3 séances par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="hero">
+            <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">1</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+            <h1 class="t-display" data-en="Ramp-up phase">Phase réadaptation</h1>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog" aria-labelledby="why-prog">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div>
+              <p class="sheet__eyebrow" data-en="General fitness, 8 weeks">Forme générale, 8 semaines</p>
+              <h2 class="sheet__title" id="why-prog" data-en="Why this programme?">Pourquoi ce programme ?</h2>
+            </div>
+            <div class="reasons">
+            <section class="reason-grp">
+              <div class="reason-grp__head"><span class="icon-well icon-well--sm"><svg class="i"><use href="#i-calendar"/></svg></span><span><span class="reason-grp__input" data-en="3 days, 45 min">3 jours, 45 min</span><br><span class="reason-grp__label" data-en="Your schedule">Ton planning</span></span></div>
+              <ul class="reason-list"><li data-en="Three full-body sessions: every muscle works three times a week.">Trois séances full body&#8239;: chaque muscle travaille trois fois par semaine.</li><li data-en="One exercise added to each session to fill your 45 minutes.">Un exercice ajouté à chaque séance pour bien remplir tes 45 minutes.</li></ul>
+            </section>
+
+            <section class="reason-grp">
+              <div class="reason-grp__head"><span class="icon-well icon-well--sm"><svg class="i"><use href="#i-gauge"/></svg></span><span><span class="reason-grp__input" data-en="General fitness, beginner">Forme générale, débutant</span><br><span class="reason-grp__label" data-en="Your goal and level">Ton objectif et ton niveau</span></span></div>
+              <ul class="reason-list"><li data-en="Two sets per exercise and 3 reps in the tank: enough to progress without crippling soreness.">Deux séries par exercice et 3 reps en réserve&#8239;: assez pour progresser, sans courbatures qui bloquent.</li><li data-en="Hands-elevated pike push-ups rather than pike push-ups: easier to start with.">Pompes en V mains surélevées plutôt que pompes en V&#8239;: plus faciles pour commencer.</li><li data-en="No peak week: the intensity phase leads straight into the deload.">Pas de semaine «&#8239;pic&#8239;»&#8239;: la phase intensité mène droit au deload.</li></ul>
+            </section>
+
+            <section class="reason-grp">
+              <div class="reason-grp__head"><span class="icon-well icon-well--sm"><svg class="i"><use href="#i-user"/></svg></span><span><span class="reason-grp__input" data-en="Bodyweight only">Poids du corps seulement</span><br><span class="reason-grp__label" data-en="Your equipment">Ton matériel</span></span></div>
+              <ul class="reason-list"><li data-en="No pull-up bar: the door towel row replaces pull-ups.">Pas de barre de traction&#8239;: le rowing à la serviette sur porte remplace les tractions.</li><li data-en="No dumbbells or bands: no curls or triceps extensions.">Ni haltères ni élastiques&#8239;: pas de curl ni d’extension triceps.</li><li data-en="No treadmill: cardio is step jacks, no jumping.">Pas de tapis&#8239;: le cardio se fait en step jacks, sans saut.</li></ul>
+            </section>
+
+              <button class="btn btn--ghost" type="button" style="justify-self: start; min-height: 48px; padding: 0 4px"><span data-en="See what is worth buying next">Voir ce qu’il vaut la peine d’acheter</span></button>
+            </div>
+          </div>
+          <div class="sheet__foot sheet__foot--plain">
+            <button class="btn btn--secondary btn--block" type="button"><span data-en="Got it">Compris</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="“Why this programme?”: each choice tied to what you told us">«&#8239;Pourquoi ce programme&#8239;?&#8239;»&#8239;: chaque choix rattaché à ce que tu as indiqué</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline">Recomposition</span>
+            <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="hero">
+            <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">3</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+            <h1 class="t-display" data-en="Volume phase">Phase volume</h1>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog" aria-labelledby="cp-var">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div class="cp-head">
+              <p class="sheet__eyebrow" data-en="Another variation">Autre variante</p>
+              <div class="cp-count"><span class="num">7</span><h2 class="cp-count__label" id="cp-var" data-en="exercises change">exercices changent</h2></div>
+              <p class="cp-kept"><svg class="i"><use href="#i-check"/></svg><span data-en="Main lifts, sessions and your progress stay. You stay in week 3.">Les exercices principaux, les séances et ta progression restent. Tu restes en semaine 3.</span></p>
+            </div>
+            <div class="cp-sess">
+              <h3 class="cp-sess__name" data-en="Session B, pull">Séance B, pull</h3>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Bent-over row">Rowing buste penché</span> </span><span class="swap__new" data-en="Renegade row">Rowing renégat</span></div>
+            </div>
+
+            <div class="cp-sess">
+              <h3 class="cp-sess__name" data-en="Session D, upper-body density">Séance D, haut du corps densité</h3>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Band lateral raise">Élévations latérales à l’élastique</span> </span><span class="swap__new" data-en="Dumbbell lateral raise">Élévations latérales haltères</span></div>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Dumbbell triceps kickback">Kickback triceps haltère</span> </span><span class="swap__new" data-en="Overhead triceps extension">Extension triceps au-dessus de la tête</span></div>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Band face pull">Face pull élastique</span> </span><span class="swap__new" data-en="Dumbbell reverse fly">Oiseau haltères</span></div>
+            </div>
+
+            <div class="cp-sess">
+              <h3 class="cp-sess__name" data-en="Session E, lower body and metabolic">Séance E, jambes et métabolique</h3>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Walking lunge">Fentes marchées</span> </span><span class="swap__new">Step-up</span></div>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Dumbbell swing">Swing avec haltère</span> <span class="swap__where" data-en="(finisher)">(fin de séance)</span></span><span class="swap__new">Thruster</span></div>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Mountain climber">Mountain climbers</span> <span class="swap__where" data-en="(finisher)">(fin de séance)</span></span><span class="swap__new">Squat thrust</span></div>
+            </div>
+
+          </div>
+          <div class="sheet__foot">
+            <button class="btn btn--primary btn--block" type="button"><span data-en="Use this variation">Utiliser cette variante</span></button>
+            <button class="btn btn--secondary btn--block" type="button"><span data-en="Keep the current one">Garder l’actuelle</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Try another variation: preview before confirming">Essayer une autre variante&#8239;: aperçu avant de valider</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline" data-en="General fitness">Forme générale</span>
+            <span class="t-meta muted" data-en="8 weeks, 3 sessions a week">8 semaines, 3 séances par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="hero">
+            <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">5</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+            <h1 class="t-display" data-en="Volume phase">Phase volume</h1>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog" aria-labelledby="cp-new">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div class="cp-head">
+              <p class="sheet__eyebrow" data-en="New programme">Nouveau programme</p>
+              <div class="cp-count"><span class="num">3</span><h2 class="cp-count__label" id="cp-new" data-en="exercises change">exercices changent</h2></div>
+              <p class="cp-kept"><svg class="i"><use href="#i-check"/></svg><span data-en="Same split, same durations. The new programme starts at week 1; your past sessions stay in your history.">Même découpage, mêmes durées. Le nouveau programme repart en semaine 1&#8239;; tes séances passées restent dans ton historique.</span></p>
+            </div>
+            <div class="cp-sess">
+              <h3 class="cp-sess__name" data-en="Session A, full body">Séance A, full body</h3>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Door towel row">Rowing à la serviette sur porte</span> </span><span class="swap__new" data-en="Negative pull-up">Traction négative</span></div>
+            </div>
+
+            <div class="cp-sess">
+              <h3 class="cp-sess__name" data-en="Session B, full body">Séance B, full body</h3>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Door towel row">Rowing à la serviette sur porte</span> </span><span class="swap__new" data-en="Negative pull-up">Traction négative</span></div>
+            </div>
+
+            <div class="cp-sess">
+              <h3 class="cp-sess__name" data-en="Session C, full body">Séance C, full body</h3>
+              <div class="swap"><span class="swap__rail" aria-hidden="true"><i></i></span><span class="swap__old"><span data-en="Door towel row">Rowing à la serviette sur porte</span> </span><span class="swap__new" data-en="Negative pull-up">Traction négative</span></div>
+            </div>
+
+            <p class="notice"><svg class="i"><use href="#i-bar"/></svg><span data-en="&lt;span&gt;The pull-up bar makes vertical pulling possible. You start with the lowering phase, the easiest part.&lt;/span&gt;"><span>La barre de traction rend possible le tirage vertical. Tu commences par la phase de descente, la plus facile.</span></span></p>
+          </div>
+          <div class="sheet__foot">
+            <button class="btn btn--primary btn--block" type="button"><span data-en="Use this programme">Utiliser ce programme</span></button>
+            <button class="btn btn--secondary btn--block" type="button"><span data-en="Keep the current one">Garder l’actuel</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Generate a new programme after adding a pull-up bar">Générer un nouveau programme après l’ajout d’une barre de traction</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline" data-en="General fitness">Forme générale</span>
+            <span class="t-meta muted" data-en="8 weeks, 3 sessions a week">8 semaines, 3 séances par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="hero">
+            <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">5</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+            <h1 class="t-display" data-en="Volume phase">Phase volume</h1>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog" aria-labelledby="cp-split">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div class="cp-head">
+              <p class="sheet__eyebrow" data-en="New programme">Nouveau programme</p>
+              <div class="cp-count"><span class="num">4</span><h2 class="cp-count__label" id="cp-split" data-en="sessions instead of 3">séances au lieu de 3</h2></div>
+              <p class="cp-kept"><svg class="i"><use href="#i-check"/></svg><span data-en="With 4 days, the programme alternates upper and lower body. Every exercise may change.">Avec 4 jours, le programme alterne haut et bas du corps. Tous les exercices peuvent changer.</span></p>
+            </div>
+            <div class="cp-split">
+              <div class="cp-split__col">
+                <h3 class="cp-sess__name" data-en="Now">Aujourd’hui</h3>
+                <ul><li class="cp-split__row"><span class="num cp-split__l">A</span><span>Full body</span></li><li class="cp-split__row"><span class="num cp-split__l">B</span><span>Full body</span></li><li class="cp-split__row"><span class="num cp-split__l">C</span><span>Full body</span></li></ul>
+              </div>
+              <div class="cp-split__col">
+                <h3 class="cp-sess__name" data-en="New">Nouveau</h3>
+                <ul><li class="cp-split__row"><span class="num cp-split__l">A</span><span data-en="Upper body">Haut du corps</span></li><li class="cp-split__row"><span class="num cp-split__l">B</span><span data-en="Lower body">Bas du corps</span></li><li class="cp-split__row"><span class="num cp-split__l">C</span><span data-en="Upper body">Haut du corps</span></li><li class="cp-split__row"><span class="num cp-split__l">D</span><span data-en="Lower body">Bas du corps</span></li></ul>
+              </div>
+            </div>
+            <p class="notice"><svg class="i"><use href="#i-calendar"/></svg><span data-en="&lt;span&gt;The new programme starts at week 1. Your past sessions stay in your history.&lt;/span&gt;"><span>Le nouveau programme repart en semaine 1. Tes séances passées restent dans ton historique.</span></span></p>
+          </div>
+          <div class="sheet__foot">
+            <button class="btn btn--primary btn--block" type="button"><span data-en="Use this programme">Utiliser ce programme</span></button>
+            <button class="btn btn--secondary btn--block" type="button"><span data-en="Keep the current one">Garder l’actuel</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="New programme when the split changes (3 → 4 days)">Nouveau programme quand le découpage change (3 → 4 jours)</figcaption>
+  </figure>
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <div class="appbar__text">
+            <span class="appbar__title t-headline" data-en="General fitness">Forme générale</span>
+            <span class="t-meta muted" data-en="8 weeks, 3 sessions a week">8 semaines, 3 séances par semaine</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+        </div>
+        <div class="scroll">
+          <section class="hero">
+            <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">1</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+            <h1 class="t-display" data-en="Ramp-up phase">Phase réadaptation</h1>
+          </section>
+        </div>
+        <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+        <div class="scrim"></div>
+        <div class="sheet" role="dialog" aria-labelledby="cp-none">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div class="cp-head">
+              <p class="sheet__eyebrow" data-en="Another variation">Autre variante</p>
+              <h2 class="sheet__title" id="cp-none" data-en="No other variation for now">Aucune autre variante pour l’instant</h2>
+            </div>
+            <p class="t-body muted" data-en="With your current equipment, every exercise is already the best choice available. More equipment opens up other options.">Avec ton matériel actuel, chaque exercice est déjà le meilleur choix disponible. Du matériel en plus ouvre d’autres options.</p>
+          </div>
+          <div class="sheet__foot sheet__foot--plain">
+            <button class="btn btn--secondary btn--block" type="button"><span data-en="Edit equipment">Modifier le matériel</span></button>
+            <button class="btn btn--ghost" type="button" style="justify-self: center; min-height: 48px"><span data-en="Close">Fermer</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="No other variation possible">Aucune autre variante possible</figcaption>
+  </figure>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : null;
+
+  function effectiveTheme() { return theme || (sysDark.matches ? 'dark' : 'light'); }
+
+  function formatNumber(v, decimals) {
+    return new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+      minimumFractionDigits: 0, maximumFractionDigits: decimals == null ? 1 : decimals
+    }).format(v);
+  }
+  window.mockFormat = formatNumber;
+  window.mockLang = function () { return lang; };
+
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === effectiveTheme())); });
+  }
+
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr-label')) el.setAttribute('data-fr-label', el.getAttribute('aria-label') || '');
+      el.setAttribute('aria-label', lang === 'en' ? el.getAttribute('data-en-label') : el.getAttribute('data-fr-label'));
+    });
+    document.querySelectorAll('[data-num]').forEach(function (el) {
+      el.textContent = formatNumber(parseFloat(el.dataset.num), el.dataset.decimals ? +el.dataset.decimals : 1);
+    });
+    document.querySelectorAll('[data-pct]').forEach(function (el) {
+      el.textContent = lang === 'fr' ? ' %' : '%';
+    });
+    document.dispatchEvent(new CustomEvent('mock:render'));
+    sync();
+  }
+
+  function applyTheme() {
+    if (theme) root.dataset.theme = theme; else delete root.dataset.theme;
+    sync();
+  }
+
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]');
+    if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var t = e.target.closest('[data-set-theme]');
+    if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var opt = e.target.closest('.seg__opt');
+    if (opt) {
+      opt.parentElement.querySelectorAll('.seg__opt').forEach(function (o) { o.setAttribute('aria-checked', String(o === opt)); });
+      return;
+    }
+    var chip = e.target.closest('.chip[aria-pressed]');
+    if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); document.dispatchEvent(new CustomEvent('mock:render')); return; }
+    var step = e.target.closest('[data-step-dir]');
+    if (step) {
+      var st = step.closest('.stepper');
+      var out = st.querySelector('[data-num]');
+      var v = parseFloat(out.dataset.num) + parseFloat(st.dataset.step) * (+step.dataset.stepDir);
+      v = Math.min(parseFloat(st.dataset.max), Math.max(parseFloat(st.dataset.min), Math.round(v * 10) / 10));
+      out.dataset.num = String(v);
+      out.textContent = formatNumber(v, 1);
+      document.dispatchEvent(new CustomEvent('mock:render'));
+      return;
+    }
+    var head = e.target.closest('[data-toggle-card]');
+    if (head) {
+      var card = head.closest('.eq');
+      card.classList.toggle('is-on');
+      head.setAttribute('aria-expanded', String(card.classList.contains('is-on')));
+    }
+  });
+  sysDark.addEventListener('change', sync);
+
+  applyTheme();
+  applyLang();
+})();
+
+</script>
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var radio = e.target.closest('[role="radio"]');
+    if (radio) {
+      var group = radio.closest('[role="radiogroup"]');
+      group.querySelectorAll('[role="radio"]').forEach(function (r) { r.setAttribute('aria-checked', String(r === radio)); });
+      return;
+    }
+    var disc = e.target.closest('.disc');
+    if (disc) {
+      var open = disc.getAttribute('aria-expanded') !== 'true';
+      disc.setAttribute('aria-expanded', String(open));
+      var body = document.getElementById(disc.getAttribute('aria-controls'));
+      if (body) body.hidden = !open;
+    }
+  });
+})();
+</script>
+</body>
+</html>

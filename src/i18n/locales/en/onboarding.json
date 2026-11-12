@@ -1,0 +1,93 @@
+{
+  "title": "Set up",
+  "step": "Step {{n}} of {{total}}",
+  "generate": "Generate my programme",
+  "reps": "reps a set",
+  "goal": {
+    "title": "Your goal",
+    "intro": "Your 8 weeks are built around it. You can change it later.",
+    "label": "Goal",
+    "muscle": "Build muscle with loads that keep climbing.",
+    "recomposition": "Lose fat, keep the muscle. Circuits and finishers.",
+    "general-fitness": "Strength, cardio and core, in balance.",
+    "error": "Choose your goal to continue."
+  },
+  "level": {
+    "title": "Your level",
+    "intro": "It sets the volume, how hard sets get and which variations you start with.",
+    "label": "Level",
+    "beginner": "Little or no strength training so far.",
+    "returning": "You have trained before, just not in recent months.",
+    "intermediate": "Training regularly for 6 months or more.",
+    "advanced": "Years of training. You know your numbers.",
+    "error": "Choose your level to continue."
+  },
+  "schedule": {
+    "title": "Your schedule",
+    "days": "Sessions a week",
+    "daysLess": "One session fewer",
+    "daysMore": "One more session",
+    "minutes": "Minutes per session, warm-up included",
+    "minutesLess": "5 minutes less",
+    "minutesMore": "5 minutes more",
+    "week": "Your week",
+    "noFixedDays": "No fixed weekdays: do the next one whenever you can.",
+    "short": "Under 30 min, every session works the whole body.",
+    "desc": {
+      "2": "Two full-body sessions, alternating.",
+      "3": "Three full-body sessions, alternating.",
+      "4": "Upper and lower body, twice each.",
+      "5": "One focus per session, more volume per muscle.",
+      "6": "The 5 sessions plus an easy cardio day.",
+      "rotating": "Three full-body sessions rotating across your {{days}} days."
+    }
+  },
+  "equipment": {
+    "title": "Your equipment",
+    "intro": "Tick what you own and set it up as it is at home. Suggested loads start from there.",
+    "none": "Nothing to tick? Every session then uses bodyweight, a chair, a wall and a door.",
+    "count": "exercises available"
+  },
+  "bodyweight": {
+    "title": "Your bodyweight",
+    "intro": "Used to estimate your starting loads.",
+    "label": "Bodyweight",
+    "field": "Bodyweight in kilograms",
+    "skip": "Left empty, starting loads assume 70 kg. You can add it in your profile later.",
+    "error": "Enter a weight between 30 and 250 kg, or leave it empty."
+  },
+  "summary": {
+    "title": "Summary",
+    "goal": "Goal",
+    "level": "Level",
+    "schedule": "Schedule",
+    "equipment": "Equipment",
+    "editGoal": "Change goal",
+    "editLevel": "Change level",
+    "editSchedule": "Change schedule",
+    "editEquipment": "Change equipment",
+    "scheduleValue": "{{days}} sessions of {{minutes}} min, {{split}}",
+    "split": {
+      "full": "full body",
+      "2": "full body",
+      "3": "full body",
+      "4": "upper and lower body",
+      "5": "one focus per session",
+      "6": "one focus per session and a cardio day"
+    },
+    "exercises_one": "{{count}} exercise",
+    "exercises_other": "{{count}} exercises",
+    "bodyweightOnly": "Bodyweight",
+    "more": "+{{count}}"
+  },
+  "generating": {
+    "title": "Building your programme",
+    "weeks": "weeks",
+    "split": "Split: {{split}}",
+    "exercises": "Exercises picked from the {{count}} your equipment allows",
+    "loads": "Starting loads for {{kg}} kg",
+    "loadsDefault": "Estimated starting loads",
+    "phases": "Phases across the 8 weeks",
+    "error": "Generation failed. Try again."
+  }
+}

@@ -1,0 +1,74 @@
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.btn {
+  display: grid;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active {
+  background: var(--color-press-overlay);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.btn:disabled {
+  color: var(--color-text-disabled);
+  cursor: default;
+  background: none;
+}
+.value {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  min-width: 84px;
+  padding: 0 2px;
+}
+.num {
+  font-size: var(--type-numeral-s-size);
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--type-numeral-tracking);
+  line-height: 1;
+}
+.empty {
+  color: var(--color-text-muted);
+}
+.unit {
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+}
+.player .btn {
+  width: var(--tap-player);
+  height: var(--tap-player);
+}
+.player .value {
+  min-width: 96px;
+}
+.player .num {
+  font-size: var(--type-numeral-m-size);
+}
