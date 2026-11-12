@@ -86,6 +86,20 @@ describe('targets', () => {
     expect(TargetSchema.safeParse({ kind: 'reps', min: 12, max: 8 }).success).toBe(false);
     expect(TargetSchema.safeParse({ kind: 'time', minSec: 60, maxSec: 30 }).success).toBe(false);
   });
+
+  it('accepts work/recovery intervals with optional treadmill settings', () => {
+    const interval = { kind: 'interval', rounds: 8, workSec: 30, recoverySec: 30 };
+    expect(TargetSchema.safeParse(interval).success).toBe(true);
+    expect(
+      TargetSchema.safeParse({
+        ...interval,
+        workSpeedKmh: 5,
+        workInclinePct: 12,
+        recoveryInclinePct: 3,
+      }).success,
+    ).toBe(true);
+    expect(TargetSchema.safeParse({ ...interval, workSec: 2 }).success).toBe(false);
+  });
 });
 
 describe('programme schema', () => {

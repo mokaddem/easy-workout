@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { DateTimeSchema, int, LanguageSchema, positive } from './common';
-import { GoalSchema } from './programme';
+
+export const GOALS = ['muscle', 'recomposition', 'general-fitness'] as const;
+export const GoalSchema = z.enum(GOALS);
+export type Goal = z.infer<typeof GoalSchema>;
 
 export const LEVELS = ['beginner', 'returning', 'intermediate', 'advanced'] as const;
 export const LevelSchema = z.enum(LEVELS);

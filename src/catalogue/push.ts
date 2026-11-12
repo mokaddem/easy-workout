@@ -298,15 +298,15 @@ export const pushExercises: readonly Exercise[] = [
   },
   {
     id: 'seated-dumbbell-shoulder-press',
-    name: { fr: 'Développé épaules haltères assis', en: 'Seated dumbbell shoulder press' },
+    name: { fr: 'Développé épaules assis', en: 'Seated shoulder press' },
     execution: {
       fr: [
-        'Assis bien droit sur un banc ou une chaise (utilise le dossier s’il y en a un), haltères au niveau des oreilles.',
+        'Assis bien droit sur un banc ou une chaise (utilise le dossier s’il y en a un), charges au niveau des oreilles.',
         'Pousse au-dessus de la tête jusqu’à avoir les bras tendus.',
         'Redescends en contrôle au niveau des oreilles.',
       ],
       en: [
-        'Sit tall on a bench or chair (use the backrest if there is one), dumbbells at ear level.',
+        'Sit tall on a bench or chair (use the backrest if there is one), weights at ear level.',
         'Press overhead until your arms are straight.',
         'Lower under control back to ear level.',
       ],
@@ -322,6 +322,8 @@ export const pushExercises: readonly Exercise[] = [
     equipment: [
       [{ kind: 'dumbbell', count: 2 }, { kind: 'bench' }],
       [{ kind: 'dumbbell', count: 2 }, { kind: 'chair' }],
+      [{ kind: 'kettlebell', count: 2 }, { kind: 'bench' }],
+      [{ kind: 'kettlebell', count: 2 }, { kind: 'chair' }],
     ],
     loadType: 'external',
     metric: 'reps',
@@ -839,6 +841,38 @@ export const pushExercises: readonly Exercise[] = [
     animation: null,
   },
   {
+    id: 'hands-elevated-pike-push-up',
+    name: { fr: 'Pompes en V mains surélevées', en: 'Hands-elevated pike push-up' },
+    execution: {
+      fr: [
+        'Cale une chaise contre un mur pour qu’elle ne glisse pas, mains sur l’assise (ou sur un banc), pieds en retrait, hanches hautes.',
+        'Fléchis les coudes pour amener la tête vers l’assise.',
+        'Repousse jusqu’à avoir les bras tendus, hanches toujours hautes.',
+      ],
+      en: [
+        'Wedge a chair against a wall so it cannot slide, hands on the seat (or on a bench), feet back, hips high.',
+        'Bend your elbows to bring your head toward the seat.',
+        'Press back up until your arms are straight, hips staying high.',
+      ],
+    },
+    keyCue: {
+      fr: 'Chaise bloquée contre le mur, hanches hautes : la tête descend vers l’assise sans avancer le buste.',
+      en: 'Chair braced against the wall, hips high: lower your head toward the seat without moving your torso forward.',
+    },
+    primaryMuscles: ['front-delts'],
+    secondaryMuscles: ['side-delts', 'triceps', 'chest'],
+    pattern: 'push-vertical',
+    tags: ['compound'],
+    equipment: [[{ kind: 'chair', count: 1 }], [{ kind: 'bench' }]],
+    loadType: 'bodyweight',
+    metric: 'reps',
+    unilateral: false,
+    difficulty: 2,
+    easier: [],
+    harder: ['pike-push-up'],
+    animation: null,
+  },
+  {
     id: 'pike-push-up',
     name: { fr: 'Pompes en V (pike)', en: 'Pike push-up' },
     execution: {
@@ -866,7 +900,7 @@ export const pushExercises: readonly Exercise[] = [
     metric: 'reps',
     unilateral: false,
     difficulty: 3,
-    easier: [],
+    easier: ['hands-elevated-pike-push-up'],
     harder: ['feet-elevated-pike-push-up'],
     animation: null,
   },

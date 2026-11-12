@@ -1,0 +1,118 @@
+# 8-week muscle gain — 4 sessions/week, 8 weeks
+Profile: muscle, returning, 4 days, 60 min, 82 kg
+Progression: +2 kg upper / +4 kg lower
+
+Phases:
+  W1-3 Re-adaptation: RIR 3 (all-sets)
+  W4-5 Volume: +1 set on main blocks 1, 2
+  W6-7 Intensity: RIR 2 (first-set)
+  W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
+
+## Session A — Upper body A  [a-upper-a, ~40 min]
+Warm-up:
+  1. Arm circles · 30s
+  2. Push-up · 15 · tempo 2-0-2 · bodyweight
+  3. 2 × Band pull-apart · 20 · light band  (rest 30s)
+Main:
+  1. 3 × Push-up · 8-10 · RIR 3 · bodyweight  (rest 90s)
+  2. 3 × Inverted row under a table · 10 · RIR 3  (rest 90s)
+  3. 2 × Band overhead press · 10-12 · RIR 3 · light band  (rest 75s)
+  4. 4 × Chin-up · 6-10 · RIR 3 · bodyweight  (rest 105s)
+  5. superset × 4 rounds (rest 60s after each round)
+       - Band lateral raise · 15 · RIR 3 · light band
+       - Band biceps curl · 10-12 · RIR 3 · light band
+  6. superset × 4 rounds (rest 60s after each round)
+       - Band overhead triceps extension · 12 · RIR 3 · light band
+       - Band face pull · 15-20 · RIR 3 · light band
+
+## Session B — Lower body A  [b-lower-a, ~40 min]
+Warm-up:
+  1. Bodyweight squat · 20
+  2. Walking lunge · 10/side · bodyweight
+  3. Glute bridge · 15
+Main:
+  1. 3 × Box pistol squat · 8-12/side · RIR 3  (rest 90s)
+  2. 3 × Single-leg Romanian deadlift · 10/side · RIR 3 · tempo 3-0-2 · bodyweight  (rest 90s)
+  3. 2 × Step-up · 10/side · RIR 3 · bodyweight  (rest 90s)
+  4. 2 × Single-leg calf raise · 15-20/side · RIR 3 · bodyweight  (rest 45s)
+  5. superset × 4 rounds (rest 60s after each round)
+       - Plank · 45-60s
+       - Hanging knee raise · 10-12 · RIR 3
+  6. 2 × Band hip abduction · 20/side · RIR 3 · light band  (rest 45s)
+
+## Session C — Upper body B  [c-upper-b, ~36 min]
+Warm-up:
+  1. Arm circles · 30s
+  2. 2 × Dead hang · 20s  (rest 30s)
+  3. 2 × Band face pull · 20 · light band  (rest 30s)
+Main:
+  1. 3 × Chin-up · 5-8 · RIR 3 · bodyweight  (rest 150s)
+  2. 3 × Band overhead press · 10-15 · RIR 3 · light band  (rest 120s)
+  3. 2 × Feet-elevated inverted row · 12 · RIR 3  (rest 75s)
+  4. 4 × Push-up · 8-12 · RIR 3 · bodyweight  (rest 90s)
+  5. superset × 4 rounds (rest 60s after each round)
+       - Band biceps curl · 12 · RIR 3 · light band
+       - Band overhead triceps extension · 12 · RIR 3 · light band
+  6. 2 × Negative dip · max · RIR 2  (rest 60s)
+
+## Session D — Lower body B  [d-lower-b, ~37 min]
+Warm-up:
+  1. Bodyweight squat · 20
+  2. Walking lunge · 10/side · bodyweight
+  3. Glute bridge · 15
+Main:
+  1. 3 × Single-leg Romanian deadlift · 8/side · RIR 3 · bodyweight  (rest 90s)
+  2. 2 × Walking lunge · 12/side · RIR 3 · bodyweight  (rest 75s)
+  3. 2 × Single-leg glute bridge · 12-15/side · RIR 3  (rest 75s)
+  4. 2 × Sliding leg curl · 10-12 · RIR 3  (rest 60s)
+  5. superset × 4 rounds (rest 60s after each round)
+       - Side plank · 30s/side
+       - Russian twist · 15/side · RIR 3 · bodyweight
+  6. 2 × Single-leg calf raise · 15-20/side · RIR 3 · bodyweight  (rest 45s)
+
+Why (choices other than the first preference):
+- split {"daysPerWeek":4,"sessionMinutes":60,"templates":"upper-a,lower-a,upper-b,lower-b","shortSessions":false}
+- dose {"goal":"muscle","level":"returning"}
+- [a-upper-a/main/0] load-unloaded-start {"exerciseId":"push-up"}
+- [a-upper-a/main/2] load-band {"exerciseId":"band-overhead-press","level":"light"}
+- [a-upper-a/main/3] load-unloaded-start {"exerciseId":"chin-up"}
+- [a-upper-a/main/4/0] load-band {"exerciseId":"band-lateral-raise","level":"light"}
+- [a-upper-a/main/4/1] load-band {"exerciseId":"band-biceps-curl","level":"light"}
+- [a-upper-a/main/5/0] load-band {"exerciseId":"band-overhead-triceps-extension","level":"light"}
+- [a-upper-a/main/5/1] load-band {"exerciseId":"band-face-pull","level":"light"}
+- [a-upper-a] finisher-skipped-goal {"goal":"muscle"}
+- [a-upper-a] time-fit {"action":"block-added","exerciseIds":"band-overhead-triceps-extension,band-face-pull","budget":60}
+- [a-upper-a] time-fit {"action":"set-added","exerciseIds":"chin-up","budget":60}
+- [a-upper-a] time-fit {"action":"round-added","exerciseIds":"band-lateral-raise,band-biceps-curl","budget":60}
+- [a-upper-a] time-fit {"action":"round-added","exerciseIds":"band-overhead-triceps-extension,band-face-pull","budget":60}
+- [a-upper-a] time-fit {"action":"set-added","exerciseIds":"chin-up","budget":60}
+- [a-upper-a] time-fit {"action":"round-added","exerciseIds":"band-lateral-raise,band-biceps-curl","budget":60}
+- [a-upper-a] time-fit {"action":"round-added","exerciseIds":"band-overhead-triceps-extension,band-face-pull","budget":60}
+- [b-lower-a/main/1] load-unloaded-start {"exerciseId":"single-leg-romanian-deadlift"}
+- [b-lower-a/main/2] load-unloaded-start {"exerciseId":"dumbbell-step-up"}
+- [b-lower-a/main/3] load-unloaded-start {"exerciseId":"single-leg-calf-raise"}
+- [b-lower-a/main/5] load-band {"exerciseId":"band-hip-abduction","level":"light"}
+- [b-lower-a] time-fit {"action":"block-added","exerciseIds":"band-hip-abduction","budget":60}
+- [b-lower-a] time-fit {"action":"set-added","exerciseIds":"single-leg-romanian-deadlift","budget":60}
+- [b-lower-a] time-fit {"action":"round-added","exerciseIds":"plank,hanging-knee-raise","budget":60}
+- [b-lower-a] time-fit {"action":"round-added","exerciseIds":"plank,hanging-knee-raise","budget":60}
+- [c-upper-b/main/0] load-unloaded-start {"exerciseId":"chin-up"}
+- [c-upper-b/main/1] load-band {"exerciseId":"band-overhead-press","level":"light"}
+- [c-upper-b/main/3] load-unloaded-start {"exerciseId":"push-up"}
+- [c-upper-b/main/4/0] load-band {"exerciseId":"band-biceps-curl","level":"light"}
+- [c-upper-b/main/4/1] load-band {"exerciseId":"band-overhead-triceps-extension","level":"light"}
+- [c-upper-b] finisher-skipped-goal {"goal":"muscle"}
+- [c-upper-b] time-fit {"action":"block-added","exerciseIds":"dip-bar-negative-dip","budget":60}
+- [c-upper-b] time-fit {"action":"set-added","exerciseIds":"push-up","budget":60}
+- [c-upper-b] time-fit {"action":"round-added","exerciseIds":"band-biceps-curl,band-overhead-triceps-extension","budget":60}
+- [c-upper-b] time-fit {"action":"set-added","exerciseIds":"push-up","budget":60}
+- [c-upper-b] time-fit {"action":"round-added","exerciseIds":"band-biceps-curl,band-overhead-triceps-extension","budget":60}
+- [d-lower-b/main/0] load-unloaded-start {"exerciseId":"single-leg-romanian-deadlift"}
+- [d-lower-b/main/1] load-unloaded-start {"exerciseId":"walking-lunge"}
+- [d-lower-b/main/4/1] load-unloaded-start {"exerciseId":"russian-twist"}
+- [d-lower-b/main/5] load-unloaded-start {"exerciseId":"single-leg-calf-raise"}
+- [d-lower-b] finisher-skipped-goal {"goal":"muscle"}
+- [d-lower-b] time-fit {"action":"block-added","exerciseIds":"single-leg-calf-raise","budget":60}
+- [d-lower-b] time-fit {"action":"round-added","exerciseIds":"side-plank,russian-twist","budget":60}
+- [d-lower-b] time-fit {"action":"round-added","exerciseIds":"side-plank,russian-twist","budget":60}
+- max-test {"exerciseId":"push-up"}

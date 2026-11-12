@@ -66,6 +66,8 @@ const AdjustableDumbbellsSchema = z
     minKg: positive,
     maxKg: positive,
     incrementKg: positive,
+    /** Selector (dial) dumbbells must not be swung; spin-lock plates are bolted on. */
+    mechanism: z.enum(['spin-lock', 'selector']).optional(),
   })
   .refine((d) => d.minKg < d.maxKg, { message: 'minKg must be below maxKg' });
 

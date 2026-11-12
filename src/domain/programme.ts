@@ -1,10 +1,8 @@
 import { z } from 'zod';
 import { DateTimeSchema, IdSchema, int, LocalizedTextSchema, positive, SlugSchema } from './common';
+import { GenerationSchema } from './generation';
+import { GoalSchema } from './profile';
 import { SessionSchema } from './session';
-
-export const GOALS = ['muscle', 'recomposition', 'general-fitness'] as const;
-export const GoalSchema = z.enum(GOALS);
-export type Goal = z.infer<typeof GoalSchema>;
 
 /** How a phase modifies the base sessions for its weeks. */
 export const PhaseAdjustmentSchema = z.discriminatedUnion('kind', [
@@ -58,6 +56,8 @@ export const ProgrammeSchema = z
     rotation: z.array(SessionSchema).min(1),
     phases: z.array(PhaseSchema),
     progression: ProgressionRuleSchema,
+    /** Present on generated programmes. */
+    generation: GenerationSchema.optional(),
     createdAt: DateTimeSchema.optional(),
   })
   .superRefine((p, ctx) => {

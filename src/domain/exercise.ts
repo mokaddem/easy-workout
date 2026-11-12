@@ -74,6 +74,8 @@ export const EXERCISE_TAGS = [
   'isolation',
   'isometric',
   'plyometric',
+  /** Explosive hip snap or pull (swings, cleans, thrusters): never given a slow tempo. */
+  'ballistic',
   'warmup',
   'mobility',
 ] as const;

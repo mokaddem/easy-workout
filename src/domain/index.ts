@@ -5,3 +5,4 @@ export * from './session';
 export * from './programme';
 export * from './profile';
 export * from './log';
+export * from './generation';

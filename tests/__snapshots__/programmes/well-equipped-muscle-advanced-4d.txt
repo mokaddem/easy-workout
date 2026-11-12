@@ -1,0 +1,127 @@
+# 8-week muscle gain — 4 sessions/week, 8 weeks
+Profile: muscle, advanced, 4 days, 75 min, 85 kg
+Progression: +2.5 kg upper / +5 kg lower
+
+Phases:
+  W1-2 Re-adaptation: RIR 3 (all-sets)
+  W3-4 Volume: +1 set on main blocks 1, 2
+  W5-6 Intensity: RIR 1 (first-set)
+  W7 Peak: RIR 1 (last-set)
+  W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
+
+## Session A — Upper body A  [a-upper-a, ~57 min]
+Warm-up:
+  1. Arm circles · 30s
+  2. Push-up · 15 · tempo 2-0-2 · bodyweight
+  3. 2 × Band pull-apart · 20 · extra-light band  (rest 30s)
+Main:
+  1. 5 × Dumbbell bench press · 6-10 · RIR 2 · 17.5 kg  (rest 120s)
+  2. 5 × One-arm row · 10/side · RIR 2 · 25 kg  (rest 105s)
+  3. 3 × Standing shoulder press · 10-12 · RIR 2 · 15 kg  (rest 75s)
+  4. 5 × Chin-up · 6-10 · RIR 2 · bodyweight  (rest 105s)
+  5. superset × 4 rounds (rest 60s after each round)
+       - Dumbbell lateral raise · 15 · RIR 2 · 7.5 kg
+       - Dumbbell biceps curl · 10-12 · RIR 2 · 15 kg
+  6. superset × 4 rounds (rest 60s after each round)
+       - Overhead triceps extension · 12 · RIR 2 · 15 kg
+       - Band face pull · 15-20 · RIR 2 · medium band
+
+## Session B — Lower body A  [b-lower-a, ~54 min]
+Warm-up:
+  1. Bodyweight squat · 20
+  2. Walking lunge · 10/side · bodyweight
+  3. Glute bridge · 15
+Main:
+  1. 5 × Goblet squat · 6-12 · RIR 2 · 25 kg  (rest 120s)
+  2. 4 × Romanian deadlift · 10 · RIR 2 · tempo 3-0-2 · 30 kg  (rest 105s)
+  3. 4 × Bulgarian split squat · 10/side · RIR 2 · bodyweight  (rest 90s)
+  4. 3 × Single-leg calf raise · 15-20/side · RIR 2 · bodyweight  (rest 45s)
+  5. superset × 5 rounds (rest 60s after each round)
+       - Towel body saw · 10-12 · RIR 2
+       - Toes to bar · 10-12 · RIR 2
+  6. 3 × Band hip abduction · 20/side · RIR 2 · medium band  (rest 45s)
+
+## Session C — Upper body B  [c-upper-b, ~52 min]
+Warm-up:
+  1. Arm circles · 30s
+  2. 2 × Dead hang · 20s  (rest 30s)
+  3. 2 × Band face pull · 20 · extra-light band  (rest 30s)
+Main:
+  1. 5 × Pull-up · 5-8 · RIR 2 · bodyweight  (rest 150s)
+  2. 5 × Standing shoulder press · 6-10 · RIR 2 · 15 kg  (rest 120s)
+  3. 3 × Bent-over row · 12 · RIR 2 · 17.5 kg  (rest 75s)
+  4. 5 × Push-up · 8-12 · RIR 2 · bodyweight  (rest 90s)
+  5. superset × 5 rounds (rest 60s after each round)
+       - Hammer curl · 12 · RIR 2 · 15 kg
+       - Overhead triceps extension · 12 · RIR 2 · 15 kg
+  6. 2 × Dip · max · RIR 1 · bodyweight  (rest 60s)
+
+## Session D — Lower body B  [d-lower-b, ~53 min]
+Warm-up:
+  1. Bodyweight squat · 20
+  2. Walking lunge · 10/side · bodyweight
+  3. Glute bridge · 15
+  4. 1 × Deadlift · 10 · 15 kg  (rest 30s)
+  5. 1 × Deadlift · 5 · 22.5 kg  (rest 60s)
+Main:
+  1. 5 × Deadlift · 6-8 · RIR 2 · 30 kg  (rest 150s)
+  2. 3 × Walking lunge · 12/side · RIR 2 · bodyweight  (rest 75s)
+  3. 3 × Bench hip thrust · 12-15 · RIR 2 · 32.5 kg  (rest 75s)
+  4. 3 × Suspension hamstring curl · 10-12 · RIR 2  (rest 60s)
+  5. superset × 5 rounds (rest 60s after each round)
+       - Side plank with leg raise · 10/side · RIR 2
+       - Russian twist · 15/side · RIR 2 · bodyweight
+  6. 3 × Single-leg calf raise · 15-20/side · RIR 2 · bodyweight  (rest 45s)
+
+Why (choices other than the first preference):
+- split {"daysPerWeek":4,"sessionMinutes":75,"templates":"upper-a,lower-a,upper-b,lower-b","shortSessions":false}
+- dose {"goal":"muscle","level":"advanced"}
+- [a-upper-a/main/0] load-start {"exerciseId":"dumbbell-bench-press","kg":17.5,"targetKg":17.85,"bodyweightKg":85,"bodyweightAssumed":false}
+- [a-upper-a/main/1] load-start {"exerciseId":"one-arm-dumbbell-row","kg":25,"targetKg":23.8,"bodyweightKg":85,"bodyweightAssumed":false}
+- [a-upper-a/main/2] load-start {"exerciseId":"standing-dumbbell-shoulder-press","kg":15,"targetKg":15.47,"bodyweightKg":85,"bodyweightAssumed":false}
+- [a-upper-a/main/3] load-unloaded-start {"exerciseId":"chin-up"}
+- [a-upper-a/main/4/0] load-start {"exerciseId":"dumbbell-lateral-raise","kg":7.5,"targetKg":7.14,"bodyweightKg":85,"bodyweightAssumed":false}
+- [a-upper-a/main/4/1] load-start {"exerciseId":"dumbbell-biceps-curl","kg":15,"targetKg":14.28,"bodyweightKg":85,"bodyweightAssumed":false}
+- [a-upper-a/main/5/0] load-start {"exerciseId":"overhead-dumbbell-triceps-extension","kg":15,"targetKg":14.28,"bodyweightKg":85,"bodyweightAssumed":false}
+- [a-upper-a/main/5/1] load-band {"exerciseId":"band-face-pull","level":"medium"}
+- [a-upper-a] finisher-skipped-goal {"goal":"muscle"}
+- [a-upper-a] time-fit {"action":"block-added","exerciseIds":"overhead-dumbbell-triceps-extension,band-face-pull","budget":75}
+- [a-upper-a] time-fit {"action":"set-added","exerciseIds":"chin-up","budget":75}
+- [a-upper-a] time-fit {"action":"round-added","exerciseIds":"dumbbell-lateral-raise,dumbbell-biceps-curl","budget":75}
+- [a-upper-a] time-fit {"action":"round-added","exerciseIds":"overhead-dumbbell-triceps-extension,band-face-pull","budget":75}
+- [b-lower-a/main/0] load-start {"exerciseId":"goblet-squat","kg":25,"targetKg":23.8,"bodyweightKg":85,"bodyweightAssumed":false}
+- [b-lower-a/main/1] load-start {"exerciseId":"dumbbell-romanian-deadlift","kg":30,"targetKg":28.56,"bodyweightKg":85,"bodyweightAssumed":false}
+- [b-lower-a/main/2] load-unloaded-start {"exerciseId":"bulgarian-split-squat"}
+- [b-lower-a/main/3] load-unloaded-start {"exerciseId":"single-leg-calf-raise"}
+- [b-lower-a/main/4/0] exercise-harder-variant {"exerciseId":"towel-body-saw","slot":"plank","from":"plank"}
+- [b-lower-a/main/4/1] exercise-harder-variant {"exerciseId":"toes-to-bar","slot":"leg-raise","from":"hanging-leg-raise"}
+- [b-lower-a/main/5] load-band {"exerciseId":"band-hip-abduction","level":"medium"}
+- [b-lower-a] time-fit {"action":"block-added","exerciseIds":"band-hip-abduction","budget":75}
+- [b-lower-a] time-fit {"action":"round-added","exerciseIds":"towel-body-saw,toes-to-bar","budget":75}
+- [b-lower-a] time-fit {"action":"round-added","exerciseIds":"towel-body-saw,toes-to-bar","budget":75}
+- [c-upper-b/main/0] load-unloaded-start {"exerciseId":"pull-up"}
+- [c-upper-b/main/1] load-start {"exerciseId":"standing-dumbbell-shoulder-press","kg":15,"targetKg":15.47,"bodyweightKg":85,"bodyweightAssumed":false}
+- [c-upper-b/main/2] load-start {"exerciseId":"bent-over-dumbbell-row","kg":17.5,"targetKg":16.66,"bodyweightKg":85,"bodyweightAssumed":false}
+- [c-upper-b/main/3] load-unloaded-start {"exerciseId":"push-up"}
+- [c-upper-b/main/4/0] load-start {"exerciseId":"dumbbell-hammer-curl","kg":15,"targetKg":14.28,"bodyweightKg":85,"bodyweightAssumed":false}
+- [c-upper-b/main/4/1] load-start {"exerciseId":"overhead-dumbbell-triceps-extension","kg":15,"targetKg":14.28,"bodyweightKg":85,"bodyweightAssumed":false}
+- [c-upper-b/main/5] load-unloaded-start {"exerciseId":"dip"}
+- [c-upper-b] finisher-skipped-goal {"goal":"muscle"}
+- [c-upper-b] time-fit {"action":"block-added","exerciseIds":"dip","budget":75}
+- [c-upper-b] time-fit {"action":"set-added","exerciseIds":"push-up","budget":75}
+- [c-upper-b] time-fit {"action":"round-added","exerciseIds":"dumbbell-hammer-curl,overhead-dumbbell-triceps-extension","budget":75}
+- [c-upper-b] time-fit {"action":"round-added","exerciseIds":"dumbbell-hammer-curl,overhead-dumbbell-triceps-extension","budget":75}
+- [d-lower-b/warmup/3] ramp-up {"exerciseId":"dumbbell-deadlift","kg":15,"workingKg":30}
+- [d-lower-b/warmup/4] ramp-up {"exerciseId":"dumbbell-deadlift","kg":22.5,"workingKg":30}
+- [d-lower-b/main/0] load-start {"exerciseId":"dumbbell-deadlift","kg":30,"targetKg":28.56,"bodyweightKg":85,"bodyweightAssumed":false}
+- [d-lower-b/main/1] load-unloaded-start {"exerciseId":"walking-lunge"}
+- [d-lower-b/main/2] load-start {"exerciseId":"bench-hip-thrust","kg":32.5,"targetKg":29.75,"bodyweightKg":85,"bodyweightAssumed":false}
+- [d-lower-b/main/3] exercise-harder-variant {"exerciseId":"suspension-hamstring-curl","slot":"leg-curl","from":"sliding-leg-curl"}
+- [d-lower-b/main/4/0] exercise-harder-variant {"exerciseId":"side-plank-leg-raise","slot":"side-plank","from":"side-plank"}
+- [d-lower-b/main/4/1] load-unloaded-start {"exerciseId":"russian-twist"}
+- [d-lower-b/main/5] load-unloaded-start {"exerciseId":"single-leg-calf-raise"}
+- [d-lower-b] finisher-skipped-goal {"goal":"muscle"}
+- [d-lower-b] time-fit {"action":"block-added","exerciseIds":"single-leg-calf-raise","budget":75}
+- [d-lower-b] time-fit {"action":"round-added","exerciseIds":"side-plank-leg-raise,russian-twist","budget":75}
+- [d-lower-b] time-fit {"action":"round-added","exerciseIds":"side-plank-leg-raise,russian-twist","budget":75}
+- max-test {"exerciseId":"push-up"}

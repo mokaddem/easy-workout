@@ -24,6 +24,17 @@ export const TargetSchema = z
       speedKmh: positive.optional(),
       inclinePct: z.number().min(0).optional(),
     }),
+    /** Work/recovery intervals, e.g. 10 rounds of 30 s work and 30 s easy. Speed and incline apply to treadmills. */
+    z.strictObject({
+      kind: z.literal('interval'),
+      rounds: int(1, 60),
+      workSec: int(5, 600),
+      recoverySec: int(0, 600),
+      workSpeedKmh: positive.optional(),
+      workInclinePct: z.number().min(0).optional(),
+      recoverySpeedKmh: positive.optional(),
+      recoveryInclinePct: z.number().min(0).optional(),
+    }),
   ])
   .superRefine((t, ctx) => {
     const bad =
