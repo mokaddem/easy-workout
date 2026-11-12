@@ -1,0 +1,430 @@
+/*
+ * Easy Workout design tokens.
+ *
+ * Two layers:
+ *   1. Primitives (--palette-*, --font-size-*, --space-*, ...): raw values, never themed.
+ *   2. Semantic tokens (--color-*, --type-*, --elevation-*, ...): what components use.
+ *
+ * Theme: dark is the default look. The light theme applies when the system prefers
+ * light, unless the root forces a theme with data-theme="dark" | "light".
+ * The two light blocks below must stay identical.
+ *
+ * Reference: design/design-system.md
+ */
+
+/* ------------------------------------------------------------------ */
+/* Primitives                                                          */
+/* ------------------------------------------------------------------ */
+
+:root {
+  /* Graphite: cool neutral, a touch of blue so the yellow vibrates against it */
+  --palette-graphite-1000: #08090c;
+  --palette-graphite-950: #0c0e13;
+  --palette-graphite-900: #11131a;
+  --palette-graphite-850: #181b23;
+  --palette-graphite-800: #20242e;
+  --palette-graphite-750: #292d38;
+  --palette-graphite-700: #333845;
+  --palette-graphite-600: #656c7c;
+  --palette-graphite-500: #6a7080;
+  --palette-graphite-400: #9197a6;
+  --palette-graphite-300: #aab0bd;
+  --palette-graphite-200: #d0d4dc;
+  --palette-graphite-150: #dfe2e8;
+  --palette-graphite-100: #e8eaee;
+  --palette-graphite-50: #f1f2f5;
+  --palette-white: #ffffff;
+  --palette-ink: #12141a;
+  --palette-chalk: #f3f4f6;
+
+  /* Signal yellow: the one accent */
+  --palette-signal-100: #fff4c7;
+  --palette-signal-300: #ffd95a;
+  --palette-signal-500: #ffc81e;
+  --palette-signal-600: #f0b400;
+  --palette-signal-700: #d99f00;
+  --palette-signal-900: #6e4c00;
+  --palette-signal-ink-muted: #4d3d05;
+
+  /* Red: destructive actions, pain, errors. Never decorative. */
+  --palette-red-300: #ff8a7f;
+  --palette-red-400: #ff6b5e;
+  --palette-red-700: #b3261e;
+  --palette-red-800: #8f1d17;
+  --palette-red-100: #fde4e1;
+  --palette-red-950: #3a1512;
+
+  /* Typeface: Archivo variable (wdth 62–125, wght 100–900), SIL Open Font License 1.1 */
+  --font-sans:
+    'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+
+  /* Width axis (font-stretch) */
+  --font-width-numeral: 62%;
+  --font-width-display: 68%;
+  --font-width-title: 76%;
+  --font-width-label: 88%;
+  --font-width-text: 100%;
+
+  /* Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 800;
+
+  /* Size scale: the classic typographic scale, extended in multiples of 48 for numerals */
+  --font-size-12: 0.75rem;
+  --font-size-14: 0.875rem;
+  --font-size-16: 1rem;
+  --font-size-18: 1.125rem;
+  --font-size-21: 1.3125rem;
+  --font-size-24: 1.5rem;
+  --font-size-36: 2.25rem;
+  --font-size-48: 3rem;
+  --font-size-60: 3.75rem;
+  --font-size-72: 4.5rem;
+  --font-size-96: 6rem;
+  --font-size-144: 9rem;
+  --font-size-192: 12rem;
+  --font-size-240: 15rem;
+  --font-size-288: 18rem;
+
+  /* Line heights */
+  --line-height-numeral: 0.86;
+  --line-height-display: 0.94;
+  --line-height-title: 1.1;
+  --line-height-label: 1.25;
+  --line-height-text: 1.5;
+
+  /* Tracking */
+  --letter-spacing-numeral: -0.02em;
+  --letter-spacing-display: -0.01em;
+  --letter-spacing-text: 0;
+
+  /* Spacing: 4 px base */
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.25rem; /* 20 */
+  --space-6: 1.5rem; /* 24 */
+  --space-7: 2rem; /* 32 */
+  --space-8: 2.5rem; /* 40 */
+  --space-9: 3rem; /* 48 */
+  --space-10: 4rem; /* 64 */
+  --space-11: 5rem; /* 80 */
+
+  /* Layout */
+  --layout-gutter: var(--space-5); /* screen side padding */
+  --layout-max-width: 40rem; /* content column on tablets */
+  --tap-min: 48px; /* every touch target */
+  --tap-comfort: 56px; /* primary controls, steppers */
+  --tap-player: 64px; /* in-workout controls, sweaty hands */
+
+  /* Radii: by role, not one value everywhere */
+  --radius-xs: 4px; /* bars, ticks, tempo segments */
+  --radius-sm: 8px; /* small wells, check boxes, thumbnails */
+  --radius-md: 14px; /* buttons, steppers, segmented controls, inputs */
+  --radius-lg: 20px; /* cards, animation slot */
+  --radius-xl: 28px; /* sheets (top corners), dialogs */
+  --radius-pill: 999px; /* chips, toasts, badges */
+
+  /* Borders */
+  --border-hairline: 1px;
+  --border-control: 1.5px;
+  --border-strong: 2px;
+
+  /* Layers */
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-sheet: 40;
+  --z-toast: 50;
+
+  /* Motion: durations */
+  --duration-instant: 80ms; /* press feedback */
+  --duration-fast: 140ms; /* toggles, chips, check marks */
+  --duration-base: 220ms; /* expand/collapse, segment slide, card state */
+  --duration-slow: 320ms; /* sheets, screen transitions */
+  --duration-flood: 420ms; /* work → rest takeover */
+  --duration-celebrate: 600ms; /* set done, personal best */
+
+  /* Motion: easing */
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1); /* entrances: fast start, firm landing */
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0); /* exits: get out of the way */
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1); /* repositioning on screen */
+  --ease-punch: cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot: achievements only */
+  --ease-linear: linear; /* clock-driven progress (timer ring, rest bar) */
+
+  /* Motion: distances */
+  --motion-distance-sm: 8px;
+  --motion-distance-md: 24px;
+  --motion-distance-lg: 64px;
+  --motion-scale-press: 0.97;
+  --motion-scale-punch: 1.08;
+}
+
+/* ------------------------------------------------------------------ */
+/* Semantic tokens: dark (default)                                     */
+/* ------------------------------------------------------------------ */
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: var(--palette-graphite-900);
+  --color-surface: var(--palette-graphite-850);
+  --color-surface-raised: var(--palette-graphite-800);
+  --color-surface-sunken: var(--palette-graphite-750);
+  --color-surface-inverse: var(--palette-chalk);
+  --color-on-inverse: var(--palette-ink);
+
+  --color-line: var(--palette-graphite-700); /* dividers, card edges (decorative) */
+  --color-line-strong: var(--palette-graphite-600); /* control outlines, ≥ 3:1 */
+
+  --color-text: var(--palette-chalk);
+  --color-text-muted: var(--palette-graphite-300);
+  --color-text-subtle: var(--palette-graphite-400);
+  --color-text-disabled: var(--palette-graphite-600);
+
+  --color-accent: var(--palette-signal-500); /* fills: primary buttons, "next", active segment */
+  --color-accent-pressed: var(--palette-signal-600);
+  --color-on-accent: var(--palette-ink);
+  --color-on-accent-muted: var(--palette-signal-ink-muted);
+  --color-accent-line: var(--palette-signal-500); /* strokes and indicators on the base surface */
+  --color-accent-text: var(--palette-signal-500); /* accent as text on the base surface */
+  --color-accent-tint: rgb(255 200 30 / 0.1); /* highlighted row background */
+
+  --color-complete: var(--palette-graphite-700); /* finished items recede */
+  --color-on-complete: var(--palette-chalk);
+
+  --color-danger: var(--palette-red-400);
+  --color-danger-pressed: var(--palette-red-300);
+  --color-on-danger: var(--palette-ink);
+  --color-danger-text: var(--palette-red-400);
+  --color-danger-tint: var(--palette-red-950);
+
+  --color-focus: var(--palette-signal-500);
+  --color-press-overlay: rgb(255 255 255 / 0.08);
+  --color-scrim: rgb(8 9 12 / 0.72);
+  --color-track: var(--palette-graphite-750); /* progress and timer tracks */
+
+  --color-rest-bg: var(--palette-signal-500); /* the rest takeover */
+  --color-on-rest: var(--palette-ink);
+  --color-on-rest-muted: var(--palette-signal-ink-muted);
+  --color-rest-track: rgb(18 20 26 / 0.18);
+  --color-rest-surface: var(--palette-ink); /* cards and solid buttons on the rest takeover */
+  --color-on-rest-surface: var(--palette-chalk);
+
+  /* Dark elevation: lighter surface + faint top highlight; shadows only separate floating layers */
+  --elevation-0: none;
+  --elevation-1: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --elevation-2: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 8px 24px rgb(0 0 0 / 0.45);
+  --elevation-3: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 16px 48px rgb(0 0 0 / 0.6);
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+}
+
+/* ------------------------------------------------------------------ */
+/* Semantic tokens: light (system preference) — keep identical to the forced block below */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+
+    --color-bg: var(--palette-graphite-50);
+    --color-surface: var(--palette-white);
+    --color-surface-raised: var(--palette-white);
+    --color-surface-sunken: var(--palette-graphite-100);
+    --color-surface-inverse: var(--palette-ink);
+    --color-on-inverse: var(--palette-chalk);
+
+    --color-line: var(--palette-graphite-150);
+    --color-line-strong: var(--palette-graphite-500);
+
+    --color-text: var(--palette-ink);
+    --color-text-muted: #474d5c;
+    --color-text-subtle: #5e6474;
+    --color-text-disabled: var(--palette-graphite-300);
+
+    --color-accent: var(--palette-signal-500);
+    --color-accent-pressed: var(--palette-signal-600);
+    --color-on-accent: var(--palette-ink);
+    --color-on-accent-muted: var(--palette-signal-ink-muted);
+    --color-accent-line: var(--palette-ink);
+    --color-accent-text: var(--palette-signal-900);
+    --color-accent-tint: var(--palette-signal-100);
+
+    --color-complete: var(--palette-graphite-200);
+    --color-on-complete: var(--palette-ink);
+
+    --color-danger: var(--palette-red-700);
+    --color-danger-pressed: var(--palette-red-800);
+    --color-on-danger: var(--palette-white);
+    --color-danger-text: var(--palette-red-700);
+    --color-danger-tint: var(--palette-red-100);
+
+    --color-focus: var(--palette-ink);
+    --color-press-overlay: rgb(18 20 26 / 0.06);
+    --color-scrim: rgb(18 20 26 / 0.48);
+    --color-track: var(--palette-graphite-150);
+
+    --color-rest-bg: var(--palette-signal-500);
+    --color-on-rest: var(--palette-ink);
+    --color-on-rest-muted: var(--palette-signal-ink-muted);
+    --color-rest-track: rgb(18 20 26 / 0.18);
+    --color-rest-surface: var(--palette-ink); /* cards and solid buttons on the rest takeover */
+    --color-on-rest-surface: var(--palette-chalk);
+
+    --elevation-0: none;
+    --elevation-1: 0 1px 2px rgb(18 20 26 / 0.06), 0 0 0 1px rgb(18 20 26 / 0.04);
+    --elevation-2: 0 4px 16px rgb(18 20 26 / 0.1), 0 1px 3px rgb(18 20 26 / 0.08);
+    --elevation-3: 0 16px 40px rgb(18 20 26 / 0.18), 0 2px 6px rgb(18 20 26 / 0.08);
+
+    --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Semantic tokens: light (forced) — keep identical to the block above */
+/* ------------------------------------------------------------------ */
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg: var(--palette-graphite-50);
+  --color-surface: var(--palette-white);
+  --color-surface-raised: var(--palette-white);
+  --color-surface-sunken: var(--palette-graphite-100);
+  --color-surface-inverse: var(--palette-ink);
+  --color-on-inverse: var(--palette-chalk);
+
+  --color-line: var(--palette-graphite-150);
+  --color-line-strong: var(--palette-graphite-500);
+
+  --color-text: var(--palette-ink);
+  --color-text-muted: #474d5c;
+  --color-text-subtle: #5e6474;
+  --color-text-disabled: var(--palette-graphite-300);
+
+  --color-accent: var(--palette-signal-500);
+  --color-accent-pressed: var(--palette-signal-600);
+  --color-on-accent: var(--palette-ink);
+  --color-on-accent-muted: var(--palette-signal-ink-muted);
+  --color-accent-line: var(--palette-ink);
+  --color-accent-text: var(--palette-signal-900);
+  --color-accent-tint: var(--palette-signal-100);
+
+  --color-complete: var(--palette-graphite-200);
+  --color-on-complete: var(--palette-ink);
+
+  --color-danger: var(--palette-red-700);
+  --color-danger-pressed: var(--palette-red-800);
+  --color-on-danger: var(--palette-white);
+  --color-danger-text: var(--palette-red-700);
+  --color-danger-tint: var(--palette-red-100);
+
+  --color-focus: var(--palette-ink);
+  --color-press-overlay: rgb(18 20 26 / 0.06);
+  --color-scrim: rgb(18 20 26 / 0.48);
+  --color-track: var(--palette-graphite-150);
+
+  --color-rest-bg: var(--palette-signal-500);
+  --color-on-rest: var(--palette-ink);
+  --color-on-rest-muted: var(--palette-signal-ink-muted);
+  --color-rest-track: rgb(18 20 26 / 0.18);
+  --color-rest-surface: var(--palette-ink); /* cards and solid buttons on the rest takeover */
+  --color-on-rest-surface: var(--palette-chalk);
+
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgb(18 20 26 / 0.06), 0 0 0 1px rgb(18 20 26 / 0.04);
+  --elevation-2: 0 4px 16px rgb(18 20 26 / 0.1), 0 1px 3px rgb(18 20 26 / 0.08);
+  --elevation-3: 0 16px 40px rgb(18 20 26 / 0.18), 0 2px 6px rgb(18 20 26 / 0.08);
+
+  --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+}
+
+/* ------------------------------------------------------------------ */
+/* Type roles (theme-independent)                                      */
+/* Each role: size / line-height / weight / width / tracking.          */
+/* ------------------------------------------------------------------ */
+
+:root {
+  /* Rest countdown and other floor-read clocks.
+     Full-screen takeover: 288 for up to 2 digits, step down to the compact size for 3 digits.
+     Inside a ring: compact size. */
+  --type-timer-size: var(--font-size-288);
+  --type-timer-compact-size: var(--font-size-192);
+  --type-timer-line: var(--line-height-numeral);
+  --type-timer-weight: var(--font-weight-heavy);
+  --type-timer-width: var(--font-width-numeral);
+  --type-timer-tracking: var(--letter-spacing-numeral);
+
+  /* Reps and load on the player */
+  --type-numeral-xl-size: var(--font-size-96);
+  --type-numeral-l-size: var(--font-size-60);
+  --type-numeral-m-size: var(--font-size-36);
+  --type-numeral-s-size: var(--font-size-24);
+  --type-numeral-line: var(--line-height-numeral);
+  --type-numeral-weight: var(--font-weight-heavy);
+  --type-numeral-width: var(--font-width-numeral);
+  --type-numeral-tracking: var(--letter-spacing-numeral);
+
+  /* Current exercise name on the player (never below 40 px) */
+  --type-exercise-size: var(--font-size-48);
+  --type-exercise-size-min: 2.5rem;
+  --type-exercise-line: var(--line-height-display);
+  --type-exercise-weight: var(--font-weight-heavy);
+  --type-exercise-width: var(--font-width-display);
+
+  /* Screen titles */
+  --type-display-size: var(--font-size-48);
+  --type-display-line: var(--line-height-display);
+  --type-display-weight: var(--font-weight-heavy);
+  --type-display-width: var(--font-width-display);
+
+  /* Card and section titles */
+  --type-title-size: var(--font-size-24);
+  --type-headline-size: var(--font-size-21);
+  --type-title-line: var(--line-height-title);
+  --type-title-weight: var(--font-weight-bold);
+  --type-title-width: var(--font-width-title);
+
+  /* Buttons, segmented controls, tabs */
+  --type-label-size: var(--font-size-18);
+  --type-label-size-sm: var(--font-size-16);
+  --type-label-line: var(--line-height-label);
+  --type-label-weight: var(--font-weight-bold);
+  --type-label-width: var(--font-width-label);
+
+  /* Running text */
+  --type-body-size: var(--font-size-16);
+  --type-body-size-lg: var(--font-size-18);
+  --type-body-line: var(--line-height-text);
+  --type-body-weight: var(--font-weight-regular);
+  --type-meta-size: var(--font-size-14);
+  --type-caption-size: var(--font-size-12);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion: no travel, no overshoot; fades stay short           */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 100ms;
+    --duration-base: 120ms;
+    --duration-slow: 160ms;
+    --duration-flood: 160ms;
+    --duration-celebrate: 160ms;
+    --ease-punch: var(--ease-move);
+    --motion-distance-sm: 0px;
+    --motion-distance-md: 0px;
+    --motion-distance-lg: 0px;
+    --motion-scale-press: 1;
+    --motion-scale-punch: 1;
+  }
+}

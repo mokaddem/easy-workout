@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Équipement, onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans);
+  font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--lg { width: 28px; height: 28px; }
+svg.i--fill { fill: currentColor; stroke: none; }
+
+.mock-bar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+}
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; margin-right: auto; }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device {
+  position: relative; width: 390px; height: 844px; flex: none;
+  display: flex; flex-direction: column;
+  border-radius: 48px; overflow: hidden; isolation: isolate;
+  background: var(--color-bg); color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28);
+}
+@media (max-width: 440px) {
+  .mock-stage { padding: 16px 0 48px; gap: 32px; }
+  .mock-bar { padding: 10px 16px; }
+  .device { border-radius: 0; box-shadow: none; }
+}
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; letter-spacing: 0.01em; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); }
+.t-exercise { font-size: var(--type-exercise-size); line-height: var(--type-exercise-line); font-weight: var(--type-exercise-weight); font-stretch: var(--type-exercise-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-headline { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-body { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+.t-body-lg { font-size: var(--type-body-size-lg); line-height: 1.45; }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.t-label { font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); }
+.muted { color: var(--color-text-muted); }
+.subtle { color: var(--color-text-subtle); }
+
+/* ---------- buttons ---------- */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: var(--tap-comfort); padding: 0 var(--space-6);
+  border-radius: var(--radius-md); border: var(--border-control) solid transparent;
+  font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width);
+  transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move);
+}
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); }
+.btn--destructive { background: var(--color-danger); color: var(--color-on-danger); }
+.btn--destructive-outline { border-color: var(--color-danger-text); color: var(--color-danger-text); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.btn[disabled] { background: var(--color-surface-sunken); color: var(--color-text-disabled); border-color: transparent; cursor: default; }
+
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn--filled { background: var(--color-surface-sunken); }
+.icon-btn--player { width: var(--tap-player); height: var(--tap-player); }
+
+/* ---------- stepper ---------- */
+.stepper { display: inline-flex; align-items: center; border-radius: var(--radius-md); background: var(--color-surface-sunken); flex: none; }
+.stepper__btn { width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; border-radius: var(--radius-md); color: var(--color-text); }
+.stepper__btn:active { background: var(--color-press-overlay); }
+.stepper__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.stepper__btn[disabled] { color: var(--color-text-disabled); }
+.stepper__value { min-width: 84px; display: inline-flex; align-items: baseline; justify-content: center; gap: 3px; padding: 0 2px; }
+.stepper__value .num { font-size: var(--type-numeral-s-size); line-height: 1; }
+.stepper__unit { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.stepper--player .stepper__btn { width: var(--tap-player); height: var(--tap-player); }
+.stepper--player .stepper__value { min-width: 96px; }
+.stepper--player .stepper__value .num { font-size: var(--type-numeral-m-size); }
+
+/* ---------- segmented control ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- chips ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); }
+.chip .i { width: 18px; height: 18px; stroke-width: 2.5; }
+.chip[aria-pressed="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-pressed="false"] .i { display: none; }
+.chip--static { min-height: 32px; padding: 0; border: 0; border-radius: 0; color: var(--color-text); cursor: default; }
+.chip--static .i { color: var(--color-text-muted); }
+.chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- cards, rows ---------- */
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+
+/* ---------- checkbox mark ---------- */
+.check { width: 28px; height: 28px; border-radius: var(--radius-sm); display: grid; place-items: center; border: var(--border-strong) solid var(--color-line-strong); flex: none; transition: background-color var(--duration-fast) var(--ease-move); }
+.check .i { width: 18px; height: 18px; stroke-width: 3; opacity: 0; }
+.is-on .check { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.is-on .check .i { opacity: 1; }
+
+/* ---------- progress ---------- */
+.bar { height: 8px; border-radius: var(--radius-xs); background: var(--color-track); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--color-accent-line); border-radius: inherit; }
+.segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.segs > i { height: 6px; border-radius: var(--radius-xs); background: var(--color-track); }
+.segs > i.done { background: var(--color-text-subtle); }
+.segs > i.cur { background: var(--color-accent-line); }
+
+/* ---------- toast ---------- */
+.toast { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 20px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: var(--elevation-3); font-weight: 600; font-size: 15px; }
+.toast__text { flex: 1; line-height: 1.3; }
+.toast .btn { min-height: var(--tap-min); color: var(--color-on-inverse); border-radius: var(--radius-pill); }
+
+/* ---------- animation slot placeholder ---------- */
+.anim-slot {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%);
+  border: var(--border-hairline) solid var(--color-line);
+  color: var(--color-text-subtle);
+}
+.anim-slot__floor { position: absolute; inset: auto 0 0 0; width: 100%; height: 46%; stroke: var(--color-line); stroke-width: 1; fill: none; }
+svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; height: 76px; margin: -38px 0 0 -38px; stroke-width: 1.4; color: var(--color-text-subtle); opacity: 0.9; }
+.anim-slot__tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--color-bg); color: var(--color-text-muted); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); }
+.anim-slot__cue { position: absolute; left: 16px; right: 16px; bottom: 14px; text-align: center; color: var(--color-text-muted); font-weight: 600; font-size: 15px; line-height: 1.3; text-wrap: balance; }
+
+/* ---------- tempo indicator ---------- */
+.tempo { display: grid; gap: 4px; }
+.tempo__seg { position: relative; overflow: hidden; display: grid; align-content: center; gap: 2px; min-height: 52px; padding: 0 10px; border-radius: var(--radius-xs); background: var(--color-surface-sunken); color: var(--color-text-muted); font-weight: 700; font-stretch: var(--font-width-label); font-size: 13px; line-height: 1.1; white-space: nowrap; }
+.tempo__seg b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; color: var(--color-text); font-variant-numeric: tabular-nums; }
+.tempo__seg.is-active { background: var(--color-accent); color: var(--color-on-accent); }
+.tempo__seg.is-active b { color: var(--color-on-accent); }
+.tempo__seg > span, .tempo__seg > b { position: relative; }
+
+
+/* ---------- screen: onboarding, equipment step ---------- */
+.appbar { display: flex; align-items: center; gap: 8px; padding: 4px 16px 4px 8px; flex: none; }
+.steps { flex: 1; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+.steps__label { font-weight: 600; color: var(--color-text-muted); }
+.intro { padding: 12px var(--layout-gutter) 24px; display: grid; gap: 10px; }
+.intro .t-display { font-size: var(--font-size-48); }
+.eq-list { display: grid; gap: 12px; padding: 0 16px; }
+
+.eq { overflow: hidden; }
+.eq__head { width: 100%; display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 14px 16px; text-align: left; border-radius: var(--radius-lg); }
+.eq__head:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.eq__icon { width: 48px; height: 48px; border-radius: var(--radius-sm); display: grid; place-items: center; background: var(--color-surface-sunken); color: var(--color-text); flex: none; }
+.eq__text { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.eq__name { font-size: var(--font-size-21); }
+.eq__sub { color: var(--color-text-muted); }
+.eq__body { display: none; padding: 4px 16px 16px; gap: 4px; }
+.eq.is-on .eq__body { display: grid; }
+.eq.is-on { border-color: var(--color-line-strong); }
+
+.field { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; border-top: var(--border-hairline) solid var(--color-line); padding-top: 4px; }
+.field:first-child { border-top: 0; }
+.field__label { font-weight: 600; line-height: 1.25; }
+.field__hint { display: block; font-weight: 400; font-size: 13px; color: var(--color-text-muted); }
+
+.ruler { margin-top: 10px; padding: 14px 14px 12px; border-radius: var(--radius-md); background: var(--color-surface-sunken); display: grid; gap: 8px; }
+.ruler__ticks { position: relative; height: 28px; margin: 0 2px; }
+.ruler__ticks i { position: absolute; bottom: 0; width: 3px; margin-left: -1.5px; height: 18px; border-radius: 2px; background: var(--color-text); }
+.ruler__ticks i.end { height: 28px; background: var(--color-accent-line); }
+.ruler__ticks::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: var(--color-line-strong); }
+.ruler__ends { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ruler__count { font-size: 14px; color: var(--color-text-muted); }
+.ruler__count b { color: var(--color-text); font-weight: 700; }
+
+.levels-label { font-weight: 600; padding: 4px 0 10px; }
+
+.household { padding: 32px var(--layout-gutter) 24px; display: grid; gap: 8px; }
+.household .chips { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+
+.actionbar { flex: none; padding: 12px 16px 42px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-incline" viewBox="0 0 24 24"><path d="M3 19h18L21 8z"/><path d="M16 19v-3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <!-- equipment -->
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-belt" viewBox="0 0 24 24"><path d="M3 6.5c3 1.3 6 2 9 2s6-.7 9-2"/><path d="M8.5 8.2L12 14l3.5-5.8"/><rect x="8" y="14" width="8" height="6" rx="1.5"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M2.5 7h19M5 4v6M19 4v6"/><path d="M9.5 7v3.5M14.5 7v3.5"/><circle cx="12" cy="15.5" r="2.5"/></symbol>
+  <symbol id="i-treadmill" viewBox="0 0 24 24"><path d="M3 17.5h12.5a2.5 2.5 0 0 0 2.4-1.8L20.5 6"/><path d="M18 6h4.5"/><path d="M5 20.5h10"/></symbol>
+  <symbol id="i-bench" viewBox="0 0 24 24"><path d="M3 10.5h18"/><path d="M6 10.5v8M18 10.5v8"/><path d="M4 18.5h4M16 18.5h4"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Onboarding, equipment step">Onboarding, étape matériel</span>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+<div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+  <figure class="mock-shot">
+    <div class="device">
+      <div class="statusbar" aria-hidden="true"><span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span></div>
+      <div class="screen">
+        <div class="appbar">
+          <button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+          <div class="steps">
+            <span class="steps__label t-meta" data-en="Step 4 of 5">Étape 4 sur 5</span>
+            <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i></div>
+          </div>
+        </div>
+
+        <div class="scroll">
+          <div class="intro">
+            <h1 class="t-display" data-en="Your equipment">Ton matériel</h1>
+            <p class="t-body muted" data-en="Suggested loads start from what you actually own. Set each item up the way it is at home.">Les charges proposées partent de ce que tu as vraiment. Règle chaque appareil comme il est chez toi.</p>
+          </div>
+
+          <div class="eq-list">
+            <!-- Adjustable dumbbells -->
+            <article class="eq card is-on" id="dumbbells">
+              <button class="eq__head" type="button" data-toggle-card aria-expanded="true">
+                <span class="eq__icon"><svg class="i i--lg"><use href="#i-dumbbell"/></svg></span>
+                <span class="eq__text"><span class="eq__name t-title" data-en="Adjustable dumbbells">Haltères réglables</span><span class="eq__sub t-meta" data-en="One pair">Une paire</span></span>
+                <span class="check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              </button>
+              <div class="eq__body">
+                <div class="field">
+                  <span class="field__label" data-en="Lightest">Charge min</span>
+                  <div class="stepper" data-min="1" data-max="10" data-step="0.5" data-role="min">
+                    <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+                    <output class="stepper__value"><span class="num" data-num="2.5">2,5</span><span class="stepper__unit">kg</span></output>
+                    <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="field__label" data-en="Heaviest">Charge max</span>
+                  <div class="stepper" data-min="10" data-max="60" data-step="0.5" data-role="max">
+                    <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+                    <output class="stepper__value"><span class="num" data-num="24">24</span><span class="stepper__unit">kg</span></output>
+                    <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="field__label"><span data-en="Increment">Palier</span><span class="field__hint" data-en="Between two settings">Entre deux réglages</span></span>
+                  <div class="stepper" data-min="0.5" data-max="5" data-step="0.5" data-role="inc">
+                    <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+                    <output class="stepper__value"><span class="num" data-num="2">2</span><span class="stepper__unit">kg</span></output>
+                    <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+                  </div>
+                </div>
+                <div class="ruler" aria-hidden="true">
+                  <div class="ruler__ticks" id="ruler-ticks"></div>
+                  <div class="ruler__ends"><span id="ruler-min">2,5 kg</span><span id="ruler-max">24 kg</span></div>
+                </div>
+                <p class="ruler__count" id="ruler-count"></p>
+              </div>
+            </article>
+
+            <!-- Resistance bands -->
+            <article class="eq card is-on">
+              <button class="eq__head" type="button" data-toggle-card aria-expanded="true">
+                <span class="eq__icon"><svg class="i i--lg"><use href="#i-band"/></svg></span>
+                <span class="eq__text"><span class="eq__name t-title" data-en="Resistance bands">Élastiques</span><span class="eq__sub t-meta" id="bands-sub"></span></span>
+                <span class="check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              </button>
+              <div class="eq__body">
+                <p class="levels-label" data-en="Levels you own">Niveaux que tu as</p>
+                <div class="chips" id="bands">
+                  <button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="X-light">Très léger</span></button>
+                  <button class="chip" type="button" aria-pressed="true"><svg class="i"><use href="#i-check"/></svg><span data-en="Light">Léger</span></button>
+                  <button class="chip" type="button" aria-pressed="true"><svg class="i"><use href="#i-check"/></svg><span data-en="Medium">Moyen</span></button>
+                  <button class="chip" type="button" aria-pressed="true"><svg class="i"><use href="#i-check"/></svg><span data-en="Heavy">Fort</span></button>
+                  <button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="X-heavy">Très fort</span></button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Weight belt -->
+            <article class="eq card is-on">
+              <button class="eq__head" type="button" data-toggle-card aria-expanded="true">
+                <span class="eq__icon"><svg class="i i--lg"><use href="#i-belt"/></svg></span>
+                <span class="eq__text"><span class="eq__name t-title" data-en="Weight belt">Ceinture de poids</span><span class="eq__sub t-meta" data-en="Adds load to pull-ups, dips and push-ups">Pour lester tractions, dips et pompes</span></span>
+                <span class="check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              </button>
+              <div class="eq__body">
+                <div class="field">
+                  <span class="field__label"><span data-en="Max load">Charge max</span><span class="field__hint" data-en="Plates you can hang">Disques que tu peux suspendre</span></span>
+                  <div class="stepper" data-min="2.5" data-max="60" data-step="2.5">
+                    <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+                    <output class="stepper__value"><span class="num" data-num="20">20</span><span class="stepper__unit">kg</span></output>
+                    <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Treadmill -->
+            <article class="eq card is-on">
+              <button class="eq__head" type="button" data-toggle-card aria-expanded="true">
+                <span class="eq__icon"><svg class="i i--lg"><use href="#i-treadmill"/></svg></span>
+                <span class="eq__text"><span class="eq__name t-title" data-en="Treadmill">Tapis de marche</span><span class="eq__sub t-meta" data-en="For incline walks and finishers">Pour la marche inclinée et les finishers</span></span>
+                <span class="check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              </button>
+              <div class="eq__body">
+                <div class="field">
+                  <span class="field__label" data-en="Max incline">Inclinaison max</span>
+                  <div class="stepper" data-min="0" data-max="20" data-step="1">
+                    <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+                    <output class="stepper__value"><span class="num" data-num="15">15</span><span class="stepper__unit"><span data-pct>&#8239;%</span></span></output>
+                    <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="field__label" data-en="Max speed">Vitesse max</span>
+                  <div class="stepper" data-min="4" data-max="20" data-step="0.5">
+                    <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+                    <output class="stepper__value"><span class="num" data-num="12">12</span><span class="stepper__unit">km/h</span></output>
+                    <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Pull-up bar (not owned) -->
+            <article class="eq card">
+              <button class="eq__head" type="button" data-toggle-card aria-expanded="false">
+                <span class="eq__icon"><svg class="i i--lg"><use href="#i-bar"/></svg></span>
+                <span class="eq__text"><span class="eq__name t-title" data-en="Pull-up bar">Barre de traction</span><span class="eq__sub t-meta" data-en="Unlocks pull-ups and hanging core work">Débloque les tractions et le gainage suspendu</span></span>
+                <span class="check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              </button>
+              <div class="eq__body"><p class="t-meta muted" data-en="Nothing to set.">Rien à régler.</p></div>
+            </article>
+
+            <!-- Bench (not owned) -->
+            <article class="eq card">
+              <button class="eq__head" type="button" data-toggle-card aria-expanded="false">
+                <span class="eq__icon"><svg class="i i--lg"><use href="#i-bench"/></svg></span>
+                <span class="eq__text"><span class="eq__name t-title" data-en="Bench">Banc</span><span class="eq__sub t-meta" data-en="Without one, presses are done on the floor">Sans banc, les développés se font au sol</span></span>
+                <span class="check" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>
+              </button>
+              <div class="eq__body"><p class="t-meta muted" data-en="Nothing to set.">Rien à régler.</p></div>
+            </article>
+          </div>
+
+          <section class="household">
+            <h2 class="t-headline" data-en="Already included">Déjà inclus</h2>
+            <p class="t-meta muted" data-en="Found in every home, so exercises can count on them.">On en trouve dans toutes les maisons&#8239;: les exercices peuvent compter dessus.</p>
+            <ul class="chips">
+              <li class="chip chip--static"><svg class="i"><use href="#i-check"/></svg><span data-en="Chair">Chaise</span></li>
+              <li class="chip chip--static"><svg class="i"><use href="#i-check"/></svg><span data-en="Wall">Mur</span></li>
+              <li class="chip chip--static"><svg class="i"><use href="#i-check"/></svg><span data-en="Door anchor">Ancrage de porte</span></li>
+              <li class="chip chip--static"><svg class="i"><use href="#i-check"/></svg><span data-en="Floor mat">Tapis de sol</span></li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="actionbar">
+          <button class="btn btn--primary btn--block" type="button" data-en="Continue">Continuer</button>
+        </div>
+      </div>
+      <div class="homebar" aria-hidden="true"></div>
+    </div>
+    <figcaption data-en="Equipment step, scrolled to the top">Étape matériel, en haut de l’écran</figcaption>
+  </figure>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : null;
+
+  function effectiveTheme() { return theme || (sysDark.matches ? 'dark' : 'light'); }
+
+  function formatNumber(v, decimals) {
+    return new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+      minimumFractionDigits: 0, maximumFractionDigits: decimals == null ? 1 : decimals
+    }).format(v);
+  }
+  window.mockFormat = formatNumber;
+  window.mockLang = function () { return lang; };
+
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === effectiveTheme())); });
+  }
+
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr-label')) el.setAttribute('data-fr-label', el.getAttribute('aria-label') || '');
+      el.setAttribute('aria-label', lang === 'en' ? el.getAttribute('data-en-label') : el.getAttribute('data-fr-label'));
+    });
+    document.querySelectorAll('[data-num]').forEach(function (el) {
+      el.textContent = formatNumber(parseFloat(el.dataset.num), el.dataset.decimals ? +el.dataset.decimals : 1);
+    });
+    document.querySelectorAll('[data-pct]').forEach(function (el) {
+      el.textContent = lang === 'fr' ? ' %' : '%';
+    });
+    document.dispatchEvent(new CustomEvent('mock:render'));
+    sync();
+  }
+
+  function applyTheme() {
+    if (theme) root.dataset.theme = theme; else delete root.dataset.theme;
+    sync();
+  }
+
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]');
+    if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var t = e.target.closest('[data-set-theme]');
+    if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var opt = e.target.closest('.seg__opt');
+    if (opt) {
+      opt.parentElement.querySelectorAll('.seg__opt').forEach(function (o) { o.setAttribute('aria-checked', String(o === opt)); });
+      return;
+    }
+    var chip = e.target.closest('.chip[aria-pressed]');
+    if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); document.dispatchEvent(new CustomEvent('mock:render')); return; }
+    var step = e.target.closest('[data-step-dir]');
+    if (step) {
+      var st = step.closest('.stepper');
+      var out = st.querySelector('[data-num]');
+      var v = parseFloat(out.dataset.num) + parseFloat(st.dataset.step) * (+step.dataset.stepDir);
+      v = Math.min(parseFloat(st.dataset.max), Math.max(parseFloat(st.dataset.min), Math.round(v * 10) / 10));
+      out.dataset.num = String(v);
+      out.textContent = formatNumber(v, 1);
+      document.dispatchEvent(new CustomEvent('mock:render'));
+      return;
+    }
+    var head = e.target.closest('[data-toggle-card]');
+    if (head) {
+      var card = head.closest('.eq');
+      card.classList.toggle('is-on');
+      head.setAttribute('aria-expanded', String(card.classList.contains('is-on')));
+    }
+  });
+  sysDark.addEventListener('change', sync);
+
+  applyTheme();
+  applyLang();
+})();
+
+</script>
+<script>
+(function () {
+  function stepperVal(role) { return parseFloat(document.querySelector('#dumbbells [data-role="' + role + '"] [data-num]').dataset.num); }
+  function render() {
+    var min = stepperVal('min'), max = stepperVal('max'), inc = stepperVal('inc');
+    var loads = [];
+    for (var v = min; v < max - 1e-6; v = Math.round((v + inc) * 10) / 10) loads.push(v);
+    loads.push(max);
+    var ticks = document.getElementById('ruler-ticks');
+    ticks.innerHTML = loads.map(function (l, i) {
+      var pct = (l - min) / (max - min) * 100;
+      return '<i class="' + (i === 0 || i === loads.length - 1 ? 'end' : '') + '" style="left:' + pct + '%"></i>';
+    }).join('');
+    var f = window.mockFormat;
+    document.getElementById('ruler-min').textContent = f(min) + ' kg';
+    document.getElementById('ruler-max').textContent = f(max) + ' kg';
+    var en = window.mockLang() === 'en';
+    document.getElementById('ruler-count').innerHTML = en
+      ? '<b>' + loads.length + ' loads</b> per dumbbell, from ' + f(min) + ' to ' + f(max) + ' kg'
+      : '<b>' + loads.length + ' charges</b> par haltère, de ' + f(min) + ' à ' + f(max) + ' kg';
+    var on = document.querySelectorAll('#bands .chip[aria-pressed="true"]').length;
+    document.getElementById('bands-sub').textContent = en
+      ? on + (on === 1 ? ' level' : ' levels')
+      : on + (on === 1 ? ' niveau' : ' niveaux');
+  }
+  document.addEventListener('mock:render', render);
+  render();
+})();
+</script>
+</body>
+</html>
