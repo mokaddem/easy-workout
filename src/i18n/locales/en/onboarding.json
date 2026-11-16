@@ -89,5 +89,16 @@
     "loadsDefault": "Estimated starting loads",
     "phases": "Phases across the 8 weeks",
     "error": "Generation failed. Try again."
+  },
+  "restore": {
+    "lead": "New phone?",
+    "button": "Restore a backup",
+    "title": "Restore this backup?",
+    "holds": "It holds {{list}}.",
+    "confirm": "Restore",
+    "noProgramme": "It has no programme in progress: you’ll finish the set-up afterwards.",
+    "copy": "What’s already on this phone is downloaded just before.",
+    "doneSetup": "Backup restored. Finish the set-up to create your programme.",
+    "failed": "The backup couldn’t be restored. Nothing was changed."
   }
 }

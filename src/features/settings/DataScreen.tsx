@@ -8,20 +8,16 @@ import { storagePersisted } from '@/app/backup';
 import { goBack } from '@/app/router';
 import { exerciseById } from '@/catalogue';
 import { db } from '@/db';
-import {
-  backupFileName,
-  exportBackup,
-  importBackup,
-  parseBackup,
-  type BackupFile,
-} from '@/db/backup';
+import { importBackup, type BackupFile } from '@/db/backup';
 import { setsCsv, setsCsvFileName } from '@/db/csv';
 import type { Language } from '@/domain';
 import { AppBar, Button, Card, Dialog, Icon, Sheet, useToast } from '@/ui/components';
 import { exportJsonBackup } from './backupActions';
 import { exportCancelled } from './cancelled';
 import { deliverFile } from './files';
+import { ImportErrorSheet, type ImportFailure } from './ImportErrorSheet';
 import { countsOf, phoneCounts, type Counts } from './phone';
+import { downloadCopyBeforeImport, readBackupFile } from './restore';
 import styles from './Data.module.css';
 
 type Stage =
@@ -29,12 +25,7 @@ type Stage =
   | { kind: 'preview'; backup: BackupFile; fileName: string; phone: Counts; newer: number }
   | { kind: 'confirm'; backup: BackupFile; fileName: string; phone: Counts; newer: number }
   | { kind: 'busy'; backup: BackupFile; fileName: string; step: 'copy' | 'import' }
-  | {
-      kind: 'error';
-      reason: 'not-a-backup' | 'invalid' | 'newer-version' | 'copy-failed';
-      fileName: string;
-      backup?: BackupFile;
-    };
+  | { kind: 'error'; reason: ImportFailure; fileName: string; backup?: BackupFile };
 
 type Storage = 'granted' | 'refused' | 'unknown' | 'loading';
 
@@ -139,14 +130,7 @@ export function DataScreen() {
     event.target.value = '';
     if (!file) return;
     setDone(null);
-    let raw: unknown;
-    try {
-      raw = JSON.parse(await file.text());
-    } catch {
-      setStage({ kind: 'error', reason: 'not-a-backup', fileName: file.name });
-      return;
-    }
-    const parsed = parseBackup(raw);
+    const parsed = await readBackupFile(file);
     if (!parsed.ok) {
       setStage({ kind: 'error', reason: parsed.reason, fileName: file.name });
       return;
@@ -166,14 +150,7 @@ export function DataScreen() {
   const replace = async (backup: BackupFile, fileName: string) => {
     setStage({ kind: 'busy', backup, fileName, step: 'copy' });
     try {
-      // The copy of what is on the phone now always downloads: no share sheet before a replace.
-      const copyName = backupFileName().replace(
-        'easy-workout-',
-        lang === 'fr' ? 'easy-workout-avant-import-' : 'easy-workout-before-import-',
-      );
-      await deliverFile(JSON.stringify(await exportBackup()), copyName, 'application/json', {
-        share: false,
-      });
+      const copyName = await downloadCopyBeforeImport(lang);
       setStage({ kind: 'busy', backup, fileName, step: 'import' });
       await importBackup(backup);
       await updateSettings({ lastBackupAt: backup.exportedAt });
@@ -417,63 +394,19 @@ export function DataScreen() {
         }}
       />
 
-      <Sheet
-        open={stage.kind === 'error'}
+      <ImportErrorSheet
+        error={stage.kind === 'error' ? stage : null}
         onClose={close}
-        title={errorTitle(stage, t)}
-        footer={
-          stage.kind === 'error' ? (
-            <>
-              {stage.reason === 'newer-version' ? null : (
-                <Button
-                  size="player"
-                  fullWidth
-                  onClick={() => {
-                    if (stage.reason === 'copy-failed' && stage.backup) {
-                      void replace(stage.backup, stage.fileName);
-                    } else {
-                      close();
-                      setTimeout(pick, 0);
-                    }
-                  }}
-                >
-                  {t(
-                    stage.reason === 'copy-failed'
-                      ? 'settings.import.retry'
-                      : 'settings.import.another',
-                  )}
-                </Button>
-              )}
-              <Button
-                variant={stage.reason === 'newer-version' ? 'primary' : 'secondary'}
-                fullWidth
-                onClick={close}
-              >
-                {t('common.close')}
-              </Button>
-            </>
-          ) : undefined
-        }
-      >
-        {stage.kind === 'error' ? (
-          <div className={styles.sheetBody}>
-            <span className={styles.errWell}>
-              <Icon name="alert" size={24} />
-            </span>
-            <p className={styles.errText}>{t(`settings.import.error_${stage.reason}Text`)}</p>
-            <p className={styles.file2}>
-              <Icon name="file" size={20} />
-              <span className={styles.fileName}>{stage.fileName}</span>
-            </p>
-          </div>
-        ) : null}
-      </Sheet>
+        onAnother={() => {
+          close();
+          setTimeout(pick, 0);
+        }}
+        onRetry={() => {
+          if (stage.kind === 'error' && stage.backup) void replace(stage.backup, stage.fileName);
+        }}
+      />
     </>
   );
-}
-
-function errorTitle(stage: Stage, t: (key: string) => string): string {
-  return stage.kind === 'error' ? t(`settings.import.error_${stage.reason}`) : '';
 }
 
 function Compare({ file, phone }: { file: Counts; phone: Counts }) {

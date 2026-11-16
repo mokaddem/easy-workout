@@ -172,3 +172,23 @@
 .enterBack {
   animation: slide-back var(--duration-slow) var(--ease-snap) backwards;
 }
+
+/* restore a backup, first step only */
+.restore {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  margin: var(--space-6) var(--layout-gutter) 0;
+  padding-top: var(--space-4);
+  border-top: var(--border-hairline) solid var(--color-line);
+}
+.restoreLead {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+/* The ghost button's icon lines up with the text above. */
+.restore > button {
+  margin-left: calc(-1 * var(--space-3));
+}

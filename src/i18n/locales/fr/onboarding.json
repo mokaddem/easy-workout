@@ -89,5 +89,16 @@
     "loadsDefault": "Charges de départ estimées",
     "phases": "Phases sur les 8 semaines",
     "error": "La génération n’a pas abouti. Réessaie."
+  },
+  "restore": {
+    "lead": "Tu changes de téléphone ?",
+    "button": "Restaurer une sauvegarde",
+    "title": "Restaurer cette sauvegarde ?",
+    "holds": "Elle contient {{list}}.",
+    "confirm": "Restaurer",
+    "noProgramme": "Elle n’a pas de programme en cours : tu finiras la configuration ensuite.",
+    "copy": "Ce qui est déjà sur ce téléphone est téléchargé juste avant.",
+    "doneSetup": "Sauvegarde restaurée. Termine la configuration pour créer ton programme.",
+    "failed": "La sauvegarde n’a pas pu être restaurée. Rien n’a été modifié."
   }
 }

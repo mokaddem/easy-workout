@@ -121,6 +121,44 @@ test('importing a file that is not a backup shows an error and changes nothing',
   await expect(error).toBeHidden();
 });
 
+test('a fresh install restores a backup from the first set-up step', async ({ page, browser }) => {
+  await seedSetup(page, reference);
+  await page.goto('/settings/data');
+  const exported = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export a backup' }).click();
+  const file = await (await exported).path();
+
+  // Another phone, nothing set up.
+  const fresh = await browser.newPage({ locale: 'en-US' });
+  await fresh.goto('/onboarding');
+  await expect(fresh.getByRole('heading', { level: 1 })).toHaveText('Your goal');
+
+  await fresh.getByTestId('restore-file').setInputFiles({
+    name: 'notes.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{"hello":"world"}'),
+  });
+  const error = fresh.getByRole('dialog', { name: /^This file isn.t a backup/ });
+  await expect(error).toBeVisible();
+  await error.getByRole('button', { name: 'Close' }).click();
+  await expect(error).toBeHidden();
+
+  let downloaded = false;
+  fresh.on('download', () => (downloaded = true));
+  await fresh.getByTestId('restore-file').setInputFiles(file);
+  const sheet = fresh.getByRole('dialog', { name: 'Restore this backup?' });
+  await expect(sheet).toContainText('It holds 1 programme.');
+  await sheet.getByRole('button', { name: 'Restore', exact: true }).click();
+
+  await expect(fresh).toHaveURL(/\/programme$/);
+  await expect(fresh.getByRole('button', { name: 'Start session' })).toBeVisible();
+  // Nothing on the new phone, so no copy to download first.
+  expect(downloaded).toBe(false);
+  await fresh.goto('/settings');
+  await expect(fresh.getByRole('button', { name: /^Profile/ })).toContainText('6 × 45 min');
+  await fresh.close();
+});
+
 test('player settings persist across a reload', async ({ page }) => {
   await seedSetup(page, reference);
   await page.goto('/settings');

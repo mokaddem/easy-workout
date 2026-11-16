@@ -7,6 +7,7 @@ import { generateProgramme } from '@/engine';
 import { EquipmentChecklist } from '@/features/equipment/EquipmentChecklist';
 import { LiveCount } from '@/features/equipment/LiveCount';
 import { invalidItems } from '@/features/equipment/validation';
+import { RestoreBackup } from '@/features/settings/RestoreBackup';
 import { Button, Dock, Icon, IconButton, ProgressBar } from '@/ui/components';
 import { ChoiceGroup } from './components/ChoiceGroup';
 import { HeroStepper } from './components/HeroStepper';
@@ -260,6 +261,10 @@ function GoalStep({ draft, update, error, headingRef }: StepProps & { error: boo
         error={error}
         onChange={(goal: Goal) => update({ goal })}
       />
+      <div className={styles.restore}>
+        <p className={styles.restoreLead}>{t('onboarding.restore.lead')}</p>
+        <RestoreBackup onRestored={clearDraft} />
+      </div>
     </>
   );
 }
