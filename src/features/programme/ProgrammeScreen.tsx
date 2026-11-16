@@ -2,13 +2,23 @@ import { AnimatePresence, m } from 'motion/react';
 import { EXIT_RATIO, useMotionTokens } from '@/motion';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useActiveProgramme, useEquipment, useProfile } from '@/app/data';
+import {
+  useActiveProgramme,
+  useEquipment,
+  useOpenSession,
+  useProfile,
+  useSessionLogs,
+} from '@/app/data';
 import { nextSession, programmeFreshness } from '@/app/programme-state';
 import { handleLinkClick, navigate, routeHref, type Route } from '@/app/router';
 import type { Language, Phase } from '@/domain';
 import { phaseForWeek, sessionForWeek } from '@/engine';
 import { repo } from '@/db/repo';
 import { AppBar, Button, Card, Icon, Skeleton } from '@/ui/components';
+import { useBegin } from '../play/begin';
+import { ResumeBanner } from '../play/components/ResumeBanner';
+import { clearSummary } from '../play/lifecycle';
+import { startProgrammeSession } from '../play/start';
 import { ChangePreviewSheet } from './ChangePreviewSheet';
 import type { PreviewMode } from './preview';
 import {
@@ -19,6 +29,8 @@ import {
   programmeIdentities,
 } from './format';
 import { OptionsMenu } from './OptionsMenu';
+import { BackupBanner } from '../settings/BackupBanner';
+import { useBackupReminder } from '../settings/useBackupReminder';
 import { PhaseSheet } from './PhaseSheet';
 import { ProgrammeWhySheet } from './ProgrammeWhySheet';
 import { RotationGrid } from './RotationGrid';
@@ -32,6 +44,9 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const record = useActiveProgramme();
   const profile = useProfile();
   const equipment = useEquipment();
+  const logs = useSessionLogs();
+  const openSession = useOpenSession();
+  const { begin, dialog: beginDialog } = useBegin();
 
   const [preview, setPreview] = useState<PreviewMode | null>(
     route.preview === 'new' ? 'new' : null,
@@ -40,6 +55,7 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const [whyOpen, setWhyOpen] = useState(false);
   const tokens = useMotionTokens();
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const backup = useBackupReminder();
 
   // The preview URL only opens the sheet once.
   const [opened, setOpened] = useState(route.preview === 'new');
@@ -64,7 +80,7 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
       </>
     );
 
-  const position = nextSession(record);
+  const position = nextSession(record, logs);
   const plan = sessionForWeek(record, position.sessionId, position.week);
   const identities = programmeIdentities(record, lang);
   const identity = identities[position.index]!;
@@ -77,6 +93,10 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const cardio = finisherCardio(plan.session);
   const gaps = hasEquipmentGaps(notes);
   const whyOnce = !record.whySeen;
+  const openIsNext =
+    openSession?.source.kind === 'programme' &&
+    openSession.source.programmeId === record.id &&
+    openSession.source.sessionId === position.sessionId;
 
   const dismissWhy = () => void repo.markWhySeen(record.id);
   const openWhy = () => {
@@ -141,6 +161,7 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
         }
       />
       <div className={styles.scroll}>
+        {openSession ? <ResumeBanner log={openSession} /> : null}
         <AnimatePresence initial={false}>
           {whyOnce ? (
             <m.div
@@ -206,6 +227,23 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
             </div>
           </section>
         ) : null}
+
+        <AnimatePresence initial={false}>
+          {/* Banner priority: resume, then out of date, then backup. One other banner at most. */}
+          {backup.reminder !== 'none' && (freshness === 'current' || bannerDismissed) ? (
+            <m.div
+              key="backup"
+              exit={{
+                height: 0,
+                opacity: 0,
+                overflow: 'hidden',
+                transition: { duration: tokens.duration.base * EXIT_RATIO, ease: tokens.ease.exit },
+              }}
+            >
+              <BackupBanner state={backup} />
+            </m.div>
+          ) : null}
+        </AnimatePresence>
 
         <section className={styles.hero}>
           <div
@@ -304,10 +342,18 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
             size="player"
             fullWidth
             icon="play"
-            onClick={() => navigate({ name: 'play' })}
-            disabled={position.finished}
+            variant={openSession ? 'secondary' : 'primary'}
+            onClick={() => {
+              if (openSession && openIsNext) {
+                clearSummary();
+                navigate({ name: 'play' });
+                return;
+              }
+              void begin(() => startProgrammeSession(record, equipment), identity.fullName);
+            }}
+            disabled={position.finished && !openIsNext}
           >
-            {t('programme.start')}
+            {t(openIsNext ? 'programme.resumeSession' : 'programme.start')}
           </Button>
           <Button
             variant="ghost"
@@ -370,6 +416,7 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
         onClose={() => setPhase(null)}
       />
       <ProgrammeWhySheet programme={record} open={whyOpen} onClose={() => setWhyOpen(false)} />
+      {beginDialog}
       <ChangePreviewSheet
         mode={preview}
         current={record}

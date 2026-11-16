@@ -24,6 +24,10 @@ export const SettingsSchema = z.strictObject({
   voice: z.boolean(),
   sounds: z.boolean(),
   vibration: z.boolean(),
+  /** Rest as a full-screen countdown or as a ring timer. */
+  restDisplay: z.enum(['takeover', 'ring']),
   lastBackupAt: DateTimeSchema.optional(),
+  /** "Later" on the backup reminder hides it until then. */
+  backupSnoozedUntil: DateTimeSchema.optional(),
 });
 export type Settings = z.infer<typeof SettingsSchema>;

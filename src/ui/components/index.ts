@@ -21,9 +21,11 @@ export {
   type SegmentedOption,
 } from './SegmentedControl';
 export { Sheet, type SheetProps } from './Sheet';
+export { SetStrip, type SetStripProps } from './SetStrip';
 export { Skeleton, type SkeletonProps } from './Skeleton';
 export { Spinner, type SpinnerProps } from './Spinner';
 export { Stepper, type StepperProps } from './Stepper';
+export { SwitchRow, type SwitchRowProps } from './Switch';
 export { TabBar, type TabBarItem, type TabBarProps } from './TabBar';
 export { ToastProvider, type ToastProviderProps } from './Toast';
 export type { ToastApi, ToastOptions } from './toastContext';

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import type { EquipmentInventory, Language, Profile, Settings } from '@/domain';
+import type { EquipmentInventory, Language, Profile, SessionLog, Settings } from '@/domain';
 import type { ProgrammeRecord } from '@/db';
 import { repo } from '@/db/repo';
 import i18n from '@/i18n';
@@ -21,6 +21,21 @@ export function useEquipment(): EquipmentInventory | undefined {
 
 export function useActiveProgramme(): Loaded<ProgrammeRecord> {
   return useLiveQuery(async () => (await repo.getActiveProgramme()) ?? null);
+}
+
+/** Every session log, oldest first. */
+export function useSessionLogs(): SessionLog[] | undefined {
+  return useLiveQuery(() => repo.listSessionLogs());
+}
+
+/** One session log by id; `null` when it doesn't exist. */
+export function useSessionLog(id: string | undefined): Loaded<SessionLog> {
+  return useLiveQuery(async () => (id ? ((await repo.getSessionLog(id)) ?? null) : null), [id]);
+}
+
+/** The session being played, if one is open. */
+export function useOpenSession(): Loaded<SessionLog> {
+  return useLiveQuery(async () => (await repo.getOpenSession()) ?? null);
 }
 
 export async function updateSettings(change: Partial<Settings>): Promise<void> {

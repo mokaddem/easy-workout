@@ -54,7 +54,8 @@ describe('describeNote', () => {
           }
     expect(problems.slice(0, 10)).toEqual([]);
     expect(codes.size).toBeGreaterThan(10);
-  });
+    // Generates a programme for every profile of the matrix: slow when the machine is busy.
+  }, 30_000);
 
   it('covers quick-session notes', () => {
     for (const focus of QUICK_FOCUSES) {

@@ -1,5 +1,6 @@
-import type { Block, EquipmentRequirement, GenerationNote } from '../../domain';
+import type { Block, EquipmentRequirement, GenerationNote, Goal } from '../../domain';
 import { sessionSeconds } from '../duration';
+import { SHORT_SESSION_MINUTES } from './templates';
 import type { Priority, SlotRole } from './types';
 
 export interface PendingNote {
@@ -22,6 +23,10 @@ export interface BuiltBlock {
   setup?: EquipmentRequirement[];
   /** Primary muscles of each item, in item order. */
   muscles: string[][];
+  /** A ramp-up set before the first heavy lift: never cut on its own, only collapsed with its siblings. */
+  ramp?: boolean;
+  /** On the first ramp-up set: the single set that stands in for all of them when time is short. */
+  collapseTo?: { block: Block; kg: number };
 }
 
 export interface BuiltSession {
@@ -42,11 +47,25 @@ const minutes = (built: BuiltSession) => sessionSeconds(materialise(built)) / 60
 
 /** The session may run this much over its budget before anything is trimmed. */
 export const OVER_TOLERANCE = 0.1;
-/** Below this share of the budget, optional (priority 3) blocks are added. */
-export const UNDER_TOLERANCE = 0.2;
 /** Below this share of the budget, sets, rounds and finisher minutes are added too. */
 export const EXPAND_BELOW = 0.75;
 const MIN_FINISHER_MINUTES = 5;
+/** Recomposition and fitness finishers are conditioning work: shorter than this, they stop being it. */
+/** Below this share of the budget, optional (priority 3) blocks are added. */
+export const UNDER_TOLERANCE = 0.2;
+const MIN_CONDITIONING_MINUTES = 10;
+/** Shortest rest between sets, by goal: the bottom of its range. Compounds first, then light work. */
+const REST_FLOOR_SEC: Record<Goal, { compound: number; light: number }> = {
+  muscle: { compound: 90, light: 60 },
+  recomposition: { compound: 60, light: 45 },
+  'general-fitness': { compound: 45, light: 30 },
+};
+/** Longest rest the goal calls for: the top of its range. */
+const REST_CEILING_SEC: Record<Goal, number> = {
+  muscle: 120,
+  recomposition: 90,
+  'general-fitness': 75,
+};
 const MAX_FINISHER_MINUTES = 20;
 const MIN_MAIN_BLOCKS = 2;
 const LIGHT_ROLES: readonly (SlotRole | 'cardio')[] = ['isolation', 'core', 'conditioning'];
@@ -55,28 +74,49 @@ type Reducer = (built: BuiltSession) => GenerationNote['params'] | null;
 
 const isCardio = (b: BuiltBlock) => b.role === 'cardio';
 
-const shortenCardioFinisher: Reducer = (built): GenerationNote['params'] | null => {
-  for (const b of built.finisher) {
-    if (!b.included || !isCardio(b) || b.block.type !== 'straight') continue;
-    const target = b.block.item.target;
-    if (target.kind === 'cardio' && target.maxMinutes > MIN_FINISHER_MINUTES) {
-      const to = Math.max(MIN_FINISHER_MINUTES, target.maxMinutes - 5);
-      b.block = {
-        ...b.block,
-        item: {
-          ...b.block.item,
-          target: { ...target, minMinutes: Math.min(target.minMinutes, to), maxMinutes: to },
-        },
-      };
-      return { action: 'finisher-shortened', minutes: to };
+const finisherFloorMinutes = (goal: Goal, budgetMinutes: number) => {
+  if (goal === 'muscle') return MIN_FINISHER_MINUTES;
+  if (budgetMinutes >= SHORT_SESSION_MINUTES) return MIN_CONDITIONING_MINUTES;
+  return Math.max(MIN_FINISHER_MINUTES, Math.round(budgetMinutes * 0.25));
+};
+
+const shortenCardioFinisher =
+  (goal: Goal, budgetMinutes: number): Reducer =>
+  (built): GenerationNote['params'] | null => {
+    const floor = finisherFloorMinutes(goal, budgetMinutes);
+    for (const b of built.finisher) {
+      if (!b.included || !isCardio(b) || b.block.type !== 'straight') continue;
+      const target = b.block.item.target;
+      if (target.kind === 'cardio' && target.maxMinutes > floor) {
+        const to = Math.max(floor, target.maxMinutes - 5);
+        b.block = {
+          ...b.block,
+          item: {
+            ...b.block.item,
+            target: { ...target, minMinutes: Math.min(target.minMinutes, to), maxMinutes: to },
+          },
+        };
+        return { action: 'finisher-shortened', minutes: to };
+      }
+      if (target.kind === 'interval') {
+        const roundSec = target.workSec + target.recoverySec;
+        const floorRounds = Math.max(1, Math.ceil((floor * 60) / Math.max(1, roundSec)));
+        if (target.rounds > floorRounds) {
+          const to = Math.max(floorRounds, target.rounds - 5);
+          b.block = { ...b.block, item: { ...b.block.item, target: { ...target, rounds: to } } };
+          return { action: 'finisher-shortened', rounds: to };
+        }
+      }
     }
-    if (target.kind === 'interval' && target.rounds > MIN_FINISHER_MINUTES) {
-      const to = Math.max(MIN_FINISHER_MINUTES, target.rounds - 5);
-      b.block = { ...b.block, item: { ...b.block.item, target: { ...target, rounds: to } } };
-      return { action: 'finisher-shortened', rounds: to };
-    }
-  }
-  return null;
+    return null;
+  };
+
+/** Last resort for a conditioning finisher already at its shortest: it goes entirely. */
+const dropCardioFinisher: Reducer = (built) => {
+  const last = [...built.finisher].reverse().find((b) => b.included && isCardio(b));
+  if (!last) return null;
+  last.included = false;
+  return { action: 'finisher-dropped', exerciseIds: exerciseIds(last.block).join(',') };
 };
 
 const dropOptional: Reducer = (built) => {
@@ -114,26 +154,52 @@ const trimLightVolume: Reducer = (built) => {
   return null;
 };
 
-const shortenRests: Reducer = (built) => {
-  let changed = false;
-  for (const b of built.main) {
-    if (!b.included) continue;
-    if (b.block.type === 'straight') {
-      const floor = b.role === 'main' ? 60 : 30;
-      if (b.block.restSec - 15 >= floor) {
-        b.block = { ...b.block, restSec: b.block.restSec - 15 };
+const restFloor = (goal: Goal, role: BuiltBlock['role']) =>
+  role === 'main' || role === 'secondary'
+    ? REST_FLOOR_SEC[goal].compound
+    : REST_FLOOR_SEC[goal].light;
+
+/** Rests above the top of the goal's range come down to it. */
+const capRests =
+  (goal: Goal): Reducer =>
+  (built) => {
+    const ceiling = REST_CEILING_SEC[goal];
+    let largest = 0;
+    for (const b of built.main) {
+      if (!b.included) continue;
+      if (b.block.type === 'straight' && b.block.restSec > ceiling) {
+        largest = Math.max(largest, b.block.restSec - ceiling);
+        b.block = { ...b.block, restSec: ceiling };
+      } else if (b.block.type === 'group' && b.block.restAfterRoundSec > ceiling) {
+        largest = Math.max(largest, b.block.restAfterRoundSec - ceiling);
+        b.block = { ...b.block, restAfterRoundSec: ceiling };
+      }
+    }
+    return largest > 0 ? { action: 'rests-shortened', seconds: largest } : null;
+  };
+
+const shortenRests =
+  (goal: Goal): Reducer =>
+  (built) => {
+    let changed = false;
+    for (const b of built.main) {
+      if (!b.included) continue;
+      const floor = restFloor(goal, b.role);
+      if (b.block.type === 'straight') {
+        if (b.block.restSec - 15 >= floor) {
+          b.block = { ...b.block, restSec: b.block.restSec - 15 };
+          changed = true;
+        }
+      } else if (b.block.restAfterRoundSec - 15 >= floor) {
+        b.block = { ...b.block, restAfterRoundSec: b.block.restAfterRoundSec - 15 };
         changed = true;
       }
-    } else if (b.block.restAfterRoundSec - 15 >= 30) {
-      b.block = { ...b.block, restAfterRoundSec: b.block.restAfterRoundSec - 15 };
-      changed = true;
     }
-  }
-  return changed ? { action: 'rests-shortened', seconds: 15 } : null;
-};
+    return changed ? { action: 'rests-shortened', seconds: 15 } : null;
+  };
 
 const shortenWarmup: Reducer = (built) => {
-  const kept = built.warmup.filter((b) => b.included);
+  const kept = built.warmup.filter((b) => b.included && !b.ramp);
   for (const b of kept)
     if (b.block.type === 'straight' && b.block.sets > 1) {
       b.block = { ...b.block, sets: 1 };
@@ -144,6 +210,20 @@ const shortenWarmup: Reducer = (built) => {
     return { action: 'warmup-shortened' };
   }
   return null;
+};
+
+/** Several ramp-up sets become one lighter set; the ramp-up is never removed. */
+const collapseRamp: Reducer = (built) => {
+  const ramps = built.warmup.filter((b) => b.included && b.ramp);
+  const first = ramps[0];
+  if (!first || ramps.length < 2 || !first.collapseTo) return null;
+  const { block, kg } = first.collapseTo;
+  first.block = block;
+  first.notes = first.notes.map((n) =>
+    n.code === 'ramp-up' ? { ...n, params: { ...n.params, kg } } : n,
+  );
+  for (const b of ramps.slice(1)) b.included = false;
+  return { action: 'warmup-shortened' };
 };
 
 const trimMainSets: Reducer = (built) => {
@@ -165,15 +245,26 @@ const dropMainTail: Reducer = (built) => {
   return { action: 'block-dropped', exerciseIds: exerciseIds(last.block).join(',') };
 };
 
-/** Cheapest cut first. Conditioning goes late: for recomposition and fitness it is the point. */
-const REDUCERS: readonly Reducer[] = [
-  shortenCardioFinisher,
+/**
+ * Cheapest cut first. Rests stay at the bottom of the goal's range and the ramp-up stays.
+ * The conditioning finisher shrinks towards its floor before accessories go, but is only
+ * dropped late, after volume has been trimmed.
+ */
+const reducersFor = (
+  goal: Goal,
+  budgetMinutes: number,
+  keepConditioning: boolean,
+): readonly Reducer[] => [
+  capRests(goal),
+  shortenCardioFinisher(goal, budgetMinutes),
   dropOptional,
   trimLightVolume,
-  shortenRests,
+  shortenRests(goal),
   shortenWarmup,
+  collapseRamp,
   dropFinisher,
   trimMainSets,
+  ...(keepConditioning ? [] : [dropCardioFinisher]),
   dropMainTail,
 ];
 
@@ -258,14 +349,14 @@ const expansions = (built: BuiltSession, maxSets: number): Expansion[] => [
 /** Adds left-out blocks, in template order, while each still fits. */
 const addBlocks = (
   built: BuiltSession,
-  upper: number,
+  limit: number,
   which: (b: BuiltBlock) => boolean,
   changes: GenerationNote['params'][],
 ) => {
   for (const b of [...built.main, ...built.finisher]) {
     if (b.included || !which(b)) continue;
     b.included = true;
-    if (minutes(built) > upper) b.included = false;
+    if (minutes(built) > limit) b.included = false;
     else changes.push({ action: 'block-added', exerciseIds: exerciseIds(b.block).join(',') });
   }
 };
@@ -274,10 +365,10 @@ export const exerciseIds = (block: Block): string[] =>
   block.type === 'straight' ? [block.item.exerciseId] : block.items.map((i) => i.exerciseId);
 
 /**
- * Fits a built session to the time budget. Under 80 % of it, optional (priority 3) blocks
- * are added while they fit; under 75 %, sets on main lifts, rounds on groups and finisher
- * minutes grow, a step at a time, up to `maxSets`. Over 110 %, cuts go from the cheapest to the most important
- * (see REDUCERS); blocks cut on the way are added back if later cuts made room.
+ * Fits a built session to the time budget. Under 80 % of it, optional (priority 3) blocks are
+ * added while they fit the budget; under 75 % of it, sets on main lifts, rounds on groups and finisher
+ * minutes grow, a step at a time, up to `maxSets`. Over 110 %, cuts go from the cheapest to the
+ * most important (see reducersFor); blocks cut on the way are added back when they fit the budget.
  * Returns a note per change.
  */
 export const fitToBudget = (
@@ -285,12 +376,17 @@ export const fitToBudget = (
   budgetMinutes: number,
   /** Most sets (or rounds) expansion may give one block. */
   maxSets = 5,
+  /** The goal sets rest floors and ceilings; `keepConditioning` stops the cardio finisher from being dropped. */
+  {
+    goal = 'recomposition',
+    keepConditioning = false,
+  }: { goal?: Goal; keepConditioning?: boolean } = {},
 ): GenerationNote['params'][] => {
   const changes: GenerationNote['params'][] = [];
   const upper = budgetMinutes * (1 + OVER_TOLERANCE);
 
   if (minutes(built) < budgetMinutes * (1 - UNDER_TOLERANCE))
-    addBlocks(built, upper, (b) => b.priority === 3, changes);
+    addBlocks(built, budgetMinutes, (b) => b.priority === 3, changes);
   // Pass after pass, one set (or round, or 5 finisher minutes) per block, until it fills.
   let grew = true;
   while (grew && minutes(built) < budgetMinutes * EXPAND_BELOW) {
@@ -308,12 +404,13 @@ export const fitToBudget = (
     }
   }
 
+  const reducers = reducersFor(goal, budgetMinutes, keepConditioning);
   const cut = new Set<BuiltBlock>();
   let guard = 200;
   while (minutes(built) > upper && guard-- > 0) {
     const before = new Set([...built.main, ...built.finisher].filter((b) => b.included));
     let change: GenerationNote['params'] | null = null;
-    for (const reduce of REDUCERS) {
+    for (const reduce of reducers) {
       change = reduce(built);
       if (change) break;
     }
@@ -321,7 +418,6 @@ export const fitToBudget = (
     changes.push(change);
     for (const b of before) if (!b.included) cut.add(b);
   }
-  if (cut.size > 0 && minutes(built) < budgetMinutes * EXPAND_BELOW)
-    addBlocks(built, upper, (b) => cut.has(b), changes);
+  if (cut.size > 0) addBlocks(built, budgetMinutes, (b) => cut.has(b), changes);
   return changes;
 };

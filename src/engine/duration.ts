@@ -1,3 +1,4 @@
+import { exerciseById } from '../catalogue';
 import type { Block, Session, SessionItem, Target } from '../domain';
 
 /** Seconds per rep when no tempo is set. */
@@ -6,6 +7,18 @@ export const SECONDS_PER_REP = 2.5;
 export const MAX_SET_REPS = 12;
 /** Changing sides on a per-side set. */
 export const SIDE_SWITCH_SEC = 5;
+/** Changing legs on a loaded single-leg lift (split squat, step-up): setting up again takes longer. */
+export const LEG_SWITCH_SEC = 15;
+
+const SINGLE_LEG_PATTERNS = new Set(['squat', 'hinge', 'lunge']);
+
+/** Pause between the two sides of a per-side set. */
+export const sideSwitchSec = (exerciseId: string): number => {
+  const exercise = exerciseById.get(exerciseId);
+  return exercise && SINGLE_LEG_PATTERNS.has(exercise.pattern) && exercise.tags.includes('compound')
+    ? LEG_SWITCH_SEC
+    : SIDE_SWITCH_SEC;
+};
 /** Moving between exercises inside a superset or circuit. */
 export const ITEM_SWITCH_SEC = 10;
 /** Setting up the next block. */
@@ -35,7 +48,7 @@ const targetSeconds = (target: Target, item: SessionItem): number => {
 /** Working time of one set of an item, both sides included. */
 export const itemSeconds = (item: SessionItem): number => {
   const once = targetSeconds(item.target, item);
-  return item.perSide ? once * 2 + SIDE_SWITCH_SEC : once;
+  return item.perSide ? once * 2 + sideSwitchSec(item.exerciseId) : once;
 };
 
 /** Working and resting time of a block, without the transition into it. */
@@ -49,14 +62,37 @@ export const blockSeconds = (block: Block): number => {
   return block.rounds * round + (block.rounds - 1) * block.restAfterRoundSec;
 };
 
+/** Blocks of one section with the move into each, on their own. */
 export const sectionSeconds = (blocks: readonly Block[], transitionSec: number): number =>
   blocks.reduce((sum, block) => sum + blockSeconds(block) + transitionSec, 0);
 
+/** Rest after the last set or round of a block. */
+const blockRestSec = (block: Block): number =>
+  block.type === 'straight' ? block.restSec : block.restAfterRoundSec;
+
+/**
+ * Time between a block and the next one: the block's own rest, but never shorter than setting
+ * up the next block.
+ */
+export const blockTransitionSec = (previous: Block | undefined, transitionSec: number): number =>
+  Math.max(transitionSec, previous ? blockRestSec(previous) : 0);
+
 /** Estimated session length in seconds. */
-export const sessionSeconds = (session: Pick<Session, 'warmup' | 'main' | 'finisher'>): number =>
-  sectionSeconds(session.warmup, WARMUP_TRANSITION_SEC) +
-  sectionSeconds(session.main, BLOCK_TRANSITION_SEC) +
-  sectionSeconds(session.finisher, BLOCK_TRANSITION_SEC);
+export const sessionSeconds = (session: Pick<Session, 'warmup' | 'main' | 'finisher'>): number => {
+  let total = 0;
+  let previous: Block | undefined;
+  const sections: [readonly Block[], number][] = [
+    [session.warmup, WARMUP_TRANSITION_SEC],
+    [session.main, BLOCK_TRANSITION_SEC],
+    [session.finisher, BLOCK_TRANSITION_SEC],
+  ];
+  for (const [blocks, transitionSec] of sections)
+    for (const block of blocks) {
+      total += blockTransitionSec(previous, transitionSec) + blockSeconds(block);
+      previous = block;
+    }
+  return total;
+};
 
 export const sessionMinutes = (session: Pick<Session, 'warmup' | 'main' | 'finisher'>): number =>
   Math.max(1, Math.round(sessionSeconds(session) / 60));

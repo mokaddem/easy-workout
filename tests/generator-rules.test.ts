@@ -19,6 +19,13 @@ import {
   sessionForWeek,
   sessionSeconds,
 } from '../src/engine';
+import {
+  fitToBudget,
+  materialise,
+  type BuiltBlock,
+  type BuiltSession,
+} from '../src/engine/generate/fit';
+import { pickPushTrim } from '../src/engine/generate/programme';
 import { levelCap } from '../src/engine/generate/select';
 import { ownedWeights } from '../src/engine/generate/loads';
 import { equipmentSets } from './fixtures/equipment-sets';
@@ -420,5 +427,219 @@ describe(`generator — rules over ${cases.length} profiles`, () => {
           ),
       ),
     ).toEqual([]);
+  });
+});
+
+describe('time fit — reducers', () => {
+  const straight = (id: string, sets: number, restSec: number, kg = 20): Block => ({
+    type: 'straight',
+    item: { exerciseId: id, target: { kind: 'reps', min: 8, max: 10 }, load: { kind: 'kg', kg } },
+    sets,
+    restSec,
+  });
+  const built = (
+    block: Block,
+    role: BuiltBlock['role'],
+    extra: Partial<BuiltBlock> = {},
+  ): BuiltBlock => ({
+    block,
+    priority: 1,
+    role,
+    included: true,
+    notes: [],
+    muscles: [],
+    ...extra,
+  });
+  const cardio = (minutes: number): Block => ({
+    type: 'straight',
+    item: {
+      exerciseId: 'rowing-machine',
+      target: { kind: 'cardio', minMinutes: minutes, maxMinutes: minutes },
+    },
+    sets: 1,
+    restSec: 0,
+  });
+  const minutesOf = (b: BuiltSession) => sessionSeconds(materialise(b)) / 60;
+  const mainBlocks = (b: BuiltSession) => b.main.filter((x) => x.included);
+
+  it('keeps the ramp-up before the first heavy lift, collapsing it to one lighter set', () => {
+    const ramp = (kg: number): Block => straight('dumbbell-deadlift', 1, 30, kg);
+    const first = built(ramp(10), 'warmup', {
+      ramp: true,
+      notes: [{ code: 'ramp-up', params: { kg: 10, workingKg: 40 } }],
+      collapseTo: { kg: 24, block: ramp(24) },
+    });
+    const second = built(ramp(30), 'warmup', { ramp: true });
+    const session: BuiltSession = {
+      warmup: [built(straight('arm-circles', 1, 0, 0), 'warmup'), first, second],
+      main: [
+        built(straight('dumbbell-deadlift', 4, 120, 40), 'main'),
+        built(straight('goblet-squat', 4, 90), 'secondary'),
+        built(straight('dumbbell-bench-press', 4, 90), 'secondary'),
+      ],
+      finisher: [],
+    };
+    fitToBudget(session, 15, 5, { goal: 'muscle' });
+    const ramps = session.warmup.filter((b) => b.included && b.ramp);
+    expect(ramps).toHaveLength(1);
+    expect(ramps[0]!.block.type === 'straight' && ramps[0]!.block.item.load).toEqual({
+      kind: 'kg',
+      kg: 24,
+    });
+    expect(ramps[0]!.notes[0]!.params.kg).toBe(24);
+  });
+
+  it('floors rests by goal and role, then cuts volume instead', () => {
+    const floors = {
+      muscle: { compound: 90, light: 60 },
+      recomposition: { compound: 60, light: 45 },
+      'general-fitness': { compound: 45, light: 30 },
+    } as const;
+    for (const goal of GOALS) {
+      const session: BuiltSession = {
+        warmup: [],
+        main: [
+          built(straight('dumbbell-deadlift', 4, 120), 'main'),
+          built(straight('dumbbell-bench-press', 4, 120), 'secondary'),
+          built(straight('dumbbell-lateral-raise', 4, 90), 'isolation'),
+          built(straight('plank', 4, 90), 'core'),
+        ],
+        finisher: [],
+      };
+      fitToBudget(session, 14, 5, { goal });
+      for (const b of mainBlocks(session)) {
+        if (b.block.type !== 'straight') continue;
+        const floor =
+          b.role === 'main' || b.role === 'secondary' ? floors[goal].compound : floors[goal].light;
+        expect(b.block.restSec).toBeGreaterThanOrEqual(floor);
+        expect(b.block.restSec).toBeLessThanOrEqual(floors[goal].compound + 30);
+      }
+      const sets = mainBlocks(session).reduce(
+        (n, b) => n + (b.block.type === 'straight' ? b.block.sets : 0),
+        0,
+      );
+      expect(sets).toBeLessThan(16);
+    }
+  });
+
+  it('brings rests above the goal range down to its top before dropping a block', () => {
+    const session: BuiltSession = {
+      warmup: [],
+      main: [
+        built(straight('dumbbell-romanian-deadlift', 3, 120), 'main'),
+        built(straight('one-arm-dumbbell-row', 3, 75), 'secondary'),
+        built(straight('push-up', 3, 75), 'accessory', { priority: 2 }),
+      ],
+      finisher: [],
+    };
+    const before = minutesOf(session);
+    // Just over the tolerance: capping the 120 s rest is enough to fit.
+    fitToBudget(session, before / 1.1 - 0.2, 5, { goal: 'recomposition' });
+    expect(mainBlocks(session)).toHaveLength(3);
+    const lead = session.main[0]!.block;
+    expect(lead.type === 'straight' && lead.restSec).toBe(90);
+  });
+
+  const timedMain = (id: string): BuiltBlock =>
+    built(
+      {
+        type: 'straight',
+        item: { exerciseId: id, target: { kind: 'time', minSec: 600, maxSec: 600 } },
+        sets: 1,
+        restSec: 0,
+      },
+      'main',
+    );
+  const finisherMinutes = (b: BuiltBlock) => {
+    const t = b.block.type === 'straight' && b.block.item.target;
+    return t && t.kind === 'cardio' ? t.maxMinutes : undefined;
+  };
+
+  it('never shortens a recomposition or fitness cardio finisher below 10 minutes, else drops it', () => {
+    const make = (): BuiltSession => ({
+      warmup: [],
+      main: [timedMain('plank'), timedMain('dead-bug'), timedMain('side-plank')],
+      finisher: [built(cardio(20), 'cardio', { keep: true })],
+    });
+    const roomy = make();
+    fitToBudget(roomy, 38, 5, { goal: 'recomposition' });
+    expect(roomy.finisher[0]!.included).toBe(true);
+    expect(finisherMinutes(roomy.finisher[0]!)).toBe(10);
+
+    const tight = make();
+    fitToBudget(tight, 30, 5, { goal: 'general-fitness' });
+    expect(tight.finisher[0]!.included).toBe(false);
+
+    const held = make();
+    fitToBudget(held, 30, 5, { goal: 'general-fitness', keepConditioning: true });
+    expect(held.finisher[0]!.included).toBe(true);
+    expect(finisherMinutes(held.finisher[0]!)).toBe(10);
+  });
+
+  it('shrinks the finisher before dropping an accessory, to a quarter of a short budget', () => {
+    const accessory = built(
+      {
+        type: 'straight',
+        item: { exerciseId: 'plank', target: { kind: 'time', minSec: 120, maxSec: 120 } },
+        sets: 1,
+        restSec: 0,
+      },
+      'core',
+      { priority: 2 },
+    );
+    const session: BuiltSession = {
+      warmup: [],
+      main: [timedMain('dead-bug'), accessory],
+      finisher: [built(cardio(15), 'cardio', { keep: true })],
+    };
+    fitToBudget(session, 20, 5, { goal: 'general-fitness', keepConditioning: true });
+    expect(accessory.included).toBe(true);
+    expect(session.finisher[0]!.included).toBe(true);
+    expect(finisherMinutes(session.finisher[0]!)).toBe(5);
+  });
+
+  it('never trims the first push block of a session or a push block below 2 sets', () => {
+    const block = (sets: number) => ({ sets });
+    const sessionA = {};
+    const sessionB = {};
+    // The only press of a full-body session sits at block index 1.
+    expect(
+      pickPushTrim([{ session: sessionA, block: block(4), isolation: false }]),
+    ).toBeUndefined();
+    expect(
+      pickPushTrim([
+        { session: sessionA, block: block(4), isolation: false },
+        { session: sessionA, block: block(2), isolation: true },
+        { session: sessionB, block: block(3), isolation: false },
+      ]),
+    ).toBeUndefined();
+    const picked = pickPushTrim([
+      { session: sessionA, block: block(4), isolation: false },
+      { session: sessionA, block: block(3), isolation: false },
+      { session: sessionA, block: block(3), isolation: true },
+    ]);
+    expect(picked?.isolation).toBe(true);
+  });
+
+  it('adds a cut block back whenever it fits the budget', () => {
+    const timed = (id: string, seconds: number): Block => ({
+      type: 'straight',
+      item: { exerciseId: id, target: { kind: 'time', minSec: seconds, maxSec: seconds } },
+      sets: 1,
+      restSec: 0,
+    });
+    const small = built(timed('plank', 240), 'core', { priority: 2 });
+    const big = built(timed('side-plank', 900), 'core', { priority: 2 });
+    const session: BuiltSession = {
+      warmup: [],
+      main: [built(timed('dead-bug', 1200), 'main'), big, small],
+      finisher: [],
+    };
+    const total = minutesOf(session);
+    const budget = total - 12;
+    fitToBudget(session, budget, 5, { goal: 'recomposition' });
+    expect(big.included).toBe(false);
+    expect(small.included).toBe(true);
+    expect(minutesOf(session)).toBeLessThanOrEqual(budget);
   });
 });

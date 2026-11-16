@@ -25,10 +25,14 @@ export interface BuildOptions {
   cardioPlace?: 'finisher' | 'day';
   /** Give up (return null) when fewer main blocks than this could be filled. */
   minMainBlocks?: number;
+  /** The cardio finisher may be shortened to its floor but never dropped for time. */
+  keepConditioning?: boolean;
 }
 
 /** Below this working load, ramp-up sets are just noise. */
 const MIN_RAMP_WORKING_KG = 10;
+/** The one ramp-up set kept under time pressure, as a share of the working load. */
+const COLLAPSED_RAMP_FRACTION = 0.6;
 
 const selectionNote = (sel: Selection, slot: SlotSpec, itemIndex?: number): PendingNote[] => {
   const at = itemIndex === undefined ? {} : { itemIndex };
@@ -256,9 +260,36 @@ const rampUp = (built: BuiltSession, ctx: Context): BuiltBlock[] => {
       priority: 1,
       role: 'warmup',
       included: true,
+      ramp: true,
       muscles: [],
       notes: [{ code: 'ramp-up', params: { exerciseId: exercise.id, kg, workingKg: working } }],
     });
+  }
+  // When time is short the ramp-up shrinks to one set at about 60 % of the working load.
+  const [lead, ...rest] = blocks;
+  if (lead && rest.length > 0) {
+    const last = blocks[blocks.length - 1]!.block;
+    const kg = rampLoad(setup, working, COLLAPSED_RAMP_FRACTION, ctx.equipment);
+    const usable = kg !== undefined && kg < working;
+    const collapsedKg = usable
+      ? kg
+      : last.type === 'straight' && last.item.load?.kind === 'kg'
+        ? last.item.load.kg
+        : undefined;
+    if (collapsedKg !== undefined)
+      lead.collapseTo = {
+        kg: collapsedKg,
+        block: {
+          type: 'straight',
+          item: {
+            exerciseId: exercise.id,
+            target: { kind: 'reps', min: 6, max: 6 },
+            load: { kind: 'kg', kg: collapsedKg },
+          },
+          sets: 1,
+          restSec: 45,
+        },
+      };
   }
   return blocks;
 };
@@ -332,7 +363,12 @@ export const buildSession = (
 
   // Beginners and returning trainees keep their lower volume even with time to spare.
   const maxSets = ctx.level === 'beginner' || ctx.level === 'returning' ? 4 : 5;
-  const changes = cardioDay ? [] : fitToBudget(built, options.budget, maxSets);
+  const changes = cardioDay
+    ? []
+    : fitToBudget(built, options.budget, maxSets, {
+        goal: ctx.profile.goal,
+        ...(options.keepConditioning ? { keepConditioning: true } : {}),
+      });
   const session = materialise(built);
 
   let name = options.name;

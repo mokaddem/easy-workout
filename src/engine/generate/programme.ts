@@ -7,11 +7,11 @@ import { OVER_TOLERANCE } from './fit';
 import { ownedWeights } from './loads';
 import { phasesFor, PROGRAMME_WEEKS } from './phases';
 import { newSelectionState } from './select';
-import { splitFor, template } from './templates';
+import { SHORT_SESSION_MINUTES, splitFor, template } from './templates';
 import { NoteLog, type Context, type GenerateInput, type TemplateKey } from './types';
 
 /** Bumped whenever the rules change what the same inputs produce. */
-export const GENERATOR_VERSION = 1;
+export const GENERATOR_VERSION = 2;
 
 const PROGRAMME_NAME: Record<Goal, LocalizedText> = {
   muscle: { fr: 'Prise de muscle 8 semaines', en: '8-week muscle gain' },
@@ -86,6 +86,25 @@ const MAX_PUSH_TO_PULL = 1.25;
  * When the equipment leaves pulling slots empty, the week tilts towards pushing. Pull blocks
  * get sets back where the session still fits its budget; otherwise push isolation sets go.
  */
+/**
+ * The push block that gives up a set for the balance, from push blocks in rotation order.
+ * Light (isolation) work goes first, then other blocks. Never the first push block of a
+ * session, and never below 2 sets. Undefined when nothing qualifies.
+ */
+export const pickPushTrim = <
+  T extends { session: unknown; block: { sets: number }; isolation: boolean },
+>(
+  blocks: readonly T[],
+): T | undefined => {
+  const seen = new Set<unknown>();
+  const later = blocks.filter((c) => {
+    const first = !seen.has(c.session);
+    seen.add(c.session);
+    return !first && c.block.sets > 2;
+  });
+  return later.filter((c) => c.isolation).pop() ?? later.pop();
+};
+
 const balancePushPull = (rotation: Session[], ctx: Context, budget: number): void => {
   const patternOf = (id: string) => ctx.catalogue.get(id)?.pattern ?? 'mobility';
   const count = (patterns: readonly string[]) =>
@@ -122,8 +141,8 @@ const balancePushPull = (rotation: Session[], ctx: Context, budget: number): voi
 
   const maxSets = ctx.level === 'beginner' || ctx.level === 'returning' ? 4 : 5;
   let guard = 50;
-  while (count(PUSH_PATTERNS) > MAX_PUSH_TO_PULL * count(PULL_PATTERNS) && guard-- > 0) {
-    const grow = straightBlocks(PULL_PATTERNS).find(({ session, index, block }) => {
+  const growPull = () =>
+    straightBlocks(PULL_PATTERNS).find(({ session, index, block }) => {
       // Same caps as the time fit: the volume phase adds a set to the first two blocks later.
       if (block.sets >= maxSets - (index < 2 ? 1 : 0)) return false;
       const main = session.main.map((b, i) =>
@@ -131,27 +150,32 @@ const balancePushPull = (rotation: Session[], ctx: Context, budget: number): voi
       );
       return sessionSeconds({ ...session, main }) / 60 <= budget * (1 + OVER_TOLERANCE);
     });
-    if (grow) {
-      grow.session.main[grow.index] = { ...grow.block, sets: grow.block.sets + 1 };
-      ctx.log.add(
-        'balance-set-added',
-        { exerciseId: grow.block.item.exerciseId },
-        { sessionId: grow.session.id, section: 'main', blockIndex: grow.index },
+  while (count(PUSH_PATTERNS) > MAX_PUSH_TO_PULL * count(PULL_PATTERNS) && guard-- > 0) {
+    const grow = growPull();
+    if (!grow) {
+      const trim = pickPushTrim(
+        straightBlocks(PUSH_PATTERNS).map((c) => ({
+          ...c,
+          isolation:
+            ctx.catalogue.get(c.block.item.exerciseId)?.tags.includes('isolation') ?? false,
+        })),
       );
-      continue;
+      if (trim) {
+        trim.session.main[trim.index] = { ...trim.block, sets: trim.block.sets - 1 };
+        ctx.log.add(
+          'balance-set-removed',
+          { exerciseId: trim.block.item.exerciseId },
+          { sessionId: trim.session.id, section: 'main', blockIndex: trim.index },
+        );
+        continue;
+      }
     }
-    const trim = straightBlocks(PUSH_PATTERNS)
-      .filter(
-        ({ block }) =>
-          block.sets > 2 && ctx.catalogue.get(block.item.exerciseId)?.tags.includes('isolation'),
-      )
-      .pop();
-    if (!trim) break;
-    trim.session.main[trim.index] = { ...trim.block, sets: trim.block.sets - 1 };
+    if (!grow) break;
+    grow.session.main[grow.index] = { ...grow.block, sets: grow.block.sets + 1 };
     ctx.log.add(
-      'balance-set-removed',
-      { exerciseId: trim.block.item.exerciseId },
-      { sessionId: trim.session.id, section: 'main', blockIndex: trim.index },
+      'balance-set-added',
+      { exerciseId: grow.block.item.exerciseId },
+      { sessionId: grow.session.id, section: 'main', blockIndex: grow.index },
     );
   }
   for (const session of rotation) session.estimatedMinutes = sessionMinutes(session);
@@ -218,6 +242,10 @@ export const generateProgramme = (
     const logLength = ctx.log.notes.length;
     let letter = 0;
     const sessions: Session[] = [];
+    // Short sessions keep a short finisher each. Otherwise, without a cardio day, sessions keep
+    // their finisher until one has, so the week still has conditioning.
+    const shortBudget = profile.goal !== 'muscle' && profile.sessionMinutes < SHORT_SESSION_MINUTES;
+    let conditioningHeld = profile.goal === 'muscle' || keys.includes('cardio');
     for (const key of keys) {
       const tpl = template(key);
       const cardioDay = key === 'cardio';
@@ -229,7 +257,9 @@ export const generateProgramme = (
           : { fr: `Séance ${code} — ${tpl.title.fr}`, en: `Session ${code} — ${tpl.title.en}` },
         budget: profile.sessionMinutes,
         ...(strict && !cardioDay ? { minMainBlocks: MIN_SPLIT_MAIN_BLOCKS } : {}),
+        ...((conditioningHeld && !shortBudget) || cardioDay ? {} : { keepConditioning: true }),
       });
+      if (session && hasCardioFinisher([session])) conditioningHeld = true;
       if (!session) {
         ctx.log.notes.length = logLength;
         ctx.log.add('split-replaced', { template: key, minBlocks: MIN_SPLIT_MAIN_BLOCKS });

@@ -9,7 +9,7 @@ Phases:
   W7 Peak: RIR 1 (last-set); cardio +10 min
   W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
 
-## Session A — Push  [a-push, ~48 min]
+## Session A — Push  [a-push, ~53 min]
 Warm-up:
   1. Arm circles · 30s
   2. Push-up · 15 · tempo 2-0-2 · bodyweight
@@ -26,7 +26,7 @@ Main:
 Finisher:
   1. Treadmill incline walk · 15 min @ 5 km/h, 12%
 
-## Session B — Pull  [b-pull, ~54 min]
+## Session B — Pull  [b-pull, ~60 min]
 Warm-up:
   1. 2 × Dead hang · 20s  (rest 30s)
   2. 2 × Band face pull · 20 · light band  (rest 30s)
@@ -42,7 +42,7 @@ Main:
 Finisher:
   1. Treadmill incline walk · 15 min @ 4.5 km/h, 15%
 
-## Session C — Lower body + core  [c-lower-core, ~49 min]
+## Session C — Lower body + core  [c-lower-core, ~56 min]
 Warm-up:
   1. Bodyweight squat · 20
   2. Walking lunge · 10/side · bodyweight
@@ -62,7 +62,7 @@ Main:
 Main:
   1. Treadmill incline walk · 35-40 min @ 5.5 km/h, 10%
 
-## Session D — Upper-body density  [d-upper-density, ~42 min]
+## Session D — Upper-body density  [d-upper-density, ~43 min]
 Warm-up:
   1. Arm circles · 30s
   2. 2 × Band pull-apart · 20 · light band  (rest 30s)
@@ -83,7 +83,7 @@ Main:
 Finisher:
   1. Treadmill incline walk · 10 min
 
-## Session E — Lower body + metabolic full body  [e-lower-metabolic, ~55 min]
+## Session E — Lower body + metabolic full body  [e-lower-metabolic, ~59 min]
 Warm-up:
   1. Bodyweight squat · 20
   2. Walking lunge · 10/side · bodyweight
@@ -91,7 +91,7 @@ Warm-up:
   4. 1 × Deadlift · 10 · 8 kg  (rest 30s)
   5. 1 × Deadlift · 5 · 12 kg  (rest 60s)
 Main:
-  1. 4 × Deadlift · 8 · RIR 2 · 18 kg  (rest 120s)
+  1. 4 × Deadlift · 8 · RIR 2 · 18 kg  (rest 90s)
   2. 3 × Goblet sumo squat · 12-15 · RIR 2 · 14 kg  (rest 90s)
   3. 3 × Floor hip thrust · 15 · RIR 2 · 18 kg  (rest 75s)
   4. 3 × Walking lunge · 12/side · RIR 2 · bodyweight  (rest 75s)
@@ -145,4 +145,5 @@ Why (choices other than the first preference):
 - [e-lower-metabolic/main/3] load-unloaded-start {"exerciseId":"walking-lunge"}
 - [e-lower-metabolic/main/4] load-band {"exerciseId":"band-hip-abduction","level":"light"}
 - [e-lower-metabolic/finisher/0/0] load-start {"exerciseId":"dumbbell-swing","kg":14,"targetKg":14,"bodyweightKg":70,"bodyweightAssumed":true}
+- [e-lower-metabolic] time-fit {"action":"rests-shortened","seconds":30,"budget":55}
 - max-test {"exerciseId":"push-up"}

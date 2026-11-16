@@ -1,0 +1,86 @@
+/* banner (programme tab) */
+.banner {
+  display: grid;
+  gap: 14px;
+  margin: var(--space-2) var(--space-4) 0;
+  padding: var(--space-4);
+  border: var(--border-control) solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--elevation-1);
+}
+.firm {
+  border: var(--border-strong) solid var(--color-text);
+}
+.bannerHead {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.well {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.firm .well {
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+}
+.bannerText {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.bannerTitle {
+  margin: 0;
+  font-size: var(--font-size-18);
+  font-weight: var(--font-weight-bold);
+  font-stretch: var(--type-title-width);
+  line-height: 1.2;
+}
+.muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+.bannerActions {
+  display: grid;
+  gap: 4px;
+}
+.bannerActions > :last-child {
+  justify-self: start;
+}
+
+/* line (summary) */
+.line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+.line > svg {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.lineFirm {
+  box-shadow: inset 0 0 0 var(--border-strong) var(--color-text);
+}
+.lineFirm > svg {
+  color: var(--color-text);
+}
+.lineText {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.lineText b {
+  font-weight: var(--font-weight-bold);
+}

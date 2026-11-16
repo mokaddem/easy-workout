@@ -1,10 +1,13 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useEquipment, useProfile } from '@/app/data';
+import { useEquipment, useOpenSession, useProfile } from '@/app/data';
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
 import { generateQuickSession, QUICK_FOCUSES, type QuickFocus } from '@/engine';
 import { Button, Dock, Icon, IconButton, Skeleton, useToast } from '@/ui/components';
+import { useBegin } from '../play/begin';
+import { ResumeBanner } from '../play/components/ResumeBanner';
+import { startQuickSession } from '../play/start';
 import { sessionIdentity } from '../programme/format';
 import { SessionView } from '../programme/SessionView';
 import { RadioChoice } from './RadioTiles';
@@ -24,6 +27,8 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
   const profile = useProfile();
   const equipment = useEquipment();
   const toast = useToast();
+  const openSession = useOpenSession();
+  const { begin, dialog: beginDialog } = useBegin();
   const [choices, setChoices] = useState<QuickChoices>(loadChoices);
   const [seed, setSeed] = useState(0);
   const composed = route.view === 'session';
@@ -93,6 +98,7 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
               <h1 className={styles.display}>{t('quick.title')}</h1>
               <p className={styles.muted}>{t('quick.intro')}</p>
             </header>
+            {openSession ? <ResumeBanner log={openSession} flush /> : null}
             <section className={styles.field} aria-labelledby={durationId}>
               <h2 id={durationId} className={styles.fieldTitle}>
                 {t('quick.duration')}
@@ -176,11 +182,13 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
           <Button
             size="player"
             fullWidth
+            variant={openSession ? 'secondary' : 'primary'}
             onClick={() => navigate({ name: 'quick', view: 'session' })}
           >
             {t('quick.compose')}
           </Button>
         </Dock>
+        {beginDialog}
       </>
     );
   }
@@ -235,13 +243,20 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
               size="player"
               fullWidth
               icon="play"
-              onClick={() => navigate({ name: 'play', source: 'quick' })}
+              variant={openSession ? 'secondary' : 'primary'}
+              onClick={() =>
+                void begin(() => startQuickSession(current.session), current.session.name[lang], {
+                  name: 'play',
+                  source: 'quick',
+                })
+              }
             >
               {t('quick.start')}
             </Button>
           </div>
         </div>
       </Dock>
+      {beginDialog}
     </>
   );
 }

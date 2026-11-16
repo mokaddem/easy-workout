@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Profile } from '../domain';
-import { generateProgramme } from '../engine';
+import { asPlanned, generateProgramme, playSteps, sessionForWeek, setLogBase } from '../engine';
+import { SessionLogSchema, type SetLog } from '../domain';
 import { WorkoutDatabase } from './index';
-import { createRepo } from './repo';
+import { createRepo, OpenSessionError } from './repo';
 
 const profile: Profile = {
   goal: 'muscle',
@@ -66,5 +67,101 @@ describe('repo', () => {
     await repo.replaceEquipment(equipment);
     await repo.replaceEquipment([]);
     expect(await repo.getEquipment()).toEqual([]);
+  });
+});
+
+describe('session logs', () => {
+  const programme = generateProgramme({ profile, equipment });
+  const template = programme.rotation[0]!;
+  const plan = sessionForWeek(programme, template.id, 1).session;
+  const source = {
+    kind: 'programme' as const,
+    programmeId: 'p1',
+    week: 1,
+    sessionId: template.id,
+  };
+  const steps = playSteps(plan);
+  const at = (minute: number) => new Date(Date.UTC(2026, 10, 12, 10, minute));
+  const performed = (index: number, reps?: number): SetLog => {
+    const actual = asPlanned(steps[index]!.planned) ?? { reps: 8 };
+    return {
+      ...setLogBase(steps[index]!),
+      actual: reps === undefined ? actual : { ...actual, reps },
+      feel: 'right',
+      at: at(index).toISOString(),
+    };
+  };
+
+  it('opens one session at a time', async () => {
+    const repo = setup();
+    const log = await repo.startSession({ source, plan }, at(0));
+    expect(await repo.getOpenSession()).toEqual(log);
+    await expect(repo.startSession({ source: { kind: 'quick' }, plan })).rejects.toBeInstanceOf(
+      OpenSessionError,
+    );
+  });
+
+  it('records sets, replacing a set logged twice in place', async () => {
+    const repo = setup();
+    const { id } = await repo.startSession({ source, plan }, at(0));
+    await repo.logSets(id, [performed(0), performed(1)]);
+    await repo.logSets(id, [performed(0, 3)]);
+    const sets = (await repo.getOpenSession())!.sets;
+    expect(sets).toHaveLength(2);
+    expect(sets[0]!.actual?.reps).toBe(3);
+  });
+
+  it('adds up pauses, including one left running when the session ends', async () => {
+    const repo = setup();
+    const { id } = await repo.startSession({ source, plan }, at(0));
+    await repo.pauseSession(id, at(10));
+    await repo.pauseSession(id, at(11)); // already paused: unchanged
+    await repo.resumeSession(id, at(15));
+    await repo.resumeSession(id, at(20), at(18)); // closed without a pause: counted from `since`
+    await repo.logSets(id, [performed(0)]);
+    await repo.pauseSession(id, at(30));
+    await repo.finishSession(id, { endedEarly: true, countsAsDone: false }, at(40));
+    const log = (await repo.listSessionLogs())[0]!;
+    expect(log).toMatchObject({
+      status: 'completed',
+      pausedSec: (5 + 2 + 10) * 60,
+      endedEarly: true,
+      countsAsDone: false,
+      endedAt: at(40).toISOString(),
+    });
+    expect(log.pausedAt).toBeUndefined();
+    expect(SessionLogSchema.parse(log)).toEqual(log);
+    await repo.setCountsAsDone(id, true);
+    expect((await repo.listSessionLogs())[0]!.countsAsDone).toBe(true);
+    await expect(repo.logSets(id, [performed(1)])).rejects.toThrow(/not open/);
+  });
+
+  it('abandons: keeps logged sets, deletes an empty session', async () => {
+    const repo = setup();
+    const empty = await repo.startSession({ source, plan }, at(0));
+    await repo.abandonSession(empty.id, at(1));
+    expect(await repo.listSessionLogs()).toEqual([]);
+    const { id } = await repo.startSession({ source, plan }, at(2));
+    await repo.logSets(id, [performed(0)]);
+    await repo.abandonSession(id, at(3));
+    expect(await repo.listSessionLogs()).toMatchObject([{ id, status: 'abandoned' }]);
+    expect(await repo.getOpenSession()).toBeUndefined();
+  });
+
+  it('fills settings added later with their default', async () => {
+    const repo = setup();
+    await db.settings.put({
+      id: 'settings',
+      language: 'en',
+      theme: 'dark',
+      voice: false,
+      sounds: true,
+      vibration: true,
+    } as never);
+    expect(await repo.getSettings('fr')).toMatchObject({
+      language: 'en',
+      voice: false,
+      restDisplay: 'takeover',
+    });
   });
 });

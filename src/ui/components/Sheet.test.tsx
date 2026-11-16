@@ -29,6 +29,18 @@ function Harness() {
 }
 
 describe('Sheet', () => {
+  it('renders an optional footer after the content', () => {
+    render(
+      <Sheet open onClose={() => {}} title="Import" footer={<button>Replace</button>}>
+        <p>Body</p>
+      </Sheet>,
+    );
+    const body = screen.getByText('Body');
+    const action = screen.getByRole('button', { name: 'Replace' });
+    expect(body.compareDocumentPosition(action) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(action.parentElement).not.toBe(body.parentElement);
+  });
+
   it('opens as a modal dialog with title and description', () => {
     render(<Harness />);
     expect(document.querySelector('dialog')).not.toHaveAttribute('open');

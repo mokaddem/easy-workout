@@ -1,38 +1,84 @@
 import { z } from 'zod';
 import { DateSchema, DateTimeSchema, IdSchema, int, positive, SlugSchema } from './common';
-import { LoadSchema, SessionSchema, TargetSchema } from './session';
+import { LoadSchema, SessionSchema, TargetSchema, TempoSchema } from './session';
 
 export const FEELS = ['easy', 'right', 'hard'] as const;
 export const FeelSchema = z.enum(FEELS);
 export type Feel = z.infer<typeof FeelSchema>;
 
-/** Why a set was not performed as planned. Pain and no-equipment end the exercise for the session. */
+/**
+ * Why a set was not performed. Pain and no-equipment end the exercise: its remaining sets are
+ * logged with the flag. Skipped is a warm-up item passed over. Sets left when a session is
+ * finished early are simply not logged.
+ */
 export const SET_FLAGS = ['pain', 'no-equipment', 'skipped'] as const;
 export const SetFlagSchema = z.enum(SET_FLAGS);
 export type SetFlag = z.infer<typeof SetFlagSchema>;
 
-export const SetLogSchema = z.strictObject({
-  section: z.enum(['warmup', 'main', 'finisher']),
-  blockIndex: int(0),
-  itemIndex: int(0),
-  /** 1-based set (straight block) or round (group). */
-  set: int(1),
-  side: z.enum(['left', 'right']).optional(),
-  exerciseId: SlugSchema,
-  planned: z.strictObject({ target: TargetSchema, load: LoadSchema.optional() }),
-  /** Absent when the set was done exactly as planned. */
-  actual: z
-    .strictObject({
-      reps: int(0).optional(),
-      durationSec: int(0).optional(),
-      load: LoadSchema.optional(),
-    })
-    .optional(),
-  feel: FeelSchema.optional(),
-  flag: SetFlagSchema.optional(),
-  at: DateTimeSchema,
+export const SECTIONS = ['warmup', 'main', 'finisher'] as const;
+export const SectionSchema = z.enum(SECTIONS);
+export type Section = z.infer<typeof SectionSchema>;
+
+export const SideSchema = z.enum(['left', 'right']);
+export type Side = z.infer<typeof SideSchema>;
+
+/** What was actually done in a set. Every field the target kind uses is recorded, as planned or not. */
+export const SetActualSchema = z.strictObject({
+  /** Reps and max targets. Per side for per-side items. */
+  reps: int(0).optional(),
+  /** Time targets, steady cardio and intervals (work and recovery). */
+  durationSec: int(0).optional(),
+  /** Interval rounds completed. */
+  rounds: int(0).optional(),
+  /** Cardio as run; for intervals, the work phase. */
+  speedKmh: positive.optional(),
+  inclinePct: z.number().min(0).optional(),
+  load: LoadSchema.optional(),
 });
+export type SetActual = z.infer<typeof SetActualSchema>;
+
+export const SetLogSchema = z
+  .strictObject({
+    section: SectionSchema,
+    blockIndex: int(0),
+    itemIndex: int(0),
+    /** 1-based set (straight block) or round (group). */
+    set: int(1),
+    side: SideSchema.optional(),
+    exerciseId: SlugSchema,
+    /** The prescription of this very set, week changes included (RIR of a first or last set, back-off load). */
+    planned: z.strictObject({
+      target: TargetSchema,
+      load: LoadSchema.optional(),
+      rir: int(0, 5).optional(),
+      tempo: TempoSchema.optional(),
+    }),
+    /** What was done. A set stopped by pain may keep the reps done before it. */
+    actual: SetActualSchema.optional(),
+    /** The values were changed from the prefilled ones. */
+    edited: z.boolean().optional(),
+    feel: FeelSchema.optional(),
+    /** The feel was picked, not left on its default. */
+    feelChosen: z.boolean().optional(),
+    flag: SetFlagSchema.optional(),
+    /** The rest timer before this set as it ran (after adjustments or skip), when there was one. */
+    restSec: int(0).optional(),
+    at: DateTimeSchema,
+  })
+  .superRefine((set, ctx) => {
+    if (!set.actual && !set.flag)
+      ctx.addIssue({ code: 'custom', message: 'a set is performed (actual) or flagged' });
+    if (set.actual && (set.flag === 'no-equipment' || set.flag === 'skipped'))
+      ctx.addIssue({ code: 'custom', message: 'only a set stopped by pain keeps what was done' });
+    if (set.flag && (set.feel || set.feelChosen))
+      ctx.addIssue({ code: 'custom', message: 'a flagged set has no feel' });
+  });
 export type SetLog = z.infer<typeof SetLogSchema>;
+
+/** Identifies a set within its session: the same set logged twice replaces the first record. */
+export const setLogKey = (
+  set: Pick<SetLog, 'section' | 'blockIndex' | 'itemIndex' | 'set' | 'side'>,
+): string => `${set.section}/${set.blockIndex}/${set.itemIndex}/${set.set}/${set.side ?? ''}`;
 
 export const SessionSourceSchema = z.discriminatedUnion('kind', [
   z.strictObject({
@@ -46,14 +92,55 @@ export const SessionSourceSchema = z.discriminatedUnion('kind', [
 ]);
 export type SessionSource = z.infer<typeof SessionSourceSchema>;
 
+/**
+ * Per-set changes a week makes on top of the session (intensity weeks): RIR of the first or last
+ * set of rep-based main exercises, and the load of the back-off sets after a hard first set,
+ * per exercise (`section/blockIndex/itemIndex`), already snapped to owned weights.
+ */
+export const SetAdjustmentsSchema = z.strictObject({
+  firstSetRir: int(0, 5).optional(),
+  lastSetRir: int(0, 5).optional(),
+  backOffLoads: z.record(z.string(), LoadSchema).optional(),
+});
+export type SetAdjustments = z.infer<typeof SetAdjustmentsSchema>;
+
+/** Pauses between two sets of the player. */
+export const PAUSE_KINDS = ['side', 'item', 'rest', 'block'] as const;
+export const PauseKindSchema = z.enum(PAUSE_KINDS);
+export type PauseKind = z.infer<typeof PauseKindSchema>;
+
+/** The player's running clock, kept so that closing the app doesn't lose a rest or a timer. */
+export const LiveClockSchema = z.discriminatedUnion('kind', [
+  z.strictObject({
+    kind: z.literal('pause'),
+    pause: PauseKindSchema,
+    startedAt: DateTimeSchema,
+    endsAt: DateTimeSchema,
+  }),
+  z.strictObject({ kind: z.literal('timing'), startedAt: DateTimeSchema }),
+]);
+export type LiveClock = z.infer<typeof LiveClockSchema>;
+
 export const SessionLogSchema = z.strictObject({
   id: IdSchema,
   source: SessionSourceSchema,
   /** Snapshot of the plan as it was run, so history survives later edits. */
   plan: SessionSchema,
+  adjustments: SetAdjustmentsSchema.optional(),
   status: z.enum(['in-progress', 'completed', 'abandoned']),
   startedAt: DateTimeSchema,
   endedAt: DateTimeSchema.optional(),
+  /** Paused time already over. Active time = end − start − pausedSec − the pause still running. */
+  pausedSec: int(0).optional(),
+  /** Set while the session is paused. */
+  pausedAt: DateTimeSchema.optional(),
+  /** Finished before its last set. */
+  endedEarly: z.boolean().optional(),
+  /** A completed programme session moves the rotation on unless this is false. */
+  countsAsDone: z.boolean().optional(),
+  note: z.string().max(2000).optional(),
+  /** Only while the session is open. */
+  live: LiveClockSchema.optional(),
   sets: z.array(SetLogSchema),
 });
 export type SessionLog = z.infer<typeof SessionLogSchema>;

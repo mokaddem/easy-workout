@@ -223,7 +223,8 @@
     "keepCurrent": "Keep the current one",
     "keepCurrentNew": "Keep the current one",
     "doneNew": "New programme in place",
-    "doneVariant": "Variation in place"
+    "doneVariant": "Variation in place",
+    "openSession": "A session is open: it carries on with its own plan and won’t count towards the new programme."
   },
   "why": {
     "title": "Why this programme?",
@@ -241,5 +242,6 @@
     "plain": "The classic choice for this movement, fitted to your equipment and level.",
     "cue": "Key cue",
     "close": "Got it"
-  }
+  },
+  "resumeSession": "Resume session"
 }

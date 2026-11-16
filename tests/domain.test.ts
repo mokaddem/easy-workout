@@ -3,6 +3,7 @@ import {
   EquipmentRequirementSchema,
   ExerciseSchema,
   ProgrammeSchema,
+  SetLogSchema,
   TargetSchema,
   type Exercise,
 } from '../src/domain';
@@ -120,5 +121,36 @@ describe('programme schema', () => {
       phases: [{ name: { fr: 'A', en: 'A' }, fromWeek: 8, toWeek: 9, adjustments: [] }],
     };
     expect(ProgrammeSchema.safeParse(programme).success).toBe(false);
+  });
+});
+
+describe('set log schema', () => {
+  const base = {
+    section: 'main',
+    blockIndex: 0,
+    itemIndex: 0,
+    set: 1,
+    exerciseId: 'goblet-squat',
+    planned: { target: { kind: 'reps', min: 8, max: 10 } },
+    at: '2026-11-12T10:00:00Z',
+  };
+
+  it('is either performed or flagged', () => {
+    expect(SetLogSchema.safeParse({ ...base, actual: { reps: 10 }, feel: 'right' }).success).toBe(
+      true,
+    );
+    expect(SetLogSchema.safeParse({ ...base, flag: 'pain' }).success).toBe(true);
+    expect(SetLogSchema.safeParse(base).success).toBe(false);
+    // Pain can keep the reps done before it; missing equipment means nothing was done.
+    expect(SetLogSchema.safeParse({ ...base, actual: { reps: 4 }, flag: 'pain' }).success).toBe(
+      true,
+    );
+    expect(
+      SetLogSchema.safeParse({ ...base, actual: { reps: 4 }, flag: 'no-equipment' }).success,
+    ).toBe(false);
+    expect(SetLogSchema.safeParse({ ...base, flag: 'pain', feel: 'hard' }).success).toBe(false);
+    expect(SetLogSchema.safeParse({ ...base, actual: { reps: 4 }, flag: 'skipped' }).success).toBe(
+      false,
+    );
   });
 });

@@ -1,20 +1,48 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveProgramme, useProfile, useSettings } from '@/app/data';
 import { navigate, useRoute, type Route } from '@/app/router';
 import { Shell } from '@/app/Shell';
 import { applyTheme } from '@/app/theme';
-import { EquipmentScreen } from '@/features/equipment/EquipmentScreen';
-import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
 import { PlaceholderScreen } from '@/features/placeholder/PlaceholderScreen';
-import { PlayScreen } from '@/features/play/PlayScreen';
 import { ProgrammeScreen } from '@/features/programme/ProgrammeScreen';
-import { SessionScreen } from '@/features/programme/SessionScreen';
-import { ProgressScreen } from '@/features/progress/ProgressScreen';
-import { QuickScreen } from '@/features/quick/QuickScreen';
-import { ProfileScreen } from '@/features/settings/ProfileScreen';
-import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { setLanguage } from '@/i18n';
+
+/** Screens other than the landing one load on first visit; the offline cache holds them all. */
+const OnboardingScreen = lazyScreen(
+  () => import('@/features/onboarding/OnboardingScreen'),
+  'OnboardingScreen',
+);
+const SessionScreen = lazyScreen(
+  () => import('@/features/programme/SessionScreen'),
+  'SessionScreen',
+);
+const QuickScreen = lazyScreen(() => import('@/features/quick/QuickScreen'), 'QuickScreen');
+const ProgressScreen = lazyScreen(
+  () => import('@/features/progress/ProgressScreen'),
+  'ProgressScreen',
+);
+const SettingsScreen = lazyScreen(
+  () => import('@/features/settings/SettingsScreen'),
+  'SettingsScreen',
+);
+const ProfileScreen = lazyScreen(
+  () => import('@/features/settings/ProfileScreen'),
+  'ProfileScreen',
+);
+const DataScreen = lazyScreen(() => import('@/features/settings/DataScreen'), 'DataScreen');
+const EquipmentScreen = lazyScreen(
+  () => import('@/features/equipment/EquipmentScreen'),
+  'EquipmentScreen',
+);
+const PlayScreen = lazyScreen(() => import('@/features/play/PlayScreen'), 'PlayScreen');
+
+function lazyScreen<K extends string, P extends object>(
+  load: () => Promise<Record<K, ComponentType<P>>>,
+  name: K,
+) {
+  return lazy(async () => ({ default: (await load())[name] }));
+}
 
 function Screen({ route }: { route: Route }) {
   const { t } = useTranslation();
@@ -35,6 +63,8 @@ function Screen({ route }: { route: Route }) {
       return <ProfileScreen />;
     case 'equipment':
       return <EquipmentScreen />;
+    case 'data':
+      return <DataScreen />;
     case 'play':
       return <PlayScreen route={route} />;
     case 'not-found':
@@ -72,7 +102,9 @@ export default function App() {
   if (loading || redirect) return null;
   return (
     <Shell route={route}>
-      <Screen route={route} />
+      <Suspense fallback={null}>
+        <Screen route={route} />
+      </Suspense>
     </Shell>
   );
 }

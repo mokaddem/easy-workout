@@ -68,6 +68,13 @@ describe('nextSession', () => {
     expect(nextSession(programme, done(4, 'other'))).toMatchObject({ week: 1, index: 0 });
   });
 
+  it('skips logs that do not count as done', () => {
+    const logs = done(3).map((log, i) => (i === 2 ? { ...log, countsAsDone: false } : log));
+    expect(nextSession(programme, logs)).toMatchObject({ week: 1, index: 2 });
+    const abandoned = done(1).map((log) => ({ ...log, status: 'abandoned' as const }));
+    expect(nextSession(programme, abandoned)).toMatchObject({ week: 1, index: 0 });
+  });
+
   it('stays on the last session once everything is done', () => {
     const all = programme.sessionsPerWeek * programme.weeks;
     expect(nextSession(programme, done(all))).toMatchObject({

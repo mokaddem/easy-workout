@@ -1,0 +1,23 @@
+{
+  "set": "{{name}}. Série {{set}} sur {{sets}}.",
+  "round": "{{name}}. Tour {{set}} sur {{sets}}.",
+  "warmup": "{{name}}.",
+  "side": {
+    "left": "Côté gauche.",
+    "right": "Côté droit."
+  },
+  "reps_one": "{{count}} répétition",
+  "reps_other": "{{count}} répétitions",
+  "repRange": "{{min}} à {{max}} répétitions",
+  "max": "Maximum de répétitions",
+  "seconds_one": "{{count}} seconde",
+  "seconds_other": "{{count}} secondes",
+  "secondRange": "{{min}} à {{max}} secondes",
+  "minutes_one": "{{count}} minute",
+  "minutes_other": "{{count}} minutes",
+  "minuteRange": "{{min}} à {{max}} minutes",
+  "intervals": "{{rounds}} fois {{work}} secondes",
+  "kg": "à {{kg}} kilos",
+  "addedKg": "avec {{kg}} kilos de lest",
+  "band": "élastique {{level}}"
+}

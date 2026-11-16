@@ -1,0 +1,228 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Tick } from '@/motion';
+import { useActiveProgramme, useEquipment, useSessionLog, useSessionLogs } from '@/app/data';
+import { nextSession } from '@/app/programme-state';
+import { navigate } from '@/app/router';
+import { exerciseById } from '@/catalogue';
+import { repo } from '@/db/repo';
+import type { Language, SessionLog } from '@/domain';
+import { activeSeconds, playSteps, sessionTotals } from '@/engine';
+import { Button, Card, Icon, SetStrip, SwitchRow } from '@/ui/components';
+import { BackupLine } from '../../settings/BackupBanner';
+import { useBackupReminder } from '../../settings/useBackupReminder';
+import { programmeIdentities } from '../../programme/format';
+import { durationParts, exerciseLabel, glyphOf, numberText, stripGroups } from '../format';
+import { clearSummary } from '../lifecycle';
+import styles from './Summary.module.css';
+
+/** The end of a session: how long, how much, and whether it counts. Reads the stored log. */
+export function SummaryScreen({ id }: { id: string }) {
+  const log = useSessionLog(id);
+  useEffect(() => {
+    // The session is gone (nothing was logged, or it was removed): nothing to summarise.
+    if (log === null) {
+      clearSummary();
+      navigate({ name: 'programme' }, { replace: true });
+    }
+  }, [log]);
+  if (!log) return null;
+  return <Summary log={log} />;
+}
+
+/** Sets of one stopped exercise: performed over planned. */
+function stoppedCounts(log: SessionLog, exerciseId: string): { done: number; total: number } {
+  const flagged = log.sets.find(
+    (set) => set.flag && set.flag !== 'skipped' && set.exerciseId === exerciseId,
+  );
+  if (!flagged) return { done: 0, total: 0 };
+  const same = (s: { section: string; blockIndex: number; itemIndex: number }) =>
+    s.section === flagged.section &&
+    s.blockIndex === flagged.blockIndex &&
+    s.itemIndex === flagged.itemIndex;
+  const units = new Set(
+    playSteps(log.plan, log.adjustments)
+      .filter(same)
+      .map((step) => step.set),
+  );
+  const performed = new Set(
+    log.sets.filter((set) => same(set) && set.actual && !set.flag).map((set) => set.set),
+  );
+  return { done: performed.size, total: units.size };
+}
+
+function Summary({ log }: { log: SessionLog }) {
+  const { t, i18n } = useTranslation();
+  const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
+  const inventory = useEquipment() ?? [];
+  const programme = useActiveProgramme();
+  const logs = useSessionLogs();
+  const [counts, setCounts] = useState(log.countsAsDone ?? true);
+  const backup = useBackupReminder();
+
+  const totals = sessionTotals(log, inventory);
+  const duration = durationParts(activeSeconds(log));
+  const groups = stripGroups(log);
+  const early = log.endedEarly === true;
+  const quick = log.source.kind === 'quick';
+  const inRotation =
+    log.source.kind === 'programme' && !!programme && programme.id === log.source.programmeId;
+
+  const toggle = (value: boolean) => {
+    setCounts(value);
+    void repo.setCountsAsDone(log.id, value).catch(() => setCounts(!value));
+  };
+
+  // What the rotation does once this session counts.
+  let onLine = t('play.summary.switchOn');
+  if (inRotation && programme && log.source.kind === 'programme') {
+    const after = nextSession(
+      programme,
+      (logs ?? []).map((l) => (l.id === log.id ? { ...l, countsAsDone: true } : l)),
+    );
+    if (after.finished) onLine = t('play.summary.switchOnEnd');
+    else {
+      const identity = programmeIdentities(programme, lang)[after.index]!;
+      const name = identity.letter
+        ? t('play.summary.sessionLetter', { letter: identity.letter })
+        : identity.fullName;
+      onLine =
+        after.week > log.source.week
+          ? t('play.summary.switchOnWeek', { week: after.week, name })
+          : t('play.summary.switchOnNext', { name });
+    }
+  }
+
+  const context =
+    log.source.kind === 'programme'
+      ? t('play.summary.context', { week: log.source.week, name: log.plan.name[lang] })
+      : log.plan.name[lang];
+
+  const back = () => {
+    clearSummary();
+    navigate({ name: quick ? 'quick' : 'programme' }, { replace: true });
+  };
+
+  return (
+    <div className={styles.root}>
+      <div className={styles.context}>
+        <span>{context}</span>
+      </div>
+      <div className={styles.scroll}>
+        <div className={styles.sum}>
+          <div className={styles.head}>
+            <h1 className={styles.title}>
+              {t(early ? 'play.summary.titleEarly' : 'play.summary.title')}
+            </h1>
+            <div
+              className={styles.dur}
+              role="img"
+              aria-label={t('play.summary.duration', {
+                minutes: Math.round(activeSeconds(log) / 60),
+              })}
+            >
+              <span className={styles.durRow}>
+                <span className={styles.durN}>
+                  <Tick>{duration.value}</Tick>
+                </span>
+                {duration.unit ? <span className={styles.durU}>{t('labels.unit.min')}</span> : null}
+              </span>
+              <span className={styles.durLabel}>{t('play.summary.durationLabel')}</span>
+            </div>
+          </div>
+
+          {groups.length > 0 || totals.hardSets > 0 ? (
+            <div className={styles.head} style={{ gap: 16 }}>
+              {groups.length > 0 ? (
+                <div className={styles.sweep}>
+                  <SetStrip groups={groups} />
+                </div>
+              ) : null}
+              {totals.hardSets > 0 ? (
+                <div className={styles.stats}>
+                  <div className={styles.stat}>
+                    <span className={styles.statN}>
+                      <Tick>{totals.hardSets}</Tick>
+                    </span>
+                    <span className={styles.statLabel}>
+                      {t('play.summary.sets', { count: totals.hardSets })}
+                    </span>
+                  </div>
+                  <div className={styles.stat}>
+                    <span className={styles.statN}>
+                      <Tick>{numberText(totals.totalReps, lang)}</Tick>
+                    </span>
+                    <span className={styles.statLabel}>
+                      {t('play.summary.reps', { count: totals.totalReps })}
+                    </span>
+                    {totals.volumeKg > 0 ? (
+                      <span className={styles.statSub}>
+                        {t('play.summary.volume', { kg: numberText(totals.volumeKg, lang) })}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {inRotation ? (
+            <Card className={styles.switchCard}>
+              <SwitchRow
+                large
+                checked={counts}
+                onChange={toggle}
+                title={t('play.summary.switchTitle')}
+                meta={counts ? onLine : t('play.summary.switchOff')}
+              />
+            </Card>
+          ) : quick ? (
+            <p className={styles.notice}>
+              <Icon name="info" size={20} />
+              <span>{t('play.summary.quickNotice')}</span>
+            </p>
+          ) : null}
+
+          {totals.stopped.length > 0 ? (
+            <section className={styles.sec} aria-labelledby="summary-stopped">
+              <h2 className={styles.secTitle} id="summary-stopped">
+                {t('play.summary.stopped')}
+              </h2>
+              <ul className={`${styles.rows} ${styles.card}`}>
+                {totals.stopped.map((stop) => {
+                  const exercise = exerciseById.get(stop.exerciseId);
+                  const { done, total } = stoppedCounts(log, stop.exerciseId);
+                  const pain = stop.flag === 'pain';
+                  const reason = t(pain ? 'play.summary.pain' : 'play.summary.noEquipment');
+                  return (
+                    <li key={stop.exerciseId} className={styles.row}>
+                      <span className={styles.well} data-pain={pain || undefined}>
+                        <Icon name={pain ? 'stop' : glyphOf(exercise)} size={24} />
+                      </span>
+                      <span className={styles.rowText}>
+                        <span className={styles.rowTitle}>
+                          {exerciseLabel(exercise, lang, stop.exerciseId)}
+                        </span>
+                        <span className={styles.rowMeta}>
+                          <b data-pain={pain || undefined}>{reason}</b>
+                          {', '}
+                          {t('play.summary.stoppedMeta', { count: done, done, total })}
+                        </span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ) : null}
+          {backup.reminder !== 'none' ? <BackupLine state={backup} /> : null}
+        </div>
+      </div>
+      <div className={styles.dock}>
+        <Button size="player" fullWidth onClick={back}>
+          {t(quick ? 'play.summary.backQuick' : 'play.summary.backProgramme')}
+        </Button>
+      </div>
+    </div>
+  );
+}

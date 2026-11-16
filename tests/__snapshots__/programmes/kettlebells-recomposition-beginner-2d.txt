@@ -6,39 +6,35 @@ Phases:
   W1-3 Re-adaptation: RIR 3 (all-sets)
   W4-5 Volume: +1 set on main blocks 1, 2; cardio +5 min
   W6-7 Intensity: RIR 2 (first-set); cardio +10 min
-  W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
+  W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Knee push-up
 
-## Session A — Full body A  [a-full-a, ~32 min]
+## Session A — Full body A  [a-full-a, ~33 min]
 Warm-up:
   1. Arm circles · 30s
   2. Bodyweight squat · 15
-  3. 2 × Prone Y raise · 15  (rest 30s)
 Main:
-  1. 3 × Goblet squat · 8-12 · RIR 3 · 8 kg  (rest 90s)
-  2. 3 × Floor press · 8-10 · RIR 3 · 8 kg  (rest 90s)
-  3. 2 × One-arm row · 10/side · RIR 3 · 8 kg  (rest 90s)
-  4. 2 × Romanian deadlift · 10 · RIR 3 · tempo 3-0-2 · 8 kg  (rest 90s)
-  5. 2 × Door towel row · 8-12 · RIR 3  (rest 90s)
-  6. superset × 2 rounds (rest 60s after each round)
+  1. 3 × Goblet squat · 8-12 · RIR 3 · 8 kg  (rest 60s)
+  2. 3 × Floor press · 8-10 · RIR 3 · 8 kg  (rest 60s)
+  3. 2 × One-arm row · 10/side · RIR 3 · 8 kg  (rest 60s)
+  4. 2 × Romanian deadlift · 10 · RIR 3 · tempo 3-0-2 · 8 kg  (rest 60s)
+  5. superset × 2 rounds (rest 45s after each round)
        - Plank · 45-60s
        - Reverse crunch · 10-12 · RIR 3
 Finisher:
-  1. Step jacks · 5 × (40s on / 20s off)
+  1. Step jacks · 10 × (40s on / 20s off)
 
-## Session B — Full body B  [b-full-b, ~32 min]
+## Session B — Full body B  [b-full-b, ~31 min]
 Warm-up:
   1. Arm circles · 30s
   2. Bodyweight squat · 15
   3. 2 × Prone Y raise · 15  (rest 30s)
 Main:
-  1. 3 × Romanian deadlift · 8 · RIR 3 · 8 kg  (rest 120s)
-  2. 3 × One-arm row · 8-12/side · RIR 3 · 8 kg  (rest 90s)
-  3. 2 × Step-up · 10/side · RIR 3 · bodyweight  (rest 90s)
-  4. 2 × Hands-elevated pike push-up · 8-10 · RIR 3  (rest 90s)
-  5. 2 × Inverted row under a table · 12 · RIR 3  (rest 75s)
-  6. 2 × Push-up · 8-12 · RIR 3 · bodyweight  (rest 75s)
+  1. 3 × Romanian deadlift · 8 · RIR 3 · 8 kg  (rest 60s)
+  2. 3 × One-arm row · 8-12/side · RIR 3 · 8 kg  (rest 60s)
+  3. 2 × Step-up · 10/side · RIR 3 · bodyweight  (rest 60s)
+  4. 2 × Hands-elevated pike push-up · 8-10 · RIR 3  (rest 60s)
 Finisher:
-  1. Step jacks · 5 × (40s on / 20s off)
+  1. Step jacks · 10 × (40s on / 20s off)
 
 Why (choices other than the first preference):
 - split {"daysPerWeek":2,"sessionMinutes":30,"templates":"full-a,full-b","shortSessions":false}
@@ -47,18 +43,24 @@ Why (choices other than the first preference):
 - [a-full-a/main/1] load-start {"exerciseId":"dumbbell-floor-press","kg":8,"targetKg":5.76,"bodyweightKg":64,"bodyweightAssumed":false}
 - [a-full-a/main/2] load-start {"exerciseId":"one-arm-dumbbell-row","kg":8,"targetKg":7.68,"bodyweightKg":64,"bodyweightAssumed":false}
 - [a-full-a/main/3] load-start {"exerciseId":"dumbbell-romanian-deadlift","kg":8,"targetKg":9.22,"bodyweightKg":64,"bodyweightAssumed":false}
-- [a-full-a/main/4] exercise-fallback-pattern {"exerciseId":"door-towel-row","slot":"pull-vertical-second","pattern":"pull-horizontal","wanted":"pull-vertical"}
 - [a-full-a/finisher/0] cardio-modality {"exerciseId":"step-jacks","modality":"step-intervals"}
 - [a-full-a] slot-dropped {"slot":"curl","patterns":"elbow-flexion"}
 - [a-full-a] slot-dropped {"slot":"triceps","patterns":"elbow-extension"}
-- [a-full-a] time-fit {"action":"finisher-shortened","rounds":5,"budget":30}
 - [a-full-a] time-fit {"action":"block-dropped","exerciseIds":"hands-elevated-pike-push-up","budget":30}
+- [a-full-a] time-fit {"action":"block-dropped","exerciseIds":"door-towel-row","budget":30}
+- [a-full-a] time-fit {"action":"rests-shortened","seconds":15,"budget":30}
+- [a-full-a] time-fit {"action":"rests-shortened","seconds":15,"budget":30}
+- [a-full-a] time-fit {"action":"warmup-shortened","budget":30}
+- [a-full-a] time-fit {"action":"warmup-shortened","budget":30}
 - [b-full-b/main/0] load-start {"exerciseId":"dumbbell-romanian-deadlift","kg":8,"targetKg":9.22,"bodyweightKg":64,"bodyweightAssumed":false}
 - [b-full-b/main/1] exercise-fallback-pattern {"exerciseId":"one-arm-dumbbell-row","slot":"pull-vertical-main","pattern":"pull-horizontal","wanted":"pull-vertical"}
 - [b-full-b/main/1] load-start {"exerciseId":"one-arm-dumbbell-row","kg":8,"targetKg":7.68,"bodyweightKg":64,"bodyweightAssumed":false}
 - [b-full-b/main/2] load-unloaded-start {"exerciseId":"dumbbell-step-up"}
 - [b-full-b/main/3] exercise-easier-variant {"exerciseId":"hands-elevated-pike-push-up","slot":"press-vertical-main","from":"pike-push-up"}
-- [b-full-b/main/5] load-unloaded-start {"exerciseId":"push-up"}
 - [b-full-b/finisher/0] cardio-modality {"exerciseId":"step-jacks","modality":"step-intervals"}
-- [b-full-b] time-fit {"action":"finisher-shortened","rounds":5,"budget":30}
-- max-test {"exerciseId":"push-up"}
+- [b-full-b] time-fit {"action":"rests-shortened","seconds":30,"budget":30}
+- [b-full-b] time-fit {"action":"block-dropped","exerciseIds":"push-up","budget":30}
+- [b-full-b] time-fit {"action":"block-dropped","exerciseIds":"inverted-row","budget":30}
+- [b-full-b] time-fit {"action":"rests-shortened","seconds":15,"budget":30}
+- [b-full-b] time-fit {"action":"rests-shortened","seconds":15,"budget":30}
+- max-test {"exerciseId":"knee-push-up"}

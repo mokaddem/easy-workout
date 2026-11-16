@@ -24,21 +24,20 @@ Main:
        - Overhead triceps extension · 12 · RIR 2 · 8 kg
   6. 2 × Dip · max · RIR 1 · bodyweight  (rest 60s)
 Finisher:
-  1. Treadmill incline walk · 15 min @ 5 km/h, 12%
+  1. Treadmill incline walk · 10 min @ 5 km/h, 12%
 
 ## Session B — Pull  [b-pull, ~49 min]
 Warm-up:
   1. 2 × Dead hang · 20s  (rest 30s)
   2. 2 × Band face pull · 20 · light band  (rest 30s)
 Main:
-  1. 4 × Pull-up · 5-8 · RIR 2 · bodyweight  (rest 120s)
+  1. 4 × Pull-up · 5-8 · RIR 2 · bodyweight  (rest 90s)
   2. 4 × One-arm row · 10/side · RIR 2 · 14 kg  (rest 90s)
   3. 3 × Horizontal band row · 12-15 · RIR 2 · medium band  (rest 75s)
   4. 3 × Bent-over row · 12 · RIR 2 · 10 kg  (rest 75s)
   5. superset × 3 rounds (rest 60s after each round)
        - Dumbbell biceps curl · 10-12 · RIR 2 · 8 kg
        - Hammer curl · 12 · RIR 2 · 8 kg
-  6. 3 × Shrug · 15 · RIR 2 · 20 kg  (rest 45s)
 Finisher:
   1. Treadmill incline walk · 10 min @ 4.5 km/h, 15%
 
@@ -56,13 +55,12 @@ Main:
   6. superset × 3 rounds (rest 60s after each round)
        - Plank · 45-60s
        - Hanging leg raise · 10-12 · RIR 2
-  7. 3 × Russian twist · 15/side · RIR 2 · bodyweight  (rest 45s)
 
 ## Active recovery — incline walk  [cardio, ~40 min]
 Main:
   1. Treadmill incline walk · 35-40 min @ 5.5 km/h, 10%
 
-## Session D — Upper-body density  [d-upper-density, ~42 min]
+## Session D — Upper-body density  [d-upper-density, ~43 min]
 Warm-up:
   1. Arm circles · 30s
   2. 2 × Band pull-apart · 20 · light band  (rest 30s)
@@ -91,12 +89,12 @@ Warm-up:
   4. 1 × Deadlift · 10 · 8 kg  (rest 30s)
   5. 1 × Deadlift · 5 · 12 kg  (rest 60s)
 Main:
-  1. 4 × Deadlift · 8 · RIR 2 · 18 kg  (rest 120s)
+  1. 4 × Deadlift · 8 · RIR 2 · 18 kg  (rest 90s)
   2. 3 × Goblet sumo squat · 12-15 · RIR 2 · 14 kg  (rest 90s)
   3. 3 × Floor hip thrust · 15 · RIR 2 · 18 kg  (rest 75s)
   4. 3 × Walking lunge · 12/side · RIR 2 · bodyweight  (rest 75s)
 Finisher:
-  1. circuit × 4 rounds (rest 60s after each round)
+  1. circuit × 3 rounds (rest 60s after each round)
        - Dumbbell swing · 15 · 14 kg
        - Mountain climber · 30
        - Jump squat · 15
@@ -113,21 +111,23 @@ Why (choices other than the first preference):
 - [a-push/main/4/1] load-start {"exerciseId":"overhead-dumbbell-triceps-extension","kg":8,"targetKg":8.4,"bodyweightKg":70,"bodyweightAssumed":true}
 - [a-push/main/5] load-unloaded-start {"exerciseId":"dip"}
 - [a-push/finisher/0] cardio-modality {"exerciseId":"treadmill-incline-walk","modality":"incline-walk"}
+- [a-push] time-fit {"action":"finisher-shortened","minutes":10,"budget":45}
 - [b-pull/main/0] load-unloaded-start {"exerciseId":"pull-up"}
 - [b-pull/main/1] load-start {"exerciseId":"one-arm-dumbbell-row","kg":14,"targetKg":14,"bodyweightKg":70,"bodyweightAssumed":true}
 - [b-pull/main/2] load-band {"exerciseId":"band-horizontal-row","level":"medium"}
 - [b-pull/main/3] load-start {"exerciseId":"bent-over-dumbbell-row","kg":10,"targetKg":9.8,"bodyweightKg":70,"bodyweightAssumed":true}
 - [b-pull/main/4/0] load-start {"exerciseId":"dumbbell-biceps-curl","kg":8,"targetKg":8.4,"bodyweightKg":70,"bodyweightAssumed":true}
 - [b-pull/main/4/1] load-start {"exerciseId":"dumbbell-hammer-curl","kg":8,"targetKg":8.4,"bodyweightKg":70,"bodyweightAssumed":true}
-- [b-pull/main/5] load-start {"exerciseId":"dumbbell-shrug","kg":20,"targetKg":18.2,"bodyweightKg":70,"bodyweightAssumed":true}
 - [b-pull/finisher/0] cardio-modality {"exerciseId":"treadmill-incline-walk","modality":"incline-walk"}
+- [b-pull] time-fit {"action":"rests-shortened","seconds":30,"budget":45}
 - [b-pull] time-fit {"action":"finisher-shortened","minutes":10,"budget":45}
+- [b-pull] time-fit {"action":"block-dropped","exerciseIds":"dumbbell-shrug","budget":45}
 - [c-lower-core/main/0] load-start {"exerciseId":"goblet-squat","kg":14,"targetKg":14,"bodyweightKg":70,"bodyweightAssumed":true}
 - [c-lower-core/main/1] load-unloaded-start {"exerciseId":"bulgarian-split-squat"}
 - [c-lower-core/main/2] load-start {"exerciseId":"dumbbell-romanian-deadlift","kg":18,"targetKg":16.8,"bodyweightKg":70,"bodyweightAssumed":true}
 - [c-lower-core/main/3] load-unloaded-start {"exerciseId":"dumbbell-step-up"}
 - [c-lower-core/main/4] load-unloaded-start {"exerciseId":"single-leg-calf-raise"}
-- [c-lower-core/main/6] load-unloaded-start {"exerciseId":"russian-twist"}
+- [c-lower-core] time-fit {"action":"block-dropped","exerciseIds":"russian-twist","budget":45}
 - [cardio/main/0] cardio-modality {"exerciseId":"treadmill-incline-walk","modality":"incline-walk"}
 - [d-upper-density/main/0/1] load-start {"exerciseId":"bent-over-dumbbell-row","kg":10,"targetKg":9.8,"bodyweightKg":70,"bodyweightAssumed":true}
 - [d-upper-density/main/0/2] load-start {"exerciseId":"seated-dumbbell-shoulder-press","kg":10,"targetKg":9.1,"bodyweightKg":70,"bodyweightAssumed":true}
@@ -144,5 +144,7 @@ Why (choices other than the first preference):
 - [e-lower-metabolic/main/2] load-start {"exerciseId":"floor-hip-thrust","kg":18,"targetKg":17.5,"bodyweightKg":70,"bodyweightAssumed":true}
 - [e-lower-metabolic/main/3] load-unloaded-start {"exerciseId":"walking-lunge"}
 - [e-lower-metabolic/finisher/0/0] load-start {"exerciseId":"dumbbell-swing","kg":14,"targetKg":14,"bodyweightKg":70,"bodyweightAssumed":true}
+- [e-lower-metabolic] time-fit {"action":"rests-shortened","seconds":30,"budget":45}
 - [e-lower-metabolic] time-fit {"action":"block-dropped","exerciseIds":"band-hip-abduction","budget":45}
+- [e-lower-metabolic] time-fit {"action":"rounds-trimmed","exerciseIds":"dumbbell-swing,mountain-climber,jump-squat,side-plank","budget":45}
 - max-test {"exerciseId":"push-up"}

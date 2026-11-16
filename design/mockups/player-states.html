@@ -1,0 +1,1400 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Player states</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans);
+  font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: inherit; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--lg { width: 28px; height: 28px; }
+svg.i--fill { fill: currentColor; stroke: none; }
+
+.mock-bar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-line);
+  font-size: 14px;
+}
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; margin-right: auto; }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-section { flex-basis: 100%; max-width: 1280px; display: grid; gap: 4px; padding-top: 24px; border-top: 1px solid var(--color-line); }
+.mock-section:first-child { border-top: 0; padding-top: 0; }
+.mock-section h2 { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-display); }
+.mock-section p { color: var(--color-text-muted); font-size: 15px; max-width: 60ch; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); max-width: 390px; text-align: center; text-wrap: balance; }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device {
+  position: relative; width: 390px; height: 844px; flex: none;
+  display: flex; flex-direction: column;
+  border-radius: 48px; overflow: hidden; isolation: isolate;
+  container-type: inline-size;
+  background: var(--color-bg); color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28);
+}
+@media (max-width: 440px) {
+  .mock-stage { padding: 16px 0 48px; gap: 32px; }
+  .mock-section { padding-left: 16px; padding-right: 16px; }
+  .mock-bar { padding: 10px 16px; }
+  .device { width: 100vw; border-radius: 0; box-shadow: none; }
+}
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; letter-spacing: 0.01em; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); }
+.t-exercise { font-size: var(--type-exercise-size); line-height: var(--type-exercise-line); font-weight: var(--type-exercise-weight); font-stretch: var(--type-exercise-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-headline { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.muted { color: var(--color-text-muted); }
+
+/* ---------- buttons ---------- */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: var(--tap-comfort); padding: 0 var(--space-6);
+  border-radius: var(--radius-md); border: var(--border-control) solid transparent;
+  font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width);
+  text-align: center;
+  transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move);
+}
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); }
+.btn--destructive { background: var(--color-danger); color: var(--color-on-danger); }
+.btn--destructive-outline { border-color: var(--color-danger-text); color: var(--color-danger-text); }
+.btn--block { width: 100%; }
+.btn--inverse { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.btn--inverse:active { background: color-mix(in srgb, var(--color-surface-inverse) 88%, var(--color-bg)); }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn--player { width: var(--tap-player); height: var(--tap-player); }
+
+/* ---------- stepper ---------- */
+.stepper { display: inline-flex; align-items: center; border-radius: var(--radius-md); background: var(--color-surface-sunken); flex: none; }
+.stepper__btn { width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; border-radius: var(--radius-md); color: var(--color-text); }
+.stepper__btn:active { background: var(--color-press-overlay); }
+.stepper__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.stepper__value { min-width: 84px; display: inline-flex; align-items: baseline; justify-content: center; gap: 3px; padding: 0 2px; }
+.stepper__value .num { font-size: var(--type-numeral-s-size); line-height: 1; }
+.stepper__unit { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.stepper--player .stepper__btn { width: var(--tap-player); height: var(--tap-player); }
+.stepper--player .stepper__value { min-width: 80px; }
+.dock .stepper--player .stepper__value { min-width: 60px; }
+.stepper--player .stepper__value .num { font-size: var(--type-numeral-m-size); }
+
+/* ---------- segmented control ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); text-align: center; transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- progress ---------- */
+.segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.segs > i { height: 6px; border-radius: var(--radius-xs); background: var(--color-track); }
+.segs > i.done { background: var(--color-text-subtle); }
+.segs > i.cur { background: var(--color-accent-line); }
+
+/* ---------- toast ---------- */
+.toast { position: absolute; left: 16px; right: 16px; z-index: var(--z-toast); display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 20px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: var(--elevation-3); font-weight: 600; font-size: 15px; }
+.toast__text { flex: 1; line-height: 1.3; }
+.toast .btn { min-height: var(--tap-min); color: var(--color-on-inverse); border-radius: var(--radius-pill); }
+
+/* ---------- animation slot placeholder ---------- */
+.anim-slot {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg);
+  background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%);
+  border: var(--border-hairline) solid var(--color-line);
+  color: var(--color-text-subtle);
+}
+.anim-slot__floor { position: absolute; inset: auto 0 0 0; width: 100%; height: 46%; stroke: var(--color-line); stroke-width: 1; fill: none; }
+svg.anim-slot__glyph { position: absolute; left: 50%; top: 42%; width: 76px; height: 76px; margin: -38px 0 0 -38px; stroke-width: 1.4; color: var(--color-text-subtle); opacity: 0.9; }
+.anim-slot__tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--color-bg); color: var(--color-text-muted); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); }
+.anim-slot__cue { position: absolute; left: 16px; right: 16px; bottom: 14px; text-align: center; color: var(--color-text-muted); font-weight: 600; font-size: 15px; line-height: 1.3; text-wrap: balance; }
+
+/* ---------- tempo indicator ---------- */
+.tempo { display: grid; gap: 4px; grid-template-columns: 2fr 1fr 2fr; }
+.tempo__seg { display: grid; align-content: center; gap: 2px; min-height: 52px; padding: 0 10px; border-radius: var(--radius-xs); background: var(--color-surface-sunken); color: var(--color-text-muted); font-weight: 700; font-stretch: var(--font-width-label); font-size: 13px; line-height: 1.1; white-space: nowrap; }
+.tempo__seg b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; color: var(--color-text); font-variant-numeric: tabular-nums; }
+.tempo__seg.is-active { background: var(--color-accent); color: var(--color-on-accent); }
+.tempo__seg.is-active b { color: var(--color-on-accent); }
+
+/* ---------- player: top bar ---------- */
+.pbar { flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 8px; min-height: 56px; }
+.pbar__mid { flex: 1; min-width: 0; display: grid; gap: 6px; padding: 0 8px; }
+.pbar__mid .t-meta { font-weight: 600; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pbar__clock { font-size: var(--font-size-21); color: var(--color-text-muted); padding: 0 4px; }
+.voice[aria-pressed="false"] { color: var(--color-text-muted); }
+
+/* ---------- set screen (variant A) ---------- */
+.pa { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px var(--layout-gutter) 0; gap: 16px; }
+.pa-set { display: grid; gap: 8px; }
+.pa-set__row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.pa-set__label { display: flex; align-items: baseline; gap: 10px; font-weight: 700; font-stretch: var(--font-width-title); font-size: var(--font-size-24); }
+.pa-set__label .num { font-size: var(--font-size-48); }
+.pa-set__label .of { color: var(--color-text-muted); }
+.pa-set .segs > i { height: 8px; }
+.score { display: grid; grid-template-columns: minmax(max-content, 1.45fr) 1fr; gap: 12px 20px; }
+.score__n { white-space: nowrap; }
+.score__cell { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.score__n { font-size: var(--type-numeral-xl-size); }
+.score__n small { font-size: var(--font-size-48); margin-left: 4px; }
+.score__w { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); padding-top: 6px; }
+.score__u { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.badge { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); color: var(--color-text); font-size: 14px; font-weight: 700; font-stretch: var(--font-width-label); }
+.pa .anim-slot { flex: 1; min-height: 96px; }
+.dock { flex: none; display: grid; gap: 10px; padding: 14px 16px 42px; }
+.dock__row { display: flex; gap: 10px; }
+.dock__done { flex: 1; justify-content: flex-start; gap: 14px; padding: 0 20px; text-align: left; }
+.dock__done .i { width: 28px; height: 28px; stroke-width: 3; }
+.dock__done-text { display: grid; gap: 1px; }
+.dock__done-text small { font-size: 14px; font-weight: 600; color: var(--color-on-accent-muted); font-stretch: var(--font-width-text); }
+.dock__second { flex: 1; justify-content: flex-start; gap: 14px; padding: 0 20px; text-align: left; }
+.dock__second small { display: block; font-size: 14px; font-weight: 600; color: var(--color-text-muted); font-stretch: var(--font-width-text); }
+.dock .icon-btn--player { border: var(--border-control) solid var(--color-line-strong); }
+.hint { font-size: 15px; font-weight: 600; color: var(--color-text-muted); display: flex; gap: 8px; align-items: center; }
+.hint .i { width: 20px; height: 20px; color: var(--color-text-subtle); }
+
+/* Group strip: item tiles a / b / c beside the round */
+.items { display: flex; gap: 6px; }
+.items > i { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); border: var(--border-control) solid var(--color-line-strong); font-style: normal; font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; }
+.items > i.done { background: var(--color-complete); border-color: var(--color-complete); color: var(--color-on-complete); }
+.items > i.done::after { content: ""; position: absolute; right: -5px; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--color-surface-inverse) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 11px no-repeat; }
+.items > i.cur { border: 3px solid var(--color-accent-line); }
+
+/* Next-up row on the set screen (group blocks) */
+.nextup { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 6px 12px; padding: 4px 0 4px 14px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.nextup__label { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.nextup__tile { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-sm); border: var(--border-control) solid var(--color-line-strong); font-weight: 800; font-size: 18px; font-stretch: var(--font-width-title); }
+.nextup__body { display: grid; min-width: 0; line-height: 1.25; }
+.nextup__body b { font-size: var(--font-size-18); font-stretch: var(--font-width-title); }
+.nextup__body span { font-size: 14px; color: var(--color-text-muted); }
+
+/* Side tiles (per-side) */
+.sides { display: flex; gap: 6px; }
+.sides > i { position: relative; display: grid; place-items: center; width: 60px; height: 60px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); font-style: normal; }
+.sides > i b { font-size: var(--font-size-48); font-weight: 800; font-stretch: var(--font-width-numeral); line-height: 1; }
+.sides > i.done { background: var(--color-complete); border-color: var(--color-complete); color: var(--color-on-complete); }
+.sides > i.cur { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.side-word { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+
+/* Switch pause */
+.switch { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.switch__tile { display: grid; justify-items: start; align-content: space-between; gap: 6px; height: 176px; padding: 14px 16px 16px; border-radius: var(--radius-lg); border: var(--border-control) solid var(--color-line-strong); }
+.switch__tile b { font-size: var(--font-size-144); font-weight: 800; font-stretch: var(--font-width-numeral); line-height: 0.8; }
+.switch__tile span { font-size: 15px; font-weight: 700; font-stretch: var(--font-width-label); display: flex; gap: 6px; align-items: center; }
+.switch__tile.done { background: var(--color-complete); border-color: var(--color-complete); color: var(--color-on-complete); }
+.switch__tile.next { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
+.switch .i { color: var(--color-text-subtle); }
+.count { display: flex; align-items: baseline; gap: 12px; }
+.count__n { font-size: var(--font-size-96); }
+.count__l { font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); color: var(--color-text-muted); }
+
+/* Big clocks: hold, lead-in, interval, steady cardio */
+.clock { display: flex; align-items: flex-end; gap: 8px; margin-left: -10px; }
+.clock__n { font-size: var(--type-timer-size); line-height: 0.76; }
+.clock__u { font-size: var(--font-size-48); font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 4px; }
+.clock--mmss .clock__n { font-size: var(--font-size-192); line-height: 0.8; white-space: nowrap; }
+.clock--mmss .colon { display: inline-block; margin: 0 -0.04em; font-stretch: 62%; letter-spacing: 0; transform: scaleX(0.7); }
+.clock--phase .clock__n { font-size: var(--font-size-240); line-height: 0.78; }
+.clock--mmss { margin-left: -6px; }
+.clock__of { font-size: var(--font-size-36); color: var(--color-text-muted); padding-bottom: 6px; white-space: nowrap; }
+.tbar { position: relative; height: 10px; border-radius: var(--radius-xs); background: var(--color-track); }
+.tbar > i { position: absolute; inset: 0 auto 0 0; display: block; border-radius: inherit; background: var(--color-accent-line); }
+.tbar__tick { position: absolute; top: -8px; bottom: -8px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--color-text); }
+.tbar__legend { position: relative; height: 20px; margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.tbar__legend > span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.tbar__legend > span.end { right: 0; transform: none; }
+.reached { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); }
+.reached .i { width: 24px; height: 24px; stroke-width: 3; }
+
+/* Lead-in */
+.leadin { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.leadin__n { font-size: var(--font-size-288); line-height: 0.76; margin-left: -12px; }
+
+/* Interval */
+.ivh { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.ivh__phase { font-size: var(--font-size-48); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); }
+.ivh__round { display: flex; align-items: baseline; gap: 8px; font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); }
+.ivh__round .num { font-size: var(--font-size-48); }
+.ivh__round .of { color: var(--color-text-muted); }
+.ivsegs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.ivsegs > i { display: grid; grid-template-columns: 2fr 3fr; gap: 2px; }
+.ivsegs > i::before, .ivsegs > i::after { content: ""; height: 8px; border-radius: 2px; background: var(--color-track); }
+.ivsegs > i.done::before, .ivsegs > i.done::after { background: var(--color-text-subtle); }
+.ivsegs > i.work::before { background: var(--color-accent-line); }
+.ivsegs > i.rec::before { background: var(--color-text-subtle); }
+.ivsegs > i.rec::after { background: var(--color-accent-line); }
+.ivnext { display: flex; gap: 10px; align-items: baseline; font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); }
+.ivnext b { color: var(--color-text); font-weight: 700; }
+
+/* ---------- rest takeover (from variant A) ---------- */
+.device--rest { background: var(--color-rest-bg); color: var(--color-on-rest); }
+.device--rest .pbar__mid .t-headline, .device--rest .pbar__mid .t-meta { color: var(--color-on-rest); }
+.device--rest .pbar__clock { color: var(--color-on-rest-muted); }
+.device--rest .icon-btn { color: var(--color-on-rest); }
+.device--rest .icon-btn:focus-visible, .device--rest .btn:focus-visible { box-shadow: 0 0 0 2px var(--color-rest-bg), 0 0 0 4px var(--color-on-rest); }
+.device--rest .segs > i { background: var(--color-rest-track); }
+.device--rest .segs > i.done { background: var(--color-on-rest-muted); }
+.device--rest .segs > i.cur { background: var(--color-on-rest); }
+.device--rest .items > i { border-color: var(--color-on-rest); }
+.device--rest .items > i.done { background: var(--color-rest-surface); border-color: var(--color-rest-surface); color: var(--color-on-rest-surface); }
+.device--rest .items > i.done::after { display: none; }
+.device--rest .items > i.cur { border-width: 3px; border-style: dashed; }
+.ra { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--layout-gutter) 42px; }
+.ra-done { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--color-on-rest-muted); }
+.ra-done .i { width: 20px; height: 20px; stroke-width: 3; color: var(--color-on-rest); }
+.ra-timer { display: flex; align-items: flex-end; gap: 8px; margin: 0 0 0 -12px; }
+.ra-timer__n { font-size: var(--type-timer-size); line-height: 0.76; }
+.ra-timer__u { font-size: var(--font-size-48); font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 4px; }
+.ra-bar { margin-top: 22px; height: 10px; border-radius: var(--radius-xs); background: var(--color-rest-track); overflow: hidden; }
+.ra-bar i { display: block; height: 100%; background: var(--color-on-rest); }
+.ra-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 24px; }
+.ra-next { display: grid; gap: 6px; padding: 18px 20px 20px; border-radius: var(--radius-lg); background: var(--color-rest-surface); color: var(--color-on-rest-surface); }
+.ra-next__label { font-size: var(--font-size-16); font-weight: 600; color: var(--palette-graphite-300); display: flex; align-items: center; gap: 10px; }
+.ra-next__label .tile { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-sm); border: var(--border-control) solid var(--palette-graphite-300); color: var(--palette-chalk); font-weight: 800; font-size: 16px; font-stretch: var(--font-width-title); }
+.ra-next__name { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.ra-next__rx { font-size: var(--font-size-36); color: var(--color-accent); }
+.ra-ctrls { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 10px; margin-top: 12px; }
+.ra-ctrls .btn { min-height: var(--tap-player); padding: 0 8px; font-size: var(--font-size-21); }
+.btn--on-rest { border: var(--border-strong) solid var(--color-on-rest); color: var(--color-on-rest); }
+.btn--on-rest-solid { background: var(--color-rest-surface); color: var(--color-accent); }
+.btn--on-rest-solid .i { stroke-width: 2.5; }
+/* On yellow, every text role turns ink */
+.device--rest .muted, .device--rest .clock__of, .device--rest .ivnext, .device--rest .ivh__round .of, .device--rest .score__u { color: var(--color-on-rest-muted); }
+.device--rest .ivnext b, .device--rest .badge { color: var(--color-on-rest); border-color: var(--color-on-rest); }
+.device--rest .tbar { background: var(--color-rest-track); }
+.device--rest .tbar > i { background: var(--color-on-rest); }
+.device--rest .ivsegs > i::before, .device--rest .ivsegs > i::after { background: var(--color-rest-track); }
+.device--rest .ivsegs > i.done::before, .device--rest .ivsegs > i.done::after, .device--rest .ivsegs > i.rec::before { background: var(--color-on-rest-muted); }
+.device--rest .ivsegs > i.rec::after { background: var(--color-on-rest); }
+.device--rest .anim-slot { background: transparent; border-color: var(--color-rest-track); }
+.device--rest .anim-slot__floor { stroke: var(--color-rest-track); }
+.device--rest svg.anim-slot__glyph { color: var(--color-on-rest-muted); }
+.device--rest .dock .icon-btn--player { border: var(--border-strong) solid var(--color-on-rest); }
+
+/* ---------- ring-timer rest ---------- */
+.rr { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--layout-gutter) 42px; }
+.ring { position: relative; width: min(340px, 100%); aspect-ratio: 1; margin: 12px auto 0; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring__track { fill: none; stroke: var(--color-track); stroke-width: 20; }
+.ring__progress { fill: none; stroke: var(--color-accent-line); stroke-width: 20; stroke-linecap: butt; }
+.ring__center { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 4px; padding-top: 18px; }
+.ring__n { font-size: var(--type-timer-compact-size); }
+.ring__u { font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); }
+.rr-next { display: grid; gap: 6px; padding: 16px 18px 18px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); box-shadow: var(--elevation-1); }
+.rr-next__label { font-size: var(--font-size-16); font-weight: 600; color: var(--color-text-muted); }
+.rr-next__name { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); }
+.rr-next__rx { font-size: var(--font-size-36); }
+.rr-ctrls { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 10px; margin-top: 12px; }
+.rr-ctrls .btn { min-height: var(--tap-player); padding: 0 8px; font-size: var(--font-size-21); }
+.done-line { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--color-text-muted); }
+.done-line .i { width: 20px; height: 20px; stroke-width: 3; color: var(--color-text); }
+
+/* ---------- pause ---------- */
+.pz { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 24px; padding: 24px var(--layout-gutter) 0; }
+.pz__clock { display: grid; gap: 8px; }
+.pz__clock .num { font-size: var(--font-size-144); color: var(--color-text-muted); }
+.pz__where { display: grid; gap: 4px; padding: 4px 0 4px 14px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.pz__where b { text-wrap: balance; font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; }
+
+/* ---------- sheets and dialogs ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); display: grid; gap: 14px; padding: 10px 16px 42px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { justify-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--color-line-strong); margin-bottom: 4px; }
+.sheet__head { display: grid; gap: 4px; padding: 0 4px; }
+.sheet__nav { display: flex; align-items: flex-start; gap: 4px; margin-left: -8px; }
+.sheet__nav .t-title { padding-top: 10px; text-wrap: balance; }
+.choice { display: grid; grid-template-columns: 28px 1fr; align-items: center; gap: 14px; min-height: 76px; padding: 12px 16px; border-radius: var(--radius-lg); border: var(--border-control) solid var(--color-line-strong); background: var(--color-surface); text-align: left; }
+.choice__mark { width: 28px; height: 28px; border-radius: 50%; border: var(--border-strong) solid var(--color-line-strong); display: grid; place-items: center; }
+.choice__mark .i { width: 18px; height: 18px; stroke-width: 3; opacity: 0; }
+.choice b { display: block; font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; }
+.choice small { display: block; margin-top: 2px; font-size: 15px; color: var(--color-text-muted); line-height: 1.3; }
+.choice[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.choice[aria-checked="true"] small { color: var(--color-on-inverse); opacity: 0.78; }
+.choice[aria-checked="true"] .choice__mark { border-color: var(--color-on-inverse); background: var(--color-on-inverse); color: var(--color-surface-inverse); }
+.choice[aria-checked="true"] .choice__mark .i { opacity: 1; }
+.choice:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.note { display: grid; grid-template-columns: 20px 1fr; gap: 10px; font-size: 15px; line-height: 1.4; color: var(--color-text-muted); padding: 0 4px; }
+.note .i { width: 20px; height: 20px; color: var(--color-text-subtle); margin-top: 1px; }
+.note b { color: var(--color-text); }
+.rows { display: grid; }
+.row { display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 14px; min-height: 76px; padding: 10px 4px; text-align: left; border-top: var(--border-hairline) solid var(--color-line); }
+.row:first-child { border-top: 0; }
+.row:active { background: var(--color-press-overlay); }
+.row__well { display: grid; place-items: center; width: 48px; height: 48px; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.row b { display: block; font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.row small { display: block; margin-top: 2px; font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.row--danger, .row--danger b { color: var(--color-danger-text); }
+.row--danger .row__well { background: var(--color-danger-tint); }
+.dialog { position: absolute; left: 20px; right: 20px; top: 50%; transform: translateY(-50%); z-index: calc(var(--z-sheet) + 1); display: grid; gap: 14px; padding: 24px 20px 20px; border-radius: var(--radius-xl); background: var(--color-surface-raised); box-shadow: var(--elevation-3); max-width: 24rem; margin: 0 auto; }
+.dialog p { color: var(--color-text-muted); font-size: 16px; line-height: 1.45; }
+.dialog .btn { margin-top: 2px; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-sound-off" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5"/><path d="M12 16.4h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 4h10M7 20h10"/><path d="M8 4c0 4.5 8 5.5 8 8s-8 3.5-8 8M16 4c0 4.5-8 5.5-8 8s8 3.5 8 8"/></symbol>
+  <!-- equipment -->
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-dips" viewBox="0 0 24 24"><path d="M3 8.5h6M15 8.5h6M6 8.5v12M18 8.5v12M4 20.5h4M16 20.5h4"/></symbol>
+  <symbol id="i-treadmill" viewBox="0 0 24 24"><path d="M3 17.5h12.5a2.5 2.5 0 0 0 2.4-1.8L20.5 6"/><path d="M18 6h4.5"/><path d="M5 20.5h10"/></symbol>
+  <symbol id="i-mat" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="1.5"/><path d="M7 9v6M17 9v6"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Workout player: the other states">Lecteur de séance&#8239;: les autres états</span>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Supersets and circuits">Supersets et circuits</h2>
+  <p data-en="The round replaces the set; letter tiles say which exercise of the round you are on. The next item is always named on screen, because there is often no rest in between.">Le tour remplace la série&#8239;; les lettres disent où tu en es dans le tour. L’exercice suivant est toujours affiché, car il n’y a souvent pas de repos entre les deux.</p>
+</section>
+
+<!-- 1. Superset item -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercises 5–6 of 7">Exercices 5–6 sur 7</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i class="cur"></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">31:12</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Dumbbell lateral raise">Élévations latérales haltères</h1>
+        <div class="pa-set">
+          <div class="pa-set__row">
+            <span class="pa-set__label"><span data-en="Round">Tour</span><span><span class="num">2</span><span class="num of">/3</span></span></span>
+            <span class="items" role="img" aria-label="Exercice a sur 2" data-en-label="Exercise a of 2"><i class="cur">a</i><i>b</i></span>
+          </div>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i></div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n">15</span><span class="score__u">reps</span></div>
+          <div class="score__cell"><span class="num score__n">6</span><span class="score__u" data-en="kg per dumbbell">kg par haltère</span></div>
+        </div>
+        <div class="nextup">
+          <span class="nextup__label" data-en="Then">Puis</span>
+          <span class="nextup__tile" aria-hidden="true">b</span>
+          <span class="nextup__body"><b data-en="Overhead triceps extension">Extension triceps au-dessus de la tête</b><span data-en="12 reps at 10 kg, no rest">12 reps à 10&#8239;kg, sans repos</span></span>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph"><use href="#i-dumbbell"/></svg>
+          <span class="anim-slot__tag" data-en="Shoulder isolation">Isolation épaules</span>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="seg" role="radiogroup" aria-label="Ressenti" data-en-label="Feel">
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Easy">Facile</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="true" data-en="Right">Idéal</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Hard">Dur</button>
+        </div>
+        <div class="dock__row">
+          <button class="btn btn--primary btn--player dock__done" type="button"><svg class="i"><use href="#i-check"/></svg><span class="dock__done-text"><span data-en="Done as planned">Fait comme prévu</span><small data-en="15 reps at 6 kg">15 reps à 6&#8239;kg</small></span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier la série" data-en-label="Edit set"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Superset, first exercise of round 2: the next one starts straight after">Superset, premier exercice du tour 2&#8239;: le suivant enchaîne sans repos</figcaption>
+</figure>
+
+<!-- 2. Circuit: between-items rest -->
+<figure class="mock-shot">
+  <div class="device device--rest">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid"><span class="t-headline" data-en="Change exercise">Changement</span></div>
+        <span class="num pbar__clock">08:47</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="ra">
+        <div class="pa-set" style="margin-top: 4px">
+          <div class="pa-set__row">
+            <span class="pa-set__label"><span data-en="Round">Tour</span><span><span class="num">2</span><span class="num" style="color: var(--color-on-rest-muted)">/3</span></span></span>
+            <span class="items" role="img" aria-label="Exercice b fait, ensuite c" data-en-label="Exercise b done, c next"><i class="done">a</i><i class="done">b</i><i class="cur">c</i></span>
+          </div>
+        </div>
+        <div class="ra-center">
+          <div class="ra-timer" role="timer" aria-label="15 secondes avant l’exercice suivant" data-en-label="15 seconds to the next exercise">
+            <span class="num ra-timer__n">15</span><span class="ra-timer__u">s</span>
+          </div>
+          <div class="ra-bar" aria-hidden="true"><i style="width: 100%"></i></div>
+        </div>
+        <div class="ra-next">
+          <span class="ra-next__label"><span data-en="Next up">Ensuite</span><span class="tile" aria-hidden="true">c</span></span>
+          <span class="ra-next__name" data-en="Seated shoulder press">Développé épaules assis</span>
+          <span class="num ra-next__rx"><span data-en="12 reps · 8 kg">12 reps · 8&#8239;kg</span></span>
+        </div>
+        <div class="ra-ctrls">
+          <button class="btn btn--on-rest" type="button" aria-label="Retirer 15 secondes" data-en-label="Remove 15 seconds"><span class="num" style="font-size: 26px">−15&#8239;s</span></button>
+          <button class="btn btn--on-rest" type="button" aria-label="Ajouter 15 secondes" data-en-label="Add 15 seconds"><span class="num" style="font-size: 26px">+15&#8239;s</span></button>
+          <button class="btn btn--on-rest-solid" type="button"><span data-en="Skip">Passer</span><svg class="i"><use href="#i-skip"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Circuit, short rest between exercises: same takeover, the round stays on screen">Circuit, repos court entre deux exercices&#8239;: même écran jaune, le tour reste affiché</figcaption>
+</figure>
+
+<!-- 3. Circuit: after-round rest -->
+<figure class="mock-shot">
+  <div class="device device--rest">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid"><span class="t-headline" data-en="Rest">Repos</span></div>
+        <span class="num pbar__clock">09:31</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="ra">
+        <p class="ra-done"><svg class="i"><use href="#i-check"/></svg><span data-en="Round 2 of 3 done">Tour 2 sur 3 terminé</span></p>
+        <div class="ra-center">
+          <div class="ra-timer" role="timer" aria-label="45 secondes de repos" data-en-label="45 seconds of rest">
+            <span class="num ra-timer__n">45</span><span class="ra-timer__u">s</span>
+          </div>
+          <div class="ra-bar" aria-hidden="true"><i style="width: 100%"></i></div>
+        </div>
+        <div class="ra-next">
+          <span class="ra-next__label"><span data-en="Round 3 of 3, starts with">Tour 3 sur 3, commence par</span><span class="tile" aria-hidden="true">a</span></span>
+          <span class="ra-next__name" data-en="Wide push-up">Pompes prise large</span>
+          <span class="num ra-next__rx">12–15 reps</span>
+        </div>
+        <div class="ra-ctrls">
+          <button class="btn btn--on-rest" type="button" aria-label="Retirer 15 secondes" data-en-label="Remove 15 seconds"><span class="num" style="font-size: 26px">−15&#8239;s</span></button>
+          <button class="btn btn--on-rest" type="button" aria-label="Ajouter 15 secondes" data-en-label="Add 15 seconds"><span class="num" style="font-size: 26px">+15&#8239;s</span></button>
+          <button class="btn btn--on-rest-solid" type="button"><span data-en="Skip">Passer</span><svg class="i"><use href="#i-skip"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Circuit, rest after a round: the next round is named with its first exercise">Circuit, repos après un tour&#8239;: le tour suivant est annoncé avec son premier exercice</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="One side at a time">Un côté après l’autre</h2>
+  <p data-en="Each side is logged on its own. A short pause sits between the two sides; it is not a rest, so it stays on the dark screen.">Chaque côté est noté à part. Une courte pause sépare les deux côtés&#8239;: ce n’est pas un repos, l’écran reste sombre.</p>
+</section>
+
+<!-- 4. Per-side set -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercise 2 of 7">Exercice 2 sur 7</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">14:02</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="One-arm row">Rowing unilatéral</h1>
+        <div class="pa-set">
+          <div class="pa-set__row">
+            <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">2</span><span class="num of">/4</span></span></span>
+            <span class="sides" role="img" aria-label="Côté gauche, puis côté droit" data-en-label="Left side, then right side"><i class="cur"><b data-en="L">G</b></i><i><b data-en="R">D</b></i></span>
+          </div>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i><i></i></div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n">10</span><span class="score__u" data-en="reps, left side">reps, côté gauche</span></div>
+          <div class="score__cell"><span class="num score__n">16</span><span class="score__u">kg</span></div>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph"><use href="#i-dumbbell"/></svg>
+          <span class="anim-slot__tag" data-en="Horizontal pull">Tirage horizontal</span>
+          <p class="anim-slot__cue" data-en="Do not rotate your torso: keep the elbow along your body">Ne tourne pas le buste&#8239;: le coude longe le corps</p>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="seg" role="radiogroup" aria-label="Ressenti" data-en-label="Feel">
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Easy">Facile</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="true" data-en="Right">Idéal</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Hard">Dur</button>
+        </div>
+        <div class="dock__row">
+          <button class="btn btn--primary btn--player dock__done" type="button"><svg class="i"><use href="#i-check"/></svg><span class="dock__done-text"><span data-en="Left side done">Côté gauche fait</span><small data-en="10 reps at 16 kg">10 reps à 16&#8239;kg</small></span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier la série" data-en-label="Edit set"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Per side: left first, the side letter is readable from the floor">Par côté&#8239;: gauche d’abord, la lettre du côté se lit du sol</figcaption>
+</figure>
+
+<!-- 5. Switch pause -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercise 2 of 7">Exercice 2 sur 7</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">14:41</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa" style="gap: 20px">
+        <h1 class="t-exercise" data-en="One-arm row">Rowing unilatéral</h1>
+        <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">2</span><span class="num of">/4</span></span></span>
+        <p class="t-display" style="font-size: var(--font-size-36)" data-en="Switch sides">Change de côté</p>
+        <div class="switch" role="img" aria-label="Côté gauche fait, côté droit ensuite" data-en-label="Left side done, right side next">
+          <div class="switch__tile done"><b data-en="L">G</b><span><svg class="i i--sm"><use href="#i-check"/></svg><span data-en="Done">Fait</span></span></div>
+          <svg class="i i--lg"><use href="#i-arrow"/></svg>
+          <div class="switch__tile next"><b data-en="R">D</b><span data-en="Right side">Côté droit</span></div>
+        </div>
+        <div style="display: grid; gap: 12px; margin-top: auto">
+          <div class="count" role="timer" aria-label="Côté droit dans 4 secondes" data-en-label="Right side in 4 seconds"><span class="count__l" data-en="Starts in">Commence dans</span><span class="num count__n">4&#8239;s</span></div>
+          <div class="tbar" aria-hidden="true"><i style="width: 20%"></i></div>
+        </div>
+      </div>
+      <div class="dock">
+        <button class="btn btn--secondary btn--player btn--block" type="button"><span data-en="Start the right side now">Commencer le côté droit</span></button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Switch pause (5 s): then the right side opens on its own">Pause de changement (5&#8239;s)&#8239;: le côté droit s’ouvre ensuite tout seul</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Timed holds">Exercices chronométrés</h2>
+  <p data-en="Get into position, tap, three seconds to settle, then the clock runs down from the top of the range. At zero the set is logged on its own.">Mets-toi en place, appuie, trois secondes pour t’installer, puis le chrono descend depuis le haut de la fourchette. À zéro, la série est notée toute seule.</p>
+</section>
+
+<!-- 6. Hold: ready -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercises 6–7 of 8">Exercices 6–7 sur 8</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i class="cur"></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">33:50</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Plank">Gainage planche</h1>
+        <div class="pa-set">
+          <div class="pa-set__row">
+            <span class="pa-set__label"><span data-en="Round">Tour</span><span><span class="num">1</span><span class="num of">/3</span></span></span>
+            <span class="items" role="img" aria-label="Exercice a sur 2" data-en-label="Exercise a of 2"><i class="cur">a</i><i>b</i></span>
+          </div>
+          <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i></div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n">45–60</span><span class="score__u" data-en="seconds">secondes</span></div>
+          <div class="score__cell"><span class="score__w" data-en="Body&shy;weight">Poids du corps</span></div>
+        </div>
+        <div class="nextup">
+          <span class="nextup__label" data-en="Then">Puis</span>
+          <span class="nextup__tile" aria-hidden="true">b</span>
+          <span class="nextup__body"><b data-en="Hanging leg raise">Relevés de jambes suspendu</b><span data-en="10–12 reps, no rest">10–12 reps, sans repos</span></span>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph"><use href="#i-mat"/></svg>
+          <span class="anim-slot__tag" data-en="Anti-extension">Anti-extension</span>
+          <p class="anim-slot__cue" data-en="Squeeze glutes and abs; if your lower back sags, stop">Serre fessiers et abdos&#8239;; si le bas du dos creuse, arrête</p>
+        </div>
+      </div>
+      <div class="dock">
+        <p class="hint"><svg class="i"><use href="#i-info"/></svg><span data-en="Get into position, then tap. You get 3 s.">Mets-toi en position, puis appuie. Tu as 3&#8239;s.</span></p>
+        <div class="dock__row">
+          <button class="btn btn--primary btn--player dock__done" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start the clock">Lancer le chrono</span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier la série" data-en-label="Edit set"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Timed hold, ready: nothing runs until you tap">Exercice chronométré, prêt&#8239;: rien ne tourne avant ton appui</figcaption>
+</figure>
+
+<!-- 7. Hold: lead-in -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercises 6–7 of 8">Exercices 6–7 sur 8</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i class="cur"></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">33:58</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Plank">Gainage planche</h1>
+        <div class="leadin" role="timer" aria-label="Départ dans 3 secondes" data-en-label="Starting in 3 seconds">
+          <p class="t-display muted" data-en="Get set">En place</p>
+          <span class="num leadin__n">3</span>
+          <p class="t-headline muted" style="margin-top: 16px" data-en="Then 60 s, aim for at least 45 s">Puis 60&#8239;s, au moins 45&#8239;s visées</p>
+        </div>
+      </div>
+      <div class="dock">
+        <button class="btn btn--secondary btn--player btn--block" type="button"><span data-en="Cancel">Annuler</span></button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Lead-in: 3, 2, 1 with a beep each second">Décompte&#8239;: 3, 2, 1, un bip par seconde</figcaption>
+</figure>
+
+<!-- 8. Hold: running -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercises 6–7 of 8">Exercices 6–7 sur 8</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i class="cur"></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">34:23</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa" style="gap: 20px">
+        <h1 class="t-exercise" data-en="Plank">Gainage planche</h1>
+        <div class="pa-set">
+          <div class="pa-set__row">
+            <span class="pa-set__label"><span data-en="Round">Tour</span><span><span class="num">1</span><span class="num of">/3</span></span></span>
+            <span class="items" role="img" aria-label="Exercice a sur 2" data-en-label="Exercise a of 2"><i class="cur">a</i><i>b</i></span>
+          </div>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 22px">
+          <div class="clock" role="timer" aria-label="38 secondes restantes" data-en-label="38 seconds left">
+            <span class="num clock__n">38</span><span class="clock__u">s</span>
+          </div>
+          <div>
+            <div class="tbar" aria-hidden="true"><i style="width: 36.7%"></i><span class="tbar__tick" style="left: 75%"></span></div>
+            <div class="tbar__legend"><span style="left: 75%" data-en="45 s minimum">45&#8239;s minimum</span><span class="end">60&#8239;s</span></div>
+          </div>
+          <p class="t-headline muted" data-en="22 s held">22&#8239;s tenues</p>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="seg" role="radiogroup" aria-label="Ressenti" data-en-label="Feel">
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Easy">Facile</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="true" data-en="Right">Idéal</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Hard">Dur</button>
+        </div>
+        <button class="btn btn--secondary btn--player btn--block dock__second" type="button"><svg class="i"><use href="#i-stop"/></svg><span><span data-en="Stop the clock">Arrêter le chrono</span><small data-en="Logs 22 s">Note 22&#8239;s</small></span></button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Running: counts down from 60 s; at zero it logs 60 s and moves on">En cours&#8239;: descend depuis 60&#8239;s&#8239;; à zéro, 60&#8239;s sont notées et on enchaîne</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="As many reps as possible">Maximum de reps</h2>
+  <p data-en="There is no planned number to confirm, so the set screen asks for the reps you did before logging.">Il n’y a pas de nombre prévu à confirmer&#8239;: l’écran demande les reps faites avant de noter la série.</p>
+</section>
+
+<!-- 9. Max reps -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercise 7 of 7">Exercice 7 sur 7</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i></div>
+        </div>
+        <span class="num pbar__clock">38:05</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Dip">Dips</h1>
+        <div class="pa-set">
+          <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">2</span><span class="num of">/2</span></span></span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i></div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n" data-en="Max">Max</span><span class="score__u">reps <span class="badge">RIR 1</span></span></div>
+          <div class="score__cell"><span class="score__w" data-en="Body&shy;weight">Poids du corps</span></div>
+        </div>
+        <p class="hint" data-en="Stop with 1 rep in the tank. Set 1: 11 reps.">Arrête-toi à 1 rep en réserve. Série 1&#8239;: 11 reps.</p>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph"><use href="#i-dips"/></svg>
+          <span class="anim-slot__tag" data-en="Vertical push">Poussée verticale</span>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="seg" role="radiogroup" aria-label="Ressenti" data-en-label="Feel">
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Easy">Facile</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="true" data-en="Right">Idéal</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Hard">Dur</button>
+        </div>
+        <div class="dock__row" style="align-items: center">
+          <div class="stepper stepper--player" data-min="0" data-max="60" data-step="1" role="group" aria-label="Reps faites" data-en-label="Reps done">
+            <button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button>
+            <output class="stepper__value"><span class="num" data-num="11" data-target="max-reps">11</span></output>
+            <button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button>
+          </div>
+          <button class="btn btn--primary btn--player dock__done" type="button" style="padding: 0 14px; gap: 10px"><svg class="i"><use href="#i-check"/></svg><span class="dock__done-text"><span data-en="Log">Noter</span><small><span data-out="max-reps">11</span> reps</small></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Max reps: the stepper starts at your previous set; the button says what will be logged">Maximum&#8239;: le compteur part de ta série précédente, le bouton dit ce qui sera noté</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Cardio">Cardio</h2>
+  <p data-en="Intervals run by themselves: work on the dark screen, recovery on yellow, speed and incline for the current phase in large figures. Steady cardio counts up and waits for you.">Les intervalles s’enchaînent seuls&#8239;: effort sur fond sombre, récupération sur fond jaune, vitesse et inclinaison de la phase en grand. Le cardio continu compte vers le haut et t’attend.</p>
+</section>
+
+<!-- 10. Interval: work -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Finisher, intervals">Fin de séance, intervalles</span>
+          <div class="segs" aria-hidden="true"><i class="cur"></i></div>
+        </div>
+        <span class="num pbar__clock">41:16</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Treadmill run">Course sur tapis</h1>
+        <div style="display: grid; gap: 10px">
+          <div class="ivh">
+            <span class="ivh__phase" data-en="Work">Effort</span>
+            <span class="ivh__round"><span data-en="Round">Tour</span><span><span class="num">3</span><span class="num of">/8</span></span></span>
+          </div>
+          <div class="ivsegs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="work"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="clock clock--phase" role="timer" aria-label="Effort, 42 secondes restantes" data-en-label="Work, 42 seconds left">
+          <span class="num clock__n">42</span><span class="clock__u">s</span>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n" data-num="10" data-decimals="1">10</span><span class="score__u">km/h</span></div>
+          <div class="score__cell"><span class="num score__n">1</span><span class="score__u" data-en="% incline">% de pente</span></div>
+        </div>
+        <p class="ivnext"><span data-en="Next">Ensuite</span><b data-en="Recovery 90 s at 5 km/h, 1%">Récup 90&#8239;s à 5&#8239;km/h, 1&#8239;%</b></p>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph" style="top: 34%"><use href="#i-treadmill"/></svg>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="dock__row">
+          <button class="btn btn--secondary btn--player dock__second" type="button"><svg class="i"><use href="#i-skip"/></svg><span data-en="Next phase">Phase suivante</span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier ou arrêter" data-en-label="Adjust or stop"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Interval, work phase: the clock counts down the phase, then switches on its own">Intervalle, phase d’effort&#8239;: le chrono décompte la phase puis bascule tout seul</figcaption>
+</figure>
+
+<!-- 11. Interval: recovery -->
+<figure class="mock-shot">
+  <div class="device device--rest">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Finisher, intervals">Fin de séance, intervalles</span>
+          <div class="segs" aria-hidden="true"><i class="cur"></i></div>
+        </div>
+        <span class="num pbar__clock">42:01</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Treadmill run">Course sur tapis</h1>
+        <div style="display: grid; gap: 10px">
+          <div class="ivh">
+            <span class="ivh__phase" data-en="Recovery">Récup</span>
+            <span class="ivh__round"><span data-en="Round">Tour</span><span><span class="num">3</span><span class="num of">/8</span></span></span>
+          </div>
+          <div class="ivsegs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="rec"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="clock clock--phase" role="timer" aria-label="Récupération, 87 secondes restantes" data-en-label="Recovery, 87 seconds left">
+          <span class="num clock__n">87</span><span class="clock__u">s</span>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n" data-num="5" data-decimals="1">5</span><span class="score__u">km/h</span></div>
+          <div class="score__cell"><span class="num score__n">1</span><span class="score__u" data-en="% incline">% de pente</span></div>
+        </div>
+        <p class="ivnext"><span data-en="Next">Ensuite</span><b data-en="Round 4: work 60 s at 10 km/h">Tour 4&#8239;: effort 60&#8239;s à 10&#8239;km/h</b></p>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph" style="top: 34%"><use href="#i-treadmill"/></svg>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="dock__row">
+          <button class="btn btn--on-rest btn--player dock__second" type="button"><svg class="i"><use href="#i-skip"/></svg><span data-en="Next phase">Phase suivante</span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier ou arrêter" data-en-label="Adjust or stop"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Interval, recovery: same layout on yellow, so the phase reads from across the room">Intervalle, récupération&#8239;: même mise en page sur jaune, la phase se lit de loin</figcaption>
+</figure>
+
+<!-- 12. Steady cardio: running -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Finisher, cardio">Fin de séance, cardio</span>
+          <div class="segs" aria-hidden="true"><i class="cur"></i></div>
+        </div>
+        <span class="num pbar__clock">44:31</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Treadmill incline walk">Marche inclinée sur tapis</h1>
+        <div style="display: grid; gap: 18px">
+          <div class="clock clock--mmss" role="timer" aria-label="8 minutes 24 secondes sur 15 minutes" data-en-label="8 minutes 24 seconds of 15 minutes">
+            <span class="num clock__n">08<span class="colon">:</span>24</span>
+          </div>
+          <div>
+            <div class="tbar" aria-hidden="true"><i style="width: 56%"></i></div>
+            <div class="tbar__legend"><span style="left: 0; transform: none" data-en="6 min 36 to go">Encore 6&#8239;min&#8239;36</span><span class="end" data-en="Goal 15 min">Objectif 15&#8239;min</span></div>
+          </div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n" data-num="5" data-decimals="1">5</span><span class="score__u">km/h</span></div>
+          <div class="score__cell"><span class="num score__n">12</span><span class="score__u" data-en="% incline">% de pente</span></div>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph" style="top: 34%"><use href="#i-treadmill"/></svg>
+          <p class="anim-slot__cue" data-en="Do not grip the rails: let your arms swing">Ne t’agrippe pas aux barres&#8239;: laisse les bras balancer</p>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="dock__row">
+          <button class="btn btn--secondary btn--player dock__second" type="button"><svg class="i"><use href="#i-flag"/></svg><span><span data-en="Stop here">Arrêter ici</span><small data-en="Logs 8 min">Note 8&#8239;min</small></span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier ou arrêter" data-en-label="Adjust or stop"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Steady cardio: time counts up towards the goal; finishing early is allowed">Cardio continu&#8239;: le temps monte vers l’objectif, tu peux finir plus tôt</figcaption>
+</figure>
+
+<!-- 13. Steady cardio: goal reached + voice off -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Finisher, cardio">Fin de séance, cardio</span>
+          <div class="segs" aria-hidden="true"><i class="cur"></i></div>
+        </div>
+        <span class="num pbar__clock">51:13</span>
+        <button class="icon-btn voice" type="button" aria-pressed="false" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound-off"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Treadmill incline walk">Marche inclinée sur tapis</h1>
+        <div style="display: grid; gap: 18px">
+          <div class="clock clock--mmss" role="timer" aria-label="15 minutes 6 secondes, objectif atteint" data-en-label="15 minutes 6 seconds, goal reached">
+            <span class="num clock__n">15<span class="colon">:</span>06</span>
+          </div>
+          <div>
+            <div class="tbar" aria-hidden="true"><i style="width: 100%"></i></div>
+            <div class="tbar__legend"><span class="reached" style="left: 0; transform: none; font-size: 18px; color: var(--color-text)"><svg class="i i--sm"><use href="#i-check"/></svg><span data-en="15 min goal reached">Objectif 15&#8239;min atteint</span></span></div>
+          </div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n" data-num="5" data-decimals="1">5</span><span class="score__u">km/h</span></div>
+          <div class="score__cell"><span class="num score__n">12</span><span class="score__u" data-en="% incline">% de pente</span></div>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph" style="top: 34%"><use href="#i-treadmill"/></svg>
+        </div>
+      </div>
+      <div class="toast" role="status" style="bottom: 136px"><span class="toast__text" data-en="Voice cues off. Beeps stay on.">Annonces vocales coupées. Les bips restent actifs.</span></div>
+      <div class="dock">
+        <div class="dock__row">
+          <button class="btn btn--primary btn--player dock__done" type="button"><svg class="i"><use href="#i-check"/></svg><span class="dock__done-text"><span data-en="Done">Terminé</span><small data-en="15 min at 5 km/h, 12%">15&#8239;min à 5&#8239;km/h, 12&#8239;%</small></span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier ou arrêter" data-en-label="Adjust or stop"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Goal reached: the clock keeps counting, Done turns primary. Voice cues just switched off in the top bar.">Objectif atteint&#8239;: le temps continue, Terminé devient l’action principale. Annonces vocales coupées depuis la barre du haut.</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Warm-up">Échauffement</h2>
+  <p data-en="Same set screen, lighter: one tap logs it, no feel, and any item can be skipped.">Même écran, en plus léger&#8239;: un appui pour noter, pas de ressenti, et chaque exercice peut être passé.</p>
+</section>
+
+<!-- 14. Warm-up -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Warm-up, 2 of 3">Échauffement, 2 sur 3</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">01:12</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Push-up">Pompes</h1>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n">15</span><span class="score__u" data-en="slow reps">reps lentes</span></div>
+          <div class="score__cell"><span class="score__w" data-en="Body&shy;weight">Poids du corps</span></div>
+        </div>
+        <div class="tempo" aria-label="Tempo 2-0-2" role="img">
+          <span class="tempo__seg"><span data-en="Lower">Descente</span><b>2&#8239;s</b></span>
+          <span class="tempo__seg" style="padding: 0 6px"><span data-en="Hold">Pause</span><b>0</b></span>
+          <span class="tempo__seg is-active"><span data-en="Lift">Montée</span><b>2&#8239;s</b></span>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph"><use href="#i-mat"/></svg>
+          <span class="anim-slot__tag" data-en="Warm-up">Échauffement</span>
+          <p class="anim-slot__cue" data-en="Hips neither sag nor pike: brace your body as one line">Le bassin ne s’affaisse pas et ne monte pas&#8239;: corps gainé d’un bloc</p>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="dock__row">
+          <button class="btn btn--primary btn--player dock__done" type="button"><svg class="i"><use href="#i-check"/></svg><span class="dock__done-text"><span data-en="Done">Fait</span><small data-en="15 reps">15 reps</small></span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Passer cet exercice" data-en-label="Skip this exercise"><svg class="i"><use href="#i-skip"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Warm-up item: no feel selector; the side button skips it instead of editing">Échauffement&#8239;: pas de ressenti&#8239;; le bouton de côté passe l’exercice au lieu de le modifier</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Stopping an exercise">Arrêter un exercice</h2>
+  <p data-en="From the adjust sheet. Pick a reason, read what happens, confirm. The remaining sets are logged with that reason and the session moves on without a rest.">Depuis la feuille d’ajustement. Choisis une raison, lis ce qui va se passer, confirme. Les séries restantes sont notées avec cette raison et la séance passe à la suite, sans repos.</p>
+</section>
+
+<!-- 15. Stop: choose reason -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar" aria-hidden="true">
+        <span class="icon-btn"><svg class="i"><use href="#i-pause"/></svg></span>
+        <div class="pbar__mid"><span class="t-meta" data-en="Exercise 1 of 7">Exercice 1 sur 7</span><div class="segs"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <span class="num pbar__clock">12:41</span>
+        <span class="icon-btn"><svg class="i"><use href="#i-sound"/></svg></span>
+      </div>
+      <div class="pa" aria-hidden="true"><h1 class="t-exercise" data-en="Floor press">Développé couché au sol</h1></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="stop1-title">
+        <span class="sheet__grab" aria-hidden="true"></span>
+        <div class="sheet__nav">
+          <button class="icon-btn" type="button" aria-label="Retour à l’ajustement" data-en-label="Back to adjusting"><svg class="i"><use href="#i-back"/></svg></button>
+          <h2 class="t-title" id="stop1-title" data-en="Stop floor press?">Arrêter le développé couché au sol&#8239;?</h2>
+        </div>
+        <p class="t-meta muted" style="padding: 0 4px" data-en="Why? The reason shapes your next sessions.">Pourquoi&#8239;? La raison sert à adapter tes prochaines séances.</p>
+        <div class="rows" role="radiogroup" aria-label="Raison" data-en-label="Reason" style="gap: 10px">
+          <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span><b data-en="Pain">Douleur</b><small data-en="Something hurts during the movement">Une douleur ou une gêne pendant le mouvement</small></span></button>
+          <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span><b data-en="No equipment today">Pas le matériel aujourd’hui</b><small data-en="In use, elsewhere or broken">Pris, ailleurs ou hors d’usage</small></span></button>
+        </div>
+        <p class="note"><svg class="i"><use href="#i-info"/></svg><span data-en="Sets 2 to 4 won’t be done. You go straight to &lt;b&gt;Push-up&lt;/b&gt;, no rest.">Les séries 2 à 4 ne seront pas faites. Tu passes directement aux <b>Pompes</b>, sans repos.</span></p>
+        <button class="btn btn--destructive btn--player btn--block" type="button"><svg class="i"><use href="#i-stop"/></svg><span data-en="Stop the exercise">Arrêter l’exercice</span></button>
+        <button class="btn btn--secondary btn--block" type="button" data-en="Keep going">Continuer l’exercice</button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Stop, step 1: no reason picked yet">Arrêt, étape 1&#8239;: aucune raison choisie</figcaption>
+</figure>
+
+<!-- 16. Stop: pain picked -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar" aria-hidden="true">
+        <span class="icon-btn"><svg class="i"><use href="#i-pause"/></svg></span>
+        <div class="pbar__mid"><span class="t-meta" data-en="Exercise 1 of 7">Exercice 1 sur 7</span><div class="segs"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <span class="num pbar__clock">12:41</span>
+        <span class="icon-btn"><svg class="i"><use href="#i-sound"/></svg></span>
+      </div>
+      <div class="pa" aria-hidden="true"><h1 class="t-exercise" data-en="Floor press">Développé couché au sol</h1></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="stop2-title">
+        <span class="sheet__grab" aria-hidden="true"></span>
+        <div class="sheet__nav">
+          <button class="icon-btn" type="button" aria-label="Retour à l’ajustement" data-en-label="Back to adjusting"><svg class="i"><use href="#i-back"/></svg></button>
+          <h2 class="t-title" id="stop2-title" data-en="Stop floor press?">Arrêter le développé couché au sol&#8239;?</h2>
+        </div>
+        <p class="t-meta muted" style="padding: 0 4px" data-en="Why? The reason shapes your next sessions.">Pourquoi&#8239;? La raison sert à adapter tes prochaines séances.</p>
+        <div class="rows" role="radiogroup" aria-label="Raison" data-en-label="Reason" style="gap: 10px">
+          <button class="choice" type="button" role="radio" aria-checked="true"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span><b data-en="Pain">Douleur</b><small data-en="Something hurts during the movement">Une douleur ou une gêne pendant le mouvement</small></span></button>
+          <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span><b data-en="No equipment today">Pas le matériel aujourd’hui</b><small data-en="In use, elsewhere or broken">Pris, ailleurs ou hors d’usage</small></span></button>
+        </div>
+        <p class="note"><svg class="i"><use href="#i-info"/></svg><span data-en="Sets 2 to 4 are logged as &lt;b&gt;pain&lt;/b&gt;. After the session you’ll get a replacement to try next time. If it still hurts, finish the session from Pause.">Les séries 2 à 4 sont notées <b>douleur</b>. Après la séance, un exercice de remplacement te sera proposé. Si la douleur persiste, termine la séance depuis Pause.</span></p>
+        <button class="btn btn--destructive btn--player btn--block" type="button"><svg class="i"><use href="#i-stop"/></svg><span data-en="Stop the exercise">Arrêter l’exercice</span></button>
+        <button class="btn btn--secondary btn--block" type="button" data-en="Keep going">Continuer l’exercice</button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Stop, step 2: pain picked, the note says exactly what will be logged">Arrêt, étape 2&#8239;: douleur choisie, la note dit exactement ce qui sera noté</figcaption>
+</figure>
+
+<!-- 17. After stop -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercise 2 of 7">Exercice 2 sur 7</span>
+          <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <span class="num pbar__clock">12:44</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pa">
+        <h1 class="t-exercise" data-en="Push-up">Pompes</h1>
+        <div class="pa-set">
+          <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">1</span><span class="num of">/3</span></span></span>
+          <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i></div>
+        </div>
+        <div class="score">
+          <div class="score__cell"><span class="num score__n">8–12</span><span class="score__u">reps <span class="badge">RIR 2</span></span></div>
+          <div class="score__cell"><span class="score__w" data-en="Body&shy;weight">Poids du corps</span></div>
+        </div>
+        <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+          <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+          <svg class="i anim-slot__glyph" style="top: 34%"><use href="#i-mat"/></svg>
+          <span class="anim-slot__tag" data-en="Horizontal push">Poussée horizontale</span>
+        </div>
+      </div>
+      <div class="toast" role="status" style="bottom: 206px"><span class="toast__text" data-en="Floor press stopped: pain logged">Développé couché au sol arrêté&#8239;: douleur notée</span><button class="btn btn--ghost" type="button" data-en="Undo">Annuler</button></div>
+      <div class="dock">
+        <div class="seg" role="radiogroup" aria-label="Ressenti" data-en-label="Feel">
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Easy">Facile</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="true" data-en="Right">Idéal</button>
+          <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Hard">Dur</button>
+        </div>
+        <div class="dock__row">
+          <button class="btn btn--primary btn--player dock__done" type="button"><svg class="i"><use href="#i-check"/></svg><span class="dock__done-text"><span data-en="Done as planned">Fait comme prévu</span><small data-en="12 reps">12 reps</small></span></button>
+          <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier la série" data-en-label="Edit set"><svg class="i"><use href="#i-pencil"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Straight to the next exercise, with an undo toast for 5 s">Directement à l’exercice suivant, avec 5&#8239;s pour annuler</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Pause and leaving">Pause et sortie</h2>
+  <p data-en="Pause freezes every clock. Leaving always goes through one sheet with three clear outcomes; only abandoning asks twice.">La pause fige tous les chronos. Pour sortir, une seule feuille avec trois issues claires&#8239;; seul l’abandon demande confirmation.</p>
+</section>
+
+<!-- 18. Pause -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Reprendre" data-en-label="Resume"><svg class="i i--fill"><use href="#i-play"/></svg></button>
+        <div class="pbar__mid">
+          <span class="t-meta" data-en="Exercise 1 of 7">Exercice 1 sur 7</span>
+          <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <span class="num pbar__clock" style="visibility: hidden">12:40</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="pz">
+        <div style="display: grid; gap: 8px"><h1 class="t-display" data-en="Paused">En pause</h1><p class="t-headline muted" data-en="Session A, Push">Séance A, Push</p></div>
+        <div class="pz__clock">
+          <span class="num">12:40</span>
+          <span class="t-headline muted" data-en="of training so far, clock stopped">d’entraînement, chrono arrêté</span>
+        </div>
+        <div class="pz__where">
+          <span class="t-meta muted" data-en="You’ll pick up at">Tu reprendras à</span>
+          <b data-en="Floor press, set 2 of 4">Développé couché au sol, série 2 sur 4</b>
+        </div>
+      </div>
+      <div class="dock">
+        <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Resume">Reprendre</span></button>
+        <button class="btn btn--secondary btn--player btn--block" type="button" aria-haspopup="dialog" data-en="Leave the session">Quitter la séance</button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Paused: every timer stops; time paused doesn’t count">En pause&#8239;: tous les chronos s’arrêtent, le temps de pause ne compte pas</figcaption>
+</figure>
+
+<!-- 19. Leave sheet -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar" aria-hidden="true">
+        <span class="icon-btn"><svg class="i i--fill"><use href="#i-play"/></svg></span>
+        <div class="pbar__mid"><span class="t-meta" data-en="Exercise 4 of 7">Exercice 4 sur 7</span><div class="segs"><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div></div>
+        <span class="icon-btn"><svg class="i"><use href="#i-sound"/></svg></span>
+      </div>
+      <div class="pz" aria-hidden="true"><h1 class="t-display" data-en="Paused">En pause</h1><div class="pz__clock"><span class="num">24:15</span></div></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="leave-title">
+        <span class="sheet__grab" aria-hidden="true"></span>
+        <div class="sheet__head">
+          <h2 class="t-title" id="leave-title" data-en="Leave the session?">Quitter la séance&#8239;?</h2>
+          <p class="t-meta muted" data-en="10 of 22 sets done. They are already saved.">10 séries sur 22 faites. Elles sont déjà enregistrées.</p>
+        </div>
+        <div class="rows">
+          <button class="row" type="button"><span class="row__well"><svg class="i"><use href="#i-pause"/></svg></span><span><b data-en="Pause and leave">Mettre en pause et quitter</b><small data-en="Pick up where you left off from Programme">Reprends là où tu en étais depuis Programme</small></span></button>
+          <button class="row" type="button"><span class="row__well"><svg class="i"><use href="#i-flag"/></svg></span><span><b data-en="Finish now">Terminer maintenant</b><small data-en="See the summary and choose whether it counts as done">Vois le bilan et choisis si elle compte comme faite</small></span></button>
+          <button class="row row--danger" type="button" aria-haspopup="dialog"><span class="row__well"><svg class="i"><use href="#i-close"/></svg></span><span><b data-en="Abandon">Abandonner</b><small data-en="Sets done are kept; this session doesn’t count">Les séries faites sont gardées, la séance ne compte pas</small></span></button>
+        </div>
+        <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Leave sheet: from Pause, the system back gesture, or closing the app">Feuille de sortie&#8239;: depuis Pause, le geste retour ou la fermeture de l’app</figcaption>
+</figure>
+
+<!-- 20. Abandon confirmation -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar" aria-hidden="true">
+        <span class="icon-btn"><svg class="i i--fill"><use href="#i-play"/></svg></span>
+        <div class="pbar__mid"><span class="t-meta" data-en="Exercise 4 of 7">Exercice 4 sur 7</span><div class="segs"><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div></div>
+        <span class="icon-btn"><svg class="i"><use href="#i-sound"/></svg></span>
+      </div>
+      <div class="pz" aria-hidden="true"><h1 class="t-display" data-en="Paused">En pause</h1><div class="pz__clock"><span class="num">24:15</span></div></div>
+      <div class="scrim"></div>
+      <div class="dialog" role="alertdialog" aria-labelledby="ab-title" aria-describedby="ab-desc">
+        <h2 class="t-title" id="ab-title" data-en="Abandon session A?">Abandonner la séance A&#8239;?</h2>
+        <p id="ab-desc" data-en="Your 10 sets stay in your history, but the session doesn’t count: session A will be offered again next time.">Tes 10 séries restent dans ton historique, mais la séance ne compte pas&#8239;: la séance A te sera proposée à nouveau.</p>
+        <button class="btn btn--destructive btn--player btn--block" type="button" data-en="Abandon the session">Abandonner la séance</button>
+        <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Abandon asks once more and says what is kept">L’abandon demande confirmation et dit ce qui est gardé</figcaption>
+</figure>
+
+<!-- =================================================================== -->
+<section class="mock-section">
+  <h2 data-en="Rest as a ring (setting)">Repos en anneau (réglage)</h2>
+  <p data-en="For a dark room: replaces every yellow rest screen (rest, change between exercises, interval recovery) with the dark screen and a ring.">Pour une pièce sombre&#8239;: remplace tous les écrans jaunes (repos, changement d’exercice, récupération des intervalles) par l’écran sombre et un anneau.</p>
+</section>
+
+<!-- 21. Ring rest -->
+<figure class="mock-shot">
+  <div class="device">
+    <div class="statusbar" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="pbar">
+        <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+        <div class="pbar__mid"><span class="t-headline" data-en="Rest">Repos</span></div>
+        <span class="num pbar__clock">13:05</span>
+        <button class="icon-btn voice" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+      </div>
+      <div class="rr">
+        <p class="done-line"><svg class="i"><use href="#i-check"/></svg><span data-en="Set 2 of 4 logged">Série 2 sur 4 notée</span></p>
+        <div class="ring" role="timer" aria-label="64 secondes de repos restantes" data-en-label="64 seconds of rest left">
+          <svg viewBox="0 0 340 340" aria-hidden="true">
+            <circle class="ring__track" cx="170" cy="170" r="160"/>
+            <circle class="ring__progress" cx="170" cy="170" r="160" pathLength="100" stroke-dasharray="71 100"/>
+          </svg>
+          <div class="ring__center">
+            <span class="num ring__n">64</span>
+            <span class="ring__u" data-en="seconds">secondes</span>
+          </div>
+        </div>
+        <div style="flex: 1; min-height: 16px"></div>
+        <div class="rr-next">
+          <span class="rr-next__label" data-en="Next up">Ensuite</span>
+          <span class="rr-next__name" data-en="Floor press, set 3">Développé couché au sol, série 3</span>
+          <span class="num rr-next__rx"><span data-en="8–10 reps · 14 kg">8–10 reps · 14&#8239;kg</span></span>
+        </div>
+        <div class="rr-ctrls">
+          <button class="btn btn--secondary" type="button" aria-label="Retirer 15 secondes" data-en-label="Remove 15 seconds"><span class="num" style="font-size: 26px">−15&#8239;s</span></button>
+          <button class="btn btn--secondary" type="button" aria-label="Ajouter 15 secondes" data-en-label="Add 15 seconds"><span class="num" style="font-size: 26px">+15&#8239;s</span></button>
+          <button class="btn btn--inverse" type="button"><span data-en="Skip">Passer</span><svg class="i"><use href="#i-skip"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption data-en="Ring rest: same controls in the same places as the yellow screen">Repos en anneau&#8239;: mêmes commandes, aux mêmes places que l’écran jaune</figcaption>
+</figure>
+
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : null;
+
+  var STATUS = '<span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span>';
+  document.querySelectorAll('.statusbar').forEach(function (s) { s.innerHTML = STATUS; });
+  document.querySelectorAll('.device').forEach(function (d) {
+    var h = document.createElement('div'); h.className = 'homebar'; h.setAttribute('aria-hidden', 'true'); d.appendChild(h);
+  });
+
+  function effectiveTheme() { return theme || (sysDark.matches ? 'dark' : 'light'); }
+  function formatNumber(v, decimals) {
+    return new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: 0, maximumFractionDigits: decimals == null ? 1 : decimals }).format(v);
+  }
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === effectiveTheme())); });
+  }
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr-label')) el.setAttribute('data-fr-label', el.getAttribute('aria-label') || '');
+      el.setAttribute('aria-label', lang === 'en' ? el.getAttribute('data-en-label') : el.getAttribute('data-fr-label'));
+    });
+    document.querySelectorAll('[data-num]').forEach(function (el) {
+      el.textContent = formatNumber(parseFloat(el.dataset.num), el.dataset.decimals ? +el.dataset.decimals : 1);
+    });
+    document.querySelectorAll('[data-pct]').forEach(function (el) { el.textContent = lang === 'fr' ? ' %' : '%'; });
+    sync();
+  }
+  function applyTheme() { if (theme) root.dataset.theme = theme; else delete root.dataset.theme; sync(); }
+
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]');
+    if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var t = e.target.closest('[data-set-theme]');
+    if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var opt = e.target.closest('.seg__opt, .choice');
+    if (opt) { opt.parentElement.querySelectorAll('[role="radio"]').forEach(function (o) { o.setAttribute('aria-checked', String(o === opt)); }); return; }
+    var v = e.target.closest('.voice');
+    if (v) {
+      var on = v.getAttribute('aria-pressed') !== 'true';
+      v.setAttribute('aria-pressed', String(on));
+      v.querySelector('use').setAttribute('href', on ? '#i-sound' : '#i-sound-off');
+      return;
+    }
+    var step = e.target.closest('[data-step-dir]');
+    if (step) {
+      var st = step.closest('.stepper');
+      var out = st.querySelector('[data-num]');
+      var n = parseFloat(out.dataset.num) + parseFloat(st.dataset.step) * (+step.dataset.stepDir);
+      n = Math.min(parseFloat(st.dataset.max), Math.max(parseFloat(st.dataset.min), n));
+      out.dataset.num = String(n); out.textContent = formatNumber(n, 1);
+      if (out.dataset.target) document.querySelectorAll('[data-out="' + out.dataset.target + '"]').forEach(function (o) { o.textContent = formatNumber(n, 0); });
+    }
+  });
+  sysDark.addEventListener('change', sync);
+  applyTheme();
+  applyLang();
+})();
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { Collapse } from '@/motion';
 import { useTranslation } from 'react-i18next';
 import type { EquipmentInventory, GenerationNote, Language, Session, SessionItem } from '@/domain';
-import { sectionSeconds, WARMUP_TRANSITION_SEC, type WeekPlan } from '@/engine';
+import { sessionSeconds, type WeekPlan } from '@/engine';
 import { Icon } from '@/ui/components';
 import {
   blockDelta,
@@ -111,7 +111,9 @@ export function SessionView({
   const long = identity.title.length > 14;
 
   let number = 0;
-  const warmupMinutes = Math.round(sectionSeconds(session.warmup, WARMUP_TRANSITION_SEC) / 60);
+  const warmupMinutes = Math.round(
+    sessionSeconds({ warmup: session.warmup, main: [], finisher: [] }) / 60,
+  );
   const warmupCount = session.warmup.reduce((sum, block) => sum + itemsOf(block).length, 0);
   const finisherIsCardio = session.finisher.length > 0 && session.finisher.every(isCardioBlock);
 

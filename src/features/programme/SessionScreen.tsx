@@ -1,11 +1,19 @@
 import { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useActiveProgramme, useEquipment, useProfile } from '@/app/data';
+import {
+  useActiveProgramme,
+  useEquipment,
+  useOpenSession,
+  useProfile,
+  useSessionLogs,
+} from '@/app/data';
 import { nextSession } from '@/app/programme-state';
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
 import { phaseForWeek, sessionForWeek } from '@/engine';
 import { Button, Dock, EmptyState, Icon, IconButton, Skeleton } from '@/ui/components';
+import { useBegin } from '../play/begin';
+import { startProgrammeSession } from '../play/start';
 import { effortText } from './effort';
 import { exerciseName, sessionIdentity, weekChanges, type WeekChanges } from './format';
 import { SessionView } from './SessionView';
@@ -101,9 +109,12 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const record = useActiveProgramme();
   const profile = useProfile();
   const equipment = useEquipment();
+  const logs = useSessionLogs();
+  const openSession = useOpenSession();
+  const { begin, dialog: beginDialog } = useBegin();
 
   const session = record?.rotation.find((s) => s.id === route.sessionId);
-  const position = record ? nextSession(record) : null;
+  const position = record ? nextSession(record, logs) : null;
   const week = record ? Math.min(Math.max(route.week ?? position?.week ?? 1, 1), record.weeks) : 1;
 
   // Sessions that are the same every week (the cardio day) get no week ruler.
@@ -253,7 +264,15 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
       {canStart || !isCurrentWeek ? (
         <Dock>
           {canStart ? (
-            <Button size="player" fullWidth icon="play" onClick={() => navigate({ name: 'play' })}>
+            <Button
+              size="player"
+              fullWidth
+              icon="play"
+              variant={openSession ? 'secondary' : 'primary'}
+              onClick={() =>
+                void begin(() => startProgrammeSession(record, equipment ?? []), identity.fullName)
+              }
+            >
               {t('programme.start')}
             </Button>
           ) : (
@@ -273,6 +292,7 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
           )}
         </Dock>
       ) : null}
+      {beginDialog}
     </>
   );
 }

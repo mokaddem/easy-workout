@@ -1,0 +1,23 @@
+{
+  "set": "{{name}}. Set {{set}} of {{sets}}.",
+  "round": "{{name}}. Round {{set}} of {{sets}}.",
+  "warmup": "{{name}}.",
+  "side": {
+    "left": "Left side.",
+    "right": "Right side."
+  },
+  "reps_one": "{{count}} rep",
+  "reps_other": "{{count}} reps",
+  "repRange": "{{min}} to {{max}} reps",
+  "max": "As many reps as you can",
+  "seconds_one": "{{count}} second",
+  "seconds_other": "{{count}} seconds",
+  "secondRange": "{{min}} to {{max}} seconds",
+  "minutes_one": "{{count}} minute",
+  "minutes_other": "{{count}} minutes",
+  "minuteRange": "{{min}} to {{max}} minutes",
+  "intervals": "{{rounds}} times {{work}} seconds",
+  "kg": "at {{kg}} kilos",
+  "addedKg": "with {{kg}} kilos added",
+  "band": "{{level}} band"
+}

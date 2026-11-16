@@ -59,7 +59,7 @@ export interface Position {
 
 /**
  * The next session in the rotation. No calendar: each completed session of this programme
- * moves the rotation on by one, and a week ends after `sessionsPerWeek` sessions.
+ * that counts as done moves the rotation on by one, and a week ends after `sessionsPerWeek` sessions.
  */
 export function nextSession(
   programme: Programme & { id: string },
@@ -70,6 +70,7 @@ export function nextSession(
   const done = logs.filter(
     (log) =>
       log.status === 'completed' &&
+      log.countsAsDone !== false &&
       log.source.kind === 'programme' &&
       log.source.programmeId === programme.id,
   ).length;

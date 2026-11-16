@@ -8,7 +8,7 @@ Phases:
   W6-7 Intensity: RIR 2 (first-set)
   W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
 
-## Session A — Upper body A  [a-upper-a, ~40 min]
+## Session A — Upper body A  [a-upper-a, ~46 min]
 Warm-up:
   1. Arm circles · 30s
   2. Push-up · 15 · tempo 2-0-2 · bodyweight
@@ -25,7 +25,7 @@ Main:
        - Band overhead triceps extension · 12 · RIR 3 · light band
        - Band face pull · 15-20 · RIR 3 · light band
 
-## Session B — Lower body A  [b-lower-a, ~40 min]
+## Session B — Lower body A  [b-lower-a, ~46 min]
 Warm-up:
   1. Bodyweight squat · 20
   2. Walking lunge · 10/side · bodyweight
@@ -40,7 +40,7 @@ Main:
        - Hanging knee raise · 10-12 · RIR 3
   6. 2 × Band hip abduction · 20/side · RIR 3 · light band  (rest 45s)
 
-## Session C — Upper body B  [c-upper-b, ~36 min]
+## Session C — Upper body B  [c-upper-b, ~43 min]
 Warm-up:
   1. Arm circles · 30s
   2. 2 × Dead hang · 20s  (rest 30s)
@@ -55,7 +55,7 @@ Main:
        - Band overhead triceps extension · 12 · RIR 3 · light band
   6. 2 × Negative dip · max · RIR 2  (rest 60s)
 
-## Session D — Lower body B  [d-lower-b, ~37 min]
+## Session D — Lower body B  [d-lower-b, ~42 min]
 Warm-up:
   1. Bodyweight squat · 20
   2. Walking lunge · 10/side · bodyweight

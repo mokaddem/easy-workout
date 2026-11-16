@@ -9,7 +9,7 @@ Phases:
   W7 Peak: RIR 1 (last-set)
   W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
 
-## Session A — Push  [a-push, ~42 min]
+## Session A — Push  [a-push, ~46 min]
 Warm-up:
   1. Arm circles · 30s
   2. Push-up · 15 · tempo 2-0-2 · bodyweight
@@ -19,13 +19,13 @@ Main:
   2. 3 × Push-up · 8-12 · RIR 2 · bodyweight  (rest 90s)
   3. 3 × Standing shoulder press · 10-12 · RIR 2 · 8 kg  (rest 75s)
   4. 3 × Dumbbell floor fly · 12-15 · RIR 2 · 4 kg  (rest 60s)
-  5. superset × 5 rounds (rest 60s after each round)
+  5. superset × 4 rounds (rest 60s after each round)
        - Dumbbell lateral raise · 15 · RIR 2 · 4 kg
        - Overhead triceps extension · 12 · RIR 2 · 8 kg
   6. 2 × Dip · max · RIR 1 · bodyweight  (rest 60s)
   7. 3 × Dumbbell reverse fly · 15-20 · RIR 2 · 4 kg  (rest 45s)
 
-## Session B — Pull  [b-pull, ~47 min]
+## Session B — Pull  [b-pull, ~51 min]
 Warm-up:
   1. 2 × Quadruped thoracic rotation · 10/side  (rest 30s)
   2. 2 × Prone Y raise · 20  (rest 30s)
@@ -34,13 +34,13 @@ Main:
   2. 4 × One-arm row · 10/side · RIR 2 · 12 kg  (rest 105s)
   3. 3 × Inverted row under a table · 12-15 · RIR 2  (rest 75s)
   4. 3 × Renegade row · 12/side · RIR 2 · 8 kg  (rest 75s)
-  5. superset × 4 rounds (rest 60s after each round)
+  5. superset × 3 rounds (rest 60s after each round)
        - Dumbbell biceps curl · 10-12 · RIR 2 · 8 kg
        - Hammer curl · 12 · RIR 2 · 8 kg
   6. 3 × Shrug · 15 · RIR 2 · 12 kg  (rest 45s)
   7. 3 × Dumbbell reverse fly · 15-20 · RIR 2 · 4 kg  (rest 45s)
 
-## Session C — Lower body + core  [c-lower-core, ~51 min]
+## Session C — Lower body + core  [c-lower-core, ~59 min]
 Warm-up:
   1. Bodyweight squat · 20
   2. Walking lunge · 10/side · bodyweight
@@ -56,7 +56,7 @@ Main:
        - Reverse crunch · 10-12 · RIR 2
   7. 3 × Russian twist · 15/side · RIR 2 · bodyweight  (rest 45s)
 
-## Session D — Upper-body density  [d-upper-density, ~48 min]
+## Session D — Upper-body density  [d-upper-density, ~45 min]
 Warm-up:
   1. Arm circles · 30s
   2. 2 × Prone Y raise · 20  (rest 30s)
@@ -70,12 +70,12 @@ Main:
        - Renegade row · 8-12/side · RIR 1 · 8 kg
        - Close-grip push-up · 10-12 · RIR 2
        - Dumbbell lateral raise · 20 · RIR 2 · 4 kg
-  3. circuit × 4 rounds (rest 75s after each round)
+  3. circuit × 3 rounds (rest 75s after each round)
        - Dumbbell 21s · 21 · RIR 2 · 8 kg
        - Dumbbell triceps kickback · 15/side · RIR 2 · 4 kg
        - Dumbbell reverse fly · 20 · RIR 2 · 4 kg
 
-## Session E — Lower body + metabolic full body  [e-lower-metabolic, ~47 min]
+## Session E — Lower body + metabolic full body  [e-lower-metabolic, ~55 min]
 Warm-up:
   1. Bodyweight squat · 20
   2. Walking lunge · 10/side · bodyweight
@@ -105,7 +105,6 @@ Why (choices other than the first preference):
 - [a-push] finisher-skipped-goal {"goal":"muscle"}
 - [a-push] time-fit {"action":"block-added","exerciseIds":"dumbbell-reverse-fly","budget":60}
 - [a-push] time-fit {"action":"round-added","exerciseIds":"dumbbell-lateral-raise,overhead-dumbbell-triceps-extension","budget":60}
-- [a-push] time-fit {"action":"round-added","exerciseIds":"dumbbell-lateral-raise,overhead-dumbbell-triceps-extension","budget":60}
 - [b-pull/main/0] exercise-fallback-pattern {"exerciseId":"bent-over-dumbbell-row","slot":"pull-vertical-main","pattern":"pull-horizontal","wanted":"pull-vertical"}
 - [b-pull/main/0] load-start {"exerciseId":"bent-over-dumbbell-row","kg":8,"targetKg":10.5,"bodyweightKg":75,"bodyweightAssumed":false}
 - [b-pull/main/1] load-start {"exerciseId":"one-arm-dumbbell-row","kg":12,"targetKg":15,"bodyweightKg":75,"bodyweightAssumed":false}
@@ -116,7 +115,6 @@ Why (choices other than the first preference):
 - [b-pull/main/6] load-start {"exerciseId":"dumbbell-reverse-fly","kg":4,"targetKg":4.5,"bodyweightKg":75,"bodyweightAssumed":false}
 - [b-pull] finisher-skipped-goal {"goal":"muscle"}
 - [b-pull] time-fit {"action":"block-added","exerciseIds":"dumbbell-reverse-fly","budget":60}
-- [b-pull] time-fit {"action":"round-added","exerciseIds":"dumbbell-biceps-curl,dumbbell-hammer-curl","budget":60}
 - [c-lower-core/main/0] load-start {"exerciseId":"goblet-squat","kg":12,"targetKg":15,"bodyweightKg":75,"bodyweightAssumed":false}
 - [c-lower-core/main/1] load-unloaded-start {"exerciseId":"bulgarian-split-squat"}
 - [c-lower-core/main/2] load-start {"exerciseId":"dumbbell-romanian-deadlift","kg":12,"targetKg":18,"bodyweightKg":75,"bodyweightAssumed":false}
@@ -134,7 +132,6 @@ Why (choices other than the first preference):
 - [d-upper-density] finisher-skipped-goal {"goal":"muscle"}
 - [d-upper-density] time-fit {"action":"round-added","exerciseIds":"wide-push-up,bent-over-dumbbell-row,seated-dumbbell-shoulder-press","budget":60}
 - [d-upper-density] time-fit {"action":"round-added","exerciseIds":"renegade-row,close-grip-push-up,dumbbell-lateral-raise","budget":60}
-- [d-upper-density] time-fit {"action":"round-added","exerciseIds":"dumbbell-21s,dumbbell-triceps-kickback,dumbbell-reverse-fly","budget":60}
 - [e-lower-metabolic/warmup/3] ramp-up {"exerciseId":"dumbbell-deadlift","kg":4,"workingKg":12}
 - [e-lower-metabolic/warmup/4] ramp-up {"exerciseId":"dumbbell-deadlift","kg":8,"workingKg":12}
 - [e-lower-metabolic/main/0] load-start {"exerciseId":"dumbbell-deadlift","kg":12,"targetKg":18,"bodyweightKg":75,"bodyweightAssumed":false}

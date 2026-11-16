@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useOpenSession, useSessionLogs } from '@/app/data';
 import { nextSession } from '@/app/programme-state';
 import { repo, type Repo } from '@/db/repo';
 import type { EquipmentInventory, Language, Profile, Programme } from '@/domain';
@@ -88,6 +89,8 @@ function Preview({
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
   const toast = useToast();
+  const logs = useSessionLogs();
+  const openSession = useOpenSession();
   const [saving, setSaving] = useState(false);
   const { next, changes, splitChanged } = data;
 
@@ -128,7 +131,7 @@ function Preview({
     list.push(change);
     bySession.set(change.sessionId, list);
   }
-  const week = nextSession(current).week;
+  const week = nextSession(current, logs).week;
 
   return (
     <div className={styles.body}>
@@ -196,6 +199,13 @@ function Preview({
         <p className={styles.notice}>
           <Icon name="calendar" size={20} />
           <span>{t('programme.preview.restart')}</span>
+        </p>
+      ) : null}
+
+      {openSession?.source.kind === 'programme' ? (
+        <p className={styles.notice}>
+          <Icon name="info" size={20} />
+          <span>{t('programme.preview.openSession')}</span>
         </p>
       ) : null}
 

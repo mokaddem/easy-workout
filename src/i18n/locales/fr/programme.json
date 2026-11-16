@@ -223,7 +223,8 @@
     "keepCurrent": "Garder l’actuelle",
     "keepCurrentNew": "Garder l’actuel",
     "doneNew": "Nouveau programme en place",
-    "doneVariant": "Variante en place"
+    "doneVariant": "Variante en place",
+    "openSession": "Une séance est ouverte : elle continue sur son propre plan et ne comptera pas pour le nouveau programme."
   },
   "why": {
     "title": "Pourquoi ce programme ?",
@@ -241,5 +242,6 @@
     "plain": "Le choix classique pour ce mouvement, adapté à ton matériel et à ton niveau.",
     "cue": "Point clé",
     "close": "Compris"
-  }
+  },
+  "resumeSession": "Reprendre la séance"
 }

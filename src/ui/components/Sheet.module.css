@@ -40,6 +40,31 @@
   background: var(--color-surface-raised);
   box-shadow: var(--elevation-3);
 }
+.withFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+.scroll {
+  display: grid;
+  flex: 1 1 auto;
+  gap: var(--space-3);
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) var(--space-5) var(--space-4);
+}
+.footer {
+  display: grid;
+  flex: none;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  border-top: var(--border-hairline) solid var(--color-line);
+  background: var(--color-surface-raised);
+}
 .grabber {
   justify-self: center;
   width: 40px;

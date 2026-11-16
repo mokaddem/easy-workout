@@ -12,14 +12,14 @@ import { referenceEquipment } from './fixtures/reference-equipment';
 import { referenceProgramme } from './fixtures/reference-programme';
 
 /**
- * The profile the reference programme was written for. 55 minutes because the estimator
- * counts every rest: the source's own 45-minute figures leave most of it out.
+ * The profile the reference programme was written for. 60 minutes because the estimator
+ * counts every rest, between exercises too: the source's own 45-minute figures leave most of it out.
  */
 const referenceProfile: Profile = {
   goal: 'recomposition',
   level: 'intermediate',
   daysPerWeek: 6,
-  sessionMinutes: 55,
+  sessionMinutes: 60,
 };
 
 const generated = generateProgramme({ profile: referenceProfile, equipment: referenceEquipment });

@@ -9,6 +9,7 @@ export type Route =
   | { name: 'settings' }
   | { name: 'profile' }
   | { name: 'equipment' }
+  | { name: 'data' }
   | { name: 'play'; source?: 'quick' }
   | { name: 'not-found'; path: string };
 
@@ -23,6 +24,7 @@ const STATIC: Record<string, Route> = {
   '/settings': { name: 'settings' },
   '/settings/profile': { name: 'profile' },
   '/settings/equipment': { name: 'equipment' },
+  '/settings/data': { name: 'data' },
   '/play': { name: 'play' },
 };
 
@@ -75,6 +77,8 @@ export function routeHref(route: Route): string {
       return '/settings/profile';
     case 'equipment':
       return '/settings/equipment';
+    case 'data':
+      return '/settings/data';
     case 'not-found':
       return route.path;
     default:
@@ -93,6 +97,7 @@ export function tabOf(route: Route): Tab | null {
     case 'progress':
       return 'progress';
     case 'settings':
+    case 'data':
       return 'settings';
     default:
       return null;
@@ -106,6 +111,7 @@ export function parentOf(route: Route): Route {
       return { name: 'programme' };
     case 'profile':
     case 'equipment':
+    case 'data':
       return { name: 'settings' };
     default:
       return { name: 'programme' };
