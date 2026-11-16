@@ -73,7 +73,7 @@ describe('cuesBetween', () => {
   });
 
   it('counts a hold in, ticks its last seconds and signals the end', () => {
-    const hold = item('plank', { target: { kind: 'time', minSec: 20, maxSec: 30 } });
+    const hold = item('plank', { target: { kind: 'time', minSec: 20, maxSec: 30 }, goal: 30 });
     const ready = start([straight(hold, 2, 30)]);
     const leadIn = startTimer(ready, sec(0));
     expect(cuesBetween(at(leadIn, 0.5), at(leadIn, 2.1))).toEqual([{ kind: 'tick' }]);

@@ -106,7 +106,7 @@ test('Pause and leave keeps the session: a banner on Programme resumes it', asyn
 
   const banner = page.getByRole('region', { name: /is paused$/ });
   await expect(banner).toBeVisible();
-  await expect(banner.getByText(/^Picks up at/)).toBeVisible();
+  await expect(banner.getByText(/^Picks up with/)).toBeVisible();
   // The banner holds the only primary action: the next-session card turns secondary.
   await expect(page.getByRole('button', { name: 'Resume session' })).toBeVisible();
   await page.goto('/quick');
@@ -241,4 +241,21 @@ test('a session open for more than 12 hours leads with finishing it', async ({ p
   await banner.getByRole('button', { name: 'Finish (keep the sets)' }).click();
   await expect(page).toHaveURL(/\/play$/);
   await expect(page.getByRole('heading', { name: 'Session ended early' })).toBeVisible();
+});
+
+test('the back gesture opens the leave sheet and leaves nothing behind', async ({ page }) => {
+  await startAndSkipWarmup(page);
+  const entries = await page.evaluate(() => history.length);
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Leave the session?' })).toBeVisible();
+  await expect(page).toHaveURL(/\/play$/);
+  expect(await page.evaluate(() => history.length)).toBe(entries);
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Leave the session?' })).toBeHidden();
+  await page.getByRole('button', { name: 'Resume', exact: true }).first().click();
+  await expect(page.getByRole('button', { name: /^Done as planned/ })).toBeVisible();
+
+  await page.goBack();
+  await page.getByRole('button', { name: /^Pause and leave/ }).click();
+  await expect(page).toHaveURL(/\/programme$/);
 });

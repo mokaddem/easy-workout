@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Button, Icon, useToast } from '@/ui/components';
+import { exportCancelled } from './cancelled';
 import type { BackupReminderState } from './useBackupReminder';
 import styles from './Backup.module.css';
 
@@ -19,6 +20,10 @@ export function BackupBanner({ state }: { state: BackupReminderState }) {
     setBusy(true);
     try {
       if (await state.exportNow()) toast.show({ message: t('settings.data.toastBackup') });
+      else {
+        const { key, count } = exportCancelled(state.days);
+        toast.show({ message: t(key, { count }) });
+      }
     } catch {
       toast.show({ message: t('settings.data.toastFailed'), tone: 'error' });
     } finally {
@@ -65,6 +70,10 @@ export function BackupLine({ state }: { state: BackupReminderState }) {
     setBusy(true);
     try {
       if (await state.exportNow()) toast.show({ message: t('settings.data.toastBackup') });
+      else {
+        const { key, count } = exportCancelled(state.days);
+        toast.show({ message: t(key, { count }) });
+      }
     } catch {
       toast.show({ message: t('settings.data.toastFailed'), tone: 'error' });
     } finally {

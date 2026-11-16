@@ -3,6 +3,7 @@ import { Tick } from '@/motion';
 import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import type { Feel, Language, SetActual, Target } from '@/domain';
+import { playerUnit } from '@/features/adapt';
 import { Button, Icon, IconButton, SegmentedControl } from '@/ui/components';
 import {
   exerciseLabel,
@@ -14,13 +15,16 @@ import {
   rxText,
   targetCell,
   timerElapsed,
+  unbreakable,
 } from '../format';
+import { setGoal } from '@/engine';
 import { clockSeconds, intervalClock, type PlayerState } from '../machine';
 import styles from '../Play.module.css';
 import { AdjustSheet } from './AdjustSheet';
 import { AnimSlot } from './AnimSlot';
 import { NextUp, SetHead, TempoStrip } from './parts';
 import type { PlayContext } from './types';
+import { useWhy } from './why';
 
 const FEELS: Feel[] = ['easy', 'right', 'hard'];
 
@@ -73,8 +77,10 @@ function Name({ ctx }: { ctx: PlayContext }) {
 function Slot({ ctx, tag }: { ctx: PlayContext; tag?: string }) {
   const { t } = useTranslation();
   const exercise = exerciseById.get(ctx.step.item.exerciseId);
+  const why = useWhy(ctx);
   return (
     <AnimSlot
+      why={why}
       glyph={glyphOf(exercise)}
       tag={tag ?? (exercise ? t(`labels.pattern.${exercise.pattern}`) : '')}
       cue={exercise?.keyCue[ctx.lang]}
@@ -192,6 +198,10 @@ export function HoldScreen(props: TimedProps) {
   const target = step.planned.target as Hold;
   const phase = state.phase;
   const exercise = exerciseById.get(step.item.exerciseId);
+  const why = useWhy(props);
+  // The countdown starts from the set's goal; the range's bottom stays as a tick while it is ahead.
+  const goal = setGoal(step.planned) ?? target.minSec;
+  const ticked = target.minSec < goal;
 
   if (phase.kind === 'lead-in')
     return (
@@ -200,9 +210,9 @@ export function HoldScreen(props: TimedProps) {
         state={state}
         now={now}
         then={
-          target.minSec === target.maxSec
-            ? t('play.timed.thenOne', { count: target.maxSec })
-            : t('play.timed.thenRange', { max: target.maxSec, min: target.minSec })
+          ticked
+            ? t('play.timed.thenRange', { max: goal, min: target.minSec })
+            : t('play.timed.thenOne', { count: goal })
         }
       />
     );
@@ -211,7 +221,6 @@ export function HoldScreen(props: TimedProps) {
     const elapsed = timerElapsed(state, now);
     const held = Math.round(elapsed);
     const remaining = clockSeconds(state, now);
-    const ranged = target.minSec < target.maxSec;
     return (
       <>
         <div className={`${styles.set} ${styles.phaseIn}`}>
@@ -227,16 +236,16 @@ export function HoldScreen(props: TimedProps) {
               <span className={styles.clockU}>{t('play.timed.unit')}</span>
             </div>
             <Bar
-              percent={(elapsed / target.maxSec) * 100}
-              tick={ranged ? (target.minSec / target.maxSec) * 100 : undefined}
+              percent={(elapsed / goal) * 100}
+              tick={ticked ? (target.minSec / goal) * 100 : undefined}
             >
-              {ranged ? (
-                <span style={{ left: `${(target.minSec / target.maxSec) * 100}%` }}>
+              {ticked ? (
+                <span style={{ left: `${(target.minSec / goal) * 100}%` }}>
                   {t('play.timed.minimum', { count: target.minSec })}
                 </span>
               ) : null}
               <span className={styles.hbarEnd}>
-                {target.maxSec} {t('play.timed.unit')}
+                {goal} {t('play.timed.unit')}
               </span>
             </Bar>
             <p className={styles.heldLine}>{t('play.timed.held', { seconds: held })}</p>
@@ -245,9 +254,10 @@ export function HoldScreen(props: TimedProps) {
         <div className={styles.dock}>
           <SegmentedControl
             options={FEELS.map((value) => ({ value, label: t(`play.feel.${value}`) }))}
-            value={state.feel}
+            value={why.ask && !state.feelChosen ? null : state.feel}
             onChange={player.setFeel}
-            label={t('play.set.feel')}
+            label={why.ask ? t('adapt.player.feelAsk') : t('play.set.feel')}
+            {...(why.ask && !state.feelChosen && { ask: true })}
           />
           <Button
             variant="secondary"
@@ -268,7 +278,21 @@ export function HoldScreen(props: TimedProps) {
   }
 
   const load = loadParts(t, lang, step.planned.load, exercise, inventory);
-  const cell = targetCell(t, target);
+  const cell = {
+    n: String(goal),
+    unit:
+      target.minSec < target.maxSec
+        ? unbreakable(
+            playerUnit(t, {
+              goal,
+              min: target.minSec,
+              max: target.maxSec,
+              time: true,
+              ...(step.side && { side: step.side }),
+            }),
+          )
+        : t('play.set.unitSeconds'),
+  };
   return (
     <>
       <div className={styles.set}>

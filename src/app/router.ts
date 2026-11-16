@@ -194,7 +194,12 @@ let restoring = false;
  * While `active`, leaving the screen (links, tabs, back button, browser back) calls `onLeave`
  * instead, and closing or reloading the page asks the browser's own confirmation.
  */
-export function useLeaveGuard(active: boolean, onLeave: LeaveHandler): void {
+export function useLeaveGuard(
+  active: boolean,
+  onLeave: LeaveHandler,
+  /** Also ask before the page is closed or reloaded; off when nothing would be lost. */
+  { unload = true }: { unload?: boolean } = {},
+): void {
   const handler = useRef(onLeave);
   useLayoutEffect(() => {
     handler.current = onLeave;
@@ -206,12 +211,12 @@ export function useLeaveGuard(active: boolean, onLeave: LeaveHandler): void {
     const current: LeaveHandler = (proceed) => handler.current(proceed);
     guard = current;
     const beforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener('beforeunload', beforeUnload);
+    if (unload) window.addEventListener('beforeunload', beforeUnload);
     return () => {
       if (guard === current) guard = null;
       window.removeEventListener('beforeunload', beforeUnload);
     };
-  }, [active]);
+  }, [active, unload]);
 }
 
 export function navigate(to: Route | string, options: { replace?: boolean } = {}): void {

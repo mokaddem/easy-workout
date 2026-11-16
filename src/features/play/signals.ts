@@ -21,22 +21,28 @@ export function announcement(step: PlayStep, t: TFunction, lang: Language): stri
   if (step.side) parts.push(t(`voice.side.${step.side}`));
 
   const target = step.planned.target;
+  const goal = step.planned.goal;
+  // A set with a goal announces it: that is what "done as planned" will log.
   const what =
-    target.kind === 'reps'
-      ? target.min === target.max
-        ? t('voice.reps', { count: target.min })
-        : t('voice.repRange', { min: target.min, max: target.max })
-      : target.kind === 'max'
-        ? t('voice.max')
-        : target.kind === 'time'
-          ? target.minSec === target.maxSec
-            ? t('voice.seconds', { count: target.maxSec })
-            : t('voice.secondRange', { min: target.minSec, max: target.maxSec })
-          : target.kind === 'cardio'
-            ? target.minMinutes === target.maxMinutes
-              ? t('voice.minutes', { count: target.maxMinutes })
-              : t('voice.minuteRange', { min: target.minMinutes, max: target.maxMinutes })
-            : t('voice.intervals', { rounds: target.rounds, work: target.workSec });
+    goal !== undefined && target.kind === 'reps'
+      ? t('voice.reps', { count: goal })
+      : goal !== undefined && target.kind === 'time'
+        ? t('voice.seconds', { count: goal })
+        : target.kind === 'reps'
+          ? target.min === target.max
+            ? t('voice.reps', { count: target.min })
+            : t('voice.repRange', { min: target.min, max: target.max })
+          : target.kind === 'max'
+            ? t('voice.max')
+            : target.kind === 'time'
+              ? target.minSec === target.maxSec
+                ? t('voice.seconds', { count: target.maxSec })
+                : t('voice.secondRange', { min: target.minSec, max: target.maxSec })
+              : target.kind === 'cardio'
+                ? target.minMinutes === target.maxMinutes
+                  ? t('voice.minutes', { count: target.maxMinutes })
+                  : t('voice.minuteRange', { min: target.minMinutes, max: target.maxMinutes })
+                : t('voice.intervals', { rounds: target.rounds, work: target.workSec });
 
   const load = step.planned.load;
   const kg = (value: number) => value.toLocaleString(lang);

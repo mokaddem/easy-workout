@@ -13,6 +13,7 @@ Tokens live in `src/ui/tokens.css` (the single source of truth). Mockups in `des
 3. **Readable from the floor.** Anything needed mid-set must be readable from about 2 m with the phone lying on the floor (section 6.4). Everything else steps back.
 4. **Sweaty-hand safe.** Targets are at least 48 px, in-workout controls 64 px, no swipe-only or long-press-only actions, primary actions in the bottom third.
 5. **French first.** Layouts are sized on French strings, which run 20–30 % longer than English. English then fits with room to spare.
+6. **A change shows its new value and its why.** When the plan moves, the next value is the figure (the old one small beside or above it) and the reason uses the same words on every surface: the summary row, the session-detail why line and, shorter, the player chip.
 
 ---
 
@@ -82,8 +83,10 @@ The full scale (graphite 1000–50, signal 100–900, red) is in `tokens.css`.
 
 - **Accent:** at most one primary button per screen. Selected chips, check boxes, segmented options and the current tab use **inverse**, not yellow.
 - **Done vs next vs later:** done = `complete` fill with a check (recedes); next = accent fill with a 2 px accent-line ring; this week's later items = strong outline; future = hairline outline.
-- **Red** only for destructive actions and pain. There is no green: "done" is shown with a check and a neutral fill, so the screen never turns into a traffic light.
-- **Feel (easy / right / hard)** has no colour coding. Selection is shown by an inverse fill.
+- **Where yellow appears** (the full list; anything else is a bug): the screen's one primary action (Start, Done, *Reprendre* on the resume banner, the summary's dock button), the next session cell, the current set segment and current item tile ring (`accent-line`), the active tempo phase while pacing, the rest takeover, interval recovery, and the incoming tile of the side-switch pause. Work clocks (hold, interval work, steady cardio) stay on the base colour, so from 2 m the screen colour alone says work or rest. Adaptation surfaces add no yellow: answer rows are outlined, change tags are outlined, the decisions nudge uses an inverse well.
+- **Red** only for destructive actions and pain: the pain well (danger tint + stop glyph), the word *Douleur / Pain* in a kicker or done line, the stop glyph of the pain chip and the pending-pain line, the Abandon row. A second pain is not escalated to red: the care note is neutral. Warnings that destroy nothing (backup due while storage was refused, storage not granted) use the **firm** treatment (2 px `text` edge, inverse well), never red.
+- **No green.** "Done" is a check on a neutral `complete` fill, so the screen never turns into a traffic light. Up and down are arrows (`arrow-up`, `arrow-down`, `step-up`, `step-down`), never colour.
+- **Feel (easy / right / hard)** has no colour coding. Selection is shown by an inverse fill; "pick one" by an outline (segmented ask state).
 
 ### 3.4 Measured contrast (WCAG 2.x)
 
@@ -153,9 +156,12 @@ Running text stays under about 60 characters per line on a phone. Text never goe
 
 ### 4.4 French and English typography
 
-- Numbers through `Intl.NumberFormat`: `2,5 kg` in French, `2.5 kg` in English.
-- French puts a narrow no-break space (U+202F) before `: ; ? !` and `%` (`15 %`, `Série faite ?`). English puts none (`15%`).
-- Units after a no-break space: `14 kg`, `90 s`, `12 km/h`. Ranges use an en dash without spaces: `8–10`. Multiplication uses `×`: `3 × 8–12`.
+- Numbers through `Intl.NumberFormat`: `2,5 kg` in French, `2.5 kg` in English (`numberText` in `src/features/adapt/format.ts`).
+- French puts a **narrow no-break space (U+202F)** before `: ; ? !` and `%` (`15 %`, `Série faite ?`, `Remplace : …`). English puts none (`15%`). Never a plain space, never U+00A0 there.
+- **No-break space (U+00A0)** before units (`14 kg`, `90 s`, `12 km/h`) and after *au-delà de* / *vers* before a range (`au-delà de 8–12`, `vers 8–10`), so a number never starts a line on its own. The format helpers build units this way (`kgText`, `secondsText`); a string that puts a unit after a placeholder carries the no-break space itself.
+- Ranges use an en dash without spaces: `8–10`. On the player's unit line the dash is wrapped in word joiners (U+2060, `unbreakable` in `src/features/play/format.ts`) so a range never breaks. Multiplication uses `×`: `3 × 8–12`. Negative changes use the minus sign U+2212 (`−2 kg`), not a hyphen.
+- **Exercise names never follow a French article or preposition.** There is no gender or elision data, so *à Pompes*, *du Rowing* or *de l'…* cannot be written correctly. Names appear as titles, after a colon (*Remplace : Développé militaire debout*), at the start of a sentence (*Traction pronation est dans ta prochaine séance.*), or as `{name} à la place` / `{name} instead`. Lower-casing a name to fit it into a sentence is the same mistake.
+- Emphasis inside a localized string is `<b>…</b>`, rendered by `Rich` (`src/features/adapt/Rich.tsx`) or `Trans`; nothing else is interpreted. Bold sets the value in `text` colour inside a muted line (in danger text for the pain word).
 - Feel labels: FR *Facile / Idéal / Dur*, EN *Easy / Right / Hard*. "Juste" is avoided in French because "c'était juste" means "barely made it", the opposite of what we mean.
 - Exercise names wrap with `text-wrap: balance`. Size steps down 48 → 44 → 40 px for long names; never smaller, never truncated.
 
@@ -288,12 +294,24 @@ Exits run at about 70 % of the matching entrance duration.
 | Dismissed card | The one-time "why" card collapses (height + fade) at 70 % of `base`, `exit`. |
 | Generating | Steps rise `distance-sm` over `base`, `snap`; the check pops in over `fast`. |
 | Spinner | One turn every 800 ms, `linear`. With reduced motion it slows to 2.4 s instead of stopping: it still says "working". |
+| Switch | The knob slides (and grows 16 → 22 px) over `fast`, `move`; a meta line that states the consequence cross-fades over `fast`. |
+| Item or side change | The tile fill moves to the next tile over `fast`, `move`. |
+| Side-switch pause | The incoming tile scales from press scale and fills over `base`, `snap`; the count digits roll. |
+| Lead-in (timed hold) | Each digit rises `distance-sm` and fades in over `fast`, `snap`; lead-in → running cross-fades over `base`. |
+| Interval phase change | The background floods from the clock like the takeover (`flood`, `snap`); the clock digits stay put. |
+| Goal reached, hold done | The check draws in over `fast`; the button's colour change runs over `base`, `move`. No punch: not an achievement. |
+| Pause screen | Cross-fade over `base`. |
+| Summary entrance | The screen cross-fades in over `slow`; the duration, stat and next-time figures roll once (digit roll); the set strip is revealed left to right in one sweep over `base`, `linear`, after the cross-fade. No punch: it belongs to the set just logged. |
+| Answer → confirmed | The proposal card's content cross-fades and its height animates (card expand); the check draws in over `fast`. Undo reverses it. No punch. |
+| Decisions nudge | The count rolls; at 0 the row collapses (`base` × 0.7, `exit`) and the equipment nudge moves back above the next session (`base`, `move`). |
+| Banners and notices | Resume and backup banners arrive with the screen and leave with the dismissed-card collapse. The import success notice opens with height + fade and rises `distance-sm` over `base`, `snap`. |
+| Why chip | Arrives and leaves with its set screen; the feel ask outline never animates. |
 
 Punch is for achievements only: never on routine taps or navigation.
 
 ### 7.3 Reduced motion
 
-`prefers-reduced-motion: reduce` overrides the tokens: travel distances and press/punch scales become 0 / 1, overshoot becomes `--ease-move`, durations shrink to cross-fades of 100–160 ms. The takeover becomes a 160 ms cross-fade. The timer ring still moves (it carries information) but the last-3-seconds pulse is replaced by a colour change only. Components that read the tokens get this for free; anything driven from script must read them too. Script-driven motion runs through one provider that, under reduced motion, drops transforms and keeps opacity and colour changes.
+`prefers-reduced-motion: reduce` overrides the tokens: travel distances and press/punch scales become 0 / 1, overshoot becomes `--ease-move`, durations shrink to cross-fades of 100–160 ms. The takeover and the interval flood become 160 ms colour cross-fades. The timer ring and every clock still run (they carry information) but the last-3-seconds pulse is replaced by a colour change only. The switch knob changes colour in 100 ms without travelling. Adaptation surfaces drop height animation and digit rolls: the confirmed card and the figures appear in place. Components that read the tokens get this for free; anything driven from script must read them too. Script-driven motion runs through one provider that, under reduced motion, drops transforms and keeps opacity and colour changes.
 
 ---
 
@@ -301,9 +319,10 @@ Punch is for achievements only: never on routine taps or navigation.
 
 - 24 × 24 grid, 2 px stroke, round caps and joins, no fills (except status glyphs). 20 px in chips and facts, 28 px in equipment wells.
 - Drawn in-house as inline SVG symbols.
-  - Actions and navigation: back, close, chevron (right and down), plus, minus, check, play, pause, skip, sound, shuffle, swap, refresh, pencil, sliders, stop.
-  - Meaning: calendar (schedule), gauge (goal and level), user (profile), bolt (quick session), chart (progress), clock, hourglass, list, flag, heart (cardio day), incline, person running, bag (what to buy), info, alert, why.
+  - Actions and navigation: back, close, chevron (right and down), plus, minus, check, play, pause, skip, sound, shuffle, swap, refresh, pencil, sliders, stop, download, upload, arrow-up, arrow-down, arrow-right.
+  - Meaning: calendar (schedule), gauge (goal and level), user (profile), bolt (quick session), chart (progress), clock (not now), hourglass (session left open, break notice), list, flag (finish now), heart (cardio day), incline, person running, bag (what to buy), info, alert, why, shield / shield-check (lasting storage), file (backup file), step-up / step-down (harder / easier variant), equals (unchanged, keep as is), turtle (slower tempo).
   - Equipment: dumbbell, kettlebell, band, mini-band, belt, vest, pull-up bar, dip bars, bench, treadmill, bike, rower, jump rope, ab wheel, suspension straps.
+- Paths live in `src/ui/components/iconPaths.tsx`. "Voice off" is not a separate glyph: the sound icon turns `text-muted` and gets a 26 × 2.5 px slash drawn in CSS, cut out by a 2 px ring in the background colour (rest yellow on the takeover).
 - Icons never stand alone for unfamiliar actions: icon buttons carry an accessible label, and in the player only pause, sound, edit and skip are icon-led.
 
 ---
@@ -314,15 +333,19 @@ States covered for each: **default, pressed, disabled, focus, error, empty, load
 
 | Group | Components |
 |---|---|
-| 9.1 Core controls | Button, icon button, stepper (hero, word value, load ruler), segmented control (2 × 2, tall, compact pair, view tabs), chip, check box, card, list row, progress bar, skeleton and spinner |
+| 9.1 Core controls | Button (incl. inverse), icon button, stepper (hero, word value, load ruler), segmented control (2 × 2, tall, compact pair, view tabs, ask state), chip, check box, switch and switch row, card, list row, progress bar, set strip, skeleton and spinner |
 | 9.2 Shell | App bar, context bar, step bar, dock, tab bar |
 | 9.3 Choices and numbers | Choice card and choice tile, large numeric field, live counter, split preview |
 | 9.4 Equipment | Equipment card, weight grid, purchase card, cost badge, computing state |
-| 9.5 Notes and messages | Note (inline, notice, dock note), banner, why card, why line, nudge row, toast, empty state |
-| 9.6 Programme and session | Week hero, rotation grid, session row, session hero, week ruler, disclosure card, prescription row, group block, cardio and interval strips, delta tag |
-| 9.7 Overlays | Sheet (with footer), dialog, menu, change list, session compare, reason groups |
-| 9.8 Full-screen states | Generating screen, player stand-in, progress before data |
-| 9.9 Workout player | Timer ring, tempo indicator, animation slot |
+| 9.5 Notes and messages | Note (inline, notice, dock note, pending note, care note), banner (incl. firm), resume banner, backup line, why card, why line, nudge row (incl. decisions nudge), toast, empty state |
+| 9.6 Programme and session | Week hero, rotation grid, session row, session hero, week ruler, disclosure card, prescription row, goal ruler, change tag, swap line and pending-pain line, group block, cardio and interval strips, delta tag |
+| 9.7 Overlays | Sheet (with pinned footer), dialog, menu, change list, session compare, reason groups, leave sheet, stop view, decisions sheet, import sheets and comparison table |
+| 9.8 Full-screen states | Generating screen, session summary, pause screen, progress before data |
+| 9.9 Workout player | Top bar and voice toggle, score, item and side tiles, next-up row, side-switch pause, big clocks, interval segments, reps-done stepper, timer ring, tempo strip, animation slot, why chip |
+| 9.10 Adaptation | Proposal card (answer row, confirmed state), per-exercise list |
+| 9.11 Settings and data | Rest-screen picker, last-backup block, storage status card, import success notice |
+
+Where the build departs from the screen's design notes, the entry says so under **Built differently**.
 
 ### 9.1 Core controls
 
@@ -335,6 +358,9 @@ States covered for each: **default, pressed, disabled, focus, error, empty, load
 | Ghost | text colour, 2 px underline | press overlay | disabled label, no underline |
 | Destructive | `danger` fill, `on-danger` label (confirmations) | `danger-pressed` | as primary |
 | Destructive outline | `danger-text` outline and label (in-flow stops) | danger tint | as secondary |
+| Inverse | `surface-inverse` fill, `on-inverse` label, 21 px | press overlay | n/a |
+
+- **Inverse** exists for one place: *Passer* on the ring rest, where the ring already carries the accent; it mirrors the ink button on the yellow takeover. **Built differently:** it is a player style (`.ringSkip` in `src/features/play/Play.module.css`), not a `Button` variant. Promote it only if a second use appears.
 
 - Heights: 56 px (`--tap-comfort`), 64 px in the player (`--tap-player`). "Start" buttons that lead into a workout (session detail, quick result) use the 64 px size with a leading play icon; so do the single actions of the full-screen states (9.8), without the icon. Label 18 px bold at 88 % width; 21 px in the player.
 - Content: optional leading icon (check for confirmations, play for start), never a trailing arrow. A two-line primary is allowed when it shows exactly what will be logged ("Fait comme prévu / 10 reps à 14 kg").
@@ -365,6 +391,15 @@ Equal-width options on a sunken track, 4 px inset, options 48 px tall, radius 10
 - **Tall:** 56 px options with a 12 px sub-line under the label (*Tout mon matériel / 6 équipements*, *Poids du corps / Aucun matériel*).
 - **Compact pair:** two short options inline at the end of a row (*Seul / Par paire* in the weight grid).
 - **View tabs:** the same look used as a real tab list under the app bar (*Mon matériel / Quoi acheter ensuite*): `role="tablist"`, each option `role="tab"` with `aria-selected`, the content below is the tab panel. A view that costs work (what to buy) computes only when its tab first opens.
+- **Ask state** (`ask` prop): nothing selected (`value` null) and a 1.5 px `line-strong` outline drawn inside the track's edge; the group's accessible name becomes *Ressenti (à choisir) / Feel (pick one)*. Used for the feel on every set of an exercise's first session at a new load, so the answer is a real pick rather than the default. Picking an option removes the outline. The primary stays enabled; logging without a pick is allowed (and counts as untouched). No animation on the outline.
+
+#### Switch and switch row
+
+`SwitchRow` in `src/ui/components/Switch.tsx`. An on/off setting or decision that applies at once. The switch never appears alone: the whole row is the target.
+- **Row:** full-width button, `role="switch"` + `aria-checked`; title 17 / 600, meta 14 px muted, switch on the right; min 64 px; hairline divider inset 16 px between rows. **Large** (a decision that owns a card, *Compter comme faite*): 76 px, title 18 bold at title width, meta 15 px.
+- **Switch:** 52 × 32 pill, 2 px edge. Off: `surface-sunken` track, `line-strong` edge, 16 px `text-muted` knob on the left. On: inverse track and edge, 22 px `on-inverse` knob on the right. Size and position both change, so the state never depends on colour.
+- **States:** pressed = press overlay; focus = inset ring; disabled = `aria-disabled` (still focusable so it can be read), dashed `text-disabled` edge and knob, and the meta says why (*Pas disponible sur ce téléphone*). The meta may state the consequence and change with the state (*Ta rotation passe à la séance B.* / *La séance A te sera reproposée la prochaine fois.*).
+- Do: settings that act immediately (voice, beeps, vibration), the summary's counts-as-done. Don't: exclusive choices (segmented) or anything that needs a confirmation.
 
 #### Chip
 
@@ -386,6 +421,10 @@ Min 56 px; optional leading 48 px well (icon or thumbnail); title (16–18 px se
 
 8 px, radius xs, track `--color-track`, fill `--color-accent-line`. **Segmented** variant for steps and sequences (onboarding steps, exercise in session, sets, weeks, purchases tested): 6 px segments, 4 px apart; done = `text-subtle`, current = `accent-line`, later = track. Always paired with visible text ("Étape 4 sur 5", "7 sur 12"), so the bar is never the only carrier of the value.
 
+#### Set strip
+
+`src/ui/components/SetStrip.tsx`. A picture of a session's main sets: one bar per planned set, grouped by exercise or group (3 px inside a group, 7 px between groups, each group as wide as its share of sets). 10 px tall (6 px `small`, in the resume banner), radius 2. Done = `text`, not done = track; warm-up and finisher are not counted. Decorative (`aria-hidden`): the text beside it carries the numbers (*9 séries sur 23*). Not a progress bar: there is no current set and no yellow.
+
 #### Skeleton and spinner
 
 - **Skeleton:** `surface-sunken` blocks at the size of the content they stand for, radius sm (or the radius of the real element), no shimmer. Session detail and the programme screen load this way.
@@ -401,7 +440,7 @@ Sticky top, `--color-bg` fill, `--z-sticky`. Optional back icon button (48 px; t
 
 #### Context bar
 
-For screens whose real title is a big heading in the content: a back icon button (session detail, quick result) or close (player stand-in, and later the player) and a 14 px muted context line on one line with an ellipsis (*Séance A — Push*, *Semaine 3 · Volume*). Min 56 px. No title element: the content's display heading is the page title.
+For screens whose real title is a big heading in the content: a back icon button (session detail, quick result), or no button at all on the session summary (it has one way out, its dock button), and a 14 px muted context line on one line with an ellipsis (*Séance A — Push*, *Semaine 3 · Volume*). Min 56 px. No title element: the content's display heading is the page title.
 
 #### Step bar (onboarding)
 
@@ -485,12 +524,29 @@ Information only, never an action. 20 px icon + text. Three placements, one look
 - **Inline note:** no fill, 14–15 px muted, `text-subtle` icon (under-30-min rule, doorway bar warning, bodyweight default).
 - **Notice:** sunken fill, radius md, 12 × 14 px padding, 14 px text (a session longer than usual, a week that never changes, a max test this week).
 - **Dock note:** inline note placed above the dock's primary, stating the consequence before acting. *Info* tone: *En enregistrant, ton programme actuel sera marqué à mettre à jour. Tu choisis quand le refaire.* *Alert* tone (alert icon, bold lead, `role="status"`): when saving will need a new programme.
+- **Pending note** (proposal card, pain): inline note in `text` colour with a muted `arrow-down` glyph and bold values, saying what already applies while no answer is given (*Prochaine séance : **8 kg au lieu de 10 kg** tant que tu n'as pas choisi.*).
+- **Care note** (proposal card, second pain on the same exercise only): notice look with 600 weight, `text` colour and the info glyph in `text`: *Si la douleur persiste, consulte un professionnel de santé.* Never red, never an action.
 
 The wording for an outdated programme is the same everywhere: *à mettre à jour / out of date* in dock notes, toasts and the programme banner.
 
 #### Banner
 
 Card with a 1.5 px `line-strong` edge, 16 px padding: 48 px icon well (refresh), title 18 / bold (*Programme à mettre à jour*), one sentence on why, then a secondary action (*Voir le nouveau programme*) and a ghost dismiss below it. Sits at the top of the programme screen, under the app bar.
+- **Backup reminder:** download glyph, *Sauvegarde tes données*, the backup's age, full-width secondary *Exporter une sauvegarde* (exports in place, then the banner leaves and the toast *Sauvegarde exportée* shows) and ghost *Plus tard*.
+- **Firm:** for warnings that destroy nothing but matter: 2 px `text` edge, inverse icon well. The backup reminder turns firm when lasting storage was refused (shield glyph, *Tes données peuvent être effacées*). Never red.
+- **Priority on the Programme tab:** resume banner > out of date > backup reminder. At most the resume banner plus one other; the backup reminder waits.
+
+#### Resume banner
+
+`src/features/play/components/ResumeBanner.tsx`. An open session at the top of the Programme and Quick tabs. It holds the screen's only primary: while it shows, the tab's own start buttons turn secondary.
+- Anatomy: banner head (pause glyph in the well, *Séance A — Push en pause*, where it picks up), a `small` set strip with a 14 px line (***9** séries sur 23* · *commencée à 18:05*), a 64 px primary *Reprendre* with the play glyph, and two ghosts spaced apart: *Terminer maintenant* (straight to the summary) and *Abandonner* (destructive dialog).
+- **Left open over 12 h:** hourglass glyph, *Séance A — Push restée ouverte*, the start day and time, active minutes instead of the start time, a 56 px primary *Terminer (garder les séries)* with the check glyph (loading while it saves); *Reprendre* and *Abandonner* become the ghosts.
+- `aria-labelledby` its title. The same three verbs (*Reprendre / Terminer maintenant / Abandonner*) are used in the player and the banner.
+- **Built differently:** the pick-up line reads *Reprend à {exercice}, série 2.* with the name lower-cased after *à*, which breaks the exercise-name rule (4.4). Use *Reprise : Pompes serrées, série 2.*
+
+#### Backup line
+
+`BackupLine` in `src/features/settings/BackupBanner.tsx`. The summary's one-line reminder, shown only when a backup is due and never on a screen that already shows the banner. Sunken row, radius md: 20 px download glyph, 14 px text with the age in bold (*Dernière sauvegarde il y a **34 jours**.*), secondary *Exporter*. Firm: 2 px inset `text` edge, glyph in `text`. Busy: spinner in the button. A cancelled share sheet shows a 3 s toast (*Export annulé : aucun fichier enregistré.*, or *… Ta dernière sauvegarde date toujours de 34 jours.* when one was due). **Built differently:** the button is the standard 56 px secondary on the sunken fill, not 48 px on `surface`.
 
 #### Why card
 
@@ -498,15 +554,18 @@ Shown once on the programme screen right after generation, above the week. Title
 
 #### Why line
 
-18 px *why* glyph + 14 px muted text under a prescription, only when a choice is out of the ordinary (a fallback exercise, an easier or harder variant, an unloaded start). Ordinary choices get no line; the why icon button on every row opens the full reasons.
+20 px *why* glyph in `text-muted` + 14 px text in `text` colour under a prescription. Two sources, one look:
+- **Generation:** when a choice is out of the ordinary (a fallback exercise, an easier or harder variant, an unloaded start). Ordinary choices get no line; the why icon button on every row opens the full reasons.
+- **Progression** (`WhyLine` in `src/features/programme/AdaptLines.tsx`): the evidence then the reason, *La dernière fois, 5 × 10 reps à **10 kg**. Haut de la fourchette : un cran au-dessus, objectif 8 reps.* Shown when the prescription moved, or held for a reason worth knowing (a miss, pain). Hidden while a pending-pain line says it already. Copy comes from `noteDetail` (`src/features/adapt/format.ts`), which shares its reasons with the summary row and the player chip.
 
 #### Nudge row
 
-Card-sized row, ≥ 76 px, hairline edge, elevation 1: 48 px icon well (bag), bold title (*4 exercices adaptés faute de matériel*), 14 px muted sub (*Voir ce qu'il vaut la peine d'acheter*), chevron. Pressed: press overlay. Shown on the programme screen only when equipment is limiting the plan.
+Card-sized row, ≥ 76 px, hairline edge, elevation 1: 48 px icon well (bag), bold title (*4 exercices adaptés faute de matériel*), 14 px muted sub (*Voir ce qu'il vaut la peine d'acheter*), chevron. Pressed: press overlay. Shown on the programme screen only when equipment is limiting the plan. When some exercises have reached the top of the owned kit, they count into the same row (*6 exercices limités par ton matériel*); the summary closes its list with the same row (*Curl marteau est au maximum de ton matériel*).
+- **Decisions nudge** (`DecisionsNudge` in `src/features/programme/Decisions.tsx`): the well is inverse and holds the count in numeral 36; title *Choix à faire*; the sub names the exercise in the next session first (*Traction pronation est dans ta prochaine séance.*), else up to two names (*Pompes, Pompes en V et 1 autre*, via `Intl.ListFormat`). The accessible name carries the count. It sits between the week hero and the next-session card; while it shows, the equipment nudge moves below the next-session card, so only one row ever sits above Start. Opens the decisions sheet.
 
 #### Toast
 
-Inverse pill, min 56 px, elevation 3, 15 px semibold text, fixed 16 px above the bottom chrome (section 5.1). Text says what happened in the same words as the action (*Série 4 enregistrée*, *Séance mélangée*, *Matériel enregistré. Ton programme est à mettre à jour.*); optional ghost action (*Annuler*) in on-inverse, whose focus ring is drawn for the inverse surface. Stays 5 s when it has an action, 3 s otherwise; a new toast replaces the current one. Errors use the same toast with a leading stop icon and say what went wrong and how to fix it. `role="status"`.
+Inverse pill, min 56 px, elevation 3, 15 px semibold text, fixed 16 px above the bottom chrome (section 5.1). Text says what happened in the same words as the action (*Série 4 enregistrée*, *Séance mélangée*, *Matériel enregistré. Ton programme est à mettre à jour.*); optional ghost action (*Annuler*) in on-inverse, whose focus ring is drawn for the inverse surface. Stays 5 s when it has an action, 3 s otherwise; a new toast replaces the current one. Errors use the same toast with a leading stop icon and say what went wrong and how to fix it. `role="status"`. Stopping an exercise shows no undo toast: the stop view's confirmation is the safeguard.
 
 #### Empty state
 
@@ -548,6 +607,40 @@ Under the ruler: the week title, a 13 px state label (*En cours*, or an outlined
 
 One exercise. Index in numeral 21 `text-subtle` · name 21 / bold at title width · 48 px why icon button on the right. Below: numeral cells at numeral M with a 21 px muted unit and a 13 px label under each (*séries × reps*, *kg par haltère*); a load that is a word (*Poids du corps*, *Élastique léger*) is set 21 px at display width instead. Then a 14 px facts line (rest, effort *2 reps en réserve*, tempo), an optional delta tag and an optional why line. Rows are separated by hairlines.
 
+Once progression has run, a programme row shows **the goal, not the range** (`src/features/programme/Blocks.tsx`):
+- Reps cell: `sets × goal` (*5 × 6*), label *séries × reps visées*, with the goal ruler under it. Timed holds: `sets × goal s`, label *séries × durée visée*.
+- **Per-set goals** (intensity and peak weeks, when set 1 asks for less in reserve): *10 + 3 × 9*, label *série 1 + les suivantes, reps*; the facts line adds *Série 1 : **1 rep** en réserve, puis 2*. The ruler shows the later sets' goal.
+- The facts line starts with the change tag, then the delta tag.
+- Below the facts, in this order: the why line, the pending-pain line, the swap line.
+- Quick sessions keep the range: they have no progression.
+
+#### Goal ruler
+
+`src/features/adapt/GoalRuler.tsx`. Where the goal sits in the range, at a glance. Inline: min label, bars, max label, in 13 px bold muted at label width with tabular figures. One 10 × 8 px bar (radius 2, 3 px apart) per value of the range, filled `text` up to the goal, the rest `track`.
+- **Under the range** (first sessions after a load step): hollow bars (1.5 px inset `line-strong`) from the goal up to min − 1 sit before the min label; those up to the goal are filled.
+- **Past the range** (no heavier load to go to): hollow bars after the max label, up to max + 4; filled up to the goal.
+- **Timed holds:** one bar per 5 s; the max label carries *s*.
+- Decorative: a visually hidden label carries the value (*objectif 6 reps, fourchette 8 à 10*).
+- **Built differently:** the bars outside the range are solid hollow outlines, not dashed, and bands get the same 4-value reach as everything else (the note asked for 2).
+
+#### Change tag
+
+`src/features/adapt/ChangeTag.tsx`, data from `changeTag` in `format.ts`. What moved since the last time, on a prescription row. Outline pill, min 24 px, 1.5 px `line-strong`, 13 px bold at label width; 14 px glyph (stroke 2.5): `arrow-up` / `arrow-down` + the amount (*2 kg*, *1 rep*, *5 s*), `turtle` + *Plus lent*; words for bands (*Plus fort*, *Plus léger*; assisted: *Moins d'aide*, *Plus d'aide*) and *Lest* for a first added load. Screen readers hear *En hausse : / En baisse :* first.
+- One tag per row, the most telling change: load, then tempo, then goal.
+- Don't confuse it with the **delta tag** (inverse fill), which compares this week with the previous one in the plan. Change = outline = what you did changed it.
+
+#### Swap line and pending-pain line
+
+`SwapLine` and `PendingPainLine` in `src/features/programme/AdaptLines.tsx`. A sunken block (radius md, 12 × 14 px padding) under the why line: a 20 px glyph + 14 px text with bold names or values, then a secondary button sized to its label on `surface`.
+- **Swap line:** swap glyph in `text-muted`. *Remplace : **Développé militaire debout**, après la douleur du 12 novembre.* (variants: until the band is no longer needed, your choice on a date; *Première fois : charge de départ.* is appended on its first session). Button *Revenir à l'original* opens a dialog that names the original with its load and goal (primary *Revenir à l'original*, secondary *Annuler*); it is the only answer that asks for confirmation, because it can undo a pain swap.
+- **Harder variant that missed:** same line, *Plus dur que prévu : sous 8.* and the way back.
+- **Pending-pain line:** stop glyph in danger text. *Douleur la dernière fois : **14 kg au lieu de 16 kg** tant que tu n'as pas choisi.* Button *Choisir* opens that exercise's proposal card in a sheet.
+- **Built differently:** the button is the standard 56 px secondary (the note asked for 48 px). The harder-missed copy ends *Tu peux revenir à {exercice}.*, a name after *à*: rewrite as *Plus dur que prévu : sous 8. L'original reste disponible.*
+
+#### Break notice
+
+A notice (hourglass glyph) under the session hero after a long gap: *Bon retour. 23 jours depuis ta dernière séance : objectifs 2 reps plus bas, mêmes charges.*; past four weeks the loads restart one step lower; past three months the first session recalibrates the loads.
+
 #### Group block (superset, circuit)
 
 Index + title 18 / bold (*Superset, 3 tours*) + one muted rule line (*Enchaîne a et b, puis 60 s de repos.*). Items sit behind a 2 px `line-strong` left bracket, lettered a / b / c in 16 px, names 18 px, numerals 24.
@@ -566,12 +659,33 @@ Inverse pill, 24 px tall, 13 px bold label: the change against the previous week
 #### Sheet
 
 Bottom sheet: raised surface, top radius xl, grabber 40 × 5 px, elevation 3, scrim behind, max 90 % of the height (the body scrolls). Content: title, one-line purpose, controls, one primary action, optional destructive outline at the bottom with a one-line explanation. Closes on scrim tap, grabber drag or back; focus moves into the sheet and returns to the opener.
-- **Footer:** when a sheet has actions and long content, they sit in a sticky footer on the raised surface with a hairline top edge, flush with the sheet edges and padded for the home indicator (*Utiliser cette variante* / *Garder l'actuelle*).
-- Sheets in use: why this programme, why this exercise, phase, another variation, new programme.
+- **Pinned footer** (`footer` prop of `src/ui/components/Sheet.tsx`): the sheet's actions sit outside the scrolling body, on the raised surface with a hairline top edge, flush with the sheet edges and padded for the home indicator. Only the body scrolls. Rule: **every sheet with actions uses the footer**, so the actions never scroll out of reach. Buttons are full width and stacked, primary on top (*Utiliser cette variante* / *Garder l'actuelle*).
+- Sheets in use: why this programme, why this exercise, phase, another variation, new programme, adjust set (with the stop view), leave the session, import preview, import error, decisions, a single decision (from session detail).
 
 #### Dialog
 
 Confirmations: same raised surface, centred, max 24 rem, radius xl; title, one sentence, then two full-width buttons stacked (primary or destructive on top, secondary *Annuler* / *Revenir au profil* below). The confirm button can show the loading state.
+- Dialogs in use: new programme; **abandon** (destructive *Abandonner la séance*, says the sets stay in the history and the session will be offered again; with nothing logged, that the session is deleted); **a session is already open** (three stacked: resume it, abandon it and start the other, cancel; left open over 12 h: finish it and start the other comes first); **replace all data** (destructive *Tout remplacer*; busy state with a status line while the copy downloads and the import runs, Cancel disabled); **switch back to the original**.
+
+#### Leave sheet
+
+`src/features/play/components/LeaveSheet.tsx`. The ways out of a session, from the pause screen. Title *Quitter la séance ?*, description = what is already saved (*10 séries sur 22 faites. Elles sont déjà enregistrées.*). Three 76 px rows with hairlines between: 48 px sunken well, title 18 bold, 14 px muted consequence. Pause and leave (pause glyph), finish now (flag), abandon (close glyph; title in danger text, well on danger tint) → the abandon dialog. Footer: secondary *Annuler*, 64 px. Rows: press overlay, inset focus.
+
+#### Stop view (adjust sheet)
+
+*Arrêter cet exercice* in the adjust sheet replaces the sheet's content (a back icon returns to adjusting). Title, one line on why the reason matters, two choice cards (76 px): *Douleur* / *Pas le matériel aujourd'hui*, then a note that states the consequence and updates with the reason (sets flagged, what happens next; in a group, the exercise leaves the remaining rounds). Footer: destructive *Arrêter l'exercice*, secondary *Continuer l'exercice*. Error: tapping Stop with no reason marks both cards `danger-text` with *Choisis une raison pour arrêter.*
+- **Built differently:** the title is generic (*Arrêter cet exercice ?*) rather than naming the exercise, which also keeps the exercise-name rule; no undo toast after the stop. The no-reason note still says *Tu passes directement à {exercice}*: rewrite as *Ensuite : {exercice}, sans repos.*
+
+#### Decisions sheet
+
+`DecisionsSheet` in `src/features/programme/Decisions.tsx`. Title *À toi de choisir*, description *Ces changements d'exercice attendent ta réponse. Sans réponse, rien ne change.*, then flat proposal cards: exercises in the next session first, then pain, no equipment, assisted, easier, harder. Footer: secondary *Fermer*. The list is a snapshot taken on open, so answered cards stay (confirmed, with Undo) until the sheet closes; the nudge count updates live.
+
+#### Import sheets and comparison table
+
+In `src/features/settings/DataScreen.tsx`. The system file picker leads to:
+- **Preview sheet:** the backup's date as title, the file name with the file glyph, an alert note when the phone holds sessions newer than the file (*Les **4 séances** faites après cette sauvegarde seront remplacées…*), then the comparison table. Footer: primary *Remplacer par cette sauvegarde*, secondary *Annuler* → the replace-all dialog.
+- **Comparison table:** `role="table"`; kind (16 / 600), *Ce fichier* (numeral 24), *Ce téléphone* (numeral 24, muted); 13 px column heads, hairline rows. Yes/no kinds show a check or `–`. Rows where both counts are 0 are hidden.
+- **Error sheet:** 48 px well with the alert glyph, the reason as title, one sentence that always ends with what was changed (*Rien n'a été modifié.*), the file name with the file glyph. Footer: 64 px primary to try again or pick another file, then *Fermer* (the only action, as primary, when the backup comes from a newer version). Reasons: not a backup, damaged, newer version, copy of the current data failed. **Built differently:** "damaged" was added in the build.
 
 #### Menu
 
@@ -595,9 +709,26 @@ One group per input: 40 px icon well + the input in bold (*3 jours, 45 min*) ove
 
 No actions, no bars. Numeral 144 *8* + *semaines*, an 8-segment bar, title in display 36, then four steps: done = check, current = spinner, later = dot. Shown only when generation takes longer than 300 ms, then kept at least 800 ms so it does not flash. `role="status"`.
 
-#### Player stand-in
+#### Session summary
 
-Until the workout player exists, *Commencer* leads here: a context bar with close and the session name, an animation-slot placeholder (300 px) holding the first exercise (tag *Premier exercice*, name, *5 × 8–10* and the load in numerals), a title (*Le lecteur de séance arrive bientôt*) and one sentence, and a 64 px *Revenir à la séance* in the dock.
+`src/features/play/components/SummaryScreen.tsx`. The end of a session: how long, how much, whether it counts, and what changes next time. Full screen, no tab bar, no back; a context line only (*Semaine 3 · Séance A — Push*). One 64 px primary in the dock.
+- **Order:** title → duration → set strip + stats → counts-as-done → *À toi de choisir* (only if the session raised decisions) → backup line (when due) → *Exercice par exercice* → dock. The counts-as-done switch stays in the first viewport at 360 px: it is the only decision every session asks.
+- **Title** display 48, balanced: *Séance terminée*, or *Séance arrêtée avant la fin* after *Terminer maintenant*.
+- **Duration:** active time (pauses excluded) in numeral 144 + *min* in numeral 48 muted + a 16 px caption *Temps actif, pauses non comptées*; 100 min and over reads `1 h 47`.
+- **Stats** (columns 1 : 1.3): main sets done in numeral 60 + 16 px label; total reps in numeral 60 + label, with a 14 px *volume 2 228 kg* sub-line only when kilograms were lifted.
+- **Counts-as-done card:** a card holding one large switch row; on by default when at least half of the main sets were done; the meta states what the rotation does and flips with the switch; saved on every toggle. Only for a session of the current programme. Quick sessions show a notice instead: *Hors programme : ta rotation ne bouge pas.*
+- **Decisions:** section title 21 + one muted line, then one proposal card per decision (9.10). A stopped exercise shows up there and in its list row; there is no separate stopped list.
+- **Per-exercise list:** 9.10.
+- No loading state: the summary reads a finished log.
+- **Built differently:** the stats lead with sets and reps (the note had `19/23` main sets and volume as the second stat, bodyweight reps as its sub-line). Quick sessions end on *Retour aux séances rapides* instead of *Retour au programme*.
+
+#### Pause screen
+
+A full screen on the base colour, not a sheet, so it reads from the floor. The top bar's pause button turns into play. *En pause* (display 48) + the session line, the frozen active time in numeral 144 muted, and the resume point behind a 2 px bracket: a label line, then the exercise as a title and its set. (The label *Tu reprendras à* only holds because the name sits on its own line; *Reprise* would be safer.) Dock (64 px): primary *Reprendre*, secondary *Quitter la séance* → leave sheet. Pausing during a rest freezes its seconds; pausing during a hold drops the attempt and returns to Ready.
+
+#### Player stand-in (retired)
+
+Start now opens the player. The mockup is kept for reference only.
 
 #### Progress before data
 
@@ -605,27 +736,115 @@ Display title, then a ghost of the chart that will fill in (axes and week labels
 
 ### 9.9 Workout player
 
+The built player is the scoreboard (section 10). Components live in `src/features/play/components/`, styles in `src/features/play/Play.module.css`. Floor-reading sizes follow section 6.4: exercise name 48 everywhere; reps, load, speed and incline 96; rest, hold and lead-in 288; interval phase 240; steady cardio 192; ring 192; side letters 48 (144 on the switch pause); phase word 48.
+
+#### Top bar and voice toggle
+
+Pause (turns into play while paused), the context line with segmented progress (*Exercice 2 sur 7*, *Exercices 5–6 sur 7* for a group, *Échauffement, 2 sur 3*, *Fin de séance, intervalles*; short enough for 360 px in both languages), active time, voice toggle. On rest screens the bar takes the rest tone. **Voice toggle:** icon button with `aria-pressed` and a constant label *Annonces vocales*; off = muted icon with a slash (section 8). It mutes the voice only (beeps and vibration keep the timing) and writes the same setting as Settings. Each tap shows a 3 s toast (*Annonces vocales coupées. Les bips restent actifs.*); without a voice for the language, the toast says so.
+
+#### Score
+
+Two columns, `minmax(min-content, 1.45fr) minmax(min-content, 1fr)`, so French per-side units never overflow at 360 px.
+- **Left:** the set's goal in numeral XL (the per-set goal when it differs), the RIR badge beside it (top-aligned, 10 px gap; 26 px outline pill, 14 px bold), then the unit line: *reps (8–10)* in range, *reps, vers 8–10* under it, *reps, au-delà de 8–12* past it; per side *reps, côté gauche (8–12)*. The badge moved beside the number so the unit line never wraps under it.
+- **Right:** the load (numeral XL + unit, or a word at display width).
+- **Max:** *Max* at numeral XL + a hint line (*Arrête-toi à 1 rep en réserve. Série 1 : 11 reps.*).
+
+#### Item tiles and side tiles
+
+- **Item tiles** (superset, circuit), right of *Tour 2/3*: 44 px, radius sm, letter 21 heavy at title width. Done = `complete` fill; current = 3 px `accent-line` ring; later = 1.5 px `line-strong`. On yellow: done = ink fill, current = 3 px dashed ink. Each tile is spoken (*Exercice a sur 2*). **Built differently:** done tiles have no check badge.
+- **Side tiles** (per side): 60 px, radius md, letter 48 at numeral width (*G / D*, *L / R*). Current = inverse, done = `complete`, later = outline. The primary reads *Côté gauche fait / 10 reps à 16 kg*; each side is its own logged set.
+
+#### Next-up row
+
+Under the score in a group: 2 px `line-strong` left bracket, 14 px padding; *Puis* (14 muted), a 32 px letter tile, the name 18 bold at title width over a 14 px muted line (*12 reps à 10 kg, sans repos*). It always shows, because groups often have no rest between items. Last item of a round: *Puis repos 45 s, tour 3*; last item of the session: *Puis fin de séance*.
+
+#### Side-switch pause
+
+Dark, not yellow: it is not a rest. Title *Change de côté* (display 36); two 176 px tiles (radius lg, letter 144, 16 px caption) with an arrow between them: done side = `complete`, incoming side = accent fill; *Commence dans 4 s* in numeral 96 + 24 px label, and a draining bar. 5 s, beeps on the last 3, then the other side opens (a timed hold starts by itself). One secondary: *Commencer le côté droit*. The rest between sets comes after the second side only.
+
+#### Big clocks
+
+- **Hold:** Ready (the goal, hint *Mets-toi en position, puis appuie. Tu as 3 s.*, primary *Lancer le chrono*) → lead-in (*En place* + 3 at 288, *Annuler*) → running (countdown from the goal at 288 + 48 px unit; bar with a tick at the minimum; dock: feel + secondary *Arrêter le chrono / Note 22 s*). Nothing runs before the tap.
+- **Interval phase:** numeral 240 + 48 unit; phase word (*Effort / Récup*) 48 + *Tour 3/8*; speed and incline of this phase at 96; *Ensuite* names the next phase. Work = base colour; recovery = yellow (dark in ring mode). Phases advance by themselves; secondary *Phase suivante*.
+- **Steady cardio:** mm:ss counting up at 192, `nowrap`, the colon narrowed; bar to the goal (*Encore 6 min 36 / Objectif 15 min*). At the goal: beep, a check line, and Done turns primary. It never completes by itself. **Built differently:** the clock shrinks to fit narrow screens (`min(192px, (100vw − 40px) / 1.8)`, about 178 px at 360 px).
+- **Interval segments:** one cell per round, split 2 : 3 work / recovery, 8 px: done = `text-subtle`, current phase = `accent-line` (ink on yellow), later = track.
+- Paused clocks show muted digits and *En pause*.
+
+#### Reps-done stepper
+
+Max sets only: a player stepper (64 px buttons, numeral 36) in the dock beside the primary *Noter / 11 reps*, whose second line mirrors the value live. Minus disabled at 0. Prefilled from the previous set, else history, else 10.
+
 #### Timer ring
 
-Track `--color-track` and progress `--color-accent-line`, 20 px stroke, butt caps, starting at 12 o'clock and draining clockwise. Centre: seconds in compact timer size, unit word below. Diameter as large as the width allows (340 px on a 390 px screen). States: running, paused (digits muted, "En pause / Paused" under the number, ring stops), finished (ring empty, digits replaced by the next action for 1 s). It never shows minutes for rests: rests are whole seconds (≤ 3 digits).
+Track `--color-track` and progress `--color-accent-line`, 20 px stroke, butt caps, starting at 12 o'clock and draining clockwise. Centre: seconds in compact timer size, unit word below. Diameter as large as the width allows (`min(340px, 100%)`). States: running, paused (digits muted, "En pause / Paused" under the number, ring stops), finished (ring empty, digits replaced by the next action for 1 s). It never shows minutes for rests: rests are whole seconds (≤ 3 digits). **Ring rest** (setting): dark screen with the ring, a done line, the next card on `surface` and the same three controls in the same places; *Passer* is the inverse button. The setting covers every rest, including interval recovery.
 
-#### Tempo indicator
+#### Tempo strip
 
-Three segments sized to the tempo (2-1-2 → 2fr 1fr 2fr): phase name (13 px) over seconds (21 px). Active phase: accent fill. Optional rep counter tile (inverse) on the right. Paced by the same clock as the tempo audio.
+Three segments sized to the tempo (2-1-2 → 2fr 1fr 2fr): phase name (13 px) over seconds (21 px). The strip is a toggle button (`aria-pressed`): a tap starts pacing (a soft tone per phase, the active phase in accent fill, an inverse rep counter tile appears on the right); a second tap, or logging the set, stops it. Static and neutral until tapped, so it adds no yellow by default.
 
 #### Animation slot (placeholder)
 
 Reserved for the future exercise animation. Keep the slot's size and position stable now, so the layout does not change when animations arrive.
-- Container: radius lg, radial gradient from `surface-raised` to `surface`, hairline edge. Aspect free; min 96 px tall in the scoreboard player, 200–280 px in the instrument player, 300 px on the player stand-in, 72 × 72 thumbnail for "next".
-- Content until animations exist: a perspective floor (hairlines converging to a vanishing point), the equipment glyph at 76 px in `text-subtle`, a movement-pattern tag ("Poussée horizontale"), and the exercise's key cue ("Coudes à 45°, omoplates serrées"). So the placeholder is still useful, not decoration.
-- Overlays (tempo, rep counter) sit at the bottom edge; the cue moves to the top when overlays are present.
-- States: placeholder (above), loading (floor and tag only), playing (later), unavailable (placeholder without cue). `role="img"` with the exercise name as its label.
+- Container: radius lg, radial gradient from `surface-raised` to `surface`, hairline edge. Aspect free; min 96 px tall on the set screen (the slot takes what is left above the dock), 72 × 72 thumbnail for "next".
+- Content until animations exist: a perspective floor (hairlines converging to a vanishing point), the equipment glyph at 76 px in `text-subtle`, a movement-pattern tag ("Poussée horizontale"), and the exercise's key cue ("Coudes à 45°, omoplates serrées"). So the placeholder is still useful, not decoration. On short screens the glyph and cue drop first.
+- **On yellow** (interval recovery): transparent fill, `rest-track` edge and floor, glyph in `on-rest-muted`.
+- The why chip, when present, takes the place of the tag and the cue.
+- States: placeholder (above), loading (floor and tag only), playing (later), unavailable (placeholder without cue). `role="img"` with a label.
+
+#### Why chip
+
+`WhyChip` in `parts.tsx`; text from `useWhy` (`why.ts`) and `noteChip` (`src/features/adapt/format.ts`). The short why of a changed number, on the set screen.
+- Anatomy: absolutely placed at the top of the animation slot (8 px inset), sunken, radius md, 8 × 12 px padding; 20 px glyph (`info` in `text-muted`) + 15 px / 600 text in `text`, at most 2 lines (clamped). It costs no height, so the numerals, tempo strip and dock never move and the slot keeps its 96 px.
+- When: on set 1 of an exercise whose prescription changed. On **every** set of an exercise's first session at a new load, together with the feel ask state: set 1 *Nouvelle charge, +2 kg : 6 reps pour commencer. Comment c'était ?*, later sets *Nouvelle charge : comment c'était ?*.
+- **Pain variant:** stop glyph in danger text, text stays `text`; it doubles as a safety cue (*8 kg au lieu de 10 kg après ta douleur. Arrête si elle revient.*).
+- Don't: add a row under the score for this (it pushed the slot to 0 at 360 × 780), or colour the chip.
+
+### 9.10 Adaptation
+
+Wording for every reason lives in the `adapt` namespace of the locales; `noteReason` (summary), `noteDetail` (session detail) and `noteChip` (player) in `src/features/adapt/format.ts` keep the same words across surfaces.
+
+#### Proposal card
+
+`src/features/adapt/ProposalCard.tsx`. A change the app will not make on its own: after pain, no equipment, or when a harder, easier or assisted variant would fit. One card per exercise.
+- **Header:** 48 px well (pain: danger tint + stop glyph; no equipment: the exercise's equipment glyph; harder: `step-up`; easier: `step-down`; assisted: band) + the exercise name (21, title weight and width, balanced) + a 14 px muted kicker with bold evidence ending in the question (***Douleur**, 1 série sur 3 faite. Pour la suite ?*; for pain the bold word is danger text).
+- **Answer rows:** full-width buttons, min 64 px, 1.5 px `line-strong` outline, radius md; 24 px glyph in `text-muted` (`swap` = substitute, `arrow-down` = lighter or easier, `equals` = keep or one-off, `clock` = not now), title 17 bold at label width, consequence 14 px muted. Pressed: overlay + press scale. Focus ring. While an answer saves, every row is disabled (60 % opacity). **An answer applies on tap:** no pre-selection, no confirm button.
+- **Rows by kind:** pain — *X à la place* (only if a substitute exists) / *Le garder, plus léger* / *Le garder tel quel* (gone on a second pain); no equipment — *C'était ponctuel* / *X à la place, pour de bon*; harder, easier, assisted — *X à la place* / *Pas maintenant*.
+- **Notes under the rows:** pending note (pain), care note (second pain), info note for no equipment (*Sans réponse, c'est compté comme ponctuel.*).
+- **Confirmed state:** `complete`-fill well with a 28 px check, the answer's title (18 bold), one 15 px muted line on what now happens (bold values), ghost *Annuler* (Undo) until the screen is left. `role="status"`.
+- **Variants:** `card` on the summary; `flat` in a sheet (no chrome, hairline top, 20 px vertical padding).
+- No-equipment cards left unanswered on the summary are recorded as one-offs when the summary is left, so they never reach the Programme tab.
+- Don't: colour the answers, make any of them yellow, or put the exercise name after an article (*X à la place*, never *à la place de X*).
+
+#### Per-exercise list
+
+`src/features/play/components/summary/ExerciseList.tsx`. The summary's *Exercice par exercice*: what was done, and next time's figure. One row per main exercise, in session order, in a card list with hairlines; warm-up and finisher are not listed.
+- **Head:** section title 21 + one muted line (*Ce que tu as fait, et à gauche l'objectif de la prochaine fois.*); a 13 px / 600 caption *Prochaine fois* above the figure column.
+- **Row:** 92 px figure column + text. Text: name 18 / 600; done line 14 px muted with the load bold (*5 séries : 14, 14, 14, 13, 13 reps à **10 kg***; after a pain stop, the last bold word *douleur* in danger text); reason 14 px in `text`.
+- **Figure:** the old value 14 / 600 muted with a 20 px `arrow-right` above the new value in numeral 36 + 16 px muted unit (numeral 28 when longer than 4 characters; a word such as a band level at 17 px heavy, wrapping). **Same:** `equals` glyph + *même* in muted above the current goal in muted numerals, and a one-line reason. **Swapped:** a 28 px swap glyph, reason *Ton choix : X à la place.* **Not reached:** *Pas fait cette fois : rien ne change.* **No equipment, one-off:** *C'était ponctuel : rien ne change.*
+- **Modes:** quick session — no figure column; deload — no figure column, and the sub-line says nothing moves this week; peak — only increases get a figure, everything else reads same.
+- When exercises have reached the top of the owned kit, a buy-next nudge row closes the list.
+- **Built differently:** the deload and peak messages are a muted sub-line under the heading, not a notice; name 18 (note: 17) and unit 16 (note: 18); *= même* is drawn as the `equals` glyph + *même*.
+
+### 9.11 Settings and data
+
+- **Settings root order:** *Ton entraînement* → *Pendant la séance* (switch rows for voice, beeps and vibration, then the rest-screen picker) → *Données* (one row *Données et sauvegarde* whose meta is the backup age) → *Affichage* → *À propos*. Vibration is shown disabled where the device has none, with the reason as meta; the voice row's meta says when the phone has no voice for the language.
+
+#### Rest-screen picker
+
+`src/features/settings/RestPicker.tsx`. Radio group of two 96 px tiles side by side: a 44 × 72 miniature of each look (yellow takeover / ring), title 17 bold, 13 px sub (*Jaune, lisible de loin* / *Plus doux dans le noir*). Selected: inverse fill, the miniature keeps its own colours. Pressed: press scale. Arrow keys move and select.
+
+#### Data and backup screen
+
+`src/features/settings/DataScreen.tsx`, in order of use: *Sauvegarde* (last-backup block, counts on this phone, primary *Exporter une sauvegarde*, secondary *Exporter les séries en CSV*, one line under each on what the file is for) → *Stockage* (status card) → *Importer* (one line, secondary *Importer une sauvegarde* with the upload glyph). A CSV export is not a backup and does not reset the backup age.
+- **Last-backup block:** 15 px muted label; the value in numeral 72 between two muted title-24 words (*il y a **3** jours*), or a word at display 36 (*Aujourd'hui*, *Jamais*); a 14 px date line.
+- **Storage status card:** card with a 40 px well, title 18 bold (*Stockage durable : accordé*), 14 px meta. Granted: shield-check. Refused or unavailable: firm (2 px `text` edge, inverse well, shield) + a bold hint (*Ajouter l'app à l'écran d'accueil permet souvent de l'obtenir.*). **Built differently:** the states are granted / refused / unavailable (the browser cannot tell); the "not asked yet" state from the design is not there.
+- **Import success notice:** a notice with the check glyph at the top of the screen, bold lead naming the backup, then the file name of the copy downloaded before the import. `role="status"`.
 
 ---
 
 ## 10. Workout player
 
-Two variants were mocked; **A (scoreboard) is the one to build**, with a setting that swaps the yellow rest takeover for the ring timer. Both use the same top bar (pause, "exercise n of N" with segmented progress, elapsed time, voice toggle) and the same tokens.
+Two variants were mocked; **A (scoreboard) is built**, with a setting that swaps the yellow rest takeover for the ring timer (every rest, including interval recovery). B is kept as a reference for when animations arrive. Both use the same top bar and tokens. The states beyond a straight set (groups, per side, holds, intervals, cardio, warm-up, stop, pause, leave) are in `player-states.html` and section 9.9.
 
 | | A: Scoreboard (`player-a.html`) | B: Instrument (`player-b.html`) |
 |---|---|---|
@@ -651,9 +870,13 @@ Two variants were mocked; **A (scoreboard) is the one to build**, with a setting
 | `mockups/session-detail.html` | Session A, week 3 (longer-than-usual notice, warm-up collapsed, +1 set tags); further down: superset, max sets, steady cardio finisher; previewing week 8 (no Start); session D circuits; bodyweight week 1 with the warm-up open; inline why lines; the cardio day (no week ruler); the why sheet for one exercise. |
 | `mockups/programme-sheets.html` | Why this programme (reasons grouped by input); another variation (change list); new programme after adding a pull-up bar; new programme when the split changes (3 → 4 days, session compare); no other variation. |
 | `mockups/quick-session.html` | Launcher defaults; launcher at 20 min, push, bodyweight only; result after Shuffle with the undo toast; result scrolled to an interval finisher; cardio focus (intervals). |
-| `mockups/programme-placeholders.html` | The player stand-in behind "Start"; the Progress tab before any data; session detail loading (skeleton). |
+| `mockups/programme-placeholders.html` | The player stand-in behind "Start" (retired); the Progress tab before any data; session detail loading (skeleton). |
 | `mockups/player-a.html` | Player variant A: during a set, during rest, adjusting a set. |
 | `mockups/player-b.html` | Player variant B: during a set, during rest. |
+| `mockups/player-states.html` | Superset item, between-items and after-round rests, per side and the side switch, timed hold (ready, lead-in, running), max reps, intervals (work, recovery), steady cardio (before and at the goal), warm-up, the stop flow (none picked, picked, error), pause, leave sheet, abandon, ring rest. |
+| `mockups/player-summary.html` | Summary (all sets done, exercises stopped, finished early, quick session), resume banners on Programme and Quick (incl. left open over 12 h), "a session is already open" dialogs, abandon from the banner. |
+| `mockups/settings-data.html` | Settings with *Pendant la séance*; Data and backup (storage granted, refused); after export; import preview, confirmation, busy, done; errors; backup reminders (standard, firm). |
+| `mockups/adaptation.html` | Summary with decisions (first and second pain, no equipment), answered cards and the per-exercise list; Programme tab with the decisions nudge and sheet; session detail with goal rulers, per-set goals, swaps, pending pain and the switch-back dialog; the player's why chips (new weight, per side + slower tempo, pain, past the range). Also accepts `?w=` / `?h=` to resize every frame. |
 
 Each page has FR/EN and dark/light toggles. Pages also accept `?lang=en` and `?theme=light|dark`; with no theme set they follow the system. Every frame is 390 × 844.
 

@@ -1,0 +1,370 @@
+{
+  "evidence": {
+    "prefix": "La dernière fois, {{evidence}}.",
+    "reps_one": "{{count}} rep",
+    "reps_other": "{{count}} reps",
+    "same": "{{sets}} × {{reps}} à {{load}}",
+    "sameBare": "{{sets}} × {{reps}}",
+    "variedLoad": "{{values}} reps à {{load}}",
+    "variedBare_one": "{{count}} série : {{values}} reps",
+    "variedBare_other": "{{count}} séries : {{values}} reps",
+    "band": "{{evidence}} · {{band}}",
+    "holds": "{{sets}} × {{seconds}} s tenues",
+    "feelEasy": ", ressenti facile",
+    "feelHard": ", une série dure"
+  },
+  "why": {
+    "goalClause": ", objectif {{goal}}",
+    "goalPart": " : objectif {{goal}}",
+    "deltaPart": ", {{delta}}",
+    "capClause": ", jusqu’à {{cap}}",
+    "minFallback": "le bas de la fourchette",
+    "loadUp": {
+      "reason": "Haut de la fourchette : un cran au-dessus{{goalClause}}.",
+      "chip": "Nouvelle charge{{deltaPart}}{{goalPart}}. Comment c’était ?"
+    },
+    "loadUpLow": {
+      "reason": "Au-delà de la fourchette : un cran au-dessus. Objectif {{goal}}, sous la fourchette le temps de t’y faire.",
+      "reasonNoGoal": "Au-delà de la fourchette : un cran au-dessus, sous la fourchette le temps de t’y faire.",
+      "chip": "Nouvelle charge{{deltaPart}} : {{goal}} pour commencer. Comment c’était ?"
+    },
+    "newWeight": "Nouvelle charge : comment c’était ?",
+    "newBand": "Nouvel élastique : comment c’était ?",
+    "loadDown": {
+      "reason": "Sous {{min}} deux fois de suite : un cran plus bas pour repartir.",
+      "chip": "{{delta}} : sous {{min}} deux fois de suite"
+    },
+    "repsUp": {
+      "reason": "Objectif tenu : +1 rep.",
+      "reasonEasy": "Facile à chaque série : objectif +2.",
+      "chip": "Objectif {{goal}} : +1 rep",
+      "chipEasy": "Objectif {{goal}} : +2 reps"
+    },
+    "hold": {
+      "reason": "Une série sous l’objectif ou ressentie dure : même objectif."
+    },
+    "holdMiss": {
+      "reason": "Sous {{min}} : même charge, on retente. Deux fois de suite, elle baissera d’un cran.",
+      "reasonTime": "Sous {{min}} : même objectif, on retente. Deux fois de suite, il baissera."
+    },
+    "holdPain": {
+      "reason": "Pas de hausse avant 2 séances sans douleur ({{n}} sur 2).",
+      "chip": "Pas de hausse après ta douleur. Arrête si elle revient."
+    },
+    "painLighter": {
+      "reason": "Douleur la dernière fois : {{to}} au lieu de {{from}} tant que tu n’as pas choisi.",
+      "reasonNoFrom": "Douleur la dernière fois : {{to}} tant que tu n’as pas choisi.",
+      "reasonChosen": "Douleur la dernière fois : {{to}}, sans hausse avant 2 séances sans douleur.",
+      "reasonBodyweight": "Douleur la dernière fois : version plus facile tant que tu n’as pas choisi.",
+      "reasonBodyweightChosen": "Douleur la dernière fois : version plus facile, sans hausse avant 2 séances sans douleur.",
+      "chip": "{{to}} au lieu de {{from}} après ta douleur. Arrête si elle revient.",
+      "chipNoFrom": "{{to}} après ta douleur. Arrête si elle revient.",
+      "chipBodyweight": "Version plus facile après ta douleur. Arrête si elle revient."
+    },
+    "calibrated": {
+      "reason": "Première séance avec cet exercice : charge ajustée à ton niveau.",
+      "chip": "{{delta}} : ajusté après ta première séance",
+      "chipNoDelta": "Ajusté après ta première séance"
+    },
+    "beyondRange": {
+      "reason": "Pas de charge plus lourde à ta portée : l’objectif dépasse la fourchette{{capClause}}.",
+      "reasonBodyweight": "Pas de lest possible avec ton matériel : l’objectif dépasse la fourchette{{capClause}}.",
+      "chip": "Objectif {{goal}}, au-delà de la fourchette"
+    },
+    "tempoSlower": {
+      "reason": "Au maximum de ton matériel, au-delà de la fourchette : descente en {{down}} s, retour à {{min}}.",
+      "chip": "Tempo plus lent : ta charge maximale est atteinte",
+      "chipDumbbell": "Tempo plus lent : ton haltère le plus lourd est atteint"
+    },
+    "bandHeavier": {
+      "reason": "Au-delà de la fourchette : élastique plus fort, retour à {{min}}.",
+      "chip": "Nouvel élastique, {{band}} : comment c’était ?"
+    },
+    "bandHeavierAssisted": {
+      "reason": "Sous {{min}} deux fois de suite : plus d’aide, élastique {{band}}.",
+      "chip": "Plus d’aide : élastique {{band}}"
+    },
+    "bandLighterAssisted": {
+      "reason": "Haut de la fourchette : moins d’aide, élastique {{band}}{{goalClause}}.",
+      "chip": "Moins d’aide, élastique {{band}} : comment c’était ?"
+    },
+    "bandLighter": {
+      "reason": "Sous {{min}} deux fois de suite : élastique plus léger pour repartir.",
+      "chip": "Élastique plus léger : sous {{min}} deux fois"
+    },
+    "addedLoadStart": {
+      "reason": "Au-delà de la fourchette en reps propres : lest de {{to}}{{implementClause}}, retour à {{min}}.",
+      "implementClause": " ({{implement}})",
+      "chip": "Lest +{{to}} : comment c’était ?"
+    },
+    "welcomeBack": {
+      "reason": "Plus de 4 semaines sans séance : un cran plus léger, retour à {{min}}.",
+      "chip": "{{delta}} : reprise après {{days}} jours",
+      "chipNoDelta": "Reprise après {{days}} jours"
+    },
+    "goalEased": {
+      "reason": "{{days}} jours sans séance : objectif 2 reps plus bas, même charge.",
+      "reasonTime": "{{days}} jours sans séance : objectif plus bas, même charge.",
+      "chip": "Objectif −2 : reprise après {{days}} jours",
+      "chipTime": "Objectif plus bas : reprise après {{days}} jours"
+    },
+    "loadSnapped": {
+      "reason": "Ton matériel a changé : {{from}} n’est plus possible, {{to}} est la charge la plus proche en dessous.",
+      "reasonNoFrom": "Ton matériel a changé : {{to}} est la charge la plus proche en dessous.",
+      "chip": "{{to}} : ton matériel a changé"
+    },
+    "yourLoad": {
+      "reason": "Tu as pris {{to}} au lieu de {{from}} : le programme garde ta charge.",
+      "reasonNoFrom": "Tu as pris {{to}} : le programme garde ta charge.",
+      "chip": "{{to}}, ta charge de la dernière fois"
+    },
+    "workLonger": {
+      "reason": "Tous les tours faits : effort de {{to}}, même récupération{{roundsClause}}.",
+      "roundsClause": ", {{rounds}} tours pour garder la même durée",
+      "chip": "Effort {{to}} : tous les tours faits la dernière fois"
+    },
+    "workShorter": {
+      "reason": "Tours pas tous faits deux fois de suite : effort de {{to}}.",
+      "chip": "Effort {{to}} : tours pas tous faits"
+    },
+    "fromHistory": {
+      "reason": "Repris de tes séances précédentes : {{evidence}} le {{date}}.",
+      "reasonShort": "Repris de tes séances précédentes.",
+      "chip": "{{to}}, repris de ton historique",
+      "chipNoLoad": "Repris de ton historique"
+    },
+    "buyNext": {
+      "reason": "Au maximum de ton matériel, même au tempo lent. Une charge plus lourde le ferait progresser."
+    },
+    "ladderEnd": {
+      "reason": "Au maximum de cet exercice, même au tempo lent : une version plus difficile peut te convenir."
+    },
+    "confirmNewLoad": {
+      "reason": "Nouvelle charge : même objectif, le temps de la confirmer avant de monter."
+    },
+    "timeUp": {
+      "reason": "Objectif tenu : +{{delta}} s.",
+      "chip": "Objectif {{goal}} : +{{delta}} s"
+    },
+    "timeDown": {
+      "reason": "Sous {{min}} deux fois de suite : objectif ramené à {{to}}.",
+      "chip": "Objectif {{to}} : sous {{min}} deux fois"
+    },
+    "swappedIn": {
+      "reason": "Première fois : charge de départ."
+    }
+  },
+  "summary": {
+    "decisions": {
+      "title": "À toi de choisir",
+      "sub_one": "Un exercice arrêté. Ta réponse décide des prochaines séances.",
+      "sub_other": "{{count}} exercices arrêtés. Ta réponse décide des prochaines séances.",
+      "subChanges": "Ces changements d’exercice attendent ta réponse."
+    },
+    "list": {
+      "title": "Exercice par exercice",
+      "sub": "Ce que tu as fait, et à gauche l’objectif de la prochaine fois.",
+      "caption": "Prochaine fois"
+    },
+    "done": {
+      "sets_one": "{{count}} série : {{values}} reps",
+      "sets_other": "{{count}} séries : {{values}} reps",
+      "rounds_one": "{{count}} tour : {{values}}",
+      "rounds_other": "{{count}} tours : {{values}}",
+      "ofTotal_one": "{{count}} série sur {{total}} : {{values}} reps",
+      "ofTotal_other": "{{count}} séries sur {{total}} : {{values}} reps",
+      "atLoad": "{{text}} à <b>{{load}}</b>",
+      "thenPain": "{{text}}, puis <b>douleur</b>",
+      "noEquipment_one": "<b>Pas de matériel aujourd’hui</b>, {{count}} série sur {{total}}",
+      "noEquipment_other": "<b>Pas de matériel aujourd’hui</b>, {{count}} séries sur {{total}}",
+      "pain": "<b>Douleur</b>"
+    },
+    "same": "= même",
+    "noLoad": "Sans lest",
+    "bodyweight": "Poids du corps",
+    "swapped": "Ton choix : {{name}} à la place.",
+    "oneOff": "C’était ponctuel : rien ne change.",
+    "notReached": "Pas fait cette fois : rien ne change.",
+    "deload": "Semaine de deload : rien ne bouge. Tes charges reprennent la semaine prochaine là où tu les as laissées.",
+    "peak": "Semaine pic : seules les hausses comptent, rien ne baisse.",
+    "buyNext": {
+      "one": "{{name}} est au maximum de ton matériel",
+      "many_one": "{{count}} exercice au maximum de ton matériel",
+      "many_other": "{{count}} exercices au maximum de ton matériel",
+      "cta": "Voir ce qu’il vaut la peine d’acheter"
+    }
+  },
+  "card": {
+    "question": {
+      "next": "Pour la suite ?",
+      "harder": "Prêt pour plus dur ?",
+      "easier": "Une version plus facile ?"
+    },
+    "kicker": {
+      "pain_one": "<b>Douleur</b>, {{count}} série sur {{total}} faite.",
+      "pain_other": "<b>Douleur</b>, {{count}} séries sur {{total}} faites.",
+      "painAgain_one": "<b>Douleur à nouveau</b>, {{count}} série sur {{total}} faite{{evenAt}}.",
+      "painAgain_other": "<b>Douleur à nouveau</b>, {{count}} séries sur {{total}} faites{{evenAt}}.",
+      "evenAt": ", même à {{load}}",
+      "noEquipment_one": "<b>Pas de matériel aujourd’hui</b>, {{count}} série sur {{total}}.",
+      "noEquipment_other": "<b>Pas de matériel aujourd’hui</b>, {{count}} séries sur {{total}}.",
+      "harder": "<b>{{summary}}</b>, au-delà de la fourchette, même au tempo lent.",
+      "easier": "Sous {{min}} <b>trois séances de suite</b>.",
+      "assisted": "<b>{{reps}}</b> à ta première séance, objectif {{goal}}.",
+      "generic": "Un changement est possible."
+    },
+    "inNext": "Dans ta prochaine séance.",
+    "swap": {
+      "title": "{{name}} à la place",
+      "titleForGood": "{{name}} à la place, pour de bon",
+      "sub": "Même mouvement, {{difference}}. Dans toutes tes séances, dès la prochaine.",
+      "subPlain": "Dans toutes tes séances, dès la prochaine.",
+      "subDifference": "{{difference}}. Dans toutes tes séances, dès la prochaine.",
+      "subHarder": "Objectif {{min}} pour commencer. Dans toutes tes séances.",
+      "subEasier": "Tu remonteras ensuite vers celle-ci.",
+      "subAssisted": "Avec ton élastique {{band}}. Puis un plus léger, puis sans aide."
+    },
+    "lighter": {
+      "title": "Le garder, plus léger",
+      "titleEasy": "Le garder, version plus facile",
+      "sub": "{{to}} au lieu de {{from}}. Pas de hausse avant 2 séances sans douleur.",
+      "subBand": "Élastique {{band}} au lieu de {{from}}. Pas de hausse avant 2 séances sans douleur.",
+      "subGoal": "Objectif {{goal}} pour l’instant. Pas de hausse avant 2 séances sans douleur.",
+      "subEasy": "Une version plus facile pour l’instant. Pas de hausse avant 2 séances sans douleur."
+    },
+    "keep": {
+      "title": "Le garder tel quel",
+      "sub": "{{load}}, objectif {{goal}}. Pas de hausse avant 2 séances sans douleur.",
+      "subLoad": "{{load}}. Pas de hausse avant 2 séances sans douleur.",
+      "subPlain": "Pas de hausse avant 2 séances sans douleur."
+    },
+    "oneOff": {
+      "title": "C’était ponctuel",
+      "sub": "Rien ne change."
+    },
+    "notNow": {
+      "title": "Pas maintenant",
+      "subHarder": "Même exercice, à {{goal}}.",
+      "sub": "Même exercice, même objectif."
+    },
+    "note": {
+      "pending": "Prochaine séance : <b>{{to}} au lieu de {{from}}</b> tant que tu n’as pas choisi.",
+      "pendingEasy": "Prochaine séance : <b>version plus facile</b> tant que tu n’as pas choisi.",
+      "care": "Si la douleur persiste, consulte un professionnel de santé.",
+      "noEquipment": "Sans réponse, c’est compté comme ponctuel."
+    },
+    "confirmed": {
+      "swapSub": "Remplace : {{old}}, dans toutes tes séances{{from}}. Tu peux revenir en arrière depuis la séance.",
+      "swapFrom": " dès la séance {{letter}}",
+      "lighterTitle": "Gardé, plus léger",
+      "lighterSub": "{{name}} : <b>{{to}}</b> la prochaine fois. Pas de hausse avant 2 séances sans douleur.",
+      "lighterSubPlain": "{{name}} : plus léger la prochaine fois. Pas de hausse avant 2 séances sans douleur.",
+      "keepTitle": "Gardé tel quel",
+      "keepSub": "{{name}} : {{load}}, objectif {{goal}}. Pas de hausse avant 2 séances sans douleur.",
+      "keepSubPlain": "{{name}} garde sa charge. Pas de hausse avant 2 séances sans douleur.",
+      "oneOffSub": "{{name}} reste dans tes séances. Rien ne change.",
+      "notNowHarder": "{{name}} reste à {{goal}}. On te reposera la question après deux autres séances au maximum.",
+      "notNowOther": "{{name}} reste comme avant. Si ça coince encore dans quelques séances, on te reposera la question."
+    },
+    "undo": "Annuler"
+  },
+  "programme": {
+    "nudge": {
+      "title": "Choix à faire",
+      "one": "{{name}} est dans ta prochaine séance.",
+      "names_one": "{{a}}, {{b}} et {{count}} autre",
+      "names_other": "{{a}}, {{b}} et {{count}} autres",
+      "label_one": "{{count}} choix à faire.",
+      "label_other": "{{count}} choix à faire."
+    },
+    "sheet": {
+      "title": "À toi de choisir",
+      "sub": "Ces changements d’exercice attendent ta réponse. Sans réponse, rien ne change.",
+      "close": "Fermer"
+    },
+    "equipmentNudge_one": "{{count}} exercice limité par ton matériel",
+    "equipmentNudge_other": "{{count}} exercices limités par ton matériel"
+  },
+  "detail": {
+    "unit": {
+      "setsReps": "séries × reps visées",
+      "setsRepsPerSide": "séries × reps visées, par côté",
+      "firstPlus": "série 1 + les suivantes, reps",
+      "firstPlusPerSide": "série 1 + les suivantes, reps par côté",
+      "setsTime": "séries × durée visée"
+    },
+    "perSetFacts": "Série 1 : <b>{{first}}</b> en réserve, puis {{rest}}",
+    "ruler": "objectif {{goal}}, fourchette {{min}} à {{max}}",
+    "tag": {
+      "kg": "{{value}} kg",
+      "reps_one": "{{count}} rep",
+      "reps_other": "{{count}} reps",
+      "seconds": "{{count}} s",
+      "slower": "Plus lent",
+      "heavier": "Plus fort",
+      "lighter": "Plus léger",
+      "moreHelp": "Plus d’aide",
+      "lessHelp": "Moins d’aide",
+      "added": "Lest",
+      "srUp": "En hausse :",
+      "srDown": "En baisse :"
+    },
+    "swap": {
+      "replacesPain": "Remplace : <b>{{old}}</b>, après la douleur du {{date}}.",
+      "replacesBand": "Remplace : <b>{{old}}</b>, jusqu’à ce que tu n’aies plus besoin de l’élastique.",
+      "replacesChoice": "Remplace : <b>{{old}}</b>, ton choix du {{date}}.",
+      "replaces": "Remplace : <b>{{old}}</b>.",
+      "switchBack": "Revenir à l’original",
+      "firstTime": "Première fois : charge de départ.",
+      "harderMissed": "Plus dur que prévu : sous {{min}}. Retour possible : {{old}}."
+    },
+    "dialog": {
+      "title": "Revenir à l’original ?",
+      "body": "{{old}} reprend sa place dans toutes tes séances{{at}}.",
+      "at": ", à {{load}}, objectif {{goal}}",
+      "atGoal": ", objectif {{goal}}",
+      "whyPain": " Tu l’avais remplacé après une douleur.",
+      "whyBand": " Tu l’avais remplacé pour t’aider avec un élastique.",
+      "whyChoice": " Tu l’avais remplacé de ton choix.",
+      "confirm": "Revenir à l’original",
+      "cancel": "Annuler"
+    },
+    "pendingPain": {
+      "text": "<b>Douleur</b> la dernière fois : {{to}} au lieu de {{from}} tant que tu n’as pas choisi.",
+      "textEasy": "<b>Douleur</b> la dernière fois : version plus facile tant que tu n’as pas choisi.",
+      "choose": "Choisir"
+    },
+    "notice": {
+      "eased": "<b>Bon retour.</b> {{days}} jours depuis ta dernière séance : objectifs 2 reps plus bas, mêmes charges.",
+      "stepped": "<b>Bon retour.</b> {{days}} jours depuis ta dernière séance : les charges reprennent un cran plus bas.",
+      "long": "<b>Bon retour.</b> Plus de 3 mois sans séance : la première séance sert à recaler tes charges."
+    }
+  },
+  "player": {
+    "unit": {
+      "inRange": "reps ({{min}}–{{max}})",
+      "inRangeSide": "reps, {{side}} ({{min}}–{{max}})",
+      "under": "reps, vers {{min}}–{{max}}",
+      "past": "reps, au-delà de {{min}}–{{max}}",
+      "holdInRange": "secondes ({{min}}–{{max}})",
+      "holdUnder": "secondes, vers {{min}}–{{max}}",
+      "holdPast": "secondes, au-delà de {{min}}–{{max}}"
+    },
+    "side": {
+      "left": "côté gauche",
+      "right": "côté droit"
+    },
+    "feelAsk": "Ressenti (à choisir)"
+  },
+  "notes": {
+    "noVoice": {
+      "row": "Aucune voix française sur ce téléphone : bips seulement. Tu peux en ajouter une dans les réglages du téléphone.",
+      "toast": "Pas de voix française sur ce téléphone : les bips restent actifs."
+    },
+    "export": {
+      "cancelled": "Export annulé : aucun fichier enregistré.",
+      "cancelledDue_one": "Export annulé. Ta dernière sauvegarde date toujours de {{count}} jour.",
+      "cancelledDue_other": "Export annulé. Ta dernière sauvegarde date toujours de {{count}} jours."
+    }
+  }
+}

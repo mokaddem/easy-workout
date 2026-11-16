@@ -92,7 +92,7 @@ export const pushExercises: readonly Exercise[] = [
     tags: ['compound'],
     equipment: [[]],
     loadType: 'bodyweight-loadable',
-    addedLoad: [{ kind: 'weight-belt' }, { kind: 'weight-vest' }],
+    addedLoad: [{ kind: 'weight-vest' }],
     metric: 'reps',
     unilateral: false,
     difficulty: 2,

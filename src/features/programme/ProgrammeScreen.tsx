@@ -1,6 +1,6 @@
 import { AnimatePresence, m } from 'motion/react';
-import { EXIT_RATIO, useMotionTokens } from '@/motion';
-import { useEffect, useState } from 'react';
+import { EXIT_RATIO, Reposition, useMotionTokens, type RepositionAnchor } from '@/motion';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveProgramme,
@@ -10,15 +10,19 @@ import {
   useSessionLogs,
 } from '@/app/data';
 import { nextSession, programmeFreshness } from '@/app/programme-state';
+import { usePendingProposals, usePreparedSession } from '@/app/progress';
 import { handleLinkClick, navigate, routeHref, type Route } from '@/app/router';
 import type { Language, Phase } from '@/domain';
-import { phaseForWeek, sessionForWeek } from '@/engine';
+import { phaseForWeek, sessionForWeek, type Proposal } from '@/engine';
 import { repo } from '@/db/repo';
 import { AppBar, Button, Card, Icon, Skeleton } from '@/ui/components';
 import { useBegin } from '../play/begin';
 import { ResumeBanner } from '../play/components/ResumeBanner';
 import { clearSummary } from '../play/lifecycle';
 import { startProgrammeSession } from '../play/start';
+import { exerciseName as adaptName } from '../adapt';
+import { exerciseIds, nudgeNames, orderProposals } from './adaptation';
+import { DecisionsNudge, DecisionsSheet } from './Decisions';
 import { ChangePreviewSheet } from './ChangePreviewSheet';
 import type { PreviewMode } from './preview';
 import {
@@ -54,8 +58,14 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const [phase, setPhase] = useState<Phase | null>(null);
   const [whyOpen, setWhyOpen] = useState(false);
   const tokens = useMotionTokens();
+  const nudgeAnchorRef = useRef<number | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const backup = useBackupReminder();
+  const [decisions, setDecisions] = useState<Proposal[] | null>(null);
+
+  const current = record ? nextSession(record, logs) : null;
+  const pending = usePendingProposals(record, current?.week);
+  const prepared = usePreparedSession(record, current?.sessionId, current?.week);
 
   // The preview URL only opens the sheet once.
   const [opened, setOpened] = useState(route.preview === 'new');
@@ -90,8 +100,37 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const notes = record.generation?.notes ?? [];
   const cardioDays = record.rotation.filter((_, i) => identities[i]!.cardio).length;
   const sessions = record.rotation.length - cardioDays;
-  const cardio = finisherCardio(plan.session);
-  const gaps = hasEquipmentGaps(notes);
+  const shown = prepared?.session ?? plan.session;
+  const cardio = finisherCardio(shown);
+  const buyNext = pending?.buyNext ?? [];
+  const gapCount = (hasEquipmentGaps(notes) ? equipmentGapCount(notes) : 0) + buyNext.length;
+  const gaps = gapCount > 0;
+  const inNext = prepared ? exerciseIds(prepared.session) : new Set<string>();
+  const ordered = orderProposals(pending?.proposals ?? [], inNext);
+  const nudgeText = nudgeNames(ordered, inNext, (id) => adaptName(id, lang));
+  const nudgeAnchor: RepositionAnchor = nudgeAnchorRef;
+  const equipmentNudge = gaps ? (
+    <Reposition anchorRef={nudgeAnchor}>
+      <a
+        className={styles.nudge}
+        href={routeHref({ name: 'equipment' })}
+        onClick={(event) => handleLinkClick(event, routeHref({ name: 'equipment' }))}
+      >
+        <span className={styles.well}>
+          <Icon name="bag" size={24} />
+        </span>
+        <span className={styles.nudgeText}>
+          <span className={styles.nudgeTitle}>
+            {buyNext.length > 0
+              ? t('adapt.programme.equipmentNudge', { count: gapCount })
+              : t('programme.nudge.title', { count: gapCount })}
+          </span>
+          <span className={styles.nudgeSub}>{t('programme.nudge.sub')}</span>
+        </span>
+        <Icon name="chev-right" size={20} />
+      </a>
+    </Reposition>
+  ) : null;
   const whyOnce = !record.whySeen;
   const openIsNext =
     openSession?.source.kind === 'programme' &&
@@ -170,7 +209,12 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
                 height: 0,
                 opacity: 0,
                 overflow: 'hidden',
-                transition: { duration: tokens.duration.base * EXIT_RATIO, ease: tokens.ease.exit },
+                transition: tokens.reduced
+                  ? {
+                      opacity: { duration: tokens.duration.fast, ease: tokens.ease.move },
+                      height: { duration: 0, delay: tokens.duration.fast },
+                    }
+                  : { duration: tokens.duration.base * EXIT_RATIO, ease: tokens.ease.exit },
               }}
             >
               <Card as="section" className={styles.card} aria-labelledby="why-card-title">
@@ -237,7 +281,12 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
                 height: 0,
                 opacity: 0,
                 overflow: 'hidden',
-                transition: { duration: tokens.duration.base * EXIT_RATIO, ease: tokens.ease.exit },
+                transition: tokens.reduced
+                  ? {
+                      opacity: { duration: tokens.duration.fast, ease: tokens.ease.move },
+                      height: { duration: 0, delay: tokens.duration.fast },
+                    }
+                  : { duration: tokens.duration.base * EXIT_RATIO, ease: tokens.ease.exit },
               }}
             >
               <BackupBanner state={backup} />
@@ -287,24 +336,31 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
           )}
         </section>
 
-        {gaps ? (
-          <a
-            className={styles.nudge}
-            href={routeHref({ name: 'equipment' })}
-            onClick={(event) => handleLinkClick(event, routeHref({ name: 'equipment' }))}
-          >
-            <span className={styles.well}>
-              <Icon name="bag" size={24} />
-            </span>
-            <span className={styles.nudgeText}>
-              <span className={styles.nudgeTitle}>
-                {t('programme.nudge.title', { count: equipmentGapCount(notes) })}
-              </span>
-              <span className={styles.nudgeSub}>{t('programme.nudge.sub')}</span>
-            </span>
-            <Icon name="chev-right" size={20} />
-          </a>
-        ) : null}
+        <AnimatePresence initial={false}>
+          {ordered.length > 0 ? (
+            <m.div
+              key="decisions"
+              exit={{
+                height: 0,
+                opacity: 0,
+                overflow: 'hidden',
+                transition: tokens.reduced
+                  ? {
+                      opacity: { duration: tokens.duration.fast, ease: tokens.ease.move },
+                      height: { duration: 0, delay: tokens.duration.fast },
+                    }
+                  : { duration: tokens.duration.base * EXIT_RATIO, ease: tokens.ease.exit },
+              }}
+            >
+              <DecisionsNudge
+                count={ordered.length}
+                text={nudgeText}
+                onOpen={() => setDecisions(ordered)}
+              />
+            </m.div>
+          ) : null}
+        </AnimatePresence>
+        {ordered.length === 0 ? equipmentNudge : null}
 
         <Card as="article" className={`${styles.card} ${styles.next}`}>
           <div>
@@ -318,14 +374,14 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
             <li>
               <Icon name="clock" size={20} />
               <span>
-                ~{plan.session.estimatedMinutes} {t('labels.unit.min')}
+                ~{shown.estimatedMinutes} {t('labels.unit.min')}
               </span>
             </li>
-            {exerciseCount(plan.session) > 0 ? (
+            {exerciseCount(shown) > 0 ? (
               <li>
                 <Icon name="list" size={20} />
                 <span>
-                  {t('programme.session.exercisesCount', { count: exerciseCount(plan.session) })}
+                  {t('programme.session.exercisesCount', { count: exerciseCount(shown) })}
                 </span>
               </li>
             ) : null}
@@ -362,6 +418,8 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
             {t('programme.next.details')}
           </Button>
         </Card>
+
+        {ordered.length > 0 ? equipmentNudge : null}
 
         <section className={styles.rot} aria-labelledby="rot-title">
           <div>
@@ -414,6 +472,13 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
         phase={phase}
         currentWeek={position.week}
         onClose={() => setPhase(null)}
+      />
+      <DecisionsSheet
+        proposals={decisions ?? []}
+        open={decisions !== null}
+        logs={logs}
+        inNext={inNext}
+        onClose={() => setDecisions(null)}
       />
       <ProgrammeWhySheet programme={record} open={whyOpen} onClose={() => setWhyOpen(false)} />
       {beginDialog}

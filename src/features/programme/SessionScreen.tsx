@@ -1,17 +1,37 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   useActiveProgramme,
+  useAnswers,
   useEquipment,
   useOpenSession,
   useProfile,
   useSessionLogs,
 } from '@/app/data';
 import { nextSession } from '@/app/programme-state';
+import { switchBack, useProgressContext, usePreparedSession } from '@/app/progress';
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
-import { phaseForWeek, sessionForWeek } from '@/engine';
-import { Button, Dock, EmptyState, Icon, IconButton, Skeleton } from '@/ui/components';
+import {
+  phaseForWeek,
+  prepareSession,
+  weekRole,
+  sessionForWeek,
+  setAdjustments,
+  type Proposal,
+} from '@/engine';
+import {
+  Button,
+  Dialog,
+  Dock,
+  EmptyState,
+  Icon,
+  IconButton,
+  Sheet,
+  Skeleton,
+} from '@/ui/components';
+import { ProposalCard, Rich, loadText, repsText, secondsText, tokenOf } from '../adapt';
+import { breakNotice, itemGoals, proposalFacts, swapAnswerFor } from './adaptation';
 import { useBegin } from '../play/begin';
 import { startProgrammeSession } from '../play/start';
 import { effortText } from './effort';
@@ -111,11 +131,52 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const equipment = useEquipment();
   const logs = useSessionLogs();
   const openSession = useOpenSession();
+  const answers = useAnswers();
+  const ctx = useProgressContext();
   const { begin, dialog: beginDialog } = useBegin();
+  const [choose, setChoose] = useState<Proposal | null>(null);
+  const [back, setBack] = useState<string | null>(null);
 
   const session = record?.rotation.find((s) => s.id === route.sessionId);
   const position = record ? nextSession(record, logs) : null;
   const week = record ? Math.min(Math.max(route.week ?? position?.week ?? 1, 1), record.weeks) : 1;
+  const prepared = usePreparedSession(record, session?.id, week);
+
+  // Goals set by set: an intensity week asks more of the first set.
+  const goals = useMemo(() => {
+    if (!record || !session || !prepared) return {};
+    const plan = sessionForWeek(record, session.id, week);
+    return itemGoals(
+      prepared.session,
+      setAdjustments({ ...plan, session: prepared.session }, equipment ?? []),
+    );
+  }, [record, session, prepared, week, equipment]);
+
+  // What the original exercise would be again: load and goal, for the switch-back dialog.
+  const original = useMemo(() => {
+    if (!back || !record || !session || !ctx) return undefined;
+    const plan = sessionForWeek(record, session.id, week);
+    const undone = {
+      ...ctx,
+      answers: [
+        ...ctx.answers,
+        {
+          id: 'preview',
+          exerciseId: back,
+          kind: 'harder' as const,
+          answer: 'back' as const,
+          at: ctx.now.toISOString(),
+        },
+      ],
+    };
+    const result = prepareSession(plan.session, undone, 'programme', {
+      role: weekRole(record, week),
+    });
+    for (const block of [...result.session.main, ...result.session.finisher])
+      for (const item of block.type === 'straight' ? [block.item] : block.items)
+        if (item.exerciseId === back) return item;
+    return undefined;
+  }, [back, record, session, ctx, week]);
 
   // Sessions that are the same every week (the cardio day) get no week ruler.
   const constant = useMemo(() => {
@@ -170,8 +231,17 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
       { replace: true },
     );
 
+  const brk = prepared ? breakNotice(prepared.notes) : undefined;
   const notices = (
     <>
+      {brk ? (
+        <p className={styles.flag}>
+          <Icon name="hourglass" size={20} />
+          <span>
+            <Rich text={t(`adapt.detail.notice.${brk.key}`, { days: brk.days })} />
+          </span>
+        </p>
+      ) : null}
       {profile && over >= 5 && !identity.cardio ? (
         <p className={styles.flag}>
           <Icon name="clock" size={20} />
@@ -249,7 +319,18 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
       </div>
       <div className={styles.scroll}>
         <SessionView
-          session={plan.session}
+          session={prepared?.session ?? plan.session}
+          {...(prepared && answers
+            ? {
+                adaptation: {
+                  prepared,
+                  goals,
+                  answers,
+                  onSwitchBack: setBack,
+                  onChoose: setChoose,
+                },
+              }
+            : {})}
           notes={record.generation?.notes ?? []}
           mode="programme"
           identity={identity}
@@ -293,8 +374,80 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
         </Dock>
       ) : null}
       {beginDialog}
+      <Sheet
+        open={choose !== null}
+        onClose={() => setChoose(null)}
+        title={t('adapt.programme.sheet.title')}
+        description={t('adapt.programme.sheet.sub')}
+        footer={
+          <Button variant="secondary" fullWidth onClick={() => setChoose(null)}>
+            {t('adapt.programme.sheet.close')}
+          </Button>
+        }
+      >
+        {choose ? (
+          <ProposalCard
+            key={`${choose.kind}:${choose.exerciseId}`}
+            proposal={choose}
+            variant="flat"
+            facts={proposalFacts(
+              choose,
+              logs?.find((l) => l.id === choose.logId),
+              true,
+            )}
+          />
+        ) : null}
+      </Sheet>
+      <Dialog
+        open={back !== null}
+        onClose={() => setBack(null)}
+        title={t('adapt.detail.dialog.title')}
+        description={back ? switchBackText(back) : undefined}
+        confirmLabel={t('adapt.detail.dialog.confirm')}
+        cancelLabel={t('adapt.detail.dialog.cancel')}
+        onConfirm={() => {
+          const id = back;
+          setBack(null);
+          if (id) void switchBack(id);
+        }}
+      />
     </>
   );
+
+  function switchBackText(id: string): string {
+    const item = original;
+    const target = item?.target;
+    const time = target?.kind === 'time';
+    const goal =
+      item === undefined
+        ? undefined
+        : (item.goal ??
+          (target?.kind === 'reps'
+            ? target.min
+            : target?.kind === 'time'
+              ? target.minSec
+              : undefined));
+    const goalText =
+      goal === undefined ? undefined : time ? secondsText(goal, lang) : repsText(t, goal);
+    const load =
+      item?.load && item.load.kind !== 'bodyweight'
+        ? loadText(t, lang, tokenOf(item.load))
+        : undefined;
+    const at =
+      goalText === undefined
+        ? ''
+        : load
+          ? t('adapt.detail.dialog.at', { load, goal: goalText })
+          : t('adapt.detail.dialog.atGoal', { goal: goalText });
+    const answer = answers ? swapAnswerFor(answers, id) : undefined;
+    const why =
+      answer?.kind === 'pain'
+        ? t('adapt.detail.dialog.whyPain')
+        : answer?.kind === 'assisted'
+          ? t('adapt.detail.dialog.whyBand')
+          : t('adapt.detail.dialog.whyChoice');
+    return t('adapt.detail.dialog.body', { old: exerciseName(id, lang), at }) + why;
+  }
 }
 
 const exerciseNameLower = (id: string, lang: Language) =>

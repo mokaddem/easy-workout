@@ -3,7 +3,8 @@ import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Flood } from '@/motion';
 import { updateSettings, useEquipment, useSettings } from '@/app/data';
-import { navigate } from '@/app/router';
+import { navigate, useLeaveGuard } from '@/app/router';
+import { useVoiceAvailable } from '@/features/settings/voices';
 import { useToast } from '@/ui/components';
 import type { Language, SessionLog } from '@/domain';
 import { activeSeconds } from '@/engine';
@@ -45,6 +46,7 @@ export function PlayerView({
   useWakeLock(state.phase.kind !== 'finished' && state.pausedAt === undefined);
   const step = currentStep(state);
   const finished = state.phase.kind === 'finished' || !step;
+  const voiceAvailable = useVoiceAvailable(lang);
 
   // The session clock moves on its own, between taps.
   const [tick, setTick] = useState(now);
@@ -65,9 +67,28 @@ export function PlayerView({
     void finish({ endedEarly: false }).then(onSummary);
   }, [finished, finish, onSummary]);
 
+  // Back (gesture, button or browser) asks what to do with the session instead of leaving it.
+  const paused = state.pausedAt !== undefined;
+  const pauseNow = player.pause;
+  // Closing or reloading the page loses nothing (the session resumes), so the browser isn't asked.
+  useLeaveGuard(
+    !finished && !closed,
+    (proceed) => {
+      if (leaving.current) {
+        proceed();
+        return;
+      }
+      if (!paused) pauseNow();
+      setLeaveOpen(true);
+    },
+    { unload: false },
+  );
+
   // The session was closed from elsewhere before it ended here.
   useEffect(() => {
-    if (closed && !finished && !leaving.current) navigate({ name: 'programme' }, { replace: true });
+    if (!closed || finished || leaving.current) return;
+    leaving.current = true;
+    navigate({ name: 'programme' }, { replace: true });
   }, [closed, finished]);
 
   if (finished || !step) return <div className={styles.root} />;
@@ -113,11 +134,18 @@ export function PlayerView({
   const ring = settings?.restDisplay === 'ring';
   const onVoice = () => {
     void updateSettings({ voice: !voiceOn });
-    toast.show({ message: t(voiceOn ? 'play.voiceOff' : 'play.voiceOn') });
+    toast.show({
+      message: t(
+        voiceOn
+          ? 'play.voiceOff'
+          : voiceAvailable === false
+            ? 'adapt.notes.noVoice.toast'
+            : 'play.voiceOn',
+      ),
+    });
   };
   const ctx = { lang, inventory, log, player, step };
   const phase = state.phase;
-  const paused = state.pausedAt !== undefined;
   const resting = phase.kind === 'pause' && !paused;
   const target = step.planned.target;
   const recovery =
@@ -144,14 +172,6 @@ export function PlayerView({
           onPause={player.resume}
         />
         <PausedScreen {...ctx} clock={clock} onLeave={() => setLeaveOpen(true)} />
-        <LeaveSheet
-          open={leaveOpen}
-          log={log}
-          onClose={() => setLeaveOpen(false)}
-          onPauseLeave={leave.pause}
-          onFinish={leave.finish}
-          onAbandon={leave.abandon}
-        />
       </>
     );
   } else if (resting && phase.pause.kind === 'side') {
@@ -223,6 +243,14 @@ export function PlayerView({
       <div className={styles.stage} data-stage={stage} key={stageKey}>
         {body}
       </div>
+      <LeaveSheet
+        open={leaveOpen}
+        log={log}
+        onClose={() => setLeaveOpen(false)}
+        onPauseLeave={leave.pause}
+        onFinish={leave.finish}
+        onAbandon={leave.abandon}
+      />
     </div>
   );
 }

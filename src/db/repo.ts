@@ -1,10 +1,12 @@
 import {
   setLogKey,
+  type Answer,
   type EquipmentInventory,
   type Language,
   type LiveClock,
   type Profile,
   type Programme,
+  type ProgressionNote,
   type Session,
   type SessionLog,
   type SessionSource,
@@ -68,6 +70,11 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     return db.programmes.where('status').equals('active').first();
   }
 
+  /** Every programme, archived ones included: their logs still count. */
+  function listProgrammes(): Promise<ProgrammeRecord[]> {
+    return db.programmes.toArray();
+  }
+
   /**
    * Makes `programme` the active one. The previous programme is kept as archived,
    * not deleted, so its history stays available.
@@ -125,7 +132,13 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
       source,
       plan,
       adjustments,
-    }: { source: SessionSource; plan: Session; adjustments?: SetAdjustments },
+      progression,
+    }: {
+      source: SessionSource;
+      plan: Session;
+      adjustments?: SetAdjustments;
+      progression?: Record<string, ProgressionNote>;
+    },
     now = new Date(),
   ): Promise<SessionLog> {
     return db.transaction('rw', db.sessionLogs, async () => {
@@ -136,6 +149,7 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
         source,
         plan,
         ...(adjustments && { adjustments }),
+        ...(progression && Object.keys(progression).length > 0 && { progression }),
         status: 'in-progress',
         startedAt: now.toISOString(),
         sets: [],
@@ -226,6 +240,22 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     );
   }
 
+  /** Every answer to a proposal, oldest first. */
+  function listAnswers(): Promise<Answer[]> {
+    return db.answers.orderBy('at').toArray();
+  }
+
+  async function saveAnswer(answer: Omit<Answer, 'id' | 'at'>, now = new Date()): Promise<Answer> {
+    const record = { ...answer, id: newLogId(now), at: now.toISOString() } as Answer;
+    await db.answers.add(record);
+    return record;
+  }
+
+  /** Undo: the answer never happened. */
+  async function deleteAnswer(id: string): Promise<void> {
+    await db.answers.delete(id);
+  }
+
   return {
     getProfile,
     saveProfile,
@@ -248,6 +278,10 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     finishSession,
     setCountsAsDone,
     abandonSession,
+    listProgrammes,
+    listAnswers,
+    saveAnswer,
+    deleteAnswer,
   };
 }
 

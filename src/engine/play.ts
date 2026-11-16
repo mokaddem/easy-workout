@@ -27,7 +27,9 @@ import {
   WARMUP_TRANSITION_SEC,
 } from './duration';
 import { equipmentCapabilities, usableSetups, type EquipmentCapabilities } from './equipment';
-import { ownedWeights, snapDown } from './generate/loads';
+import { FIXED_REP_EXERCISES } from './generate/dose';
+import { DEFAULT_BODYWEIGHT_KG, ownedWeights, snapDown } from './generate/loads';
+import { bodyShare, capacity, predictReps } from './progress/ladder';
 import type { WeekPlan } from './week';
 
 /** The prescription of one set, week changes included. */
@@ -92,17 +94,56 @@ function prescription(
 ): SetPrescription {
   let rir = item.rir;
   let load = item.load;
+  let goal = item.goal;
   if (adjustments && takesSetRir(section, item.target)) {
     if (set === 1 && adjustments.firstSetRir !== undefined) rir = adjustments.firstSetRir;
     else if (set === sets && adjustments.lastSetRir !== undefined) rir = adjustments.lastSetRir;
+    // A set closer to failure asks for as many more reps as it gives up in reserve, unless the
+    // rep count is the movement itself.
+    const fixed =
+      FIXED_REP_EXERCISES.has(item.exerciseId) ||
+      (item.target.kind === 'reps' && item.target.max <= 3);
+    if (goal !== undefined && item.rir !== undefined && rir !== undefined && !fixed)
+      goal = Math.max(1, goal + item.rir - rir);
     const backOff = adjustments.backOffLoads?.[itemKey(section, blockIndex, itemIndex)];
-    if (set > 1 && backOff) load = backOff;
+    if (set > 1 && backOff) {
+      load = backOff;
+      // A lighter back-off set aims for what the top set's goal predicts at its load.
+      const top = item.load;
+      const firstRir = adjustments.firstSetRir ?? item.rir;
+      if (
+        !fixed &&
+        item.goal !== undefined &&
+        item.target.kind === 'reps' &&
+        top?.kind === 'kg' &&
+        backOff.kind === 'kg' &&
+        item.rir !== undefined &&
+        firstRir !== undefined &&
+        rir !== undefined
+      ) {
+        // On the load moved: implements, plus the share of the body a leg move lifts.
+        const exercise = catalogueById.get(item.exerciseId);
+        const count =
+          exercise?.equipment[0]?.find((r) => r.kind === 'dumbbell' || r.kind === 'kettlebell')
+            ?.count ?? 1;
+        const body = exercise ? bodyShare(exercise, false) * DEFAULT_BODYWEIGHT_KG : 0;
+        const moved = (kg: number) => kg * count + body;
+        const topGoal = item.goal + item.rir - firstRir;
+        const predicted = predictReps(
+          capacity(moved(top.kg), topGoal, firstRir),
+          moved(backOff.kg),
+          rir,
+        );
+        goal = Math.min(item.target.max + 4, Math.max(item.target.min, predicted));
+      }
+    }
   }
   return {
     target: item.target,
     ...(load && { load }),
     ...(rir !== undefined && { rir }),
     ...(item.tempo && { tempo: item.tempo }),
+    ...(goal !== undefined && { goal }),
   };
 }
 
@@ -264,13 +305,14 @@ export function restOfExercise(steps: readonly PlayStep[], index: number): PlayS
 }
 
 /**
- * The value a set aims at today: the bottom of its range, so that one tap never claims more
- * than was planned. Undefined for targets without a single goal (as many as possible, cardio).
+ * The value a set aims at today: its goal, else the bottom of its range, so that one tap never
+ * claims more than was planned. Undefined for targets without a single goal (as many as
+ * possible, cardio).
  */
-export function setGoal(target: Target): number | undefined {
-  if (target.kind === 'reps') return target.min;
-  if (target.kind === 'time') return target.minSec;
-  return undefined;
+export function setGoal(planned: Pick<SetPrescription, 'target' | 'goal'>): number | undefined {
+  const { target } = planned;
+  if (target.kind !== 'reps' && target.kind !== 'time') return undefined;
+  return planned.goal ?? (target.kind === 'reps' ? target.min : target.minSec);
 }
 
 /**
@@ -278,7 +320,7 @@ export function setGoal(target: Target): number | undefined {
  * input (as many reps as possible) or a timer (cardio, intervals).
  */
 export function asPlanned(planned: SetPrescription): SetActual | undefined {
-  const goal = setGoal(planned.target);
+  const goal = setGoal(planned);
   if (goal === undefined) return undefined;
   const load = planned.load && { load: planned.load };
   return planned.target.kind === 'reps' ? { reps: goal, ...load } : { durationSec: goal, ...load };

@@ -1,4 +1,5 @@
 import { requestPersistence } from '@/app/backup';
+import { loadProgressContext } from '@/app/progress';
 import { nextSession } from '@/app/programme-state';
 import type { ProgrammeRecord } from '@/db';
 import { repo } from '@/db/repo';
@@ -6,24 +7,31 @@ import type { EquipmentInventory, Session, SessionLog } from '@/domain';
 import {
   countsAsDoneByDefault,
   playSteps,
+  prepareSession,
   resumeIndex,
   sessionForWeek,
   sessionTotals,
   setAdjustments,
+  weekRole,
 } from '@/engine';
 import { idleSince } from './usePlayer';
 
 /**
- * Opens the next session of the rotation with the week's changes resolved against the
- * equipment owned now. Throws `OpenSessionError` when a session is already open.
+ * Opens the next session of the rotation: the week's changes, swaps and each exercise's
+ * progression, resolved against the equipment owned now. The why of each change is kept on the
+ * log. Throws `OpenSessionError` when a session is already open.
  */
 export async function startProgrammeSession(
   programme: ProgrammeRecord,
   inventory: EquipmentInventory,
 ): Promise<SessionLog> {
-  const position = nextSession(programme, await repo.listSessionLogs());
+  const ctx = { ...(await loadProgressContext()), inventory };
+  const position = nextSession(programme, ctx.logs);
   const plan = sessionForWeek(programme, position.sessionId, position.week);
-  const adjustments = setAdjustments(plan, inventory);
+  const prepared = prepareSession(plan.session, ctx, 'programme', {
+    role: weekRole(programme, position.week),
+  });
+  const adjustments = setAdjustments({ ...plan, session: prepared.session }, inventory);
   return repo.startSession({
     source: {
       kind: 'programme',
@@ -31,8 +39,9 @@ export async function startProgrammeSession(
       week: position.week,
       sessionId: position.sessionId,
     },
-    plan: plan.session,
+    plan: prepared.session,
     ...(adjustments && { adjustments }),
+    progression: prepared.notes,
   });
 }
 

@@ -342,7 +342,8 @@
   line-height: 1.3;
   color: var(--color-text-muted);
 }
-.facts b {
+.facts b,
+.facts strong {
   color: var(--color-text);
   font-weight: var(--font-weight-bold);
 }

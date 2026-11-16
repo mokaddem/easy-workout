@@ -15,6 +15,8 @@ export interface SegmentedControlProps<T extends string> {
   onChange: (value: T) => void;
   /** Accessible name of the radio group. */
   label: string;
+  /** Nothing picked yet and a pick is wanted: outlined. */
+  ask?: boolean;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
   label,
+  ask,
   className,
 }: SegmentedControlProps<T>) {
   const labelId = useId();
@@ -54,7 +57,11 @@ export function SegmentedControl<T extends string>({
   }
 
   return (
-    <div role="radiogroup" aria-labelledby={labelId} className={cx(styles.seg, className)}>
+    <div
+      role="radiogroup"
+      aria-labelledby={labelId}
+      className={cx(styles.seg, ask && styles.ask, className)}
+    >
       <span id={labelId} className={styles.hidden}>
         {label}
       </span>

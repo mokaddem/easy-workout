@@ -48,3 +48,8 @@
   cursor: default;
   background: none;
 }
+
+.ask {
+  outline: 1.5px solid var(--color-line-strong);
+  outline-offset: -1.5px;
+}

@@ -7,13 +7,13 @@
   "minutesLabel_other": "{{count}} minutes",
   "focus": "Focus",
   "about": {
-    "full": "Full body : jambes, poussée, tirage et gainage.",
-    "upper": "Haut du corps : poussée et tirage, bras et épaules.",
-    "lower": "Bas du corps : cuisses, fessiers et mollets.",
-    "push": "Push : pectoraux, épaules et triceps.",
-    "pull": "Pull : dos, biceps et arrière des épaules.",
-    "core": "Gainage : abdominaux, obliques et bas du dos.",
-    "cardio": "Cardio : intervalles ou marche, selon ton matériel."
+    "full": "Full body : jambes, poussée, tirage et gainage.",
+    "upper": "Haut du corps : poussée et tirage, bras et épaules.",
+    "lower": "Bas du corps : cuisses, fessiers et mollets.",
+    "push": "Push : pectoraux, épaules et triceps.",
+    "pull": "Pull : dos, biceps et arrière des épaules.",
+    "core": "Gainage : abdominaux, obliques et bas du dos.",
+    "cardio": "Cardio : intervalles ou marche, selon ton matériel."
   },
   "equipment": "Matériel aujourd’hui",
   "allEquipment": "Tout mon matériel",
@@ -23,8 +23,8 @@
   "backToChoices": "Retour aux choix",
   "notSaved": "Pas enregistrée tant que tu ne la commences pas.",
   "shuffle": "Mélanger",
-  "shuffled_one": "Séance mélangée : {{count}} exercice a changé",
-  "shuffled_other": "Séance mélangée : {{count}} exercices ont changé",
+  "shuffled_one": "Séance mélangée : {{count}} exercice a changé",
+  "shuffled_other": "Séance mélangée : {{count}} exercices ont changé",
   "noOther": "Pas d’autre combinaison avec ce matériel.",
   "start": "Commencer"
 }

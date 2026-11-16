@@ -304,3 +304,7 @@ export function leftOpenTooLong(
   const last = Math.max(Date.parse(log.startedAt), ...log.sets.map((set) => Date.parse(set.at)));
   return now - last > OPEN_TOO_LONG_MS;
 }
+
+/** Keeps "8–12" on one line: the dash would otherwise be a place to wrap. */
+export const unbreakable = (text: string): string =>
+  text.replace(/(\d)–(\d)/g, '$1\u2060–\u2060$2');

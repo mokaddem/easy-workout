@@ -1,9 +1,10 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useEquipment, useOpenSession, useProfile } from '@/app/data';
+import { useProgressContext } from '@/app/progress';
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
-import { generateQuickSession, QUICK_FOCUSES, type QuickFocus } from '@/engine';
+import { generateQuickSession, prepareSession, QUICK_FOCUSES, type QuickFocus } from '@/engine';
 import { Button, Dock, Icon, IconButton, Skeleton, useToast } from '@/ui/components';
 import { useBegin } from '../play/begin';
 import { ResumeBanner } from '../play/components/ResumeBanner';
@@ -55,6 +56,15 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
           })
         : null,
     [composed, profile, inventory, choices.minutes, choices.focus, seed],
+  );
+  // Loads come from history: the latest weight each exercise was done at.
+  const progress = useProgressContext();
+  const prepared = useMemo(
+    () =>
+      current && progress
+        ? prepareSession(current.session, { ...progress, inventory }, 'quick').session
+        : null,
+    [current, progress, inventory],
   );
   const next = useMemo(
     () =>
@@ -193,6 +203,7 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
     );
   }
 
+  const shown = prepared ?? current.session;
   const noOther = changedExercises(current.session, next.session) === 0;
   const identity = {
     ...sessionIdentity(current.session, lang),
@@ -217,7 +228,7 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
       </div>
       <div key="session" className={`${styles.scroll} ${moved ? styles.enterForward : ''}`}>
         <SessionView
-          session={current.session}
+          session={shown}
           notes={current.notes}
           mode="quick"
           identity={identity}
@@ -245,7 +256,7 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
               icon="play"
               variant={openSession ? 'secondary' : 'primary'}
               onClick={() =>
-                void begin(() => startQuickSession(current.session), current.session.name[lang], {
+                void begin(() => startQuickSession(shown), current.session.name[lang], {
                   name: 'play',
                   source: 'quick',
                 })

@@ -1,3 +1,4 @@
+import { setGoal } from '@/engine';
 import { clockSeconds, currentStep, intervalClock, type PlayerState } from './machine';
 
 /**
@@ -89,8 +90,9 @@ function endOf(state: PlayerState): number {
   const phase = state.phase;
   if (phase.kind === 'pause' || phase.kind === 'lead-in') return phase.endsAt;
   if (phase.kind === 'timing') {
-    const target = currentStep(state)?.planned.target;
-    if (target?.kind === 'time') return phase.startedAt + target.maxSec * 1000;
+    const planned = currentStep(state)?.planned;
+    const target = planned?.target;
+    if (planned && target?.kind === 'time') return phase.startedAt + (setGoal(planned) ?? 0) * 1000;
     if (target?.kind === 'interval')
       return phase.startedAt + target.rounds * (target.workSec + target.recoverySec) * 1000;
   }

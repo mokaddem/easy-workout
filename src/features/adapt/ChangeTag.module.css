@@ -1,0 +1,27 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 0 8px 0 6px;
+  border: var(--border-control) solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: var(--font-weight-bold);
+  font-stretch: var(--font-width-label);
+  white-space: nowrap;
+}
+.icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

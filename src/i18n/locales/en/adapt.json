@@ -1,0 +1,370 @@
+{
+  "evidence": {
+    "prefix": "Last time, {{evidence}}.",
+    "reps_one": "{{count}} rep",
+    "reps_other": "{{count}} reps",
+    "same": "{{sets}} × {{reps}} at {{load}}",
+    "sameBare": "{{sets}} × {{reps}}",
+    "variedLoad": "{{values}} reps at {{load}}",
+    "variedBare_one": "{{count}} set: {{values}} reps",
+    "variedBare_other": "{{count}} sets: {{values}} reps",
+    "band": "{{evidence}} · {{band}}",
+    "holds": "{{sets}} × {{seconds}} s held",
+    "feelEasy": ", felt easy",
+    "feelHard": ", one set hard"
+  },
+  "why": {
+    "goalClause": ", goal {{goal}}",
+    "goalPart": ": goal {{goal}}",
+    "deltaPart": ", {{delta}}",
+    "capClause": ", up to {{cap}}",
+    "minFallback": "the bottom of the range",
+    "loadUp": {
+      "reason": "Top of the range: one step up{{goalClause}}.",
+      "chip": "New weight{{deltaPart}}{{goalPart}}. How did it feel?"
+    },
+    "loadUpLow": {
+      "reason": "Past the range: one step up. Goal {{goal}}, under the range while you get used to it.",
+      "reasonNoGoal": "Past the range: one step up, under the range while you get used to it.",
+      "chip": "New weight{{deltaPart}}: {{goal}} to start. How did it feel?"
+    },
+    "newWeight": "New weight: how did it feel?",
+    "newBand": "New band: how did it feel?",
+    "loadDown": {
+      "reason": "Under {{min}} twice in a row: one step down to build back up.",
+      "chip": "{{delta}}: under {{min}} twice in a row"
+    },
+    "repsUp": {
+      "reason": "Goal met: +1 rep.",
+      "reasonEasy": "Easy on every set: goal +2.",
+      "chip": "Goal {{goal}}: +1 rep",
+      "chipEasy": "Goal {{goal}}: +2 reps"
+    },
+    "hold": {
+      "reason": "One set short or felt hard: same goal."
+    },
+    "holdMiss": {
+      "reason": "Under {{min}}: same load, try again. Twice in a row and it drops a step.",
+      "reasonTime": "Under {{min}}: same goal, try again. Twice in a row and it comes down."
+    },
+    "holdPain": {
+      "reason": "No increase before 2 pain-free sessions ({{n}} of 2).",
+      "chip": "No increase after the pain. Stop if it comes back."
+    },
+    "painLighter": {
+      "reason": "Pain last time: {{to}} instead of {{from}} until you choose.",
+      "reasonNoFrom": "Pain last time: {{to}} until you choose.",
+      "reasonChosen": "Pain last time: {{to}}, no increase before 2 pain-free sessions.",
+      "reasonBodyweight": "Pain last time: an easier version until you choose.",
+      "reasonBodyweightChosen": "Pain last time: an easier version, no increase before 2 pain-free sessions.",
+      "chip": "{{to}} instead of {{from}} after last time’s pain. Stop if it comes back.",
+      "chipNoFrom": "{{to}} after last time’s pain. Stop if it comes back.",
+      "chipBodyweight": "Easier version after last time’s pain. Stop if it comes back."
+    },
+    "calibrated": {
+      "reason": "First session with this exercise: load adjusted to where you are.",
+      "chip": "{{delta}}: adjusted after your first session",
+      "chipNoDelta": "Adjusted after your first session"
+    },
+    "beyondRange": {
+      "reason": "No heavier weight within reach: the goal goes past the range{{capClause}}.",
+      "reasonBodyweight": "No load to add with your kit: the goal goes past the range{{capClause}}.",
+      "chip": "Goal {{goal}}, past the range"
+    },
+    "tempoSlower": {
+      "reason": "At the limit of your kit, past the range: {{down}} s on the way down, back to {{min}}.",
+      "chip": "Slower tempo: you’re at your kit’s top weight",
+      "chipDumbbell": "Slower tempo: you’re at your heaviest dumbbell"
+    },
+    "bandHeavier": {
+      "reason": "Past the range: heavier band, back to {{min}}.",
+      "chip": "New band, {{band}}: how did it feel?"
+    },
+    "bandHeavierAssisted": {
+      "reason": "Under {{min}} twice in a row: more help, {{band}} band.",
+      "chip": "More help: {{band}} band"
+    },
+    "bandLighterAssisted": {
+      "reason": "Top of the range: less help, {{band}} band{{goalClause}}.",
+      "chip": "Less help, {{band}} band: how did it feel?"
+    },
+    "bandLighter": {
+      "reason": "Under {{min}} twice in a row: lighter band to build back up.",
+      "chip": "Lighter band: under {{min}} twice"
+    },
+    "addedLoadStart": {
+      "reason": "Past the range with clean reps: {{to}} added{{implementClause}}, back to {{min}}.",
+      "implementClause": " ({{implement}})",
+      "chip": "Added load, +{{to}}: how did it feel?"
+    },
+    "welcomeBack": {
+      "reason": "Over 4 weeks without a session: one step lighter, back to {{min}}.",
+      "chip": "{{delta}}: back after {{days}} days",
+      "chipNoDelta": "Back after {{days}} days"
+    },
+    "goalEased": {
+      "reason": "{{days}} days without a session: goal 2 reps lower, same load.",
+      "reasonTime": "{{days}} days without a session: goal lower, same load.",
+      "chip": "Goal −2: back after {{days}} days",
+      "chipTime": "Lower goal: back after {{days}} days"
+    },
+    "loadSnapped": {
+      "reason": "Your equipment changed: {{from}} isn’t possible any more; {{to}} is the nearest below.",
+      "reasonNoFrom": "Your equipment changed: {{to}} is the nearest below.",
+      "chip": "{{to}}: your equipment changed"
+    },
+    "yourLoad": {
+      "reason": "You used {{to}} instead of {{from}}: the plan keeps your weight.",
+      "reasonNoFrom": "You used {{to}}: the plan keeps your weight.",
+      "chip": "{{to}}, the weight you used last time"
+    },
+    "workLonger": {
+      "reason": "Every round done: {{to}} of work, same recovery{{roundsClause}}.",
+      "roundsClause": ", {{rounds}} rounds to keep the same time",
+      "chip": "Work {{to}}: every round done last time"
+    },
+    "workShorter": {
+      "reason": "Rounds not all done twice in a row: {{to}} of work.",
+      "chip": "Work {{to}}: rounds not all done"
+    },
+    "fromHistory": {
+      "reason": "Carried over from earlier sessions: {{evidence}} on {{date}}.",
+      "reasonShort": "Carried over from earlier sessions.",
+      "chip": "{{to}}, from your history",
+      "chipNoLoad": "From your history"
+    },
+    "buyNext": {
+      "reason": "At the limit of your kit, even at the slow tempo. A heavier weight would let it progress."
+    },
+    "ladderEnd": {
+      "reason": "At the limit of this exercise, even at the slow tempo: a harder version may suit you."
+    },
+    "confirmNewLoad": {
+      "reason": "New weight: same goal, to confirm it before going up."
+    },
+    "timeUp": {
+      "reason": "Goal met: +{{delta}} s.",
+      "chip": "Goal {{goal}}: +{{delta}} s"
+    },
+    "timeDown": {
+      "reason": "Under {{min}} twice in a row: goal brought down to {{to}}.",
+      "chip": "Goal {{to}}: under {{min}} twice"
+    },
+    "swappedIn": {
+      "reason": "First time: starting load."
+    }
+  },
+  "summary": {
+    "decisions": {
+      "title": "Your call",
+      "sub_one": "One exercise was stopped. Your answer shapes the next sessions.",
+      "sub_other": "{{count}} exercises were stopped. Your answer shapes the next sessions.",
+      "subChanges": "These exercise changes need your answer."
+    },
+    "list": {
+      "title": "Exercise by exercise",
+      "sub": "What you did, and next time’s goal on the left.",
+      "caption": "Next time"
+    },
+    "done": {
+      "sets_one": "{{count}} set: {{values}} reps",
+      "sets_other": "{{count}} sets: {{values}} reps",
+      "rounds_one": "{{count}} round: {{values}}",
+      "rounds_other": "{{count}} rounds: {{values}}",
+      "ofTotal_one": "{{count}} of {{total}} sets: {{values}} reps",
+      "ofTotal_other": "{{count}} of {{total}} sets: {{values}} reps",
+      "atLoad": "{{text}} at <b>{{load}}</b>",
+      "thenPain": "{{text}}, then <b>pain</b>",
+      "noEquipment_one": "<b>No equipment today</b>, {{count}} of {{total}} sets",
+      "noEquipment_other": "<b>No equipment today</b>, {{count}} of {{total}} sets",
+      "pain": "<b>Pain</b>"
+    },
+    "same": "= same",
+    "noLoad": "No added load",
+    "bodyweight": "Bodyweight",
+    "swapped": "Your call: {{name}} instead.",
+    "oneOff": "A one-off: nothing changes.",
+    "notReached": "Not done this time: nothing changes.",
+    "deload": "Deload week: nothing moves. Your loads pick up next week where you left them.",
+    "peak": "Peak week: only increases count, nothing goes down.",
+    "buyNext": {
+      "one": "{{name}} is at the limit of your kit",
+      "many_one": "{{count}} exercise at the limit of your kit",
+      "many_other": "{{count}} exercises at the limit of your kit",
+      "cta": "See what is worth buying next"
+    }
+  },
+  "card": {
+    "question": {
+      "next": "What next?",
+      "harder": "Ready for harder?",
+      "easier": "An easier version?"
+    },
+    "kicker": {
+      "pain_one": "<b>Pain</b>, {{count}} of {{total}} sets done.",
+      "pain_other": "<b>Pain</b>, {{count}} of {{total}} sets done.",
+      "painAgain_one": "<b>Pain again</b>, {{count}} of {{total}} sets done{{evenAt}}.",
+      "painAgain_other": "<b>Pain again</b>, {{count}} of {{total}} sets done{{evenAt}}.",
+      "evenAt": ", even at {{load}}",
+      "noEquipment_one": "<b>No equipment today</b>, {{count}} of {{total}} sets.",
+      "noEquipment_other": "<b>No equipment today</b>, {{count}} of {{total}} sets.",
+      "harder": "<b>{{summary}}</b>, past the range, even at the slow tempo.",
+      "easier": "Under {{min}} <b>three sessions running</b>.",
+      "assisted": "<b>{{reps}}</b> in your first session, goal {{goal}}.",
+      "generic": "A change is possible."
+    },
+    "inNext": "In your next session.",
+    "swap": {
+      "title": "{{name}} instead",
+      "titleForGood": "{{name}} instead, for good",
+      "sub": "Same movement, {{difference}}. In every session, from the next one.",
+      "subPlain": "In every session, from the next one.",
+      "subDifference": "{{difference}}. In every session, from the next one.",
+      "subHarder": "Goal {{min}} to start. In every session.",
+      "subEasier": "You’ll work back up to this one from there.",
+      "subAssisted": "With your {{band}} band. Then a lighter band, then no help."
+    },
+    "lighter": {
+      "title": "Keep it, lighter",
+      "titleEasy": "Keep it, easier version",
+      "sub": "{{to}} instead of {{from}}. No increase before 2 pain-free sessions.",
+      "subBand": "{{band}} band instead of {{from}}. No increase before 2 pain-free sessions.",
+      "subGoal": "Goal {{goal}} for now. No increase before 2 pain-free sessions.",
+      "subEasy": "An easier version for now. No increase before 2 pain-free sessions."
+    },
+    "keep": {
+      "title": "Keep it as it is",
+      "sub": "{{load}}, goal {{goal}}. No increase before 2 pain-free sessions.",
+      "subLoad": "{{load}}. No increase before 2 pain-free sessions.",
+      "subPlain": "No increase before 2 pain-free sessions."
+    },
+    "oneOff": {
+      "title": "It was a one-off",
+      "sub": "Nothing changes."
+    },
+    "notNow": {
+      "title": "Not now",
+      "subHarder": "Same exercise, at {{goal}}.",
+      "sub": "Same exercise, same goal."
+    },
+    "note": {
+      "pending": "Next session: <b>{{to}} instead of {{from}}</b> until you choose.",
+      "pendingEasy": "Next session: <b>an easier version</b> until you choose.",
+      "care": "If the pain persists, see a health professional.",
+      "noEquipment": "If you don’t answer, it counts as a one-off."
+    },
+    "confirmed": {
+      "swapSub": "Replaces: {{old}}, in every session{{from}}. You can switch back from the session.",
+      "swapFrom": " from session {{letter}}",
+      "lighterTitle": "Kept, lighter",
+      "lighterSub": "{{name}}: <b>{{to}}</b> next time. No increase before 2 pain-free sessions.",
+      "lighterSubPlain": "{{name}}: lighter next time. No increase before 2 pain-free sessions.",
+      "keepTitle": "Kept as it is",
+      "keepSub": "{{name}}: {{load}}, goal {{goal}}. No increase before 2 pain-free sessions.",
+      "keepSubPlain": "{{name}} keeps its load. No increase before 2 pain-free sessions.",
+      "oneOffSub": "{{name}} stays in your sessions. Nothing changes.",
+      "notNowHarder": "{{name}} stays at {{goal}}. We’ll ask again after two more sessions at the top.",
+      "notNowOther": "{{name}} stays as it is. If it’s still hard after a few sessions, we’ll ask again."
+    },
+    "undo": "Undo"
+  },
+  "programme": {
+    "nudge": {
+      "title": "Decisions to make",
+      "one": "{{name}} is in your next session.",
+      "names_one": "{{a}}, {{b}} and {{count}} more",
+      "names_other": "{{a}}, {{b}} and {{count}} more",
+      "label_one": "{{count}} decision to make.",
+      "label_other": "{{count}} decisions to make."
+    },
+    "sheet": {
+      "title": "Your call",
+      "sub": "These exercise changes need your answer. Without one, nothing changes.",
+      "close": "Close"
+    },
+    "equipmentNudge_one": "{{count}} exercise held back by your kit",
+    "equipmentNudge_other": "{{count}} exercises held back by your kit"
+  },
+  "detail": {
+    "unit": {
+      "setsReps": "sets × target reps",
+      "setsRepsPerSide": "sets × target reps, per side",
+      "firstPlus": "set 1 + the others, reps",
+      "firstPlusPerSide": "set 1 + the others, reps per side",
+      "setsTime": "sets × target time"
+    },
+    "perSetFacts": "Set 1: <b>{{first}}</b> in the tank, then {{rest}}",
+    "ruler": "goal {{goal}}, range {{min}} to {{max}}",
+    "tag": {
+      "kg": "{{value}} kg",
+      "reps_one": "{{count}} rep",
+      "reps_other": "{{count}} reps",
+      "seconds": "{{count}} s",
+      "slower": "Slower",
+      "heavier": "Heavier",
+      "lighter": "Lighter",
+      "moreHelp": "More help",
+      "lessHelp": "Less help",
+      "added": "Added load",
+      "srUp": "Up:",
+      "srDown": "Down:"
+    },
+    "swap": {
+      "replacesPain": "Replaces: <b>{{old}}</b>, after the pain on {{date}}.",
+      "replacesBand": "Replaces: <b>{{old}}</b>, until you no longer need the band.",
+      "replacesChoice": "Replaces: <b>{{old}}</b>, your choice on {{date}}.",
+      "replaces": "Replaces: <b>{{old}}</b>.",
+      "switchBack": "Switch back to the original",
+      "firstTime": "First time: starting load.",
+      "harderMissed": "Harder than expected: under {{min}}. You can switch back to {{old}}."
+    },
+    "dialog": {
+      "title": "Switch back to the original?",
+      "body": "{{old}} takes its place again in every session{{at}}.",
+      "at": ", at {{load}}, goal {{goal}}",
+      "atGoal": ", goal {{goal}}",
+      "whyPain": " You replaced it after a pain.",
+      "whyBand": " You replaced it to get help from a band.",
+      "whyChoice": " You replaced it by choice.",
+      "confirm": "Switch back",
+      "cancel": "Cancel"
+    },
+    "pendingPain": {
+      "text": "<b>Pain</b> last time: {{to}} instead of {{from}} until you choose.",
+      "textEasy": "<b>Pain</b> last time: an easier version until you choose.",
+      "choose": "Choose"
+    },
+    "notice": {
+      "eased": "<b>Welcome back.</b> {{days}} days since your last session: goals 2 reps lower, same loads.",
+      "stepped": "<b>Welcome back.</b> {{days}} days since your last session: loads restart one step lower.",
+      "long": "<b>Welcome back.</b> Over 3 months without a session: your first session resets your loads."
+    }
+  },
+  "player": {
+    "unit": {
+      "inRange": "reps ({{min}}–{{max}})",
+      "inRangeSide": "reps, {{side}} ({{min}}–{{max}})",
+      "under": "reps, toward {{min}}–{{max}}",
+      "past": "reps, past {{min}}–{{max}}",
+      "holdInRange": "seconds ({{min}}–{{max}})",
+      "holdUnder": "seconds, toward {{min}}–{{max}}",
+      "holdPast": "seconds, past {{min}}–{{max}}"
+    },
+    "side": {
+      "left": "left side",
+      "right": "right side"
+    },
+    "feelAsk": "Feel (pick one)"
+  },
+  "notes": {
+    "noVoice": {
+      "row": "No English voice on this phone, so beeps only. You can add one in the phone’s settings.",
+      "toast": "No English voice on this phone: beeps stay on."
+    },
+    "export": {
+      "cancelled": "Export cancelled: no file saved.",
+      "cancelledDue_one": "Export cancelled. Your last backup is still {{count}} day old.",
+      "cancelledDue_other": "Export cancelled. Your last backup is still {{count}} days old."
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type {
+  Answer,
   CheckIn,
   DateTimeSchema,
   EquipmentItem,
@@ -33,6 +34,7 @@ export class WorkoutDatabase extends Dexie {
   sessionLogs!: EntityTable<SessionLog, 'id'>;
   checkIns!: EntityTable<CheckIn, 'id'>;
   maxTests!: EntityTable<MaxTest, 'id'>;
+  answers!: EntityTable<Answer, 'id'>;
 
   constructor(name = 'easy-workout') {
     super(name);
@@ -46,6 +48,7 @@ export class WorkoutDatabase extends Dexie {
       checkIns: 'id, date',
       maxTests: 'id, date, exerciseId',
     });
+    this.version(2).stores({ answers: 'id, exerciseId, at' });
   }
 }
 

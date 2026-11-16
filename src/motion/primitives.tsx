@@ -1,5 +1,5 @@
-import { type ReactNode } from 'react';
-import { AnimatePresence, m, usePresence } from 'motion/react';
+import { useLayoutEffect, useRef, useState, type MutableRefObject, type ReactNode } from 'react';
+import { AnimatePresence, animate, m, usePresence } from 'motion/react';
 import { EXIT_RATIO, useMotionTokens } from './tokens';
 
 interface RollProps {
@@ -246,5 +246,112 @@ export function Flood({ origin, onSettled }: FloodProps) {
         if (present) onSettled?.();
       }}
     />
+  );
+}
+
+interface SwapProps {
+  /** Identity of the content; a change cross-fades and the height follows the new content. */
+  id: string | number;
+  className?: string;
+  /** Layout of the content itself (it sits in a wrapper that changes with the id). */
+  innerClassName?: string;
+  children: ReactNode;
+}
+
+/**
+ * A card whose content changes state: the old content fades out, the new one fades in, and the
+ * height animates between the two over `base`, `move`. Under reduced motion the height jumps and
+ * only the cross-fade (`fast`) remains.
+ */
+export function Swap({ id, className, innerClassName, children }: SwapProps) {
+  const t = useMotionTokens();
+  const [height, setHeight] = useState<number | undefined>();
+  const observer = useRef<ResizeObserver | null>(null);
+  const measure = (node: HTMLDivElement | null) => {
+    // A leaving child detaches (null) after the new one has attached: keep observing the new one.
+    if (!node) return;
+    observer.current?.disconnect();
+    setHeight(node.offsetHeight);
+    if (typeof ResizeObserver === 'undefined') return;
+    observer.current = new ResizeObserver(() => setHeight(node.offsetHeight));
+    observer.current.observe(node);
+  };
+  useLayoutEffect(() => () => observer.current?.disconnect(), []);
+  return (
+    <m.div
+      className={className}
+      style={{ position: 'relative', overflow: 'hidden' }}
+      initial={false}
+      animate={{
+        height: height ?? 'auto',
+        transition: t.reduced ? { duration: 0 } : { duration: t.duration.base, ease: t.ease.move },
+      }}
+    >
+      <AnimatePresence initial={false} mode="popLayout">
+        <m.div
+          key={id}
+          ref={measure}
+          className={innerClassName}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: { duration: t.duration.fast, ease: t.ease.move } }}
+          exit={{
+            opacity: 0,
+            transition: { duration: t.duration.fast * EXIT_RATIO, ease: t.ease.exit },
+          }}
+        >
+          {children}
+        </m.div>
+      </AnimatePresence>
+    </m.div>
+  );
+}
+
+/** Where a repositioned element was last seen (viewport top), shared by its two homes. */
+export type RepositionAnchor = MutableRefObject<number | null>;
+
+/**
+ * An element that moves to another place in the layout (it is unmounted in one slot and mounted
+ * in the other): on arrival it starts from where it was and glides to its new place over `base`,
+ * `move`. Under reduced motion it simply appears there.
+ */
+export function Reposition({
+  anchorRef,
+  className,
+  children,
+}: {
+  anchorRef: RepositionAnchor;
+  className?: string;
+  children: ReactNode;
+}) {
+  const t = useMotionTokens();
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const from = anchorRef.current;
+    anchorRef.current = null;
+    const top = el.getBoundingClientRect().top;
+    let controls: { stop: () => void } | undefined;
+    if (from !== null && !t.reduced && Math.abs(from - top) > 1) {
+      controls = animate(
+        el,
+        { y: [from - top, 0] },
+        {
+          duration: t.duration.base,
+          ease: t.ease.move,
+        },
+      );
+    }
+    return () => {
+      controls?.stop();
+      anchorRef.current = el.getBoundingClientRect().top;
+    };
+    // The motion plays once per arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
   );
 }

@@ -176,8 +176,8 @@ describe('stopping an exercise', () => {
 });
 
 describe('timed sets', () => {
-  it('counts down a hold from the top of its range after a lead-in', () => {
-    const hold = item('plank', { target: { kind: 'time', minSec: 30, maxSec: 45 } });
+  it('counts down a hold from its goal after a lead-in', () => {
+    const hold = item('plank', { target: { kind: 'time', minSec: 30, maxSec: 45 }, goal: 45 });
     const p = run(playerFromLog(logOf(plan([straight(hold, 2, 30)])), T0));
     expect(logAsPlanned(p.get(), sec(0))).not.toBeNull(); // timed by hand is allowed
     p.apply(startTimer(p.get(), sec(0)));
@@ -200,10 +200,29 @@ describe('timed sets', () => {
     expect(p.sets[0]!.actual).toEqual({ durationSec: 20 });
   });
 
+  it('counts a hold without a goal down from the bottom of its range', () => {
+    const hold = item('plank', { target: { kind: 'time', minSec: 30, maxSec: 45 } });
+    const p = run(playerFromLog(logOf(plan([straight(hold, 1, 0)])), T0));
+    p.apply(startTimer(p.get(), sec(0)));
+    p.apply(tick(p.get(), sec(60)));
+    expect(p.sets[0]!.actual).toEqual({ durationSec: 30 });
+  });
+
+  it('counts a hold with a goal down from the goal', () => {
+    const hold = item('plank', { target: { kind: 'time', minSec: 30, maxSec: 45 }, goal: 35 });
+    const p = run(playerFromLog(logOf(plan([straight(hold, 1, 0)])), T0));
+    p.apply(startTimer(p.get(), sec(0)));
+    p.apply(tick(p.get(), sec(LEAD_IN_SEC)));
+    expect(clockSeconds(p.get(), sec(LEAD_IN_SEC))).toBe(35);
+    p.apply(tick(p.get(), sec(60)));
+    expect(p.sets[0]!.actual).toEqual({ durationSec: 35 });
+  });
+
   it('runs straight into the second side of a timed per-side hold', () => {
     const hold = item('side-plank', {
       target: { kind: 'time', minSec: 20, maxSec: 30 },
       perSide: true,
+      goal: 30,
     });
     const p = run(playerFromLog(logOf(plan([straight(hold, 1, 0)])), T0));
     p.apply(startTimer(p.get(), sec(0)));

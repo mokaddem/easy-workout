@@ -31,8 +31,8 @@
     "minutesLess": "5 minutes de moins",
     "minutesMore": "5 minutes de plus",
     "week": "Ta semaine",
-    "noFixedDays": "Pas de jour fixe : tu fais la suivante quand tu peux.",
-    "short": "Moins de 30 min : chaque séance travaille tout le corps.",
+    "noFixedDays": "Pas de jour fixe : tu fais la suivante quand tu peux.",
+    "short": "Moins de 30 min : chaque séance travaille tout le corps.",
     "desc": {
       "2": "Deux séances complètes qui alternent.",
       "3": "Trois séances complètes qui alternent.",
@@ -45,7 +45,7 @@
   "equipment": {
     "title": "Ton matériel",
     "intro": "Coche ce que tu as et règle-le comme chez toi. Les charges proposées partent de là.",
-    "none": "Rien à cocher ? Les séances se font alors au poids du corps, avec une chaise, un mur et une porte.",
+    "none": "Rien à cocher ? Les séances se font alors au poids du corps, avec une chaise, un mur et une porte.",
     "count": "exercices possibles"
   },
   "bodyweight": {
@@ -83,7 +83,7 @@
   "generating": {
     "title": "On construit ton programme",
     "weeks": "semaines",
-    "split": "Répartition : {{split}}",
+    "split": "Répartition : {{split}}",
     "exercises": "Exercices choisis parmi les {{count}} permis par ton matériel",
     "loads": "Charges de départ pour {{kg}} kg",
     "loadsDefault": "Charges de départ estimées",

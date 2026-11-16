@@ -9,4 +9,7 @@ export {
   Tick,
   Pulse,
   Flood,
+  Swap,
+  Reposition,
+  type RepositionAnchor,
 } from './primitives';

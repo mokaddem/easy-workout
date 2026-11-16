@@ -1,0 +1,204 @@
+.body {
+  display: grid;
+  gap: 14px;
+}
+.bodyDone {
+  gap: 0;
+}
+.pc {
+  padding: var(--space-4);
+}
+.flat {
+  padding: 20px 0;
+  border-top: var(--border-hairline) solid var(--color-line);
+}
+.head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.headText {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding-top: 1px;
+}
+.name {
+  margin: 0;
+  font-size: var(--type-headline-size);
+  line-height: 1.15;
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+  text-wrap: balance;
+}
+.kick {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+.kick strong {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+.painKick strong {
+  color: var(--color-danger-text);
+}
+.well {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.wellPain {
+  background: var(--color-danger-tint);
+  color: var(--color-danger-text);
+}
+.wellDone {
+  background: var(--color-complete);
+  color: var(--color-on-complete);
+}
+/* The check draws itself in; under reduced motion it fades in instead. */
+.wellDone path {
+  stroke-dasharray: 30;
+  animation: check-draw var(--duration-fast) var(--ease-snap) backwards;
+}
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 30;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wellDone path {
+    stroke-dasharray: none;
+    animation: check-fade var(--duration-fast) var(--ease-move) backwards;
+  }
+  @keyframes check-fade {
+    from {
+      opacity: 0;
+    }
+  }
+}
+.answers {
+  display: grid;
+  gap: var(--space-2);
+}
+.ans {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 14px;
+  border: var(--border-control) solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--duration-instant) var(--ease-snap),
+    background-color var(--duration-fast) var(--ease-move);
+}
+.ans > svg {
+  color: var(--color-text-muted);
+}
+.ans:active {
+  background: var(--color-press-overlay);
+  transform: scale(var(--motion-scale-press));
+}
+.ans:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.ans:disabled {
+  opacity: 0.6;
+}
+.ansText {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.ansTitle {
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: var(--font-weight-bold);
+  font-stretch: var(--font-width-label);
+}
+.ansSub {
+  font-size: var(--type-meta-size);
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+.note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.note > svg {
+  margin-top: 0;
+  color: var(--color-text-subtle);
+}
+.note strong {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+.noteNow {
+  color: var(--color-text);
+}
+.noteNow > svg {
+  color: var(--color-text-muted);
+}
+.care {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+.care > svg {
+  color: var(--color-text);
+}
+.confirmed {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.confirmedText {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.confirmedTitle {
+  margin: 0;
+  font-size: var(--font-size-18);
+  line-height: 1.25;
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.confirmedSub {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.confirmedSub strong {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+.undo {
+  justify-self: start;
+  margin-left: -12px;
+}

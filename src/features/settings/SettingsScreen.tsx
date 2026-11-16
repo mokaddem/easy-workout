@@ -8,6 +8,7 @@ import { Card, Dialog, ListRow, SegmentedControl, SwitchRow } from '@/ui/compone
 import { canVibrate } from '../play/signals';
 import { RestPicker } from './RestPicker';
 import { profileSummary } from './summary';
+import { useVoiceAvailable } from './voices';
 import styles from './SettingsScreen.module.css';
 
 const LANGUAGES = [
@@ -17,6 +18,7 @@ const LANGUAGES = [
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
+  const voiceAvailable = useVoiceAvailable(i18n.language === 'fr' ? 'fr' : 'en');
   const settings = useSettings();
   const profile = useProfile();
   const equipment = useEquipment();
@@ -82,7 +84,11 @@ export function SettingsScreen() {
             checked={settings?.voice ?? true}
             onChange={(voice) => void updateSettings({ voice })}
             title={t('settings.during.voice')}
-            meta={t('settings.during.voiceMeta')}
+            meta={
+              voiceAvailable === false
+                ? t('adapt.notes.noVoice.row')
+                : t('settings.during.voiceMeta')
+            }
           />
           <SwitchRow
             checked={settings?.sounds ?? true}

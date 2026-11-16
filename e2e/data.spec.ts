@@ -44,6 +44,20 @@ test('exporting a backup downloads a file and updates the last backup', async ({
   await expect(page.getByRole('status').filter({ hasText: 'Backup exported' })).toBeVisible();
 });
 
+test('cancelling the share sheet says so and records no backup', async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.canShare = () => true;
+    navigator.share = () => Promise.reject(new DOMException('cancelled', 'AbortError'));
+  });
+  await seedSetup(page, reference);
+  await page.goto('/settings/data');
+  await page.getByRole('button', { name: 'Export a backup' }).click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Export cancelled: no file saved.' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('last-backup')).toHaveText('Never');
+});
+
 test('exporting the sets as CSV downloads a file and is not a backup', async ({ page }) => {
   await seedSetup(page, reference);
   await page.goto('/settings/data');

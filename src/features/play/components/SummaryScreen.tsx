@@ -1,19 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tick } from '@/motion';
-import { useActiveProgramme, useEquipment, useSessionLog, useSessionLogs } from '@/app/data';
+import {
+  useActiveProgramme,
+  useAnswers,
+  useEquipment,
+  useProgrammes,
+  useSessionLog,
+  useSessionLogs,
+} from '@/app/data';
+import { useNextTime } from '@/app/progress';
 import { nextSession } from '@/app/programme-state';
 import { navigate } from '@/app/router';
-import { exerciseById } from '@/catalogue';
 import { repo } from '@/db/repo';
 import type { Language, SessionLog } from '@/domain';
-import { activeSeconds, playSteps, sessionTotals } from '@/engine';
+import { activeSeconds, phaseForWeek, sessionTotals, type Proposal } from '@/engine';
 import { Button, Card, Icon, SetStrip, SwitchRow } from '@/ui/components';
 import { BackupLine } from '../../settings/BackupBanner';
 import { useBackupReminder } from '../../settings/useBackupReminder';
 import { programmeIdentities } from '../../programme/format';
-import { durationParts, exerciseLabel, glyphOf, numberText, stripGroups } from '../format';
+import { durationParts, numberText, stripGroups } from '../format';
 import { clearSummary } from '../lifecycle';
+import { Decisions } from './summary/Decisions';
+import { ExerciseList, type ListMode } from './summary/ExerciseList';
+import { mainExercises } from './summary/rows';
+import { useLeaveOneOffs } from './summary/useOneOffs';
 import styles from './Summary.module.css';
 
 /** The end of a session: how long, how much, and whether it counts. Reads the stored log. */
@@ -30,27 +41,6 @@ export function SummaryScreen({ id }: { id: string }) {
   return <Summary log={log} />;
 }
 
-/** Sets of one stopped exercise: performed over planned. */
-function stoppedCounts(log: SessionLog, exerciseId: string): { done: number; total: number } {
-  const flagged = log.sets.find(
-    (set) => set.flag && set.flag !== 'skipped' && set.exerciseId === exerciseId,
-  );
-  if (!flagged) return { done: 0, total: 0 };
-  const same = (s: { section: string; blockIndex: number; itemIndex: number }) =>
-    s.section === flagged.section &&
-    s.blockIndex === flagged.blockIndex &&
-    s.itemIndex === flagged.itemIndex;
-  const units = new Set(
-    playSteps(log.plan, log.adjustments)
-      .filter(same)
-      .map((step) => step.set),
-  );
-  const performed = new Set(
-    log.sets.filter((set) => same(set) && set.actual && !set.flag).map((set) => set.set),
-  );
-  return { done: performed.size, total: units.size };
-}
-
 function Summary({ log }: { log: SessionLog }) {
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
@@ -59,6 +49,15 @@ function Summary({ log }: { log: SessionLog }) {
   const logs = useSessionLogs();
   const [counts, setCounts] = useState(log.countsAsDone ?? true);
   const backup = useBackupReminder();
+  const programmes = useProgrammes();
+  const answers = useAnswers() ?? [];
+  const nextTime = useNextTime(log);
+
+  // The decisions the session raised, kept as they were when the summary opened so an answered
+  // card stays on screen with its Undo.
+  const [proposals, setProposals] = useState<Proposal[] | undefined>();
+  if (!proposals && nextTime) setProposals(nextTime.proposals);
+  const oneOffs = useLeaveOneOffs(proposals ?? []);
 
   const totals = sessionTotals(log, inventory);
   const duration = durationParts(activeSeconds(log));
@@ -93,12 +92,37 @@ function Summary({ log }: { log: SessionLog }) {
     }
   }
 
+  const rows = useMemo(() => mainExercises(log), [log]);
+  const source = log.source;
+  const sourceProgramme =
+    source.kind === 'programme'
+      ? (programmes ?? []).find((p) => p.id === source.programmeId)
+      : undefined;
+  const phaseKind =
+    source.kind === 'programme' && sourceProgramme
+      ? phaseForWeek(sourceProgramme, source.week)?.kind
+      : undefined;
+  const mode: ListMode = quick
+    ? 'quick'
+    : phaseKind === 'deload'
+      ? 'deload'
+      : phaseKind === 'peak'
+        ? 'peak'
+        : 'normal';
+  const sessionLetter =
+    source.kind === 'programme' && sourceProgramme
+      ? programmeIdentities(sourceProgramme, lang)[
+          sourceProgramme.rotation.findIndex((s) => s.id === source.sessionId)
+        ]?.letter
+      : undefined;
+
   const context =
     log.source.kind === 'programme'
       ? t('play.summary.context', { week: log.source.week, name: log.plan.name[lang] })
       : log.plan.name[lang];
 
   const back = () => {
+    oneOffs.record();
     clearSummary();
     navigate({ name: quick ? 'quick' : 'programme' }, { replace: true });
   };
@@ -183,39 +207,26 @@ function Summary({ log }: { log: SessionLog }) {
             </p>
           ) : null}
 
-          {totals.stopped.length > 0 ? (
-            <section className={styles.sec} aria-labelledby="summary-stopped">
-              <h2 className={styles.secTitle} id="summary-stopped">
-                {t('play.summary.stopped')}
-              </h2>
-              <ul className={`${styles.rows} ${styles.card}`}>
-                {totals.stopped.map((stop) => {
-                  const exercise = exerciseById.get(stop.exerciseId);
-                  const { done, total } = stoppedCounts(log, stop.exerciseId);
-                  const pain = stop.flag === 'pain';
-                  const reason = t(pain ? 'play.summary.pain' : 'play.summary.noEquipment');
-                  return (
-                    <li key={stop.exerciseId} className={styles.row}>
-                      <span className={styles.well} data-pain={pain || undefined}>
-                        <Icon name={pain ? 'stop' : glyphOf(exercise)} size={24} />
-                      </span>
-                      <span className={styles.rowText}>
-                        <span className={styles.rowTitle}>
-                          {exerciseLabel(exercise, lang, stop.exerciseId)}
-                        </span>
-                        <span className={styles.rowMeta}>
-                          <b data-pain={pain || undefined}>{reason}</b>
-                          {', '}
-                          {t('play.summary.stoppedMeta', { count: done, done, total })}
-                        </span>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ) : null}
+          <Decisions
+            proposals={proposals ?? []}
+            rows={rows}
+            lines={nextTime?.lines ?? []}
+            {...(sessionLetter && { sessionLetter })}
+            onAnswered={(proposal) => oneOffs.markAnswered(proposal)}
+            onUndone={(proposal) => oneOffs.markUndone(proposal)}
+          />
           {backup.reminder !== 'none' ? <BackupLine state={backup} /> : null}
+          {rows.length > 0 ? (
+            <ExerciseList
+              rows={rows}
+              lines={nextTime?.lines ?? []}
+              answers={answers}
+              logId={log.id}
+              mode={mode}
+              lang={lang}
+              buyNext={nextTime?.buyNext ?? []}
+            />
+          ) : null}
         </div>
       </div>
       <div className={styles.dock}>

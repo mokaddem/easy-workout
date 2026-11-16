@@ -1,0 +1,1525 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Adaptation : prochaine fois, choix, objectifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ================================================================
+   Mockup shell (outside the phone)
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans); font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size); line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; text-decoration: none; }
+[hidden] { display: none !important; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--xs { width: 16px; height: 16px; }
+svg.i--fill { fill: currentColor; stroke: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.mock-bar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 24px; background: color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-line); font-size: 14px; }
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; margin-right: auto; }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.mock-group { width: 100%; max-width: 1400px; padding: 0 8px; font-size: 18px; font-weight: 700; font-stretch: var(--font-width-title); color: var(--color-text-muted); }
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.mock-shot figcaption { max-width: var(--dev-w, 390px); font-size: 15px; font-weight: 600; color: var(--color-text-muted); text-align: center; text-wrap: balance; }
+
+/* The phone. ?w= and ?h= resize every frame (360–430 checks). */
+.device { position: relative; width: var(--dev-w, 390px); height: var(--dev-h, 844px); flex: none; display: flex; flex-direction: column; border-radius: 48px; overflow: hidden; isolation: isolate; background: var(--color-bg); color: var(--color-text); box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28); }
+@media (max-width: 440px) { .mock-stage { padding: 16px 0 48px; gap: 32px; } .mock-bar { padding: 10px 16px; } .device { border-radius: 0; box-shadow: none; } }
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; letter-spacing: 0.01em; color: var(--color-text); }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ================================================================
+   Existing system pieces (as in the earlier mockups)
+   ================================================================ */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); }
+.t-exercise { font-size: var(--type-exercise-size); line-height: var(--type-exercise-line); font-weight: var(--type-exercise-weight); font-stretch: var(--type-exercise-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-headline { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.t-body { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+.muted { color: var(--color-text-muted); }
+.section-title { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap-comfort); padding: 0 var(--space-6); border-radius: var(--radius-md); border: var(--border-control) solid transparent; font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); }
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); min-height: var(--tap-min); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.btn--sm { min-height: var(--tap-min); padding: 0 16px; font-size: var(--type-label-size-sm); }
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn--player { width: var(--tap-player); height: var(--tap-player); }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+.segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.segs > i { height: 6px; border-radius: var(--radius-xs); background: var(--color-track); }
+.segs > i.done { background: var(--color-text-subtle); }
+.segs > i.cur { background: var(--color-accent-line); }
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; }
+.notice .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 1px; }
+.notice b { font-weight: 700; }
+.icon-well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.facts li { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; }
+.facts .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+
+/* tab bar, app bars, docks */
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); }
+.tab { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); text-align: center; line-height: 1.1; }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.appbar { display: flex; align-items: center; gap: 12px; padding: 6px 12px 6px var(--layout-gutter); flex: none; min-height: 56px; }
+.appbar__text { flex: 1; min-width: 0; display: grid; }
+.appbar__title { font-size: var(--font-size-21); }
+.appbar--nav { padding-left: 4px; gap: 4px; }
+.ctxbar { flex: none; display: flex; align-items: center; min-height: 56px; padding: 4px var(--layout-gutter); }
+.ctxbar__line { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dock { flex: none; position: relative; z-index: var(--z-sticky); display: grid; gap: 12px; padding: 12px 16px 42px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); }
+.dock-bar { flex: none; display: flex; gap: 10px; padding: 12px 16px; background: var(--color-bg); box-shadow: var(--elevation-2); position: relative; z-index: var(--z-sticky); }
+.dock-bar .btn { flex: 1; }
+
+/* sheets and dialogs */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.scrim--center { display: flex; align-items: center; padding: 0 16px; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); max-height: calc(100% - 64px); display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { align-self: center; flex: none; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 8px var(--layout-gutter) 20px; display: grid; gap: 4px; align-content: start; }
+.sheet__body::-webkit-scrollbar { display: none; }
+.sheet__head { display: grid; gap: 8px; padding-bottom: 8px; }
+.sheet__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.sheet__foot { flex: none; display: grid; gap: 8px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); }
+.dialog { width: 100%; display: grid; gap: 20px; padding: 24px 20px 20px; border-radius: var(--radius-xl); background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.dialog__text { display: grid; gap: 10px; }
+.dialog__title { font-size: var(--font-size-24); }
+.dialog__actions { display: grid; gap: 8px; }
+.dialog__actions .btn { padding: 0 16px; }
+
+/* ---------- summary (as built) ---------- */
+.sum { padding: 4px var(--layout-gutter) 32px; display: grid; gap: 32px; }
+.sum__head { display: grid; gap: 22px; }
+.sum__title { font-size: var(--font-size-48); text-wrap: balance; }
+.dur { display: grid; gap: 10px; }
+.dur__row { display: flex; align-items: flex-end; gap: 10px; }
+.dur__n { font-size: var(--font-size-144); line-height: 0.74; margin-left: -6px; }
+.dur__u { font-size: var(--font-size-48); color: var(--color-text-muted); line-height: 0.8; }
+.dur__label { font-size: 15px; font-weight: 600; color: var(--color-text-muted); line-height: 1.3; }
+.strip { display: flex; gap: 7px; }
+.strip__g { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+.strip i { height: 10px; border-radius: 2px; background: var(--color-track); }
+.strip i.on { background: var(--color-text); }
+.stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 16px; }
+.stat { display: grid; gap: 6px; align-content: start; }
+.stat__n { display: flex; align-items: baseline; gap: 4px; font-size: var(--font-size-60); white-space: nowrap; }
+.stat__n .of, .stat__n .u { font-size: var(--font-size-36); color: var(--color-text-muted); }
+.stat__label { font-size: 15px; font-weight: 600; color: var(--color-text-muted); line-height: 1.3; }
+.sw-card { overflow: hidden; }
+.swrow { position: relative; width: 100%; display: flex; align-items: center; gap: 16px; min-height: 76px; padding: 16px 16px 16px 18px; text-align: left; }
+.swrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.swrow__text { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.swrow__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.3; }
+.swrow__meta { font-size: 15px; line-height: 1.4; color: var(--color-text-muted); }
+.switch { position: relative; flex: none; width: 52px; height: 32px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); border: var(--border-strong) solid var(--color-surface-inverse); }
+.switch::after { content: ""; position: absolute; top: 50%; left: 4px; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; transform: translateX(19px); background: var(--color-on-inverse); }
+.sum-sec { display: grid; gap: 12px; }
+.sum-sec__head { display: grid; gap: 4px; }
+.bline { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.bline > .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.bline__text { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; }
+.bline .btn { min-height: var(--tap-min); padding: 0 16px; font-size: var(--type-label-size-sm); background: var(--color-surface); }
+.exlist { display: grid; }
+.ex { display: grid; gap: 3px; padding: 12px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.ex:first-child { border-top: 0; padding-top: 0; }
+.ex__name { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.ex__meta { font-size: 14px; color: var(--color-text-muted); line-height: 1.4; }
+.ex__meta b { color: var(--color-text); font-weight: 700; }
+.dock--player .btn { min-height: var(--tap-player); font-size: var(--font-size-21); }
+
+/* ---------- programme tab (as built) ---------- */
+.hero { padding: 20px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.hero__week { display: grid; gap: 8px; }
+.hero__label { font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.hero__row { display: flex; align-items: flex-end; gap: 12px; }
+.hero__n { font-size: var(--font-size-144); line-height: 0.74; margin-left: -6px; }
+.hero__of { font-size: var(--font-size-48); color: var(--color-text-muted); line-height: 0.8; }
+.hero__phase { display: grid; gap: 6px; padding-top: 6px; }
+.hero__phase .t-display { font-size: var(--font-size-36); }
+.hero .segs > i { height: 8px; }
+.next { margin: 16px 16px 0; padding: 20px; display: grid; gap: 16px; }
+.next__label { font-weight: 600; color: var(--color-text-muted); }
+.next__title { font-size: var(--font-size-36); }
+.next__muscles { color: var(--color-text-muted); margin-top: 6px; }
+.next .btn--ghost { justify-self: center; }
+.nudge { margin: 16px 16px 0; display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 8px 12px 14px; text-align: left; width: calc(100% - 32px); }
+.nudge:active { background: var(--color-press-overlay); }
+.nudge:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.nudge__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.nudge__title { font-size: var(--font-size-16); font-weight: 700; line-height: 1.3; }
+.nudge__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+.nudge > .i { color: var(--color-text-muted); }
+.nudge + .next { margin-top: 12px; }
+.next + .nudge { margin-top: 12px; }
+
+/* ---------- session detail (as built) ---------- */
+.sd-head { padding: 4px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.sd-id { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: end; }
+.sd-letter { font-size: var(--font-size-144); line-height: 0.74; margin-left: -4px; }
+.sd-id__text { display: grid; gap: 6px; padding-bottom: 2px; }
+.sd-sub { font-size: var(--type-body-size); color: var(--color-text-muted); line-height: 1.35; }
+.sd-sec { padding: 28px var(--layout-gutter) 0; display: grid; gap: 4px; }
+.sd-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
+.sd-sec__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); font-weight: 600; white-space: nowrap; }
+.sd-sec:last-child { padding-bottom: 28px; }
+.rx { display: grid; grid-template-columns: 26px 1fr 48px; column-gap: 8px; padding: 14px 0 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.rx:first-of-type { border-top: 0; }
+.rx__idx { font-size: var(--font-size-21); color: var(--color-text-subtle); padding-top: 5px; line-height: 1; }
+.rx__name { align-self: center; font-size: var(--font-size-21); line-height: 1.12; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; padding: 2px 0; }
+.rx__why { margin: -6px -8px 0 0; color: var(--color-text-muted); }
+.rx__body { grid-column: 2 / 4; display: grid; gap: 10px; padding-top: 8px; }
+.rx__nums { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 24px; }
+.rx__cell { display: grid; gap: 5px; min-width: 0; align-content: start; }
+.rx__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.rx__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; }
+.rx__w { font-size: var(--font-size-21); line-height: 1.05; font-weight: 800; font-stretch: var(--font-width-display); padding-top: 4px; }
+.rx__u { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.rx__facts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; font-size: var(--type-meta-size); line-height: 1.3; color: var(--color-text-muted); }
+.rx__facts b { color: var(--color-text); font-weight: 700; }
+.delta { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; }
+.whyline { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.whyline > .i { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--color-text-muted); }
+.whyline b { font-weight: 700; }
+
+/* ---------- player (as built) ---------- */
+.pbar { flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 8px; min-height: 56px; }
+.pbar__mid { flex: 1; min-width: 0; display: grid; gap: 6px; padding: 0 8px; }
+.pbar__mid .t-meta { font-weight: 600; color: var(--color-text-muted); }
+.pbar__clock { font-size: var(--font-size-21); color: var(--color-text-muted); padding: 0 4px; }
+.pa { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px var(--layout-gutter) 0; gap: 16px; }
+.pa-set { display: grid; gap: 8px; }
+.pa-set__row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.pa-set__label { display: flex; align-items: baseline; gap: 10px; font-weight: 700; font-stretch: var(--font-width-title); font-size: var(--font-size-24); }
+.pa-set__label .num { font-size: var(--font-size-48); }
+.pa-set__label .of { color: var(--color-text-muted); }
+.pa-set .segs > i { height: 8px; }
+.sides { display: flex; gap: 6px; }
+.sides > i { display: grid; place-items: center; width: 60px; height: 60px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); font-style: normal; }
+.sides > i b { font-size: var(--font-size-48); font-weight: 800; font-stretch: var(--font-width-numeral); line-height: 1; }
+.sides > i.cur { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.score { display: grid; grid-template-columns: minmax(min-content, 1.45fr) minmax(min-content, 1fr); gap: 12px 20px; }
+.score__cell { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.score__n { font-size: var(--type-numeral-xl-size); white-space: nowrap; }
+.score__u { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.score__range { white-space: nowrap; }
+.score__top { display: flex; align-items: flex-start; gap: 10px; }
+.score__top .badge { margin-top: 6px; }
+.score__w { padding-top: 6px; font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); hyphens: auto; overflow-wrap: anywhere; }
+.badge { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); color: var(--color-text); font-size: 14px; font-weight: 700; font-stretch: var(--font-width-label); }
+.tempo { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 4px; }
+.tempo--311 { grid-template-columns: 3fr 1fr 1fr; }
+.tempo__seg { display: grid; align-content: center; gap: 2px; min-height: 52px; padding: 0 10px; border-radius: var(--radius-xs); background: var(--color-surface-sunken); color: var(--color-text-muted); font-weight: 700; font-stretch: var(--font-width-label); font-size: 13px; line-height: 1.1; white-space: nowrap; overflow: hidden; }
+.tempo__seg b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; color: var(--color-text); font-variant-numeric: tabular-nums; }
+.tempo__seg.is-active { background: var(--color-accent); color: var(--color-on-accent); }
+.tempo__seg.is-active b { color: var(--color-on-accent); }
+.anim-slot { position: relative; overflow: hidden; border-radius: var(--radius-lg); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); border: var(--border-hairline) solid var(--color-line); color: var(--color-text-subtle); }
+.pa .anim-slot { flex: 1; min-height: 96px; }
+.anim-slot__floor { position: absolute; inset: auto 0 0 0; width: 100%; height: 46%; stroke: var(--color-line); stroke-width: 1; fill: none; }
+svg.anim-slot__glyph { position: absolute; left: 50%; top: 40%; width: 76px; height: 76px; margin: -38px 0 0 -38px; stroke-width: 1.4; color: var(--color-text-subtle); opacity: 0.9; }
+.anim-slot__tag { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--color-bg); color: var(--color-text-muted); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); }
+.anim-slot__cue { position: absolute; left: 16px; right: 16px; bottom: 14px; text-align: center; color: var(--color-text-muted); font-weight: 600; font-size: 15px; line-height: 1.3; text-wrap: balance; }
+.pdock { flex: none; display: grid; gap: 10px; padding: 14px 16px 42px; }
+.pdock__row { display: flex; gap: 10px; }
+.pdock__done { flex: 1; justify-content: flex-start; gap: 14px; padding: 0 20px; text-align: left; }
+.pdock__done .i { width: 28px; height: 28px; stroke-width: 3; }
+.pdock__done-text { display: grid; gap: 1px; }
+.pdock__done-text small { font-size: 14px; font-weight: 600; color: var(--color-on-accent-muted); font-stretch: var(--font-width-text); }
+.pdock .icon-btn--player { border: var(--border-control) solid var(--color-line-strong); }
+/* New-weight check: the feel starts unpicked and asks once per set; Done still logs */
+.seg--ask { box-shadow: inset 0 0 0 var(--border-control) var(--color-line-strong); }
+
+/* ================================================================
+   New in this phase
+   ================================================================ */
+
+/* ---------- Proposal card: one exercise, one question, answers that apply on tap ---------- */
+.pc { display: grid; gap: 14px; padding: 16px; }
+.pc__head { display: flex; gap: 14px; align-items: flex-start; }
+.pc__head-text { flex: 1; min-width: 0; display: grid; gap: 2px; padding-top: 1px; }
+.pc__kick { font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text-muted); }
+.pc__kick b { color: var(--color-text); font-weight: 700; }
+.pc__kick .pain { color: var(--color-danger-text); font-weight: 700; }
+.pc__name { font-size: var(--font-size-21); line-height: 1.15; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; }
+.well--pain { background: var(--color-danger-tint); color: var(--color-danger-text); }
+.well--done { background: var(--color-complete); color: var(--color-on-complete); }
+.well--count { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.well--count .num { font-size: var(--font-size-36); line-height: 1; }
+.pc__answers { display: grid; gap: 8px; }
+.pc__note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.pc__note .i { width: 20px; height: 20px; color: var(--color-text-subtle); margin-top: 0; }
+.pc__note b { color: var(--color-text); font-weight: 700; }
+.pc__note--now { color: var(--color-text); }
+.pc__note--now .i { color: var(--color-text-muted); }
+.pc__note--care { padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); color: var(--color-text); font-weight: 600; }
+.pc__note--care .i { color: var(--color-text); }
+
+/* Answer row: the whole row is the target; it applies at once (undo stays on the card) */
+.ans { width: 100%; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 14px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); text-align: left; transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); }
+.ans:active { background: var(--color-press-overlay); transform: scale(var(--motion-scale-press)); }
+.ans:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.ans > .i { color: var(--color-text-muted); }
+.ans__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.ans__t { font-size: 17px; line-height: 1.25; font-weight: 700; font-stretch: var(--font-width-label); }
+.ans__s { font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text-muted); }
+
+/* Confirmed state: what was decided, in the same words as the answer */
+.pc__done { display: flex; gap: 14px; align-items: flex-start; }
+.pc__done-text { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.pc__done-title { font-size: var(--font-size-18); line-height: 1.25; font-weight: 700; font-stretch: var(--font-width-title); }
+.pc__done-sub { font-size: 15px; line-height: 1.4; color: var(--color-text-muted); }
+.pc__done-sub b { color: var(--color-text); font-weight: 700; }
+.pc__done .btn--ghost { justify-self: start; margin-left: -12px; }
+.pc.is-done { gap: 0; }
+
+/* In a sheet the cards drop their chrome: hairlines separate them */
+.pc--flat { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 20px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.pc-list { display: grid; gap: 12px; }
+
+/* ---------- Change ledger: one line per changed exercise, the new value as the figure ---------- */
+.lg { display: grid; }
+.lg__cols { display: grid; grid-template-columns: 92px 1fr; padding-bottom: 8px; font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); border-bottom: var(--border-hairline) solid var(--color-line); }
+.lg__row { display: grid; grid-template-columns: 92px minmax(0, 1fr); grid-template-areas: "fig name" "fig did" "fig why"; column-gap: 14px; row-gap: 3px; padding: 14px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.lg__cols + .lg__row { border-top: 0; }
+.lg__did { grid-area: did; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.lg__did b { color: var(--color-text); font-weight: 700; }
+.lg__did .pain { color: var(--color-danger-text); font-weight: 700; }
+.lg__now--same { color: var(--color-text-muted); }
+.lg__name { grid-area: name; font-size: 17px; line-height: 1.3; font-weight: 600; }
+.lg__why { grid-area: why; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.lg__why b { color: var(--color-text); font-weight: 700; }
+.lg__fig { grid-area: fig; display: grid; align-content: start; gap: 4px; padding-top: 1px; }
+.lg__was { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; line-height: 1; color: var(--color-text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lg__was .i { width: 14px; height: 14px; stroke-width: 2.5; }
+.lg__now { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.lg__now small { font-size: var(--font-size-18); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; font-weight: 700; }
+.lg__now--word { font-size: var(--font-size-24); line-height: 1; font-weight: 800; font-stretch: var(--font-width-display); }
+.lg__row--hold .lg__fig { align-content: start; }
+.lg__eq { width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text-muted); }
+
+/* ---------- Goal ruler: where the goal sits inside the range ---------- */
+.ruler { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); font-variant-numeric: tabular-nums; line-height: 1; }
+.ruler__bars { display: flex; gap: 3px; }
+.ruler__bars i { width: 10px; height: 8px; border-radius: 2px; background: var(--color-track); }
+.ruler__bars i.on { background: var(--color-text); }
+.ruler__bars i.beyond, .ruler__bars i.below { background: transparent; box-shadow: inset 0 0 0 1.5px var(--color-line-strong); }
+.ruler__bars i.beyond.on, .ruler__bars i.below.on { background: var(--color-text); box-shadow: none; }
+
+/* ---------- Change tag: what moved since last time (outline; the inverse delta tag stays the week's change) ---------- */
+.chg { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; padding: 0 8px 0 6px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); color: var(--color-text); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; }
+.chg .i { width: 14px; height: 14px; stroke-width: 2.5; }
+
+/* ---------- Swap line and pending line inside a prescription row ---------- */
+.swapline { display: grid; gap: 10px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.swapline__text { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; }
+.swapline__text .i { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--color-text-muted); }
+.swapline__text b { font-weight: 700; }
+.swapline .btn { justify-self: start; background: var(--color-surface); }
+.swapline--pain .swapline__text .i { color: var(--color-danger-text); }
+
+/* ---------- Why chip (player): first set of a changed exercise ---------- */
+.whychip { display: flex; align-items: flex-start; gap: 10px; min-height: 40px; padding: 9px 14px 9px 10px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: 15px; line-height: 1.3; font-weight: 600; color: var(--color-text); }
+.whychip .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 0; }
+.whychip--pain .i { color: var(--color-danger-text); }
+/* On the set screen the chip sits at the top of the animation slot, in place of the pattern tag and the cue:
+   it costs no height, so the floor-read numerals and the dock never move. */
+.anim-slot .whychip { position: absolute; z-index: 1; top: 10px; left: 10px; right: 10px; background: var(--color-bg); box-shadow: var(--elevation-1); }
+
+/* ---------- Summary order: decisions, then the ledger ---------- */
+.sum-sec .pc-list .card { box-shadow: var(--elevation-1); }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-incline" viewBox="0 0 24 24"><path d="M3 19h18L21 8z"/><path d="M16 19v-3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M2.5 7h19M5 4v6M19 4v6"/><path d="M9.5 7v3.5M14.5 7v3.5"/><circle cx="12" cy="15.5" r="2.5"/></symbol>
+  <symbol id="i-dips" viewBox="0 0 24 24"><path d="M3 8.5h6M15 8.5h6M6 8.5v12M18 8.5v12M4 20.5h4M16 20.5h4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.5"/><path d="M12 16.9h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15.5v3a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 3.5h10M7 20.5h10"/><path d="M8 3.5c0 4.5 4 5.5 4 8.5s-4 4-4 8.5M16 3.5c0 4.5-4 5.5-4 8.5s4 4 4 8.5"/></symbol>
+  <!-- new in this phase -->
+  <symbol id="i-step-up" viewBox="0 0 24 24"><path d="M3 19.5h5v-5h5v-5h5v-5h3"/></symbol>
+  <symbol id="i-step-down" viewBox="0 0 24 24"><path d="M3 4.5h5v5h5v5h5v5h3"/></symbol>
+  <symbol id="i-equals" viewBox="0 0 24 24"><path d="M6 9.5h12M6 14.5h12"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"/></symbol>
+  <symbol id="i-turtle" viewBox="0 0 24 24"><path d="M4 15.5c0-4 3.6-7 8-7s8 3 8 7z"/><path d="M20 13.5h1.5a1.5 1.5 0 0 0 0-3H19"/><path d="M7 15.5V18M17 15.5V18"/></symbol>
+</svg>
+
+<!-- ================= shared chrome (cloned into frames) ================= -->
+<template id="tpl-tabbar">
+  <nav class="tabbar" aria-label="Navigation"><a class="tab is-current" aria-current="page" href="#"><span class="tab__icon"><svg class="i"><use href="#i-calendar"/></svg></span><span>Programme</span></a><a class="tab" href="#"><span class="tab__icon"><svg class="i"><use href="#i-bolt"/></svg></span><span data-en="Quick session">Séance rapide</span></a><a class="tab" href="#"><span class="tab__icon"><svg class="i"><use href="#i-chart"/></svg></span><span data-en="Progress">Progrès</span></a><a class="tab" href="#"><span class="tab__icon"><svg class="i"><use href="#i-sliders"/></svg></span><span data-en="Settings">Réglages</span></a></nav>
+</template>
+
+<template id="tpl-sum-head">
+  <div class="sum__head">
+    <h1 class="t-display sum__title" data-en="Session done">Séance terminée</h1>
+    <div class="dur" role="img" aria-label="47 minutes de temps actif" data-en-label="47 minutes of active time">
+      <span class="dur__row"><span class="num dur__n">47</span><span class="num dur__u">min</span></span>
+      <span class="dur__label" data-en="Active time, pauses not counted">Temps actif, pauses non comptées</span>
+    </div>
+  </div>
+  <div class="sum__head" style="gap: 16px">
+    <div class="strip" data-strip="5,4,3,3,6,2" data-done="5,4,1,3,6,0" aria-hidden="true"></div>
+    <div class="stats">
+      <div class="stat"><span class="stat__n num">19<span class="of">/23</span></span><span class="stat__label" data-en="main sets">séries principales</span></div>
+      <div class="stat"><span class="stat__n num"><span data-num="1752" data-decimals="0">1 752</span><span class="u">kg</span></span><span class="stat__label" data-en="volume (reps × load)">volume (reps × charge)</span></div>
+    </div>
+  </div>
+  <div class="card sw-card">
+    <button class="swrow" type="button" role="switch" aria-checked="true">
+      <span class="swrow__text"><span class="swrow__title" data-en="Counts as done">Compter comme faite</span><span class="swrow__meta" data-en="Your rotation moves on to session B.">Ta rotation passe à la séance B.</span></span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+  </div>
+</template>
+
+<!-- Proposal: pain on the standing shoulder press (first time: three answers) -->
+<template id="tpl-card-pain">
+  <article class="card pc" data-card>
+    <div class="pc__ask">
+      <div class="pc__head">
+        <span class="icon-well well--pain"><svg class="i"><use href="#i-stop"/></svg></span>
+        <div class="pc__head-text">
+          <h3 class="pc__name" data-en="Standing shoulder press">Développé militaire debout</h3>
+          <p class="pc__kick" data-en="<span class=&quot;pain&quot;>Pain</span>, 1 set of 3 done. What next?"><span class="pain">Douleur</span>, 1 série sur 3 faite. Pour la suite&#8239;?</p>
+        </div>
+      </div>
+      <div class="pc__answers" style="margin-top: 14px">
+        <button class="ans" type="button" data-answer="swap">
+          <svg class="i"><use href="#i-swap"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Seated shoulder press instead">Développé épaules assis à la place</span><span class="ans__s" data-en="Same movement, seated. In every session, from the next one.">Même mouvement, assis. Dans toutes tes séances, dès la prochaine.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="lighter">
+          <svg class="i"><use href="#i-arrow-down"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Keep it, lighter">Le garder, plus léger</span><span class="ans__s" data-en="8&nbsp;kg instead of 10&nbsp;kg. No increase before 2 pain-free sessions.">8&nbsp;kg au lieu de 10&nbsp;kg. Pas de hausse avant 2 séances sans douleur.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="keep">
+          <svg class="i"><use href="#i-equals"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Keep it as it is">Le garder tel quel</span><span class="ans__s" data-en="10&nbsp;kg, goal 10 reps. No increase before 2 pain-free sessions.">10&nbsp;kg, objectif 10 reps. Pas de hausse avant 2 séances sans douleur.</span></span>
+        </button>
+      </div>
+      <p class="pc__note pc__note--now" style="margin-top: 14px"><svg class="i"><use href="#i-arrow-down"/></svg><span data-en="Next session: <b>8&nbsp;kg instead of 10&nbsp;kg</b> until you choose.">Prochaine séance&#8239;: <b>8&nbsp;kg au lieu de 10&nbsp;kg</b> tant que tu n’as pas choisi.</span></p>
+    </div>
+    <div class="pc__done" data-for="swap" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Seated shoulder press instead">Développé épaules assis à la place</p>
+        <p class="pc__done-sub" data-en="Replaces: Standing shoulder press, in every session from session A. You can switch back from the session.">Remplace&#8239;: Développé militaire debout, dans toutes tes séances dès la séance A. Tu peux revenir en arrière depuis la séance.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="lighter" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Kept, lighter">Gardé, plus léger</p>
+        <p class="pc__done-sub" data-en="Standing shoulder press: <b>8&nbsp;kg</b> next time. No increase before 2 pain-free sessions.">Développé militaire debout&#8239;: <b>8&nbsp;kg</b> la prochaine fois. Pas de hausse avant 2 séances sans douleur.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="keep" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Kept as it is">Gardé tel quel</p>
+        <p class="pc__done-sub" data-en="Standing shoulder press: 10&nbsp;kg, goal 10 reps. No increase before 2 pain-free sessions.">Développé militaire debout&#8239;: 10&nbsp;kg, objectif 10 reps. Pas de hausse avant 2 séances sans douleur.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<!-- Proposal: second pain stop on the same exercise: no "keep", see a professional -->
+<template id="tpl-card-pain2">
+  <article class="card pc" data-card>
+    <div class="pc__ask">
+      <div class="pc__head">
+        <span class="icon-well well--pain"><svg class="i"><use href="#i-stop"/></svg></span>
+        <div class="pc__head-text">
+          <h3 class="pc__name" data-en="Standing shoulder press">Développé militaire debout</h3>
+          <p class="pc__kick" data-en="<span class=&quot;pain&quot;>Pain again</span>, 0 sets of 3 done, even at 8&nbsp;kg. What next?"><span class="pain">Douleur à nouveau</span>, 0 série sur 3 faite, même à 8&nbsp;kg. Pour la suite&#8239;?</p>
+        </div>
+      </div>
+      <div class="pc__answers" style="margin-top: 14px">
+        <button class="ans" type="button" data-answer="swap">
+          <svg class="i"><use href="#i-swap"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Seated shoulder press instead">Développé épaules assis à la place</span><span class="ans__s" data-en="Same movement, seated. In every session, from the next one.">Même mouvement, assis. Dans toutes tes séances, dès la prochaine.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="lighter">
+          <svg class="i"><use href="#i-arrow-down"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Keep it, lighter">Le garder, plus léger</span><span class="ans__s" data-en="6&nbsp;kg instead of 8&nbsp;kg. No increase before 2 pain-free sessions.">6&nbsp;kg au lieu de 8&nbsp;kg. Pas de hausse avant 2 séances sans douleur.</span></span>
+        </button>
+      </div>
+      <p class="pc__note pc__note--now" style="margin-top: 14px"><svg class="i"><use href="#i-arrow-down"/></svg><span data-en="Next session: <b>6&nbsp;kg instead of 8&nbsp;kg</b> until you choose.">Prochaine séance&#8239;: <b>6&nbsp;kg au lieu de 8&nbsp;kg</b> tant que tu n’as pas choisi.</span></p>
+      <p class="pc__note pc__note--care" style="margin-top: 10px"><svg class="i"><use href="#i-info"/></svg><span data-en="If the pain persists, see a health professional.">Si la douleur persiste, consulte un professionnel de santé.</span></p>
+    </div>
+    <div class="pc__done" data-for="swap" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Seated shoulder press instead">Développé épaules assis à la place</p>
+        <p class="pc__done-sub" data-en="Replaces: Standing shoulder press, in every session from session A. You can switch back from the session.">Remplace&#8239;: Développé militaire debout, dans toutes tes séances dès la séance A. Tu peux revenir en arrière depuis la séance.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="lighter" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Kept, lighter">Gardé, plus léger</p>
+        <p class="pc__done-sub" data-en="Standing shoulder press: <b>6&nbsp;kg</b> next time. No increase before 2 pain-free sessions.">Développé militaire debout&#8239;: <b>6&nbsp;kg</b> la prochaine fois. Pas de hausse avant 2 séances sans douleur.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="keep" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Kept as it is">Gardé tel quel</p>
+        <p class="pc__done-sub" data-en="Standing shoulder press: 10&nbsp;kg, goal 10 reps. No increase before 2 pain-free sessions.">Développé militaire debout&#8239;: 10&nbsp;kg, objectif 10 reps. Pas de hausse avant 2 séances sans douleur.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<!-- Proposal: no equipment on dips (one-off is the default) -->
+<template id="tpl-card-noeq">
+  <article class="card pc" data-card>
+    <div class="pc__ask">
+      <div class="pc__head">
+        <span class="icon-well"><svg class="i"><use href="#i-dips"/></svg></span>
+        <div class="pc__head-text">
+          <h3 class="pc__name" data-en="Dip">Dips</h3>
+          <p class="pc__kick" data-en="<b>No equipment today</b>, 0 sets of 2. What next?"><b>Pas de matériel aujourd’hui</b>, 0 série sur 2. Pour la suite&#8239;?</p>
+        </div>
+      </div>
+      <div class="pc__answers" style="margin-top: 14px">
+        <button class="ans" type="button" data-answer="oneoff">
+          <svg class="i"><use href="#i-check"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="It was a one-off">C’était ponctuel</span><span class="ans__s" data-en="Nothing changes.">Rien ne change.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="swap">
+          <svg class="i"><use href="#i-swap"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Bench dip instead, for good">Dips sur banc à la place, pour de bon</span><span class="ans__s" data-en="With a chair. In every session, from the next one.">Avec une chaise. Dans toutes tes séances, dès la prochaine.</span></span>
+        </button>
+      </div>
+      <p class="pc__note" style="margin-top: 14px"><svg class="i"><use href="#i-info"/></svg><span data-en="If you don’t answer, it counts as a one-off.">Sans réponse, c’est compté comme ponctuel.</span></p>
+    </div>
+    <div class="pc__done" data-for="oneoff" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="It was a one-off">C’était ponctuel</p>
+        <p class="pc__done-sub" data-en="Dip stays in your sessions. Nothing changes.">Dips reste dans tes séances. Rien ne change.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="swap" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Bench dip instead, for good">Dips sur banc à la place, pour de bon</p>
+        <p class="pc__done-sub" data-en="Replaces: Dip, in every session. You can switch back from the session.">Remplace&#8239;: Dips, dans toutes tes séances. Tu peux revenir en arrière depuis la séance.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<!-- Proposals waiting on the Programme tab: assisted, harder, easier -->
+<template id="tpl-card-assisted">
+  <article class="pc pc--flat" data-card>
+    <div class="pc__ask">
+      <div class="pc__head">
+        <span class="icon-well"><svg class="i"><use href="#i-band"/></svg></span>
+        <div class="pc__head-text">
+          <h3 class="pc__name" data-en="Pull-up">Traction pronation</h3>
+          <p class="pc__kick" data-en="<b>3 reps</b> in your first session, goal 6. In your next session.">
+            <b>3 reps</b> à ta première séance, objectif 6. Dans ta prochaine séance.</p>
+        </div>
+      </div>
+      <div class="pc__answers" style="margin-top: 14px">
+        <button class="ans" type="button" data-answer="swap">
+          <svg class="i"><use href="#i-swap"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Band-assisted pull-up instead">Traction assistée élastique à la place</span><span class="ans__s" data-en="With your medium band. Then a lighter band, then no help.">Avec ton élastique moyen. Puis un plus léger, puis sans aide.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="dismiss">
+          <svg class="i"><use href="#i-clock"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Not now">Pas maintenant</span><span class="ans__s" data-en="Same exercise, same goal.">Même exercice, même objectif.</span></span>
+        </button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="swap" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Band-assisted pull-up instead">Traction assistée élastique à la place</p>
+        <p class="pc__done-sub" data-en="Replaces: Pull-up, from session B. Medium band, goal 6 reps.">Remplace&#8239;: Traction pronation, dès la séance B. Élastique moyen, objectif 6 reps.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="dismiss" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Not now">Pas maintenant</p>
+        <p class="pc__done-sub" data-en="Pull-up stays as it is. If it’s still hard after a few sessions, we’ll ask again.">Traction pronation reste comme avant. Si ça coince encore dans quelques séances, on te reposera la question.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<template id="tpl-card-harder">
+  <article class="pc pc--flat" data-card>
+    <div class="pc__ask">
+      <div class="pc__head">
+        <span class="icon-well"><svg class="i"><use href="#i-step-up"/></svg></span>
+        <div class="pc__head-text">
+          <h3 class="pc__name" data-en="Push-up">Pompes</h3>
+          <p class="pc__kick" data-en="<b>4 × 14 reps</b>, past the range, even at the slow tempo. Ready for harder?"><b>4 × 14 reps</b>, au-delà de la fourchette, même au tempo lent. Prêt pour plus dur&#8239;?</p>
+        </div>
+      </div>
+      <div class="pc__answers" style="margin-top: 14px">
+        <button class="ans" type="button" data-answer="swap">
+          <svg class="i"><use href="#i-step-up"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Feet-elevated push-up instead">Pompes pieds surélevés à la place</span><span class="ans__s" data-en="Goal 8 reps to start. In every session.">Objectif 8 reps pour commencer. Dans toutes tes séances.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="dismiss">
+          <svg class="i"><use href="#i-clock"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Not now">Pas maintenant</span><span class="ans__s" data-en="Same exercise, at 14 reps.">Même exercice, à 14 reps.</span></span>
+        </button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="swap" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Feet-elevated push-up instead">Pompes pieds surélevés à la place</p>
+        <p class="pc__done-sub" data-en="Replaces: Push-up, from session A. Goal 8 reps.">Remplace&#8239;: Pompes, dès la séance A. Objectif 8 reps.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="dismiss" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Not now">Pas maintenant</p>
+        <p class="pc__done-sub" data-en="Push-up stays at 14 reps. We’ll ask again after two more sessions at the top.">Pompes reste à 14 reps. On te reposera la question après deux autres séances au maximum.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<template id="tpl-card-easier">
+  <article class="pc pc--flat" data-card>
+    <div class="pc__ask">
+      <div class="pc__head">
+        <span class="icon-well"><svg class="i"><use href="#i-step-down"/></svg></span>
+        <div class="pc__head-text">
+          <h3 class="pc__name" data-en="Pike push-up">Pompes en V (pike)</h3>
+          <p class="pc__kick" data-en="Under 6 reps <b>three sessions running</b>. An easier version?">Sous 6 reps <b>trois séances de suite</b>. Une version plus facile&#8239;?</p>
+        </div>
+      </div>
+      <div class="pc__answers" style="margin-top: 14px">
+        <button class="ans" type="button" data-answer="swap">
+          <svg class="i"><use href="#i-step-down"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Hands-elevated pike push-up instead">Pompes en V mains surélevées à la place</span><span class="ans__s" data-en="You’ll work back up to this one from there.">Tu remonteras ensuite vers celle-ci.</span></span>
+        </button>
+        <button class="ans" type="button" data-answer="dismiss">
+          <svg class="i"><use href="#i-clock"/></svg>
+          <span class="ans__text"><span class="ans__t" data-en="Not now">Pas maintenant</span><span class="ans__s" data-en="Same exercise, same goal.">Même exercice, même objectif.</span></span>
+        </button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="swap" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Hands-elevated pike push-up instead">Pompes en V mains surélevées à la place</p>
+        <p class="pc__done-sub" data-en="Replaces: Pike push-up, from session D.">Remplace&#8239;: Pompes en V (pike), dès la séance D.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+    <div class="pc__done" data-for="dismiss" hidden>
+      <span class="icon-well well--done"><svg class="i"><use href="#i-check"/></svg></span>
+      <div class="pc__done-text">
+        <p class="pc__done-title" data-en="Not now">Pas maintenant</p>
+        <p class="pc__done-sub" data-en="Pike push-up stays as it is.">Pompes en V (pike) reste comme avant.</p>
+        <button class="btn btn--ghost" type="button" data-undo data-en="Undo">Annuler</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<!-- Programme tab: hero for week 3 -->
+<template id="tpl-prog-top">
+  <div class="appbar">
+    <div class="appbar__text">
+      <span class="appbar__title t-headline">Recomposition</span>
+      <span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span>
+    </div>
+    <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+  </div>
+</template>
+<template id="tpl-prog-hero">
+  <section class="hero">
+    <div class="hero__week" role="img" aria-label="Semaine 3 sur 8" data-en-label="Week 3 of 8">
+      <span class="hero__label" data-en="Week">Semaine</span>
+      <span class="hero__row"><span class="num hero__n">3</span><span class="num hero__of" data-en="of 8">sur 8</span></span>
+    </div>
+    <div class="segs" aria-hidden="true"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="hero__phase">
+      <h2 class="t-display" data-en="Volume phase">Phase volume</h2>
+      <p class="t-body muted" data-en="One extra set on the first two exercises of each session.">Une série de plus sur les deux premiers exercices de chaque séance.</p>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-pbar">
+  <div class="pbar">
+    <button class="icon-btn" type="button" aria-label="Pause" data-en-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
+    <div class="pbar__mid">
+      <span class="t-meta" data-en="Exercise 1 of 7">Exercice 1 sur 7</span>
+      <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <span class="num pbar__clock">04:12</span>
+    <button class="icon-btn" type="button" aria-pressed="true" aria-label="Annonces vocales" data-en-label="Voice cues"><svg class="i"><use href="#i-sound"/></svg></button>
+  </div>
+</template>
+
+<template id="tpl-pdock">
+  <div class="pdock">
+    <div class="seg" role="radiogroup" aria-label="Ressenti" data-en-label="Feel">
+      <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Easy">Facile</button>
+      <button class="seg__opt" type="button" role="radio" aria-checked="true" data-en="Right">Idéal</button>
+      <button class="seg__opt" type="button" role="radio" aria-checked="false" data-en="Hard">Dur</button>
+    </div>
+    <div class="pdock__row">
+      <button class="btn btn--primary btn--player pdock__done" type="button"><svg class="i"><use href="#i-check"/></svg><span class="pdock__done-text"><span data-slot="done-label"></span><small data-slot="done-sub"></small></span></button>
+      <button class="icon-btn icon-btn--player" type="button" aria-label="Modifier la série" data-en-label="Edit set"><svg class="i"><use href="#i-pencil"/></svg></button>
+    </div>
+  </div>
+</template>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Adaptation: next time, decisions, goals">Adaptation&#8239;: prochaine fois, choix, objectifs</span>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+
+  <!-- =========================================================
+       1. Summary: decisions raised by this session
+       ========================================================= -->
+  <figure class="mock-shot" id="f1">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="ctxbar"><span class="ctxbar__line" data-en="Recomposition, week 3 · Session A — Push">Recomposition, semaine 3 · Séance A — Push</span></div>
+        <div class="scroll" data-scroll-to="#decide-1" data-scroll-offset="4">
+          <div class="sum">
+            <div data-include="tpl-sum-head" style="display: contents"></div>
+            <section class="sum-sec" aria-labelledby="decide-1">
+              <div class="sum-sec__head">
+                <h2 class="section-title" id="decide-1" data-en="Your call">À toi de choisir</h2>
+                <p class="t-meta muted" data-en="Two exercises were stopped. Your answer shapes the next sessions.">Deux exercices arrêtés. Ta réponse décide des prochaines séances.</p>
+              </div>
+              <div class="pc-list">
+                <div data-include="tpl-card-pain" style="display: contents"></div>
+                <div data-include="tpl-card-noeq" style="display: contents"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="dock dock--player"><button class="btn btn--primary btn--block" type="button" data-en="Back to programme">Retour au programme</button></div>
+      </div>
+    </div>
+    <figcaption data-en="Summary: the stopped exercises become decisions (pain: three answers; no equipment: one-off by default)">Bilan&#8239;: les exercices arrêtés deviennent des choix (douleur&#8239;: trois réponses&#8239;; matériel&#8239;: ponctuel par défaut)</figcaption>
+  </figure>
+
+  <figure class="mock-shot" id="f1b">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="ctxbar"><span class="ctxbar__line" data-en="Recomposition, week 5 · Session A — Push">Recomposition, semaine 5 · Séance A — Push</span></div>
+        <div class="scroll" data-scroll-to="#decide-2b" data-scroll-offset="4">
+          <div class="sum">
+            <div data-include="tpl-sum-head" style="display: contents"></div>
+            <section class="sum-sec" aria-labelledby="decide-2b">
+              <div class="sum-sec__head">
+                <h2 class="section-title" id="decide-2b" data-en="Your call">À toi de choisir</h2>
+                <p class="t-meta muted" data-en="One exercise was stopped. Your answer shapes the next sessions.">Un exercice arrêté. Ta réponse décide des prochaines séances.</p>
+              </div>
+              <div class="pc-list"><div data-include="tpl-card-pain2" style="display: contents"></div></div>
+            </section>
+          </div>
+        </div>
+        <div class="dock dock--player"><button class="btn btn--primary btn--block" type="button" data-en="Back to programme">Retour au programme</button></div>
+      </div>
+    </div>
+    <figcaption data-en="A second pain on the same exercise: no “keep as it is”, and see a professional">Deuxième douleur sur le même exercice&#8239;: plus de «&#8239;garder tel quel&#8239;», et l’avis d’un professionnel</figcaption>
+  </figure>
+
+  <figure class="mock-shot" id="f2">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="ctxbar"><span class="ctxbar__line" data-en="Recomposition, week 3 · Session A — Push">Recomposition, semaine 3 · Séance A — Push</span></div>
+        <div class="scroll" data-scroll-to="#ex-2" data-scroll-offset="4">
+          <div class="sum">
+            <div data-include="tpl-sum-head" style="display: contents"></div>
+            <section class="sum-sec" aria-labelledby="decide-2">
+              <h2 class="section-title" id="decide-2" data-en="Your call">À toi de choisir</h2>
+              <div class="pc-list">
+                <div data-include="tpl-card-pain" data-state="swap" style="display: contents"></div>
+                <div data-include="tpl-card-noeq" data-state="oneoff" style="display: contents"></div>
+              </div>
+            </section>
+            <div class="bline">
+              <svg class="i"><use href="#i-download"/></svg>
+              <p class="bline__text" data-en="Last backup <b>34 days</b> ago.">Dernière sauvegarde il y a <b>34 jours</b>.</p>
+              <button class="btn btn--secondary" type="button" data-en="Export">Exporter</button>
+            </div>
+            <section class="sum-sec" aria-labelledby="ex-2">
+              <div class="sum-sec__head">
+                <h2 class="section-title" id="ex-2" data-en="Exercise by exercise">Exercice par exercice</h2>
+                <p class="t-meta muted" data-en="What you did, and next time’s goal on the left.">Ce que tu as fait, et à gauche l’objectif de la prochaine fois.</p>
+              </div>
+              <div class="lg">
+                <div class="lg__cols" aria-hidden="true"><span data-en="Next time">Prochaine fois</span></div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Floor press">Développé couché au sol</span>
+                  <span class="lg__fig"><span class="lg__was">10&nbsp;kg<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">12<small>kg</small></span></span>
+                  <span class="lg__did" data-en="5 sets: 14, 14, 14, 13, 13 reps at <b>10&nbsp;kg</b>">5 séries&#8239;: 14, 14, 14, 13, 13 reps à <b>10&nbsp;kg</b></span>
+                  <span class="lg__why" data-en="Past the range: one step up. Goal 6 reps, under the range while you get used to it.">Au-delà de la fourchette&#8239;: un cran au-dessus. Objectif 6 reps, sous la fourchette le temps de t’y faire.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Push-up">Pompes</span>
+                  <span class="lg__fig"><span class="lg__was">10<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">11<small>reps</small></span></span>
+                  <span class="lg__did" data-en="4 sets: 11, 11, 10, 10 reps">4 séries&#8239;: 11, 11, 10, 10 reps</span>
+                  <span class="lg__why" data-en="Goal met: +1 rep.">Objectif tenu&#8239;: +1 rep.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Standing shoulder press">Développé militaire debout</span>
+                  <span class="lg__fig"><span class="lg__eq"><svg class="i"><use href="#i-swap"/></svg></span></span>
+                  <span class="lg__did" data-en="1 set of 3: 10 reps at <b>10&nbsp;kg</b>, then <span class=&quot;pain&quot;>pain</span>">1 série sur 3&#8239;: 10 reps à <b>10&nbsp;kg</b>, puis <span class="pain">douleur</span></span>
+                  <span class="lg__why" data-en="Your call: Seated shoulder press instead.">Ton choix&#8239;: Développé épaules assis à la place.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Close-grip push-up">Pompes prise serrée</span>
+                  <span class="lg__fig"><span class="lg__was">9<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">11<small>reps</small></span></span>
+                  <span class="lg__did" data-en="3 sets: 9, 9, 9 reps, felt easy">3 séries&#8239;: 9, 9, 9 reps, ressenti facile</span>
+                  <span class="lg__why" data-en="Easy on every set: goal +2.">Facile à chaque série&#8239;: objectif +2.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Dumbbell lateral raise">Élévations latérales haltères</span>
+                  <span class="lg__fig"><span class="lg__was">8&nbsp;kg<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">6<small>kg</small></span></span>
+                  <span class="lg__did" data-en="3 rounds: 10, 11, 10 reps at <b>8&nbsp;kg</b>">3 tours&#8239;: 10, 11, 10 reps à <b>8&nbsp;kg</b></span>
+                  <span class="lg__why" data-en="Under 12 reps twice in a row: one step down to build back up.">Sous 12 reps deux fois de suite&#8239;: un cran plus bas pour repartir.</span>
+                </div>
+                <div class="lg__row lg__row--same">
+                  <span class="lg__name" data-en="Overhead triceps extension">Extension triceps au-dessus de la tête</span>
+                  <span class="lg__fig"><span class="lg__was"><svg class="i"><use href="#i-equals"/></svg><span data-en="same">même</span></span><span class="num lg__now lg__now--same">12<small>reps</small></span></span>
+                  <span class="lg__did" data-en="3 rounds: 12, 12, 11 reps at <b>10&nbsp;kg</b>, one set hard">3 tours&#8239;: 12, 12, 11 reps à <b>10&nbsp;kg</b>, une série dure</span>
+                  <span class="lg__why" data-en="One set felt hard: same goal.">Une série ressentie dure&#8239;: même objectif.</span>
+                </div>
+                <div class="lg__row lg__row--same">
+                  <span class="lg__name" data-en="Dip">Dips</span>
+                  <span class="lg__fig"><span class="lg__was"><svg class="i"><use href="#i-equals"/></svg><span data-en="same">même</span></span><span class="lg__now lg__now--word lg__now--same">Max</span></span>
+                  <span class="lg__did" data-en="<b>No equipment today</b>, 0 sets of 2"><b>Pas de matériel aujourd’hui</b>, 0 série sur 2</span>
+                  <span class="lg__why" data-en="A one-off: nothing changes.">C’était ponctuel&#8239;: rien ne change.</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="dock dock--player"><button class="btn btn--primary btn--block" type="button" data-en="Back to programme">Retour au programme</button></div>
+      </div>
+    </div>
+    <figcaption data-en="Decisions made, then the per-exercise list: what was done, next time’s goal on the left">Choix faits, puis la liste par exercice&#8239;: ce qui a été fait, et l’objectif suivant à gauche</figcaption>
+  </figure>
+
+  <figure class="mock-shot" id="f3">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="ctxbar"><span class="ctxbar__line" data-en="Recomposition, week 3 · Session B — Pull">Recomposition, semaine 3 · Séance B — Pull</span></div>
+        <div class="scroll" data-scroll-to="#ex-3" data-scroll-offset="4">
+          <div class="sum">
+            <div data-include="tpl-sum-head" style="display: contents"></div>
+            <section class="sum-sec" aria-labelledby="ex-3">
+              <div class="sum-sec__head">
+                <h2 class="section-title" id="ex-3" data-en="Exercise by exercise">Exercice par exercice</h2>
+                <p class="t-meta muted" data-en="What you did, and next time’s goal on the left.">Ce que tu as fait, et à gauche l’objectif de la prochaine fois.</p>
+              </div>
+              <div class="lg">
+                <div class="lg__cols" aria-hidden="true"><span data-en="Next time">Prochaine fois</span></div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="One-arm row">Rowing unilatéral</span>
+                  <span class="lg__fig"><span class="lg__was">2-1-2<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">3-1-1</span></span>
+                  <span class="lg__did" data-en="4 sets: 16, 16, 16, 15 reps at <b>20&nbsp;kg</b>">4 séries&#8239;: 16, 16, 16, 15 reps à <b>20&nbsp;kg</b></span>
+                  <span class="lg__why" data-en="Your heaviest dumbbell, past the range: 3&nbsp;s on the way down, back to 8 reps.">Ton haltère le plus lourd, au-delà de la fourchette&#8239;: descente en 3&nbsp;s, retour à 8 reps.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Bent-over row">Rowing buste penché</span>
+                  <span class="lg__fig"><span class="lg__was">18&nbsp;kg<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">20<small>kg</small></span></span>
+                  <span class="lg__did" data-en="4 sets: 12, 12, 12, 11 reps at <b>18&nbsp;kg</b>">4 séries&#8239;: 12, 12, 12, 11 reps à <b>18&nbsp;kg</b></span>
+                  <span class="lg__why" data-en="Top of the range: one step up, goal 8 reps.">Haut de la fourchette&#8239;: un cran au-dessus, objectif 8 reps.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Band face pull">Face pull élastique</span>
+                  <span class="lg__fig"><span class="lg__was"><span data-en="Medium">Moyen</span><svg class="i"><use href="#i-arrow-right"/></svg></span><span class="lg__now lg__now--word"><span data-en="Heavy">Fort</span></span></span>
+                  <span class="lg__did" data-en="3 sets: 17, 17, 16 reps">3 séries&#8239;: 17, 17, 16 reps</span>
+                  <span class="lg__why" data-en="Past the range: heavier band, back to 12 reps.">Au-delà de la fourchette&#8239;: élastique plus fort, retour à 12 reps.</span>
+                </div>
+                <div class="lg__row lg__row--same">
+                  <span class="lg__name" data-en="Hammer curl">Curl marteau</span>
+                  <span class="lg__fig"><span class="lg__was"><svg class="i"><use href="#i-equals"/></svg><span data-en="same">même</span></span><span class="num lg__now lg__now--same">14<small>reps</small></span></span>
+                  <span class="lg__did" data-en="3 sets: 14, 14, 13 reps at <b>12&nbsp;kg</b>, slow tempo">3 séries&#8239;: 14, 14, 13 reps à <b>12&nbsp;kg</b>, tempo lent</span>
+                  <span class="lg__why" data-en="At the limit of your kit, even at the slow tempo. A heavier dumbbell would let it progress.">Au maximum de ton matériel, même au tempo lent. Un haltère plus lourd le ferait progresser.</span>
+                </div>
+                <div class="lg__row">
+                  <span class="lg__name" data-en="Plank">Gainage planche</span>
+                  <span class="lg__fig"><span class="lg__was">40&nbsp;s<svg class="i"><use href="#i-arrow-right"/></svg></span><span class="num lg__now">45<small>s</small></span></span>
+                  <span class="lg__did" data-en="3 sets: 40, 40, 45&nbsp;s">3 séries&#8239;: 40, 40, 45&nbsp;s</span>
+                  <span class="lg__why" data-en="Goal met: +5&nbsp;s.">Objectif tenu&#8239;: +5&nbsp;s.</span>
+                </div>
+              </div>
+              <button class="nudge card" type="button" style="margin: 4px 0 0; width: 100%">
+                <span class="icon-well"><svg class="i"><use href="#i-bag"/></svg></span>
+                <span class="nudge__text">
+                  <span class="nudge__title" data-en="Hammer curl is at the limit of your kit">Curl marteau est au maximum de ton matériel</span>
+                  <span class="nudge__sub" data-en="See what is worth buying next">Voir ce qu’il vaut la peine d’acheter</span>
+                </span>
+                <svg class="i"><use href="#i-chev-right"/></svg>
+              </button>
+            </section>
+          </div>
+        </div>
+        <div class="dock dock--player"><button class="btn btn--primary btn--block" type="button" data-en="Back to programme">Retour au programme</button></div>
+      </div>
+    </div>
+    <figcaption data-en="Nothing to decide: tempo, load, band, plank, and one exercise held back by the kit">Rien à décider&#8239;: tempo, charge, élastique, gainage, et un exercice bloqué par le matériel</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       4. Programme tab: decisions waiting
+       ========================================================= -->
+  <figure class="mock-shot" id="f4">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-prog-top" style="display: contents"></div>
+        <div class="scroll">
+          <div data-include="tpl-prog-hero" style="display: contents"></div>
+          <button class="nudge card" type="button" aria-label="3 choix à faire. Traction pronation est dans ta prochaine séance." data-en-label="3 decisions to make. Pull-up is in your next session.">
+            <span class="icon-well well--count" aria-hidden="true"><span class="num">3</span></span>
+            <span class="nudge__text" aria-hidden="true">
+              <span class="nudge__title" data-en="Decisions to make">Choix à faire</span>
+              <span class="nudge__sub" data-en="Pull-up is in your next session.">Traction pronation est dans ta prochaine séance.</span>
+            </span>
+            <svg class="i"><use href="#i-chev-right"/></svg>
+          </button>
+          <article class="next card">
+            <div>
+              <p class="next__label t-meta" data-en="Next session">Prochaine séance</p>
+              <h2 class="t-display next__title" data-en="Session B — Pull">Séance B — Pull</h2>
+              <p class="t-body next__muscles" data-en="Back, biceps, rear delts">Dos, biceps, arrière d’épaules</p>
+            </div>
+            <ul class="facts">
+              <li><svg class="i"><use href="#i-clock"/></svg><span>~52 min</span></li>
+              <li><svg class="i"><use href="#i-list"/></svg><span data-en="7 exercises">7 exercices</span></li>
+            </ul>
+            <button class="btn btn--primary btn--block btn--player" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start session">Commencer la séance</span></button>
+            <button class="btn btn--ghost" type="button" data-en="Session details">Détails de la séance</button>
+          </article>
+          <button class="nudge card" type="button">
+            <span class="icon-well"><svg class="i"><use href="#i-bag"/></svg></span>
+            <span class="nudge__text">
+              <span class="nudge__title" data-en="4 exercises adapted for missing gear">4 exercices adaptés faute de matériel</span>
+              <span class="nudge__sub" data-en="See what is worth buying next">Voir ce qu’il vaut la peine d’acheter</span>
+            </span>
+            <svg class="i"><use href="#i-chev-right"/></svg>
+          </button>
+          <div style="height: 24px"></div>
+        </div>
+        <div data-include="tpl-tabbar" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="Programme tab: decisions sit above the next session; the buy-next nudge drops below it">Onglet Programme&#8239;: les choix au-dessus de la prochaine séance, l’achat passe en dessous</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       5. Programme tab: the decisions sheet
+       ========================================================= -->
+  <figure class="mock-shot" id="f5">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-prog-top" style="display: contents"></div>
+        <div class="scroll"><div data-include="tpl-prog-hero" style="display: contents"></div></div>
+        <div data-include="tpl-tabbar" style="display: contents"></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-5">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div class="sheet__head">
+              <h2 class="sheet__title" id="sheet-5" data-en="Your call">À toi de choisir</h2>
+              <p class="t-body muted" data-en="These exercise changes need your answer. Without one, nothing changes.">Ces changements d’exercice attendent ta réponse. Sans réponse, rien ne change.</p>
+            </div>
+            <div data-include="tpl-card-assisted" style="display: contents"></div>
+            <div data-include="tpl-card-harder" style="display: contents"></div>
+            <div data-include="tpl-card-easier" style="display: contents"></div>
+          </div>
+          <div class="sheet__foot"><button class="btn btn--secondary btn--block" type="button" data-en="Close">Fermer</button></div>
+        </section>
+      </div>
+    </div>
+    <figcaption data-en="The sheet: one card per exercise, the next session’s first">La feuille&#8239;: une carte par exercice, celui de la prochaine séance d’abord</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       6. Sheet after two answers
+       ========================================================= -->
+  <figure class="mock-shot" id="f6">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-prog-top" style="display: contents"></div>
+        <div class="scroll"><div data-include="tpl-prog-hero" style="display: contents"></div></div>
+        <div data-include="tpl-tabbar" style="display: contents"></div>
+        <div class="scrim" aria-hidden="true"></div>
+        <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-6">
+          <span class="sheet__grab" aria-hidden="true"></span>
+          <div class="sheet__body">
+            <div class="sheet__head">
+              <h2 class="sheet__title" id="sheet-6" data-en="Your call">À toi de choisir</h2>
+              <p class="t-body muted" data-en="These exercise changes need your answer. Without one, nothing changes.">Ces changements d’exercice attendent ta réponse. Sans réponse, rien ne change.</p>
+            </div>
+            <div data-include="tpl-card-assisted" data-state="swap" style="display: contents"></div>
+            <div data-include="tpl-card-harder" data-state="dismiss" style="display: contents"></div>
+            <div data-include="tpl-card-easier" style="display: contents"></div>
+          </div>
+          <div class="sheet__foot"><button class="btn btn--secondary btn--block" type="button" data-en="Close">Fermer</button></div>
+        </section>
+      </div>
+    </div>
+    <figcaption data-en="Answered cards confirm in place, with Undo while the sheet is open">Les cartes répondues confirment sur place, avec Annuler tant que la feuille est ouverte</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       7. Session detail: goals inside the range, changes, a swap
+       ========================================================= -->
+  <figure class="mock-shot" id="f7">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="appbar appbar--nav">
+          <button class="icon-btn" type="button" aria-label="Retour au programme" data-en-label="Back to programme"><svg class="i"><use href="#i-back"/></svg></button>
+          <div class="appbar__text"><span class="t-meta muted" data-en="Recomposition, week 4 of 8">Recomposition, semaine 4 sur 8</span></div>
+        </div>
+        <div class="scroll" data-scroll-to="#main-7" data-scroll-offset="0">
+          <section class="sd-head">
+            <div class="sd-id">
+              <span class="num sd-letter" aria-hidden="true">A</span>
+              <div class="sd-id__text"><span class="sr-only" data-en="Session A">Séance A</span><h1 class="t-display">Push</h1><p class="sd-sub" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p></div>
+            </div>
+          </section>
+          <section class="sd-sec" id="main-7">
+            <div class="sd-sec__head"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="sd-sec__meta" data-en="6 blocks">6 blocs</span></div>
+
+            <article class="rx">
+              <span class="num rx__idx">1</span>
+              <h3 class="rx__name" data-en="Floor press">Développé couché au sol</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">5 × 6</span><span class="rx__u" data-en="sets × target reps">séries × reps visées</span><span class="ruler" data-min="8" data-max="10" data-goal="6"></span></div>
+                  <div class="rx__cell"><span class="num rx__n">12<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div>
+                </div>
+                <div class="rx__facts"><span class="chg"><svg class="i"><use href="#i-arrow-up"/></svg>2&nbsp;kg</span><span data-en="Rest <b>90&nbsp;s</b>">Repos <b>90&nbsp;s</b></span><span data-en="<b>2 reps</b> in the tank"><b>2 reps</b> en réserve</span></div>
+                <p class="whyline"><svg class="i"><use href="#i-why"/></svg><span data-en="Last time, <b>14, 14, 14, 13, 13 reps</b> at 10&nbsp;kg, past the range. One step up: goal 6 reps, under the range while you get used to it.">La dernière fois, <b>14, 14, 14, 13, 13 reps</b> à 10&nbsp;kg, au-delà de la fourchette. Un cran au-dessus&#8239;: objectif 6 reps, sous la fourchette le temps de t’y faire.</span></p>
+              </div>
+            </article>
+
+            <article class="rx">
+              <span class="num rx__idx">2</span>
+              <h3 class="rx__name" data-en="Push-up">Pompes</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">4 × 14</span><span class="rx__u" data-en="sets × target reps">séries × reps visées</span><span class="ruler" data-min="8" data-max="12" data-goal="14"></span></div>
+                  <div class="rx__cell"><span class="rx__w muted" data-en="Bodyweight">Poids du corps</span></div>
+                </div>
+                <div class="rx__facts"><span class="chg"><svg class="i"><use href="#i-arrow-up"/></svg>1 rep</span><span data-en="Rest <b>90&nbsp;s</b>">Repos <b>90&nbsp;s</b></span><span data-en="<b>2 reps</b> in the tank"><b>2 reps</b> en réserve</span></div>
+                <p class="whyline"><svg class="i"><use href="#i-why"/></svg><span data-en="Last time, <b>13, 13, 12, 12 reps</b>: goal met. No load to add with your kit, so the goal goes past the range, up to 16.">La dernière fois, <b>13, 13, 12, 12 reps</b>&#8239;: objectif tenu. Pas de lest possible avec ton matériel&#8239;: l’objectif dépasse la fourchette, jusqu’à 16.</span></p>
+              </div>
+            </article>
+
+            <article class="rx">
+              <span class="num rx__idx">3</span>
+              <h3 class="rx__name" data-en="Seated shoulder press">Développé épaules assis</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">3 × 10</span><span class="rx__u" data-en="sets × target reps">séries × reps visées</span><span class="ruler" data-min="10" data-max="12" data-goal="10"></span></div>
+                  <div class="rx__cell"><span class="num rx__n">8<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div>
+                </div>
+                <div class="rx__facts"><span data-en="Rest <b>75&nbsp;s</b>">Repos <b>75&nbsp;s</b></span><span data-en="<b>2 reps</b> in the tank"><b>2 reps</b> en réserve</span></div>
+                <div class="swapline">
+                  <p class="swapline__text"><svg class="i"><use href="#i-swap"/></svg><span data-en="Replaces: <b>Standing shoulder press</b>, after the pain on 16 November. First time: starting load.">Remplace&#8239;: <b>Développé militaire debout</b>, après la douleur du 16 novembre. Première fois&#8239;: charge de départ.</span></p>
+                  <button class="btn btn--secondary btn--sm" type="button" data-en="Switch back to the original">Revenir à l’original</button>
+                </div>
+              </div>
+            </article>
+          </section>
+        </div>
+        <div class="dock-bar"><button class="btn btn--primary btn--player" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start session">Commencer la séance</span></button></div>
+        <div data-include="tpl-tabbar" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="Session detail: goals under and past the range, what moved and why, a swapped exercise">Détail de séance&#8239;: objectifs sous et au-delà de la fourchette, ce qui bouge et pourquoi, un exercice remplacé</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       8. Session detail after a break: welcome back, pending pain, assisted, hold
+       ========================================================= -->
+  <figure class="mock-shot" id="f8">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="appbar appbar--nav">
+          <button class="icon-btn" type="button" aria-label="Retour au programme" data-en-label="Back to programme"><svg class="i"><use href="#i-back"/></svg></button>
+          <div class="appbar__text"><span class="t-meta muted" data-en="Recomposition, week 5 of 8">Recomposition, semaine 5 sur 8</span></div>
+        </div>
+        <div class="scroll" data-scroll-to="#back-8" data-scroll-offset="8">
+          <section class="sd-head">
+            <div class="sd-id">
+              <span class="num sd-letter" aria-hidden="true">B</span>
+              <div class="sd-id__text"><span class="sr-only" data-en="Session B">Séance B</span><h1 class="t-display">Pull</h1><p class="sd-sub" data-en="Back, biceps, rear delts">Dos, biceps, arrière d’épaules</p></div>
+            </div>
+            <p class="notice" id="back-8"><svg class="i"><use href="#i-hourglass"/></svg><span data-en="<span><b>Welcome back.</b> 23 days since your last session: goals 2 reps lower, same loads.</span>"><span><b>Bon retour.</b> 23 jours depuis ta dernière séance&#8239;: objectifs 2 reps plus bas, mêmes charges.</span></span></p>
+          </section>
+          <section class="sd-sec">
+            <div class="sd-sec__head"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="sd-sec__meta" data-en="6 blocks">6 blocs</span></div>
+
+            <article class="rx">
+              <span class="num rx__idx">1</span>
+              <h3 class="rx__name" data-en="Band-assisted pull-up">Traction assistée élastique</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">4 × 6</span><span class="rx__u" data-en="sets × target reps">séries × reps visées</span><span class="ruler" data-min="6" data-max="8" data-goal="6"></span></div>
+                  <div class="rx__cell"><span class="rx__w" data-en="Medium band">Élastique moyen</span></div>
+                </div>
+                <div class="swapline">
+                  <p class="swapline__text"><svg class="i"><use href="#i-swap"/></svg><span data-en="Replaces: <b>Pull-up</b>, until you no longer need the band.">Remplace&#8239;: <b>Traction pronation</b>, jusqu’à ce que tu n’aies plus besoin de l’élastique.</span></p>
+                  <button class="btn btn--secondary btn--sm" type="button" data-en="Switch back to the original">Revenir à l’original</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="rx">
+              <span class="num rx__idx">2</span>
+              <h3 class="rx__name" data-en="One-arm row">Rowing unilatéral</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">10 + 3 × 9</span><span class="rx__u" data-en="set 1 + the others, reps per side">série 1 + les suivantes, reps par côté</span><span class="ruler" data-min="8" data-max="12" data-goal="9"></span></div>
+                  <div class="rx__cell"><span class="num rx__n">14<small>kg</small></span><span class="rx__u" data-en="dumbbell">haltère</span></div>
+                </div>
+                <div class="rx__facts"><span class="chg"><svg class="i"><use href="#i-arrow-down"/></svg>2&nbsp;kg</span><span data-en="Set 1: <b>1 rep</b> in the tank, then 2">Série 1&#8239;: <b>1 rep</b> en réserve, puis 2</span></div>
+                <div class="swapline swapline--pain">
+                  <p class="swapline__text"><svg class="i"><use href="#i-stop"/></svg><span data-en="<b>Pain</b> last time: 14&nbsp;kg instead of 16&nbsp;kg until you choose what to do."><b>Douleur</b> la dernière fois&#8239;: 14&nbsp;kg au lieu de 16&nbsp;kg tant que tu n’as pas choisi.</span></p>
+                  <button class="btn btn--secondary btn--sm" type="button" data-en="Choose">Choisir</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="rx">
+              <span class="num rx__idx">3</span>
+              <h3 class="rx__name" data-en="Hammer curl">Curl marteau</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">11 + 2 × 10</span><span class="rx__u" data-en="set 1 + the others, reps">série 1 + les suivantes, reps</span><span class="ruler" data-min="10" data-max="12" data-goal="10"></span></div>
+                  <div class="rx__cell"><span class="num rx__n">12<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div>
+                </div>
+                <div class="rx__facts"><span class="chg"><svg class="i"><use href="#i-arrow-down"/></svg>2 reps</span><span data-en="Rest <b>60&nbsp;s</b>">Repos <b>60&nbsp;s</b></span></div>
+                <p class="whyline"><svg class="i"><use href="#i-why"/></svg><span data-en="23 days without a session: goal 2 reps lower, same load.">23 jours sans séance&#8239;: objectif 2 reps plus bas, même charge.</span></p>
+              </div>
+            </article>
+
+            <article class="rx">
+              <span class="num rx__idx">4</span>
+              <h3 class="rx__name" data-en="Plank">Gainage planche</h3>
+              <button class="icon-btn rx__why" type="button" aria-label="Pourquoi cet exercice ?" data-en-label="Why this exercise?"><svg class="i"><use href="#i-why"/></svg></button>
+              <div class="rx__body">
+                <div class="rx__nums">
+                  <div class="rx__cell"><span class="num rx__n">3 × 45<small>s</small></span><span class="rx__u" data-en="sets × target time">séries × durée visée</span><span class="ruler" data-min="30" data-max="60" data-goal="45" data-step="5" data-unit="s"></span></div>
+                </div>
+                <div class="rx__facts"><span class="chg"><svg class="i"><use href="#i-arrow-up"/></svg>5&nbsp;s</span><span data-en="Rest <b>45&nbsp;s</b>">Repos <b>45&nbsp;s</b></span></div>
+              </div>
+            </article>
+          </section>
+        </div>
+        <div class="dock-bar"><button class="btn btn--primary btn--player" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start session">Commencer la séance</span></button></div>
+        <div data-include="tpl-tabbar" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="Intensity week after a break: eased goals, set 1 asks one more rep, a pain still to answer (lighter meanwhile), an assisted swap">Semaine intensité après une pause&#8239;: objectifs allégés, la série 1 demande une rep de plus, une douleur à trancher (plus léger en attendant), une traction assistée</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       9. Switch back dialog
+       ========================================================= -->
+  <figure class="mock-shot" id="f9">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div class="appbar appbar--nav">
+          <button class="icon-btn" type="button" aria-label="Retour au programme" data-en-label="Back to programme"><svg class="i"><use href="#i-back"/></svg></button>
+          <div class="appbar__text"><span class="t-meta muted" data-en="Recomposition, week 4 of 8">Recomposition, semaine 4 sur 8</span></div>
+        </div>
+        <div class="scroll"><section class="sd-head"><div class="sd-id"><span class="num sd-letter" aria-hidden="true">A</span><div class="sd-id__text"><h1 class="t-display">Push</h1><p class="sd-sub" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p></div></div></section></div>
+        <div data-include="tpl-tabbar" style="display: contents"></div>
+        <div class="scrim scrim--center">
+          <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dlg-9">
+            <div class="dialog__text">
+              <h2 class="t-headline dialog__title" id="dlg-9" data-en="Switch back to the original?">Revenir à l’original&#8239;?</h2>
+              <p class="t-body muted" data-en="Standing shoulder press takes its place again in every session, at 10&nbsp;kg, goal 10 reps. You replaced it after a pain.">Développé militaire debout reprend sa place dans toutes tes séances, à 10&nbsp;kg, objectif 10 reps. Tu l’avais remplacé après une douleur.</p>
+            </div>
+            <div class="dialog__actions">
+              <button class="btn btn--primary btn--block" type="button" data-en="Switch back">Revenir à l’original</button>
+              <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <figcaption data-en="“Switch back” asks first: the swap came from a pain">«&#8239;Revenir à l’original&#8239;» demande d’abord&#8239;: le changement venait d’une douleur</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       10. Player: first set of a changed exercise
+       ========================================================= -->
+  <figure class="mock-shot" id="f10">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-pbar" style="display: contents"></div>
+        <div class="pa">
+          <h1 class="t-exercise" data-en="Floor press">Développé couché au sol</h1>
+          <div class="pa-set">
+            <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">1</span><span class="num of">/5</span></span></span>
+            <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="score">
+            <div class="score__cell"><span class="score__top"><span class="num score__n">6</span><span class="badge">RIR 2</span></span><span class="score__u"><span data-en="reps, <span class=&quot;score__range&quot;>toward 8–10</span>">reps, <span class="score__range">vers 8–10</span></span></span></div>
+            <div class="score__cell"><span class="num score__n">12</span><span class="score__u" data-en="kg per dumbbell">kg par haltère</span></div>
+          </div>
+          <div class="tempo" role="img" aria-label="Tempo 2-1-2">
+            <span class="tempo__seg is-active"><span data-en="Lower">Descente</span><b>2&#8239;s</b></span>
+            <span class="tempo__seg"><span data-en="Hold">Pause</span><b>1&#8239;s</b></span>
+            <span class="tempo__seg"><span data-en="Lift">Montée</span><b>2&#8239;s</b></span>
+          </div>
+          <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+            <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+            <p class="whychip"><svg class="i"><use href="#i-arrow-up"/></svg><span data-en="New weight, +2&nbsp;kg: 6 reps to start. How did it feel?">Nouvelle charge, +2&nbsp;kg&#8239;: 6 reps pour commencer. Comment c’était&#8239;?</span></p>
+            <svg class="i anim-slot__glyph"><use href="#i-dumbbell"/></svg>
+          </div>
+        </div>
+        <div data-include="tpl-pdock" data-ask="1" data-done="Fait comme prévu|Done as planned" data-sub="6 reps à 12&nbsp;kg|6 reps at 12&nbsp;kg" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="First session at a new weight: the goal under the range, the chip says why, the feel asks to be picked">Première séance à une nouvelle charge&#8239;: l’objectif sous la fourchette, la puce dit pourquoi, le ressenti demande un choix</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       11. Player: per side, slower tempo
+       ========================================================= -->
+  <figure class="mock-shot" id="f11">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-pbar" style="display: contents"></div>
+        <div class="pa">
+          <h1 class="t-exercise" data-en="One-arm row">Rowing unilatéral</h1>
+          <div class="pa-set">
+            <div class="pa-set__row">
+              <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">1</span><span class="num of">/4</span></span></span>
+              <span class="sides" role="img" aria-label="Côté gauche, puis côté droit" data-en-label="Left side, then right side"><i class="cur"><b data-en="L">G</b></i><i><b data-en="R">D</b></i></span>
+            </div>
+            <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="score">
+            <div class="score__cell"><span class="score__top"><span class="num score__n">8</span><span class="badge">RIR 2</span></span><span class="score__u"><span data-en="reps, left side <span class=&quot;score__range&quot;>(8–12)</span>">reps, côté gauche <span class="score__range">(8–12)</span></span></span></div>
+            <div class="score__cell"><span class="num score__n">20</span><span class="score__u">kg</span></div>
+          </div>
+          <div class="tempo tempo--311" role="img" aria-label="Tempo 3-1-1">
+            <span class="tempo__seg is-active"><span data-en="Lower">Descente</span><b>3&#8239;s</b></span>
+            <span class="tempo__seg"><span data-en="Hold">Pause</span><b>1&#8239;s</b></span>
+            <span class="tempo__seg"><span data-en="Lift">Montée</span><b>1&#8239;s</b></span>
+          </div>
+          <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+            <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+            <p class="whychip"><svg class="i"><use href="#i-turtle"/></svg><span data-en="Slower tempo: you’re at your heaviest dumbbell">Tempo plus lent&#8239;: ton haltère le plus lourd est atteint</span></p>
+            <svg class="i anim-slot__glyph"><use href="#i-dumbbell"/></svg>
+          </div>
+        </div>
+        <div data-include="tpl-pdock" data-done="Côté gauche fait|Left side done" data-sub="8 reps à 20&nbsp;kg|8 reps at 20&nbsp;kg" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="Worst case for height: per side, slower tempo, chip; the slot keeps at least 96&nbsp;px">Cas le plus haut&#8239;: par côté, tempo lent, puce&#8239;; la zone d’animation garde au moins 96&nbsp;px</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       12. Player: pain still unanswered
+       ========================================================= -->
+  <figure class="mock-shot" id="f12">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-pbar" style="display: contents"></div>
+        <div class="pa">
+          <h1 class="t-exercise" data-en="Standing shoulder press">Développé militaire debout</h1>
+          <div class="pa-set">
+            <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">1</span><span class="num of">/3</span></span></span>
+            <div class="segs" aria-hidden="true"><i class="cur"></i><i></i><i></i></div>
+          </div>
+          <div class="score">
+            <div class="score__cell"><span class="score__top"><span class="num score__n">10</span><span class="badge">RIR 2</span></span><span class="score__u"><span>reps <span class="score__range">(10–12)</span></span></span></div>
+            <div class="score__cell"><span class="num score__n">8</span><span class="score__u" data-en="kg per dumbbell">kg par haltère</span></div>
+          </div>
+          <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+            <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+            <p class="whychip whychip--pain"><svg class="i"><use href="#i-stop"/></svg><span data-en="8&nbsp;kg instead of 10 after last time’s pain. Stop if it comes back.">8&nbsp;kg au lieu de 10 après ta douleur. Arrête si elle revient.</span></p>
+            <svg class="i anim-slot__glyph"><use href="#i-dumbbell"/></svg>
+          </div>
+        </div>
+        <div data-include="tpl-pdock" data-done="Fait comme prévu|Done as planned" data-sub="10 reps à 8&nbsp;kg|10 reps at 8&nbsp;kg" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="A pain left unanswered: the lighter option applies, the chip doubles as a safety cue">Douleur sans réponse&#8239;: l’option plus légère s’applique, la puce sert aussi d’alerte</figcaption>
+  </figure>
+
+  <!-- =========================================================
+       13. Player: set 2, past the range, no chip
+       ========================================================= -->
+  <figure class="mock-shot" id="f13">
+    <div class="device">
+      <div class="statusbar"></div>
+      <div class="screen">
+        <div data-include="tpl-pbar" style="display: contents"></div>
+        <div class="pa">
+          <h1 class="t-exercise" data-en="Push-up">Pompes</h1>
+          <div class="pa-set">
+            <span class="pa-set__label"><span data-en="Set">Série</span><span><span class="num">2</span><span class="num of">/4</span></span></span>
+            <div class="segs" aria-hidden="true"><i class="done"></i><i class="cur"></i><i></i><i></i></div>
+          </div>
+          <div class="score">
+            <div class="score__cell"><span class="score__top"><span class="num score__n">14</span><span class="badge">RIR 2</span></span><span class="score__u"><span data-en="reps, <span class=&quot;score__range&quot;>past 8–12</span>">reps, <span class="score__range">au-delà de 8–12</span></span></span></div>
+            <div class="score__cell"><span class="score__w" data-en="Body&shy;weight">Poids du corps</span></div>
+          </div>
+          <div class="anim-slot" role="img" aria-label="Démonstration du mouvement" data-en-label="Movement demo">
+            <svg class="anim-slot__floor" viewBox="0 0 350 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4H350M-60 80L150 4M410 80L200 4M70 80L163 4M280 80L187 4M175 80V4M0 22H350M0 46H350"/></svg>
+            <svg class="i anim-slot__glyph"><use href="#i-dumbbell"/></svg>
+            <span class="anim-slot__tag" data-en="Horizontal push">Poussée horizontale</span>
+            <p class="anim-slot__cue" data-en="Body in one line, chest to the floor">Corps aligné, poitrine au sol</p>
+          </div>
+        </div>
+        <div data-include="tpl-pdock" data-done="Fait comme prévu|Done as planned" data-sub="14 reps|14 reps" style="display: contents"></div>
+      </div>
+    </div>
+    <figcaption data-en="Set 2: no chip; past the range, the range line says so">Série 2&#8239;: pas de puce&#8239;; au-delà de la fourchette, la ligne le dit</figcaption>
+  </figure>
+
+</main>
+
+<script>
+/* Mockup only: clone shared templates, fill per-frame slots, draw rulers and strips. Runs before the language pass. */
+(function () {
+  var params = new URLSearchParams(location.search);
+  if (params.get('w')) document.documentElement.style.setProperty('--dev-w', parseInt(params.get('w'), 10) + 'px');
+  if (params.get('h')) document.documentElement.style.setProperty('--dev-h', parseInt(params.get('h'), 10) + 'px');
+
+  document.querySelectorAll('[data-include]').forEach(function (host) {
+    var tpl = document.getElementById(host.dataset.include);
+    var frag = tpl.content.cloneNode(true);
+    var state = host.dataset.state;
+    var done = host.dataset.done, sub = host.dataset.sub;
+    var nodes = Array.prototype.slice.call(frag.childNodes);
+    host.replaceWith(frag);
+    nodes.forEach(function (n) {
+      if (n.nodeType !== 1) return;
+      if (state && n.matches('[data-card]')) setCard(n, state);
+      if (host.dataset.ask && n.querySelector) {
+        var seg = n.querySelector('.seg');
+        if (seg) { seg.classList.add('seg--ask'); seg.querySelectorAll('.seg__opt').forEach(function (o) { o.setAttribute('aria-checked', 'false'); }); }
+      }
+      if (done) {
+        var l = n.querySelector('[data-slot="done-label"]'), s = n.querySelector('[data-slot="done-sub"]');
+        if (l) { l.innerHTML = done.split('|')[0]; l.setAttribute('data-en', done.split('|')[1]); }
+        if (s) { s.innerHTML = sub.split('|')[0]; s.setAttribute('data-en', sub.split('|')[1]); }
+      }
+    });
+  });
+
+  function setCard(card, state) {
+    var ask = card.querySelector('.pc__ask');
+    ask.hidden = !!state;
+    card.classList.toggle('is-done', !!state);
+    card.querySelectorAll('.pc__done').forEach(function (d) { d.hidden = d.dataset.for !== state; });
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.ans[data-answer]');
+    if (a) { setCard(a.closest('[data-card]'), a.dataset.answer); return; }
+    var u = e.target.closest('[data-undo]');
+    if (u) setCard(u.closest('[data-card]'), null);
+  });
+
+  /* Goal ruler: one bar per value in the range, filled up to the goal. Dashed bars outside the range:
+     under it after a weight step (from the goal up), past it at the beyond-range stage (up to max + 4). */
+  document.querySelectorAll('.ruler[data-min]').forEach(function (r) {
+    var min = +r.dataset.min, max = +r.dataset.max, goal = +r.dataset.goal, step = +(r.dataset.step || 1);
+    var reach = +(r.dataset.reach || 4) * step;
+    var unit = r.dataset.unit ? '\u00a0' + r.dataset.unit : '';
+    function bars(from, to, cls) { var o = ''; for (var v = from; v <= to; v += step) o += '<i class="' + cls + (v <= goal ? ' on' : '') + '"></i>'; return o; }
+    var out = '';
+    if (goal < min) out += '<span class="ruler__bars">' + bars(goal, min - step, 'below') + '</span>';
+    out += '<span>' + min + '</span><span class="ruler__bars">' + bars(min, max, '') + '</span><span>' + max + unit + '</span>';
+    if (goal > max) out += '<span class="ruler__bars">' + bars(max + step, max + reach, 'beyond') + '</span>';
+    r.setAttribute('aria-hidden', 'true');
+    r.innerHTML = out;
+  });
+
+  document.querySelectorAll('.strip[data-strip]').forEach(function (s) {
+    var plan = s.dataset.strip.split(',').map(Number), dn = s.dataset.done.split(',').map(Number);
+    s.innerHTML = plan.map(function (n, k) {
+      var out = '<span class="strip__g" style="flex:' + n + '">';
+      for (var j = 0; j < n; j++) out += '<i' + (j < dn[k] ? ' class="on"' : '') + '></i>';
+      return out + '</span>';
+    }).join('');
+  });
+})();
+</script>
+<script>
+/* Mockup shell: phone chrome, FR/EN, dark/light, ?lang= & ?theme= */
+(function () {
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : null;
+
+  var STATUS = '<span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span>';
+  document.querySelectorAll('.device').forEach(function (d) {
+    var sb = d.querySelector('.statusbar');
+    if (sb && !sb.innerHTML.trim()) { sb.innerHTML = STATUS; sb.setAttribute('aria-hidden', 'true'); }
+    if (!d.querySelector('.homebar')) { var h = document.createElement('div'); h.className = 'homebar'; h.setAttribute('aria-hidden', 'true'); d.appendChild(h); }
+  });
+
+  function effectiveTheme() { return theme || (sysDark.matches ? 'dark' : 'light'); }
+  function formatNumber(v, decimals) {
+    return new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: 0, maximumFractionDigits: decimals == null ? 1 : decimals }).format(v);
+  }
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === effectiveTheme())); });
+  }
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr-label')) el.setAttribute('data-fr-label', el.getAttribute('aria-label') || '');
+      el.setAttribute('aria-label', lang === 'en' ? el.getAttribute('data-en-label') : el.getAttribute('data-fr-label'));
+    });
+    document.querySelectorAll('[data-num]').forEach(function (el) { el.textContent = formatNumber(parseFloat(el.dataset.num), el.dataset.decimals ? +el.dataset.decimals : 1); });
+    sync();
+    placeScrolls();
+  }
+  function applyTheme() { if (theme) root.dataset.theme = theme; else delete root.dataset.theme; sync(); }
+  function placeScrolls() {
+    document.querySelectorAll('.scroll[data-scroll-to]').forEach(function (s) {
+      var t = s.querySelector(s.dataset.scrollTo);
+      if (!t) return;
+      var off = parseFloat(s.dataset.scrollOffset || '12');
+      s.scrollTop = t.getBoundingClientRect().top - s.getBoundingClientRect().top + s.scrollTop - off;
+    });
+  }
+  window.mockPlaceScrolls = placeScrolls;
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]');
+    if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var t = e.target.closest('[data-set-theme]');
+    if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var opt = e.target.closest('.seg__opt');
+    if (opt) opt.parentElement.querySelectorAll('.seg__opt').forEach(function (o) { o.setAttribute('aria-checked', String(o === opt)); });
+  });
+  sysDark.addEventListener('change', sync);
+  applyTheme();
+  applyLang();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeScrolls);
+})();
+</script>
+</body>
+</html>

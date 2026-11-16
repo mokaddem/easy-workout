@@ -325,6 +325,45 @@ export const PATHS = {
       <path d="M12 16.6h.01" strokeWidth="2.6" />
     </>
   ),
+  'step-up': (
+    <>
+      <path d="M3.5 19.5h5v-5h5v-5h7" />
+      <path d="M16.5 6l4 3.5-4 3.5" />
+    </>
+  ),
+  'step-down': (
+    <>
+      <path d="M3.5 5.5h5v5h5v5h7" />
+      <path d="M16.5 12l4 3.5-4 3.5" />
+    </>
+  ),
+  equals: (
+    <>
+      <path d="M5.5 9h13M5.5 15h13" />
+    </>
+  ),
+  'arrow-up': (
+    <>
+      <path d="M12 19.5v-15M5.5 11L12 4.5l6.5 6.5" />
+    </>
+  ),
+  'arrow-down': (
+    <>
+      <path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5" />
+    </>
+  ),
+  'arrow-right': (
+    <>
+      <path d="M4.5 12h15M13 5.5l6.5 6.5-6.5 6.5" />
+    </>
+  ),
+  turtle: (
+    <>
+      <path d="M4 16.5c0-4 3.5-7 8-7s8 3 8 7z" />
+      <path d="M9 16.5l1.2-5.7M15 16.5l-1.2-5.7M3.5 16.5v2.5M20.5 16.5v2.5" />
+      <path d="M20 12.5l2-1.5" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

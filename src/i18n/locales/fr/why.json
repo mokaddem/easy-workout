@@ -21,9 +21,9 @@
   },
   "replaces": "Remplace {{instead}} : pas de {{missing}}.",
   "ranked": "Le mieux classé pour le mouvement « {{pattern}} » avec ton matériel et ton niveau.",
-  "easierFrom": "Version plus facile de {{from}}, pour ton niveau.",
+  "easierFrom": "Version plus facile pour ton niveau (base : {{from}}).",
   "easier": "Version plus facile, pour ton niveau.",
-  "harderFrom": "Version plus difficile de {{from}}, pour ton niveau.",
+  "harderFrom": "Version plus difficile pour ton niveau (base : {{from}}).",
   "harder": "Version plus difficile, pour ton niveau.",
   "fallback": "Ton matériel ne permet pas le mouvement habituel ({{wanted}}) : celui-ci s’en rapproche.",
   "slotDropped": "Pas d’exercice de {{patterns}} : ton matériel ne le permet pas, la place est retirée.",
@@ -51,7 +51,7 @@
     "warmup-shortened": "Échauffement raccourci pour tenir dans tes {{budget}} min.",
     "other": "Séance ajustée pour tes {{budget}} min."
   },
-  "maxTest": "Un test max de {{name}} clôt le cycle pour mesurer ta progression.",
+  "maxTest": "Test max en fin de cycle pour mesurer ta progression : {{name}}.",
   "quick": "Séance de {{minutes}} min, {{focus}} : sans progression, pas enregistrée tant que tu ne la commences pas.",
   "template": {
     "push": "Push",

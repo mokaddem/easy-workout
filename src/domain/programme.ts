@@ -26,9 +26,15 @@ export const PhaseAdjustmentSchema = z.discriminatedUnion('kind', [
 ]);
 export type PhaseAdjustment = z.infer<typeof PhaseAdjustmentSchema>;
 
+export const PHASE_KINDS = ['re-adaptation', 'volume', 'intensity', 'peak', 'deload'] as const;
+export const PhaseKindSchema = z.enum(PHASE_KINDS);
+export type PhaseKind = z.infer<typeof PhaseKindSchema>;
+
 export const PhaseSchema = z
   .strictObject({
     name: LocalizedTextSchema,
+    /** What the phase is for; absent on older programmes. */
+    kind: PhaseKindSchema.optional(),
     fromWeek: int(1),
     toWeek: int(1),
     adjustments: z.array(PhaseAdjustmentSchema),

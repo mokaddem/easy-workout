@@ -48,7 +48,16 @@ export type Target = z.infer<typeof TargetSchema>;
 /** Load for one set. kg is per implement (each dumbbell). */
 export const LoadSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('kg'), kg: positive }),
-  z.strictObject({ kind: z.literal('added-kg'), kg: positive }),
+  /**
+   * Load added to a bodyweight move, in total kilograms (a pair of dumbbells counts both), with
+   * the implement that carries it.
+   */
+  z.strictObject({
+    kind: z.literal('added-kg'),
+    kg: positive,
+    implement: z.enum(['weight-belt', 'weight-vest', 'dumbbell', 'kettlebell']).optional(),
+    count: z.union([z.literal(1), z.literal(2)]).optional(),
+  }),
   z.strictObject({ kind: z.literal('band'), level: BandLevelSchema }),
   z.strictObject({ kind: z.literal('bodyweight') }),
 ]);
@@ -64,6 +73,12 @@ export const SessionItemSchema = z.strictObject({
   /** Target counted per side (per arm, per leg, per side). */
   perSide: z.boolean().optional(),
   load: LoadSchema.optional(),
+  /**
+   * Reps (reps targets) or seconds (time targets) to aim for at the item's RIR. Usually inside
+   * the range; below it just after a heavier weight, above it when nothing heavier is owned.
+   * Absent: the bottom of the range.
+   */
+  goal: int(1).optional(),
   note: LocalizedTextSchema.optional(),
 });
 export type SessionItem = z.infer<typeof SessionItemSchema>;

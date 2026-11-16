@@ -1,4 +1,4 @@
-import type { Exercise, Goal, Level, Target, Tempo } from '../../domain';
+import type { Exercise, Goal, Level, SessionItem, Target, Tempo } from '../../domain';
 import type { SelectionMethod } from './select';
 import type { RepsSpec, SlotRole, SlotSpec } from './types';
 
@@ -129,6 +129,43 @@ export const itemDose = (
   return {
     target,
     ...(rir === undefined ? {} : { rir }),
+    ...(tempo ? { tempo } : {}),
+    ...(exercise.unilateral ? { perSide: true } : {}),
+  };
+};
+
+/** Exercises whose rep count is the movement itself: they progress by load only. */
+export const FIXED_REP_EXERCISES: ReadonlySet<string> = new Set(Object.keys(EXERCISE_REPS));
+
+/**
+ * The target, tempo and sides an exercise needs when it takes over another one's slot: the
+ * slot's reps are kept, then fitted to how the new exercise is loaded and measured.
+ */
+export const redose = (
+  item: Pick<SessionItem, 'target' | 'tempo'>,
+  previous: Exercise,
+  exercise: Exercise,
+): Pick<SessionItem, 'target' | 'tempo' | 'perSide'> => {
+  let target: Target;
+  if (exercise.metric === 'time')
+    target = item.target.kind === 'time' ? item.target : { kind: 'time', minSec: 30, maxSec: 45 };
+  else {
+    const fixed = FIXED_REP_EXERCISES.has(previous.id);
+    let reps: RepsSpec =
+      item.target.kind === 'reps' && !fixed
+        ? [item.target.min, item.target.max]
+        : item.target.kind === 'max'
+          ? 'max'
+          : [8, 12];
+    reps = repsForLoadType(reps, exercise);
+    reps = repsFloor(reps, exercise);
+    reps = EXERCISE_REPS[exercise.id] ?? reps;
+    target = reps === 'max' ? { kind: 'max' } : { kind: 'reps', min: reps[0], max: reps[1] };
+  }
+  const ballistic = exercise.tags.includes('ballistic') || exercise.tags.includes('plyometric');
+  const tempo = ballistic || exercise.metric === 'time' ? undefined : item.tempo;
+  return {
+    target,
     ...(tempo ? { tempo } : {}),
     ...(exercise.unilateral ? { perSide: true } : {}),
   };

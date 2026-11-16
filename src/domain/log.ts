@@ -52,6 +52,8 @@ export const SetLogSchema = z
       load: LoadSchema.optional(),
       rir: int(0, 5).optional(),
       tempo: TempoSchema.optional(),
+      /** Reps or seconds this set aims for; absent on older logs (the bottom of the range). */
+      goal: int(1).optional(),
     }),
     /** What was done. A set stopped by pain may keep the reps done before it. */
     actual: SetActualSchema.optional(),
@@ -121,12 +123,23 @@ export const LiveClockSchema = z.discriminatedUnion('kind', [
 ]);
 export type LiveClock = z.infer<typeof LiveClockSchema>;
 
+/** Why an exercise is prescribed as it is in a session. The code is translated by the UI. */
+export const ProgressionNoteSchema = z.strictObject({
+  code: SlugSchema,
+  params: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+  /** The load (weight, band, added load) changed since the last time: worth a feel. */
+  newLoad: z.boolean().optional(),
+});
+export type ProgressionNote = z.infer<typeof ProgressionNoteSchema>;
+
 export const SessionLogSchema = z.strictObject({
   id: IdSchema,
   source: SessionSourceSchema,
   /** Snapshot of the plan as it was run, so history survives later edits. */
   plan: SessionSchema,
   adjustments: SetAdjustmentsSchema.optional(),
+  /** Why each exercise (`section/blockIndex/itemIndex`) was prescribed as it was, when it changed. */
+  progression: z.record(z.string(), ProgressionNoteSchema).optional(),
   status: z.enum(['in-progress', 'completed', 'abandoned']),
   startedAt: DateTimeSchema,
   endedAt: DateTimeSchema.optional(),
@@ -166,3 +179,27 @@ export const MaxTestSchema = z.strictObject({
   load: LoadSchema.optional(),
 });
 export type MaxTest = z.infer<typeof MaxTestSchema>;
+
+export const ANSWER_KINDS = ['pain', 'no-equipment', 'harder', 'easier', 'assisted'] as const;
+export const AnswerKindSchema = z.enum(ANSWER_KINDS);
+export type AnswerKind = z.infer<typeof AnswerKindSchema>;
+
+/**
+ * What the user answered to a proposal about an exercise: swap it for another, make it lighter,
+ * keep it, call a missing piece of equipment a one-off, dismiss, or go back to the original.
+ */
+export const AnswerSchema = z
+  .strictObject({
+    id: IdSchema,
+    exerciseId: SlugSchema,
+    kind: AnswerKindSchema,
+    /** The session whose sets raised the proposal; absent for "back". */
+    logId: IdSchema.optional(),
+    answer: z.enum(['swap', 'lighter', 'keep', 'one-off', 'dismiss', 'back']),
+    substituteId: SlugSchema.optional(),
+    at: DateTimeSchema,
+  })
+  .refine((a) => (a.answer === 'swap') === (a.substituteId !== undefined), {
+    message: 'a swap names its substitute, and only a swap does',
+  });
+export type Answer = z.infer<typeof AnswerSchema>;

@@ -19,6 +19,7 @@ import { setsCsv, setsCsvFileName } from '@/db/csv';
 import type { Language } from '@/domain';
 import { AppBar, Button, Card, Dialog, Icon, Sheet, useToast } from '@/ui/components';
 import { exportJsonBackup } from './backupActions';
+import { exportCancelled } from './cancelled';
 import { deliverFile } from './files';
 import { countsOf, phoneCounts, type Counts } from './phone';
 import styles from './Data.module.css';
@@ -100,11 +101,17 @@ export function DataScreen() {
   const programmeCount = useLiveQuery(() => db.programmes.count());
   const failed = () => toast.show({ message: t('settings.data.toastFailed'), tone: 'error' });
 
+  const cancelled = () => {
+    const { key, count } = exportCancelled(days);
+    toast.show({ message: t(key, { count }) });
+  };
+
   const exportJson = async () => {
     setBusy('json');
     try {
       if ((await exportJsonBackup()) !== 'cancelled')
         toast.show({ message: t('settings.data.toastBackup') });
+      else cancelled();
     } catch {
       failed();
     } finally {
@@ -119,6 +126,7 @@ export function DataScreen() {
       const csv = setsCsv(rows, lang, (id) => exerciseById.get(id)?.name[lang]);
       if ((await deliverFile(csv, setsCsvFileName(), 'text/csv')) !== 'cancelled')
         toast.show({ message: t('settings.data.toastCsv') });
+      else cancelled();
     } catch {
       failed();
     } finally {

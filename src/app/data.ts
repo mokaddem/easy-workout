@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import type { EquipmentInventory, Language, Profile, SessionLog, Settings } from '@/domain';
+import type { Answer, EquipmentInventory, Language, Profile, SessionLog, Settings } from '@/domain';
 import type { ProgrammeRecord } from '@/db';
 import { repo } from '@/db/repo';
 import i18n from '@/i18n';
@@ -26,6 +26,16 @@ export function useActiveProgramme(): Loaded<ProgrammeRecord> {
 /** Every session log, oldest first. */
 export function useSessionLogs(): SessionLog[] | undefined {
   return useLiveQuery(() => repo.listSessionLogs());
+}
+
+/** Every programme, archived ones included. */
+export function useProgrammes(): ProgrammeRecord[] | undefined {
+  return useLiveQuery(() => repo.listProgrammes());
+}
+
+/** Every answer to a proposal, oldest first. */
+export function useAnswers(): Answer[] | undefined {
+  return useLiveQuery(() => repo.listAnswers());
 }
 
 /** One session log by id; `null` when it doesn't exist. */

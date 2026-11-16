@@ -29,6 +29,7 @@ export const phasesFor = (options: PhaseOptions): Phase[] => {
   const phases: Phase[] = [
     {
       name: text('Réadaptation', 'Re-adaptation'),
+      kind: 're-adaptation',
       fromWeek: 1,
       toWeek: peak ? 2 : 3,
       adjustments: [{ kind: 'rir', value: 3, scope: 'all-sets' }],
@@ -39,12 +40,14 @@ export const phasesFor = (options: PhaseOptions): Phase[] => {
     },
     {
       name: text('Volume', 'Volume'),
+      kind: 'volume',
       fromWeek: peak ? 3 : 4,
       toWeek: peak ? 4 : 5,
       adjustments: [{ kind: 'extra-sets', add: 1, mainBlockIndexes: [0, 1] }, ...cardio(5)],
     },
     {
       name: text('Intensité', 'Intensity'),
+      kind: 'intensity',
       fromWeek: peak ? 5 : 6,
       toWeek: peak ? 6 : 7,
       adjustments: [{ kind: 'rir', value: peak ? 1 : 2, scope: 'first-set' }, ...cardio(10)],
@@ -61,6 +64,7 @@ export const phasesFor = (options: PhaseOptions): Phase[] => {
   if (peak)
     phases.push({
       name: text('Pic', 'Peak'),
+      kind: 'peak',
       fromWeek: 7,
       toWeek: 7,
       adjustments: [{ kind: 'rir', value: 1, scope: 'last-set' }, ...cardio(10)],
@@ -71,6 +75,7 @@ export const phasesFor = (options: PhaseOptions): Phase[] => {
     });
   phases.push({
     name: text('Décharge + test', 'Deload + test'),
+    kind: 'deload',
     fromWeek: PROGRAMME_WEEKS,
     toWeek: PROGRAMME_WEEKS,
     adjustments: [

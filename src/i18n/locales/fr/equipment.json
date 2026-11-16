@@ -14,7 +14,7 @@
   },
   "household": {
     "title": "Déjà inclus",
-    "hint": "On en trouve dans toutes les maisons : les exercices peuvent compter dessus."
+    "hint": "On en trouve dans toutes les maisons : les exercices peuvent compter dessus."
   },
   "why": {
     "dumbbell-adjustable": "Une seule paire, toutes les charges",
@@ -111,7 +111,7 @@
     "added": "{{name}} ajouté. Vérifie ses réglages."
   },
   "leave": {
-    "title": "Quitter sans enregistrer ?",
+    "title": "Quitter sans enregistrer ?",
     "body": "Tes changements de matériel seront perdus.",
     "confirm": "Quitter",
     "stay": "Continuer à modifier"

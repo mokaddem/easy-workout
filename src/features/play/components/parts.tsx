@@ -3,10 +3,12 @@ import { useSettings } from '@/app/data';
 import { exerciseById } from '@/catalogue';
 import type { SessionItem, Tempo } from '@/domain';
 import type { PlayStep } from '@/engine';
+import { Icon } from '@/ui/components';
 import { exerciseLabel, itemLetter, rxText } from '../format';
 import styles from '../Play.module.css';
 import { useTempoPacer } from '../signals';
 import type { PlayContext } from './types';
+import type { Why } from './why';
 
 export function SideTiles({ side }: { side: 'left' | 'right' }) {
   const { t } = useTranslation();
@@ -165,5 +167,16 @@ export function TempoStrip({ tempo }: { tempo: Tempo }) {
         </span>
       ) : null}
     </button>
+  );
+}
+
+/** The why chip, drawn over the top of the animation slot. */
+export function WhyChip({ why }: { why: Why }) {
+  if (!why.text) return null;
+  return (
+    <p className={`${styles.whyChip} ${why.pain ? styles.whyPain : ''}`}>
+      <Icon name={why.pain ? 'stop' : 'info'} size={20} />
+      <span>{why.text}</span>
+    </p>
   );
 }

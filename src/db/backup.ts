@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  AnswerSchema,
   CheckInSchema,
   DateTimeSchema,
   EquipmentItemSchema,
@@ -15,7 +16,7 @@ import { defaultSettings } from './repo';
 
 export const BACKUP_FORMAT = 'easy-workout-backup';
 /** Raised whenever the stored shape changes; older files are migrated on import. */
-export const BACKUP_SCHEMA_VERSION = 1;
+export const BACKUP_SCHEMA_VERSION = 2;
 
 const ProgrammeRecordSchema = z
   .looseObject({
@@ -48,6 +49,7 @@ const BackupDataSchema = z.strictObject({
   sessionLogs: z.array(SessionLogSchema),
   checkIns: z.array(CheckInSchema),
   maxTests: z.array(MaxTestSchema),
+  answers: z.array(AnswerSchema),
 });
 export type BackupData = z.infer<typeof BackupDataSchema>;
 
@@ -82,6 +84,7 @@ export async function exportBackup(
         sessionLogs: await db.sessionLogs.orderBy('startedAt').toArray(),
         checkIns: await db.checkIns.toArray(),
         maxTests: await db.maxTests.toArray(),
+        answers: await db.answers.orderBy('at').toArray(),
       },
     };
   });
@@ -103,7 +106,10 @@ export type ParsedBackup =
   | { ok: false; reason: 'not-a-backup' | 'newer-version' | 'invalid' };
 
 /** Older files are brought up to the current shape here, one version at a time. */
-const MIGRATIONS: Record<number, (data: unknown) => unknown> = {};
+const MIGRATIONS: Record<number, (data: unknown) => unknown> = {
+  /** Version 2 keeps the answers to proposals about exercises. */
+  1: (data) => (data && typeof data === 'object' ? { answers: [], ...data } : data),
+};
 
 /** Checks a file read from disk before anything is replaced. */
 export function parseBackup(raw: unknown): ParsedBackup {
@@ -168,6 +174,7 @@ export async function importBackup(
     await db.sessionLogs.bulkPut(data.sessionLogs);
     await db.checkIns.bulkPut(data.checkIns);
     await db.maxTests.bulkPut(data.maxTests);
+    await db.answers.bulkPut(data.answers);
   });
 }
 

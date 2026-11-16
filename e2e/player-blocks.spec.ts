@@ -136,11 +136,15 @@ test('a per-side set is logged side by side, with a dark switch pause between', 
   await expect(page.getByText('Session done')).toBeVisible();
 });
 
-test('a hold: ready, lead-in, cancel, then it logs itself at the top of its range', async ({
-  page,
-}) => {
+test('a hold: ready, lead-in, cancel, then it logs itself at its goal', async ({ page }) => {
   await openPlayer(page, {
-    main: [straight({ exerciseId: 'plank', target: { kind: 'time', minSec: 2, maxSec: 3 } })],
+    main: [
+      straight({
+        exerciseId: 'plank',
+        target: { kind: 'time', minSec: 2, maxSec: 4 },
+        goal: 3,
+      }),
+    ],
   });
   await expect(page.getByText('Get into position, then tap. You get 3 s.')).toBeVisible();
   await page.getByRole('button', { name: 'Start the clock' }).click();

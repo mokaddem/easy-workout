@@ -2,8 +2,22 @@ import type { TFunction } from 'i18next';
 import { useState, type ReactNode } from 'react';
 import { Collapse } from '@/motion';
 import { useTranslation } from 'react-i18next';
-import type { EquipmentInventory, GenerationNote, Language, Session, SessionItem } from '@/domain';
-import { sessionSeconds, type WeekPlan } from '@/engine';
+import { exerciseById } from '@/catalogue';
+import type {
+  Answer,
+  EquipmentInventory,
+  GenerationNote,
+  Language,
+  Session,
+  SessionItem,
+} from '@/domain';
+import {
+  itemKey,
+  sessionSeconds,
+  type PreparedSession,
+  type Proposal,
+  type WeekPlan,
+} from '@/engine';
 import { Icon } from '@/ui/components';
 import {
   blockDelta,
@@ -18,10 +32,20 @@ import {
   type SessionIdentity,
 } from './format';
 import { notesForItem } from './why';
-import { CardioRow, DeltaTag, Prescription, type WhyRequest } from './Blocks';
+import { CardioRow, DeltaTag, Prescription, type ItemAdapt, type WhyRequest } from './Blocks';
+import { noteTag, pendingPainFor, swapAnswerFor, type ItemGoals } from './adaptation';
 import { effortText } from './effort';
 import { WhySheet } from './WhySheet';
 import styles from './SessionView.module.css';
+
+/** What progression did to the session: the why of each exercise, swaps, pain waiting, set goals. */
+export interface SessionAdaptation {
+  prepared: Pick<PreparedSession, 'notes' | 'replaces' | 'proposals'>;
+  goals: Record<string, ItemGoals>;
+  answers: readonly Answer[];
+  onSwitchBack: (originalId: string) => void;
+  onChoose: (proposal: Proposal) => void;
+}
 
 export interface SessionViewProps {
   /** The session as it runs: week adjustments already applied. */
@@ -42,6 +66,8 @@ export interface SessionViewProps {
   notices?: ReactNode;
   /** Slot between the hero and the sections: the week ruler. */
   ruler?: ReactNode;
+  /** Progression applied to `session`; absent for quick sessions. */
+  adaptation?: SessionAdaptation;
   /** Changes when the content is replaced in place (another week, a shuffle): the sections fade in. */
   contentKey?: string | number;
 }
@@ -60,6 +86,7 @@ export function SessionView({
   setRir,
   notices,
   ruler,
+  adaptation,
   contentKey = 0,
 }: SessionViewProps) {
   const { t, i18n } = useTranslation();
@@ -77,6 +104,38 @@ export function SessionView({
   const kinds = sessionEquipment(session, inventory);
   const count = exerciseCount(session);
   const sessionId = mode === 'programme' ? session.id : undefined;
+
+  const adaptFor = (
+    section: 'main' | 'finisher',
+    blockIndex: number,
+    itemIndex: number,
+    item: SessionItem,
+  ): ItemAdapt | undefined => {
+    if (!adaptation) return undefined;
+    const key = itemKey(section, blockIndex, itemIndex);
+    const note = adaptation.prepared.notes[key];
+    const original = adaptation.prepared.replaces[key];
+    const tag = noteTag(
+      t,
+      lang,
+      note,
+      item,
+      exerciseById.get(item.exerciseId)?.loadType === 'band-assisted',
+    );
+    const pain = pendingPainFor(note, adaptation.prepared.proposals, item.exerciseId);
+    const goals = adaptation.goals[key];
+    return {
+      ...(note && { note }),
+      ...(goals && { goals }),
+      ...(tag && { tag }),
+      ...(pain && { pain }),
+      ...(original && {
+        replaces: { id: original, answer: swapAnswerFor(adaptation.answers, original) },
+      }),
+      onSwitchBack: adaptation.onSwitchBack,
+      onChoose: adaptation.onChoose,
+    } as ItemAdapt;
+  };
 
   const ask = (
     section: 'warmup' | 'main' | 'finisher',
@@ -138,6 +197,7 @@ export function SessionView({
             big={identity.cardio && section === 'main'}
             delta={delta}
             notes={itemNotes}
+            {...optional(adaptFor(section, blockIndex, 0, block.item))}
             onWhy={() => ask(section, blockIndex, block.item)}
           />
         ) : (
@@ -156,6 +216,7 @@ export function SessionView({
             {...(section === 'main' && setRir?.last !== undefined
               ? { lastSetRir: setRir.last }
               : {})}
+            {...optional(adaptFor(section, blockIndex, 0, block.item))}
             onWhy={() => ask(section, blockIndex, block.item)}
           />
         );
@@ -199,6 +260,7 @@ export function SessionView({
                   { ...(sessionId ? { sessionId } : {}), section, blockIndex, itemIndex },
                   item.exerciseId,
                 )}
+                {...optional(adaptFor(section, blockIndex, itemIndex, item))}
                 onWhy={() => ask(section, blockIndex, item, itemIndex)}
               />
             ))}
@@ -333,6 +395,8 @@ export function SessionView({
     </div>
   );
 }
+
+const optional = (adapt: ItemAdapt | undefined) => (adapt ? { adapt } : {});
 
 function warmupDose(item: SessionItem, sets: number, t: TFunction): string {
   const target = item.target;

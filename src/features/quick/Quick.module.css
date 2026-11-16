@@ -190,7 +190,11 @@
 }
 .dockRow {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.dockRow > button {
+  padding-inline: var(--space-4);
   gap: var(--space-2);
 }
 .dockNote {

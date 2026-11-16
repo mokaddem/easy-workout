@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MotionProvider } from '@/motion';
+import { ProgressProvider } from './progress';
 import { TabBar, ToastProvider, type TabBarItem } from '@/ui/components';
 import { navigate, routeHref, tabOf, useLocationState, type Route, type Tab } from './router';
 import styles from './Shell.module.css';
@@ -46,26 +47,28 @@ export function Shell({ route, children }: { route: Route; children: ReactNode }
     <MotionProvider>
       <div ref={shell} className={styles.shell} data-tabbar={tab ? '' : undefined}>
         <ToastProvider offsetBottom={TOAST_OFFSET}>
-          <div
-            key={route.name}
-            className={styles.screen}
-            data-entrance={entrance === 'none' ? undefined : entrance}
-          >
-            {children}
-          </div>
-          {tab ? (
-            <TabBar
-              label={t('nav.label')}
-              onNavigate={(href) => navigate(href)}
-              items={TABS.map(({ id, icon }) => ({
-                id,
-                icon,
-                label: t(`nav.${id}`),
-                href: routeHref({ name: id }),
-                current: id === tab,
-              }))}
-            />
-          ) : null}
+          <ProgressProvider>
+            <div
+              key={route.name}
+              className={styles.screen}
+              data-entrance={entrance === 'none' ? undefined : entrance}
+            >
+              {children}
+            </div>
+            {tab ? (
+              <TabBar
+                label={t('nav.label')}
+                onNavigate={(href) => navigate(href)}
+                items={TABS.map(({ id, icon }) => ({
+                  id,
+                  icon,
+                  label: t(`nav.${id}`),
+                  href: routeHref({ name: id }),
+                  current: id === tab,
+                }))}
+              />
+            ) : null}
+          </ProgressProvider>
         </ToastProvider>
       </div>
     </MotionProvider>

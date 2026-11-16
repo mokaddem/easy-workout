@@ -10,6 +10,7 @@ import {
 } from '@/domain';
 import {
   asPlanned,
+  setGoal,
   pauseBetween,
   playSteps,
   restOfExercise,
@@ -314,8 +315,9 @@ export function finishTimer(state: PlayerState, now: number): Transition {
 /** Seconds a timed set runs on its own before it completes; undefined when only the user ends it. */
 function autoEndSec(step: PlayStep): number | undefined {
   const target = step.planned.target;
-  // A hold counts down from the top of its range; stopping earlier records the time held.
-  if (target.kind === 'time') return target.maxSec;
+  // A hold counts down from its goal (the bottom of its range when it has none), as "done as
+  // planned" logs it; stopping earlier records the time held.
+  if (target.kind === 'time') return setGoal(step.planned);
   if (target.kind === 'interval') return target.rounds * (target.workSec + target.recoverySec);
   return undefined;
 }

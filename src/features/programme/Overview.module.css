@@ -298,6 +298,7 @@
 .nudgeText {
   display: grid;
   flex: 1;
+  min-width: 0;
   gap: 2px;
 }
 .nudgeTitle {
@@ -502,4 +503,18 @@
 }
 .row > svg {
   color: var(--color-text-muted);
+}
+
+/* decisions */
+.wellCount {
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+}
+.wellCount .num {
+  font-size: var(--font-size-36);
+  line-height: 1;
+}
+.decisions {
+  display: grid;
+  padding-top: var(--space-2);
 }

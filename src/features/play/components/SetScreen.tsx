@@ -3,19 +3,30 @@ import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import type { Feel } from '@/domain';
 import { asPlanned, setGoal } from '@/engine';
+import { playerUnit } from '@/features/adapt';
 import { Button, IconButton, SegmentedControl, Stepper } from '@/ui/components';
-import { glyphOf, loadParts, previousReps, repsAt, targetNumber, exerciseLabel } from '../format';
+import {
+  glyphOf,
+  unbreakable,
+  loadParts,
+  previousReps,
+  repsAt,
+  targetNumber,
+  exerciseLabel,
+} from '../format';
 import styles from '../Play.module.css';
 import { AdjustSheet } from './AdjustSheet';
 import { AnimSlot } from './AnimSlot';
 import { NextUp, SetHead, TempoStrip } from './parts';
 import type { PlayContext } from './types';
+import { useWhy } from './why';
 
 const FEELS: Feel[] = ['easy', 'right', 'hard'];
 
 /** A rep-based set: what to do, how it should feel, and the one tap that logs it. */
 export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
   const { t } = useTranslation();
+  const why = useWhy({ lang, log, step });
   const exercise = exerciseById.get(step.item.exerciseId);
   const name = exerciseLabel(exercise, lang, step.item.exerciseId);
   const { planned } = step;
@@ -27,7 +38,7 @@ export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
   const [adjustKey, setAdjustKey] = useState(0);
   const [adjusting, setAdjusting] = useState(false);
 
-  const goal = isMax ? maxReps : setGoal(planned.target);
+  const goal = isMax ? maxReps : setGoal(planned);
   const load = loadParts(t, lang, planned.load, exercise, inventory);
   const sideWord = step.side ? t(`play.side.${step.side}`) : undefined;
   const planDone = asPlanned(planned);
@@ -36,13 +47,25 @@ export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
   const feel = (
     <SegmentedControl
       options={feelOptions}
-      value={player.state.feel}
+      value={why.ask && !player.state.feelChosen ? null : player.state.feel}
       onChange={player.setFeel}
-      label={t('play.set.feel')}
+      label={why.ask ? t('adapt.player.feelAsk') : t('play.set.feel')}
+      {...(why.ask && !player.state.feelChosen && { ask: true })}
     />
   );
 
-  const repsUnit = sideWord ? t('play.set.repsSide', { side: sideWord }) : t('play.set.reps');
+  const { target } = planned;
+  const repsUnit =
+    target.kind === 'reps' && goal !== undefined && target.min < target.max
+      ? playerUnit(t, {
+          goal,
+          min: target.min,
+          max: target.max,
+          ...(step.side && { side: step.side }),
+        })
+      : sideWord
+        ? t('play.set.repsSide', { side: sideWord })
+        : t('play.set.reps');
   const hint = isMax
     ? [
         planned.rir === undefined
@@ -67,15 +90,17 @@ export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
 
         <div className={styles.score}>
           <div className={styles.scoreCell}>
-            <span className={`${styles.num} ${styles.scoreN}`}>
-              {targetNumber(t, planned.target)}
-            </span>
-            <span className={styles.scoreU}>
-              {repsUnit}
+            <div className={styles.scoreTop}>
+              <span className={`${styles.num} ${styles.scoreN}`}>
+                {target.kind === 'reps' && goal !== undefined
+                  ? goal
+                  : targetNumber(t, planned.target)}
+              </span>
               {planned.rir !== undefined ? (
                 <span className={styles.badge}>{t('play.set.rir', { count: planned.rir })}</span>
               ) : null}
-            </span>
+            </div>
+            <span className={styles.scoreU}>{unbreakable(repsUnit)}</span>
           </div>
           <div className={styles.scoreCell}>
             {load.value ? (
@@ -99,6 +124,7 @@ export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
           glyph={glyphOf(exercise)}
           tag={exercise ? t(`labels.pattern.${exercise.pattern}`) : ''}
           cue={exercise?.keyCue[lang]}
+          why={why}
         />
       </div>
 

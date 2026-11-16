@@ -2,12 +2,25 @@ import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import { Fragment } from 'react';
-import type { GenerationNote, Language, Load, SessionItem } from '@/domain';
+import type {
+  Answer,
+  GenerationNote,
+  Language,
+  Load,
+  ProgressionNote,
+  SessionItem,
+} from '@/domain';
+import type { Proposal } from '@/engine';
 import { Icon } from '@/ui/components';
+import { ChangeTag, GoalRuler, noteDetail, Rich, showsWhy, type ChangeTagData } from '../adapt';
+import { PendingPainLine, SwapLine, WhyLine } from './AdaptLines';
+import type { ItemGoals } from './adaptation';
 import { cardioMinutes, exerciseName, formatNumber, range, type BlockDelta } from './format';
 import { effortText } from './effort';
 import { describeNote, isInlineNote } from './why';
 import styles from './SessionView.module.css';
+
+const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
 
 export function DeltaTag({ delta }: { delta: BlockDelta | null | undefined }) {
   const { t } = useTranslation();
@@ -28,6 +41,19 @@ export interface WhyRequest {
   first: boolean;
 }
 
+/** What progression says about one exercise of the session as it will run. */
+export interface ItemAdapt {
+  note?: ProgressionNote;
+  goals?: ItemGoals;
+  tag?: ChangeTagData;
+  /** The exercise this one stands in for, with the answer that put it there. */
+  replaces?: { id: string; answer?: Answer | undefined };
+  /** Pain waiting for an answer. */
+  pain?: Proposal;
+  onSwitchBack?: (originalId: string) => void;
+  onChoose?: (proposal: Proposal) => void;
+}
+
 interface RxProps {
   item: SessionItem;
   /** Index number or group letter. */
@@ -39,6 +65,7 @@ interface RxProps {
   notes: GenerationNote[];
   firstSetRir?: number;
   lastSetRir?: number;
+  adapt?: ItemAdapt;
   onWhy: () => void;
 }
 
@@ -94,28 +121,55 @@ function LoadCell({ item, load, lang }: { item: SessionItem; load: Load; lang: L
   }
 }
 
-/** Sets × reps or time, the load, and the facts around them. */
-function Dose({ item, sets, lang }: { item: SessionItem; sets: number; lang: Language }) {
+/** Sets × goal (or set 1 + the others), the range ruler, the load. */
+function Dose({
+  item,
+  sets,
+  lang,
+  goals,
+}: {
+  item: SessionItem;
+  sets: number;
+  lang: Language;
+  goals?: ItemGoals | undefined;
+}) {
   const { t } = useTranslation();
   const target = item.target;
-  const side = item.perSide ? 'Side' : '';
+  const side = item.perSide ? 'PerSide' : '';
   let value: React.ReactNode = null;
   let unit = '';
-  if (target.kind === 'reps') {
+  let ruler: React.ReactNode = null;
+  if (target.kind === 'reps' && goals) {
+    const split = sets > 1 && goals.first !== goals.rest;
+    value = split ? `${goals.first} + ${sets - 1} × ${goals.rest}` : `${sets} × ${goals.rest}`;
+    unit = t(`adapt.detail.unit.${split ? 'firstPlus' : 'setsReps'}${side}`);
+    ruler = <GoalRuler goal={goals.rest} min={target.min} max={target.max} />;
+  } else if (target.kind === 'reps') {
     value = `${sets} × ${range(target.min, target.max)}`;
-    unit = t(`programme.rx.setsReps${side}`);
+    unit = t(`programme.rx.setsReps${item.perSide ? 'Side' : ''}`);
   } else if (target.kind === 'max') {
     value = `${sets} × max`;
-    unit = t(`programme.rx.setsReps${side}`);
+    unit = t(`programme.rx.setsReps${item.perSide ? 'Side' : ''}`);
   } else if (target.kind === 'time') {
+    const goal = goals?.rest;
+    const shown = goal !== undefined ? String(goal) : range(target.minSec, target.maxSec);
     value = (
       <>
         {sets > 1 ? `${sets} × ` : ''}
-        {range(target.minSec, target.maxSec)}
+        {shown}
         <small>{t('labels.unit.s')}</small>
       </>
     );
-    unit = t(sets > 1 ? `programme.rx.setsTime${side}` : `programme.rx.time${side}`);
+    unit =
+      goal !== undefined && sets > 1
+        ? t('adapt.detail.unit.setsTime')
+        : t(
+            sets > 1
+              ? `programme.rx.setsTime${item.perSide ? 'Side' : ''}`
+              : `programme.rx.time${item.perSide ? 'Side' : ''}`,
+          );
+    if (goal !== undefined)
+      ruler = <GoalRuler goal={goal} min={target.minSec} max={target.maxSec} time />;
   }
   return (
     <div className={styles.rxNums}>
@@ -123,6 +177,7 @@ function Dose({ item, sets, lang }: { item: SessionItem; sets: number; lang: Lan
         <div className={styles.rxCell}>
           <span className={`${styles.num} ${styles.rxN}`}>{value}</span>
           <span className={styles.rxU}>{unit}</span>
+          {ruler}
         </div>
       ) : null}
       {item.load ? <LoadCell item={item} load={item.load} lang={lang} /> : null}
@@ -140,6 +195,7 @@ export function Prescription({
   notes,
   firstSetRir,
   lastSetRir,
+  adapt,
   onWhy,
 }: RxProps) {
   const { t, i18n } = useTranslation();
@@ -150,6 +206,19 @@ export function Prescription({
     .map((note) => describeNote(note, t, lang))
     .filter((line): line is string => Boolean(line));
   const repBased = item.target.kind === 'reps' || item.target.kind === 'max';
+  const goals = adapt?.goals;
+  const perSet = repBased && goals !== undefined && sets > 1 && goals.first !== goals.rest;
+  const note = adapt?.note;
+  const target = item.target;
+  const pending = adapt?.pain !== undefined;
+  const whyText =
+    note && showsWhy(note) && !pending
+      ? noteDetail(t, lang, note, {
+          exerciseId: item.exerciseId,
+          ...(target.kind === 'reps' && { min: target.min, max: target.max }),
+          ...(target.kind === 'time' && { min: target.minSec, max: target.maxSec, time: true }),
+        })
+      : undefined;
   return (
     <article className={`${styles.rx} ${first ? styles.rxFirst : ''}`}>
       <span className={`${styles.num} ${styles.rxIdx}`}>{label}</span>
@@ -163,8 +232,9 @@ export function Prescription({
         <Icon name="why" />
       </button>
       <div className={styles.rxBody}>
-        <Dose item={item} sets={sets} lang={lang} />
+        <Dose item={item} sets={sets} lang={lang} goals={goals} />
         <div className={styles.facts}>
+          {adapt?.tag ? <ChangeTag tag={adapt.tag} /> : null}
           <DeltaTag delta={delta} />
           {restSec !== undefined && restSec > 0 ? (
             <span>
@@ -188,7 +258,18 @@ export function Prescription({
             </span>
           ) : null}
         </div>
-        {repBased && firstSetRir !== undefined ? (
+        {perSet && firstSetRir !== undefined && item.rir !== undefined && firstSetRir > 0 ? (
+          <p className={styles.facts}>
+            <span>
+              <Rich
+                text={t('adapt.detail.perSetFacts', {
+                  first: t('adapt.evidence.reps', { count: firstSetRir }),
+                  rest: item.rir,
+                })}
+              />
+            </span>
+          </p>
+        ) : repBased && firstSetRir !== undefined ? (
           <p className={styles.facts}>
             {t('programme.rx.firstSet', { effort: effortText(t, firstSetRir) })}
           </p>
@@ -201,12 +282,33 @@ export function Prescription({
         {item.target.kind === 'max' ? (
           <p className={styles.facts}>{t('programme.rx.maxHint')}</p>
         ) : null}
+        {whyText ? <WhyLine text={whyText} /> : null}
         {lines.map((line) => (
           <p key={line} className={styles.whyLine}>
             <Icon name="why" size={20} />
             <span>{line}</span>
           </p>
         ))}
+        {adapt?.pain ? (
+          <PendingPainLine
+            fromToken={str(adapt.pain.lighter?.params.from)}
+            toToken={str(adapt.pain.lighter?.params.to) ?? str(note?.params.load)}
+            onChoose={() => adapt.onChoose?.(adapt.pain!)}
+          />
+        ) : null}
+        {adapt?.replaces ? (
+          <SwapLine
+            originalId={adapt.replaces.id}
+            answer={adapt.replaces.answer}
+            firstTime={note?.code === 'swapped-in'}
+            {...(adapt.replaces.answer?.kind === 'harder' &&
+            note?.code === 'hold-miss' &&
+            target.kind === 'reps'
+              ? { missedMin: target.min }
+              : {})}
+            onSwitchBack={() => adapt.onSwitchBack?.(adapt.replaces!.id)}
+          />
+        ) : null}
       </div>
     </article>
   );
@@ -220,6 +322,7 @@ export function CardioRow({
   big,
   delta,
   notes,
+  adapt,
   onWhy,
 }: {
   item: SessionItem;
@@ -228,12 +331,18 @@ export function CardioRow({
   big?: boolean;
   delta?: BlockDelta | null;
   notes: GenerationNote[];
+  adapt?: ItemAdapt;
   onWhy: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
   const name = exerciseName(item.exerciseId, lang);
   const target = item.target;
+  const cardioNote = adapt?.note;
+  const cardioWhy =
+    cardioNote && showsWhy(cardioNote)
+      ? noteDetail(t, lang, cardioNote, { exerciseId: item.exerciseId })
+      : undefined;
   const lines = notes
     .filter(isInlineNote)
     .map((note) => describeNote(note, t, lang))
@@ -283,6 +392,7 @@ export function CardioRow({
           <Intervals target={target} lang={lang} />
         ) : null}
         <div className={styles.facts}>
+          {adapt?.tag ? <ChangeTag tag={adapt.tag} /> : null}
           <DeltaTag delta={delta} />
           {item.rir === undefined ? null : (
             <span>
@@ -290,6 +400,7 @@ export function CardioRow({
             </span>
           )}
         </div>
+        {cardioWhy ? <WhyLine text={cardioWhy} /> : null}
         {lines.map((line) => (
           <p key={line} className={styles.whyLine}>
             <Icon name="why" size={20} />
