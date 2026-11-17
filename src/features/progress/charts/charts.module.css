@@ -1,0 +1,144 @@
+.wrap {
+  position: relative;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.wrap:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.svg {
+  display: block;
+  overflow: visible;
+}
+.panelTitle,
+.axis,
+.tick {
+  fill: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  font-stretch: var(--font-width-label);
+  font-variant-numeric: tabular-nums;
+}
+.panelTitle {
+  font-weight: var(--font-weight-bold);
+}
+.axisNow {
+  fill: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+.axisLater {
+  fill: var(--color-text-subtle);
+}
+.grid {
+  stroke: var(--color-line);
+  stroke-width: 1;
+}
+.baseline {
+  stroke: var(--color-line-strong);
+  stroke-width: 1;
+}
+.band {
+  fill: var(--color-surface-sunken);
+}
+.now {
+  fill: var(--color-accent-tint);
+}
+.colPast {
+  fill: var(--color-text-subtle);
+}
+.colHot {
+  fill: var(--color-text);
+}
+.colPain {
+  fill: none;
+  stroke: var(--color-danger-text);
+  stroke-width: 1.5;
+}
+.colHollow {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 1.5;
+}
+.dash {
+  stroke: var(--color-text-subtle);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.line {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.stepMark {
+  stroke: var(--color-line-strong);
+  stroke-width: 1;
+}
+.dot {
+  fill: var(--color-text);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+.cross {
+  stroke: var(--color-text);
+  stroke-width: 1;
+}
+.cap {
+  fill: var(--color-text);
+  font-size: 15px;
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--color-surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.swatchBand {
+  width: 18px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-line);
+}
+.swatchStep {
+  width: 1px;
+  height: 14px;
+  background: var(--color-line-strong);
+}
+.swatchSolid {
+  width: 10px;
+  height: 12px;
+  border-radius: 3px 3px 0 0;
+  background: var(--color-text-subtle);
+}
+.swatchHollow {
+  width: 10px;
+  height: 12px;
+  border-radius: 3px 3px 0 0;
+  border: 1.5px solid var(--color-text);
+}
+@media (forced-colors: active) {
+  .colPast,
+  .colHot {
+    fill: CanvasText;
+  }
+}

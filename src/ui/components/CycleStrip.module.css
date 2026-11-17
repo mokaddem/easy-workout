@@ -1,0 +1,87 @@
+.strip {
+  display: grid;
+  gap: 4px;
+  --cell: 12px;
+}
+.tall {
+  --cell: 28px;
+}
+.week {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 6px 0 4px;
+  border-radius: var(--radius-sm);
+}
+.current {
+  background: var(--color-accent-tint);
+}
+.cells {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  width: 100%;
+  padding: 0 6px;
+}
+.cells > i {
+  height: var(--cell);
+  border-radius: 3px;
+  background: var(--color-track);
+}
+.cells > i.done {
+  background: var(--color-text);
+}
+.cells > i.early {
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--border-control) var(--color-text-muted);
+}
+.cells > i.remaining {
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--border-control) var(--color-line-strong);
+}
+.cells > i.later {
+  background: var(--color-track);
+}
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: var(--font-width-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+.current .label {
+  color: var(--color-text);
+}
+.far .label {
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+.ghost {
+  padding: 8px 6px;
+  border: var(--border-control) dashed var(--color-line-strong);
+  border-radius: var(--radius-md);
+}
+.ghost .cells > i {
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--border-hairline) var(--color-line-strong);
+}
+.ghost .label {
+  color: var(--color-text-subtle);
+}
+
+/* One left-to-right sweep over `base`, after the screen cross-fade (`slow`). */
+.sweep .week {
+  animation: strip-in var(--duration-fast) var(--ease-linear) both;
+  animation-delay: calc(var(--duration-slow) + var(--w) * var(--duration-base) / var(--weeks));
+}
+@keyframes strip-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sweep .week {
+    animation: none;
+  }
+}

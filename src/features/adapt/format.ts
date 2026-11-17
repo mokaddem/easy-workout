@@ -341,6 +341,20 @@ export function noteReason(
       return ctx.evidence !== undefined && ctx.date !== undefined
         ? t('adapt.why.fromHistory.reason', { evidence: ctx.evidence, date: ctx.date })
         : t('adapt.why.fromHistory.reasonShort');
+    case 'from-test': {
+      const date = str(r.p.date);
+      const test = num(r.p.test);
+      if (test === undefined || r.goal === undefined || date === undefined) return undefined;
+      return t('adapt.why.fromTest.reason', {
+        date: new Date(`${date}T12:00:00`).toLocaleDateString(lang, {
+          day: 'numeric',
+          month: 'long',
+        }),
+        test: r.amount(test),
+        from: r.amount(num(r.p.from) ?? 0),
+        to: r.amount(r.goal),
+      });
+    }
     case 'buy-next':
       return t('adapt.why.buyNext.reason');
     case 'ladder-end':
@@ -460,6 +474,8 @@ export function noteChip(
       return r.to !== undefined
         ? t('adapt.why.fromHistory.chip', { to: toText })
         : t('adapt.why.fromHistory.chipNoLoad');
+    case 'from-test':
+      return goalText !== undefined ? t('adapt.why.fromTest.chip', { to: goalText }) : undefined;
     case 'time-up':
       return goalText !== undefined
         ? t('adapt.why.timeUp.chip', {
@@ -489,7 +505,7 @@ const tempoText = (tempo: NonNullable<Prescribed['tempo']>) =>
 const tempoTotal = (tempo: NonNullable<Prescribed['tempo']>) => tempo.down + tempo.pause + tempo.up;
 
 export interface ChangeTagData {
-  icon: Extract<IconName, 'arrow-up' | 'arrow-down' | 'arrow-right' | 'turtle'>;
+  icon: Extract<IconName, 'arrow-up' | 'arrow-down' | 'arrow-right' | 'turtle' | 'equals'>;
   text: string;
   /** Spoken before the text: "Up:". */
   srPrefix?: string;

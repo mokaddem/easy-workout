@@ -1,7 +1,209 @@
 {
   "title": "Progrès",
   "weekShort": "S{{week}}",
-  "emptyTitle": "Pas encore de séance terminée",
-  "emptyBody": "Après ta première séance, tu verras ici tes charges et tes reps par exercice, et ton volume semaine après semaine.",
-  "seeNext": "Voir la prochaine séance"
+  "seeNext": "Voir la prochaine séance",
+  "unit": {
+    "h": "h",
+    "min": "min"
+  },
+  "week": {
+    "title": "Cette semaine",
+    "sessions_one": "séance",
+    "sessions_other": "séances",
+    "active": "actives, pauses non comptées",
+    "none": "Pas encore de séance cette semaine.",
+    "mix": "{{list}}.",
+    "mixProgramme_one": "{{count}} séance du programme",
+    "mixProgramme_other": "{{count}} séances du programme",
+    "mixQuick_one": "{{count}} séance rapide",
+    "mixQuick_other": "{{count}} séances rapides",
+    "mixOwn_one": "{{count}} séance à toi",
+    "mixOwn_other": "{{count}} séances à toi",
+    "sr": "{{sessions}}, {{time}} actives."
+  },
+  "cycle": {
+    "title": "Ton programme",
+    "week": "Semaine {{week}} sur {{weeks}}",
+    "done_one": "<b>{{done}} séance sur {{perWeek}}</b> faite cette semaine.",
+    "done_other": "<b>{{done}} séances sur {{perWeek}}</b> faites cette semaine.",
+    "total_one": "<b>{{done}} séance sur {{planned}}</b> et {{time}} actives depuis le {{date}}.",
+    "total_other": "<b>{{done}} séances sur {{planned}}</b> et {{time}} actives depuis le {{date}}.",
+    "ended_one": "<b>Cycle terminé : {{done}} séance sur {{planned}}.</b>",
+    "ended_other": "<b>Cycle terminé : {{done}} séances sur {{planned}}.</b>",
+    "review": "Voir le bilan",
+    "noProgramme": "Pas de programme en cours.",
+    "create": "Créer mon programme"
+  },
+  "highlights": {
+    "title": "Ce qui progresse",
+    "window": "14 derniers jours",
+    "loadUp": "Un cran au-dessus : <b>{{load}}</b>{{perDumbbell}}. {{date}}",
+    "perDumbbell": " par haltère",
+    "addedLoad": "Charge ajoutée : <b>{{load}}</b>. {{date}}",
+    "best": "Meilleure série : <b>{{value}}</b>. {{date}}",
+    "lessHelp": "Moins d’aide : <b>élastique {{band}}</b>. {{date}}",
+    "moreHelp": "Plus d’aide : <b>élastique {{band}}</b>. {{date}}",
+    "repsUp": "Objectif relevé : <b>{{goal}}</b>. {{date}}",
+    "beyond": "Au-delà de la plage : <b>{{goal}}</b>. {{date}}",
+    "workLonger": "Travail plus long : <b>{{value}}</b>. {{date}}",
+    "test": "Test max : <b>{{value}}</b>. {{date}}",
+    "generic": "A progressé. {{date}}",
+    "empty": "Chaque exercice avance dès sa deuxième séance. Ses hausses de charge et de reps s’afficheront ici.",
+    "more_one": "Voir l’autre",
+    "more_other": "Voir les {{count}} autres",
+    "less": "Voir moins"
+  },
+  "sets": {
+    "title": "Séries de travail en semaine {{week}}",
+    "sub": "Faites sur prévues dans cette semaine du programme, muscles principaux seulement.",
+    "left_one": "Il reste la séance {{names}}.",
+    "left_other": "Il reste les séances {{names}}.",
+    "outsideQuick": "Ta séance rapide compte aussi.",
+    "outside": "Tes séances hors programme comptent aussi.",
+    "done": "Faites",
+    "planned": "Prévues",
+    "sr": "{{done}} sur {{planned}} prévues"
+  },
+  "group": {
+    "chest": "Pectoraux",
+    "back": "Dos",
+    "shoulders": "Épaules",
+    "arms": "Bras",
+    "core": "Abdos",
+    "quads": "Quadriceps",
+    "glutes": "Fessiers",
+    "hamstrings": "Ischios",
+    "calves": "Mollets"
+  },
+  "history": {
+    "title": "Ton historique"
+  },
+  "nav": {
+    "sessions": {
+      "title": "Séances",
+      "meta_one": "{{count}} séance, la dernière {{when}}",
+      "meta_other": "{{count}} séances, la dernière {{when}}",
+      "none": "Aucune séance terminée"
+    },
+    "exercises": {
+      "title": "Exercices",
+      "meta_one": "{{count}} exercice fait",
+      "meta_other": "{{count}} exercices faits",
+      "none": "Aucun exercice fait"
+    },
+    "body": {
+      "title": "Corps",
+      "meta": "Dernières mesures {{when}}",
+      "none": "Note ton poids, ton tour de taille, ton sommeil"
+    },
+    "tests": {
+      "title": "Tests max",
+      "meta": "Dernier : {{name}}, {{value}}, {{date}}",
+      "none": "Mesure ton point de départ"
+    },
+    "past": {
+      "title": "Programmes passés",
+      "meta_one": "{{count}} programme",
+      "meta_other": "{{count}} programmes"
+    }
+  },
+  "empty": {
+    "title": "Pas encore de séance terminée",
+    "body": "Après ta première séance, ta semaine et ton cycle se rempliront ici, avec ce qui progresse, exercice par exercice.",
+    "already": "Déjà possible"
+  },
+  "sessions": {
+    "title": "Séances",
+    "back": "Retour aux progrès",
+    "meta_one": "{{count}} séance depuis le {{date}}",
+    "meta_other": "{{count}} séances depuis le {{date}}",
+    "thisWeek": "Cette semaine",
+    "lastWeek": "Semaine dernière",
+    "weekOf": "Semaine du {{date}}",
+    "groupMeta_one": "{{count}} séance, {{time}}",
+    "groupMeta_other": "{{count}} séances, {{time}}",
+    "groupMetaNone": "Aucune terminée",
+    "rowMeta_one": "{{day}}, {{minutes}} min, {{count}} série",
+    "rowMeta_other": "{{day}}, {{minutes}} min, {{count}} séries",
+    "rowMetaNoSets": "{{day}}, {{minutes}} min",
+    "pain": "<b>Douleur</b> : {{exercise}}",
+    "abandoned": "Abandonnée, ne compte pas",
+    "endedEarly": "Arrêtée avant la fin : {{done}} séries sur {{total}}",
+    "endedEarlyNoCount": "Arrêtée avant la fin : {{done}} séries sur {{total}}, ne compte pas",
+    "ownAlone": "Ta séance, lancée seule",
+    "quick": "Séance rapide",
+    "emptyTitle": "Aucune séance terminée",
+    "emptyBody": "Tes séances apparaîtront ici dès que tu en auras terminé une.",
+    "seeProgramme": "Voir la prochaine séance"
+  },
+  "log": {
+    "back": "Retour aux séances",
+    "context": "Séances",
+    "kicker": "Semaine {{week}}, {{phase}}",
+    "kickerQuick": "Séance rapide",
+    "kickerOwn": "Ma séance",
+    "when": "{{day}}, {{start}}–{{end}}",
+    "whenStart": "{{day}}, {{start}}",
+    "statActive": "actives",
+    "statSets": "séries",
+    "statReps": "reps",
+    "painNotice": "<b>Douleur</b> : {{exercise}}, arrêté à la série {{set}}.",
+    "abandonedNotice": "Abandonnée : ne compte pas dans ta rotation.",
+    "earlyNotice": "Arrêtée avant la fin : {{done}} séries sur {{total}}. Comptée comme faite.",
+    "earlyNoCountNotice": "Arrêtée avant la fin : {{done}} séries sur {{total}}. Pas comptée : la séance a été reproposée.",
+    "byExercise": "Exercice par exercice",
+    "warmup": "Échauffement",
+    "warmupMeta_one": "{{count}} exercice",
+    "warmupMeta_other": "{{count}} exercices",
+    "warmupSkipped_one": ", {{skipped}} passé",
+    "warmupSkipped_other": ", {{skipped}} passés",
+    "warmupPassed": "Passé",
+    "warmupDone": "Fait",
+    "goal": "objectif {{goal}}",
+    "side": {
+      "left": "G",
+      "right": "D"
+    },
+    "sideLabel": {
+      "left": "Côté gauche",
+      "right": "Côté droit"
+    },
+    "painSet": "Douleur",
+    "painAfter": "après {{reps}} reps",
+    "notDone": "Pas faite : exercice arrêté",
+    "notReached": "Pas atteint",
+    "noEquipment": "Pas le matériel aujourd’hui",
+    "oneOff": "c’était ponctuel",
+    "forGood": "remplacé pour de bon",
+    "skipped": "Passé",
+    "reps_one": "{{count}} rep",
+    "reps_other": "{{count}} reps",
+    "seconds": "{{count}} s",
+    "rounds_one": "{{count}} tour",
+    "rounds_other": "{{count}} tours",
+    "minutes": "{{count}} min",
+    "bestSet": "Meilleure série",
+    "note": "Ta note",
+    "delete": "Supprimer cette séance",
+    "deleteHint": "Ta rotation et tes charges seront recalculées sans elle.",
+    "deleteDialog": {
+      "title": "Supprimer cette séance ?",
+      "body_one": "Sa <b>{{sets}} série</b> quitte ton historique. Ta rotation et tes charges sont recalculées sans elle.",
+      "body_other": "Ses <b>{{sets}} séries</b> quittent ton historique. Ta rotation et tes charges sont recalculées sans elle.",
+      "next": "La <b>séance {{name}}</b> redevient ta prochaine séance.",
+      "test": "Son test max est supprimé aussi.",
+      "confirm": "Supprimer la séance",
+      "nextTitle": "<b>{{name}}</b> redevient ta prochaine séance."
+    },
+    "deleted": "Séance supprimée. Charges recalculées.",
+    "missingTitle": "Séance introuvable",
+    "missingBody": "Elle a peut-être été supprimée.",
+    "missingAction": "Voir les séances",
+    "sr": {
+      "medal": "Record"
+    },
+    "kickerWeek": "Semaine {{week}}",
+    "exerciseCount_one": "{{count}} exercice",
+    "exerciseCount_other": "{{count}} exercices"
+  }
 }

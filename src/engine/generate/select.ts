@@ -12,7 +12,13 @@ import {
   type EquipmentCapabilities,
 } from '../equipment';
 import { tieBreak } from './hash';
-import { NOT_MAIN_LIFT, NOT_ON_DOORWAY_BAR, onlyDoorwayBars, setupConcern } from './safety';
+import {
+  NOT_MAIN_LIFT,
+  NOT_ON_DOORWAY_BAR,
+  onlyDoorwayBars,
+  setupConcern,
+  WARMUP_ONLY,
+} from './safety';
 import type { Context, SlotRole, SlotSpec } from './types';
 
 /** Hardest difficulty offered at each level. */
@@ -90,6 +96,8 @@ export interface SelectionState {
   warmup: Set<string>;
   /** Everything placed in earlier sessions of the programme. */
   programme: Set<string>;
+  /** The session being built. */
+  sessionId?: string;
 }
 
 export const newSelectionState = (): SelectionState => ({
@@ -101,7 +109,8 @@ export const newSelectionState = (): SelectionState => ({
 /** Slots a regeneration seed may vary. Main and secondary lifts stay put. */
 const VARIABLE_ROLES: readonly SlotRole[] = ['accessory', 'isolation', 'core', 'conditioning'];
 
-export type SelectionMethod = 'preferred' | 'easier-variant' | 'ranked' | 'fallback-pattern';
+export type SelectionMethod =
+  'preferred' | 'kept' | 'easier-variant' | 'ranked' | 'fallback-pattern';
 
 export interface Selection {
   exercise: Exercise;
@@ -112,6 +121,10 @@ export interface Selection {
   from?: string;
   /** Set when an advanced trainee was moved one step up a bodyweight chain. */
   harderFrom?: string;
+  /** Set when the exercise replaces one that reached the end of its ladder last cycle. */
+  upgradedFrom?: string;
+  /** A kept pick from a neighbouring pattern: dosed as a fallback. */
+  fallback?: boolean;
   /** The slot's first choice, when the equipment ruled it out, and what it lacked. */
   instead?: { id: string; missing: string[] };
 }
@@ -127,6 +140,7 @@ const eligible = (
 ): EquipmentRequirement[] | null => {
   if (!patterns.includes(exercise.pattern)) return null;
   if (slot.role !== 'warmup' && exercise.pattern === 'mobility') return null;
+  if (slot.role !== 'warmup' && WARMUP_ONLY.includes(exercise.id)) return null;
   if (slot.role === 'main' && !exercise.tags.includes('compound')) return null;
   if (slot.role === 'main' && NOT_MAIN_LIFT.includes(exercise.id)) return null;
   if (slot.tag && !exercise.tags.includes(slot.tag)) return null;
@@ -258,6 +272,32 @@ const harderStep = (
   return picked;
 };
 
+const jumps = (e: Exercise) => e.tags.includes('plyometric') || e.tags.includes('ballistic');
+
+/** No more than one difficulty step above last cycle's exercise, and no jumps where there were none. */
+const withinStep = (next: Exercise, was: Exercise): boolean =>
+  next.difficulty <= was.difficulty + 1 && (!jumps(next) || jumps(was));
+
+/** A lift that ended its ladder last cycle moves to its harder variant, if the slot takes it. */
+const upgraded = (
+  picked: Selection,
+  slot: SlotSpec,
+  ctx: Context,
+  capabilities: EquipmentCapabilities,
+  state: SelectionState,
+): Selection => {
+  if (slot.role === 'warmup') return picked;
+  const id = ctx.upgrades.get(picked.exercise.id);
+  const candidate = id ? ctx.catalogue.get(id) : undefined;
+  if (!candidate) return picked;
+  // The variant does the same job as the pick, which may have come from a fallback pattern.
+  const patterns = [...slot.patterns, ...(slot.fallbackPatterns ?? [])];
+  const setup = eligible(candidate, slot, patterns, ctx, capabilities, state);
+  return setup
+    ? { ...picked, exercise: candidate, setup, upgradedFrom: picked.exercise.id }
+    : picked;
+};
+
 /**
  * Picks the exercise for a slot: the first preferred exercise that fits, else an easier
  * variant of one, else the best-ranked candidate, else the best one from a neighbouring
@@ -270,6 +310,28 @@ export const selectExercise = (
   capabilities: EquipmentCapabilities = equipmentCapabilities(ctx.equipment),
 ): Selection | null => {
   let picked: Selection | null = null;
+  const last = state.sessionId ? ctx.lastCycle.get(`${state.sessionId}/${slot.id}`) : undefined;
+
+  // A new cycle keeps its lifts: the previous pick stays while it still fits the slot.
+  if (last && !VARIABLE_ROLES.includes(slot.role) && slot.role !== 'warmup') {
+    const exercise = ctx.catalogue.get(last);
+    const setup = exercise && eligible(exercise, slot, slot.patterns, ctx, capabilities, state);
+    if (exercise && setup)
+      return place({ exercise, setup, method: 'kept' }, slot, ctx, capabilities, state);
+    // Last cycle's stand-in from a neighbouring pattern stays too, dosed as one.
+    const fallback =
+      exercise &&
+      slot.fallbackPatterns &&
+      eligible(exercise, slot, slot.fallbackPatterns, ctx, capabilities, state);
+    if (exercise && fallback)
+      return place(
+        { exercise, setup: fallback, method: 'kept', fallback: true },
+        slot,
+        ctx,
+        capabilities,
+        state,
+      );
+  }
 
   const preferred: Selection[] = [];
   for (const id of slot.prefer ?? []) {
@@ -285,8 +347,10 @@ export const selectExercise = (
     if (missing.length > 0) picked = { ...picked, instead: { id: firstChoice.id, missing } };
   }
   // A seed varies only the slots where another preferred exercise does the job as well:
-  // no lighter kind of load and not a regression of the first choice.
-  if (picked && ctx.seed !== 0 && VARIABLE_ROLES.includes(slot.role)) {
+  // no lighter kind of load and not a regression of the first choice. A new cycle also moves
+  // away from last cycle's exercise there, when such a peer exists.
+  const avoided = last;
+  if (picked && (ctx.seed !== 0 || avoided) && VARIABLE_ROLES.includes(slot.role)) {
     const loadRank = loadRankFor(slot.role);
     const first = picked.exercise;
     const regressions = easierClosure(first, ctx);
@@ -296,7 +360,25 @@ export const selectExercise = (
         (loadRank[p.exercise.loadType] <= loadRank[first.loadType] &&
           !regressions.has(p.exercise.id)),
     );
-    picked = peers[tieBreak(ctx.seed, slot.id) % peers.length] ?? picked;
+    // Neither last cycle's exercise nor one the user just outgrew comes back.
+    const fresh = peers.filter(
+      (p) => p.exercise.id !== avoided && !ctx.upgrades.has(p.exercise.id),
+    );
+    const pool = fresh.length > 0 ? fresh : peers;
+    picked = pool[tieBreak(ctx.seed, slot.id) % pool.length] ?? picked;
+  }
+  // A new cycle (a new level too) moves an accessory one step at most from last cycle's.
+  const was = last ? ctx.catalogue.get(last) : undefined;
+  if (picked && was && VARIABLE_ROLES.includes(slot.role) && !withinStep(picked.exercise, was)) {
+    const near = preferred.filter(
+      (p) => withinStep(p.exercise, was) && !ctx.upgrades.has(p.exercise.id),
+    );
+    const other = near.filter((p) => p.exercise.id !== was.id);
+    const pool = other.length > 0 ? other : near;
+    const setup = eligible(was, slot, slot.patterns, ctx, capabilities, state);
+    picked =
+      pool[tieBreak(ctx.seed, slot.id) % Math.max(1, pool.length)] ??
+      (setup ? { exercise: was, setup, method: 'kept' } : picked);
   }
   picked ??= easierVariant(slot, ctx, capabilities, state);
   if (!picked) {
@@ -309,7 +391,18 @@ export const selectExercise = (
   }
   if (!picked) return null;
 
-  picked = harderStep(picked, slot, ctx, capabilities, state);
+  return place(harderStep(picked, slot, ctx, capabilities, state), slot, ctx, capabilities, state);
+};
+
+/** Applies a pending upgrade to the pick and marks it used. */
+const place = (
+  pick: Selection,
+  slot: SlotSpec,
+  ctx: Context,
+  capabilities: EquipmentCapabilities,
+  state: SelectionState,
+): Selection => {
+  const picked = upgraded(pick, slot, ctx, capabilities, state);
   const used = slot.role === 'warmup' ? state.warmup : state.session;
   used.add(picked.exercise.id);
   if (slot.role !== 'warmup') state.programme.add(picked.exercise.id);

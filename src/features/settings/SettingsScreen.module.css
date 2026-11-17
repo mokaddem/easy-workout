@@ -69,3 +69,11 @@
   padding: 8px var(--layout-gutter) 0;
   font-weight: var(--font-weight-semibold);
 }
+
+/* Sits among icon rows: its text lines up with theirs and the divider follows. */
+button.checkRow {
+  padding-left: calc(var(--space-4) + 48px + var(--space-3));
+}
+button.checkRow:not(:last-child)::after {
+  left: calc(var(--space-4) + 48px + var(--space-3));
+}

@@ -39,3 +39,16 @@ export { TabBar, type TabBarItem, type TabBarProps } from './TabBar';
 export { ToastProvider, type ToastProviderProps } from './Toast';
 export type { ToastApi, ToastOptions } from './toastContext';
 export { useToast } from './useToast';
+export { CompareFigure, type CompareFigureProps } from './CompareFigure';
+export {
+  CycleStrip,
+  type CycleCellState,
+  type CycleStripProps,
+  type CycleStripWeek,
+} from './CycleStrip';
+export {
+  TestResultCard,
+  TestResultRow,
+  type TestResultCardProps,
+  type TestResultRowProps,
+} from './TestResultCard';

@@ -39,7 +39,37 @@
     "copied": "Session copied to My sessions",
     "copiedView": "View",
     "placed": "<b>Your session, in place of session {{letter}}</b> of the programme. It progresses and follows the weeks.",
-    "unplace": "Remove from programme"
+    "unplace": "Remove from programme",
+    "testNotice": "<b>Max test at the end of this session:</b> {{name}}. This session doesn’t work your {{muscles}}, so you test fresh.",
+    "testNoticeFirst": "<b>Max test right after the warm-up:</b> {{name}}. Every session this week works your {{muscles}}, so it comes first.",
+    "testNoticeBlocked": "<b>No max test this time.</b> See the end of the session for why.",
+    "testTitle": "Max test",
+    "testRuleReps": "After a 3 min rest: one set, as many clean reps as you can, up to 50. Stop at failure, or as soon as your form breaks.",
+    "testRuleHold": "After a 3 min rest: one attempt, as long as you can, 3:00 at most. Stop the clock as soon as your form breaks.",
+    "testLast": "Last end-of-cycle test: <b>{{value}}</b>, on {{date}}.",
+    "testNone": "First end-of-cycle test: it becomes your baseline.",
+    "testDone": "Done on {{date}}: <b>{{value}}</b>.",
+    "testDoneNoValue": "Done on {{date}}.",
+    "testSkipped": "Skipped on {{date}}. You can take one from Progress, with Take a test.",
+    "testBlockedTitle": "{{name}}: not this time",
+    "testBlocked_one": "{{exercise}} hurt on {{date}}. An all-out test waits for 2 pain-free sessions on a similar move; there has been {{count}} so far.",
+    "testBlocked_other": "{{exercise}} hurt on {{date}}. An all-out test waits for 2 pain-free sessions on a similar move; there have been {{count}} so far.",
+    "testBlockedLater": "Nothing is recorded. You can test later from Progress, once that’s done.",
+    "testWhy": "Why this test?",
+    "testMinutes": "~5 min",
+    "testMuscles": {
+      "chest": "chest",
+      "back": "back",
+      "shoulders": "shoulders",
+      "arms": "arms",
+      "core": "abs",
+      "quads": "quads",
+      "glutes": "glutes",
+      "hamstrings": "hamstrings",
+      "calves": "calves"
+    },
+    "testReps_one": "{{count}} rep",
+    "testReps_other": "{{count}} reps"
   },
   "week": {
     "group": "Programme week",
@@ -105,7 +135,13 @@
     "weekOf": "Week {{week}} of {{total}}",
     "week": "Week",
     "of": "of {{total}}",
-    "phase": "{{name}} phase"
+    "phase": "{{name}} phase",
+    "cycleDone": "Cycle done",
+    "cycleDoneLine": "Eight weeks, every session done. Your review is ready.",
+    "cycleDoneSeen": "Your loads wait where you left them.",
+    "cycleWaiting_one": "Finished {{count}} day ago. Your loads wait where you left them.",
+    "cycleWaiting_other": "Finished {{count}} days ago. Your loads wait where you left them.",
+    "weekDone": "Week {{week}} of {{total}}, done"
   },
   "phase": {
     "readapt": {
@@ -177,7 +213,9 @@
   },
   "next": {
     "label": "Next session",
-    "details": "View session"
+    "details": "View session",
+    "testFact": "Then a max test: {{name}}",
+    "testFactFirst": "Starts with a max test: {{name}}"
   },
   "start": "Start session",
   "rotation": {
@@ -209,7 +247,8 @@
     "withCardio_one": "{{weeks}} weeks, {{count}} session (+ {{cardio}} cardio day) a week",
     "withCardio_other": "{{weeks}} weeks, {{count}} sessions (+ {{cardio}} cardio day) a week",
     "plain_one": "{{weeks}} weeks, {{count}} session a week",
-    "plain_other": "{{weeks}} weeks, {{count}} sessions a week"
+    "plain_other": "{{weeks}} weeks, {{count}} sessions a week",
+    "cycle": "Cycle {{cycle}}, {{meta}}"
   },
   "menu": {
     "button": "Programme options",
@@ -345,5 +384,28 @@
       "sets_other": "{{count}} sets",
       "rest": "rest {{value}} s"
     }
+  },
+  "cycleEnd": {
+    "label": "End of cycle {{n}}",
+    "title": "Your review is ready",
+    "see": "See the review",
+    "note": "Cycle {{next}} starts from the review, whenever you’re ready.",
+    "readyTitle": "Cycle {{next}} is ready to start",
+    "readyLine": "Same split and main lifts, new accessories. You see every change before it starts.",
+    "start": "Start cycle {{next}}",
+    "again": "See the review again",
+    "meanwhile": "Meanwhile, a quick session changes nothing in your programme.",
+    "testFact": "{{name}}: {{from}} → <b>{{to}}</b>",
+    "testFactFirst": "{{name}}: <b>{{to}}</b>"
+  },
+  "checkin": {
+    "title": "Your weekly check-in",
+    "body_one": "Weight, waist, sleep: under a minute. Last check-in {{count}} day ago.",
+    "body_other": "Weight, waist, sleep: under a minute. Last check-in {{count}} days ago.",
+    "first": "Weight, waist, sleep: under a minute. Your first check-in becomes your baseline.",
+    "open": "Add a check-in",
+    "later": "Not this week",
+    "hidden": "Reminder hidden until {{date}}",
+    "undo": "Undo"
   }
 }

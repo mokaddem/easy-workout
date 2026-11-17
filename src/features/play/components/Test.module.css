@@ -1,0 +1,374 @@
+/* The max test: its own screens inside the player's frame (bar, content, dock). */
+.kicker {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-16);
+  font-weight: 700;
+  font-stretch: var(--font-width-label);
+  letter-spacing: var(--letter-spacing-label, 0.02em);
+}
+.toBeat {
+  display: grid;
+  gap: 4px;
+}
+.toBeatRow {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.beatN {
+  font-size: var(--font-size-96);
+  line-height: 0.9;
+}
+.beatLabel {
+  font-size: var(--font-size-24);
+  font-weight: 800;
+  font-stretch: var(--font-width-display);
+}
+.beatLine {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-16);
+  font-weight: 600;
+}
+.rules {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 2px 0 2px 14px;
+  border-left: var(--border-strong) solid var(--color-line-strong);
+  list-style: none;
+  font-size: var(--font-size-18);
+  line-height: 1.3;
+}
+.rules strong {
+  font-weight: 800;
+}
+.then {
+  display: grid;
+  gap: 4px;
+  padding: 2px 0 2px 14px;
+  border-left: var(--border-strong) solid var(--color-accent-line);
+}
+.then b {
+  font-size: var(--font-size-18);
+  font-weight: 800;
+}
+.then small,
+.then span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-16);
+  font-weight: 600;
+}
+.dockCol {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+.dockCol small {
+  color: var(--color-on-accent-muted);
+  font-size: var(--font-size-14);
+  font-weight: 600;
+  font-stretch: var(--font-width-text);
+}
+
+/* set screens */
+.max {
+  font-size: var(--font-size-96);
+  line-height: 0.9;
+}
+.beatSmall {
+  color: var(--color-text-muted);
+}
+.clock {
+  font-size: var(--type-timer-compact-size);
+  line-height: 0.85;
+  white-space: nowrap;
+}
+.clockWrap {
+  display: grid;
+  gap: 18px;
+  align-content: center;
+  flex: 1;
+}
+.capBar {
+  position: relative;
+  height: 12px;
+  border-radius: var(--radius-xs);
+  background: var(--color-track);
+}
+.capBar i {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-xs);
+  background: var(--color-accent-line);
+}
+.capBar b {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 3px;
+  background: var(--color-text);
+}
+.capLabels {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+  font-weight: 700;
+}
+.leadN {
+  font-size: var(--type-timer-compact-size);
+  line-height: 0.85;
+}
+.center {
+  display: grid;
+  flex: 1;
+  align-content: center;
+  justify-items: start;
+  gap: 8px;
+}
+
+/* entry */
+.entry {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.entryTitle {
+  margin: 0;
+  font-size: var(--font-size-36);
+  line-height: var(--line-height-display);
+  font-weight: 800;
+  font-stretch: var(--font-width-display);
+  text-wrap: balance;
+}
+/* The hero stepper: the number between two big buttons. */
+.hstep {
+  display: grid;
+  grid-template-columns: var(--tap-player, 64px) minmax(0, 1fr) var(--tap-player, 64px);
+  align-items: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+}
+.hstepBtn {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--elevation-1);
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hstepBtn:active {
+  background: var(--color-press-overlay);
+}
+.hstepBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.hstepBtn:disabled {
+  color: var(--color-text-disabled);
+  box-shadow: none;
+  cursor: default;
+}
+.hstepVal {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+.hstepNum {
+  font-size: var(--font-size-96);
+  line-height: 0.86;
+  white-space: nowrap;
+}
+.hstepTime {
+  /* m:ss is wider than two digits: it must fit between the buttons at 360 px. */
+  font-size: min(var(--font-size-96), 21vw);
+}
+.hstepVal small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-24);
+  font-weight: 700;
+  font-stretch: var(--font-width-title);
+}
+.compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-16);
+  font-weight: 600;
+}
+.compare strong {
+  color: var(--color-text);
+}
+.capNote {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-16);
+  font-weight: 700;
+}
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-16);
+  line-height: 1.35;
+}
+.note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* result */
+.result {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.resultBig {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.resultU {
+  padding-bottom: 6px;
+  font-size: var(--font-size-48);
+  font-weight: 800;
+  font-stretch: var(--font-width-display);
+}
+.resultN {
+  font-size: var(--font-size-240);
+  line-height: 0.82;
+  white-space: nowrap;
+}
+.resultLine {
+  margin: 0;
+  font-size: var(--font-size-24);
+  line-height: 1.2;
+  font-weight: 700;
+  font-stretch: var(--font-width-title);
+  text-wrap: balance;
+}
+.blocked {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.blockedBody {
+  margin: 0;
+  font-size: var(--font-size-18);
+  line-height: 1.35;
+}
+
+/* fresh test */
+.fresh {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  padding-bottom: 8px;
+}
+.freshRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--tap-comfort, 56px);
+  padding: 0 4px;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+.freshRow small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+  font-weight: 600;
+}
+.freshBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 4px var(--layout-gutter);
+}
+.freshBar span {
+  flex: 1;
+  font-size: var(--font-size-16);
+  font-weight: 700;
+  font-stretch: var(--font-width-label);
+}
+.stopRow {
+  display: grid;
+  gap: 12px;
+}
+.painCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: var(--border-strong) solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+}
+.painCard b {
+  display: block;
+  font-size: var(--font-size-18);
+}
+.painCard small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+  font-weight: 600;
+}
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: var(--font-size-16);
+  font-weight: 700;
+}
+
+/* Each step of the test arrives by itself: a short fade, no travel, so nothing waits and nothing
+   shifts. Reduced motion shortens it through the duration token. */
+.arrive {
+  animation: test-arrive var(--duration-base) var(--ease-move) backwards;
+}
+.arriveDock {
+  animation: test-arrive var(--duration-fast) var(--ease-move) backwards;
+}
+/* Passing the last test during a hold: the line fades in with a small punch, once. */
+.beaten {
+  display: inline-block;
+  animation:
+    test-arrive var(--duration-fast) var(--ease-move) backwards,
+    test-punch var(--duration-base) var(--ease-punch);
+}
+@keyframes test-arrive {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes test-punch {
+  from {
+    transform: scale(var(--motion-scale-press));
+  }
+}

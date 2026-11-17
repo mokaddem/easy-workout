@@ -162,5 +162,10 @@
     "lineAge_other": "Last backup <b>{{count}} days</b> ago.",
     "lineNever": "No backup yet.",
     "lineExport": "Export"
+  },
+  "checkin": {
+    "title": "Weekly check-in reminder",
+    "on": "A card on Programme when your last check-in is more than 7 days old.",
+    "off": "No card. You can still add a check-in from Progress."
   }
 }

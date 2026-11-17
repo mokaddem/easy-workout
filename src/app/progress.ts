@@ -22,7 +22,14 @@ import {
   type ProgressContext,
   type Proposal,
 } from '@/engine';
-import { useAnswers, useEquipment, useProfile, useProgrammes, useSessionLogs } from './data';
+import {
+  useAnswers,
+  useEquipment,
+  useMaxTests,
+  useProfile,
+  useProgrammes,
+  useSessionLogs,
+} from './data';
 
 /** How often the clock progression reads moves on while the app stays open. */
 const CLOCK_MS = 5 * 60_000;
@@ -67,30 +74,34 @@ function useOwnProgressContext(skip = false): ProgressContext | undefined {
   const logs = useSessionLogs();
   const programmes = useProgrammes();
   const answers = useAnswers();
+  const maxTests = useMaxTests();
   const inventory = useEquipment();
   const profile = useProfile();
   const now = useClock();
   return useMemo(() => {
     if (skip) return undefined;
-    if (!logs || !programmes || !answers || !inventory || profile === undefined) return undefined;
+    if (!logs || !programmes || !answers || !maxTests || !inventory || profile === undefined)
+      return undefined;
     return {
       logs,
       programmes,
       answers,
+      maxTests,
       inventory,
       ...(profile && { profile }),
       now: new Date(now),
       exercises: exerciseById,
     };
-  }, [skip, logs, programmes, answers, inventory, profile, now]);
+  }, [skip, logs, programmes, answers, maxTests, inventory, profile, now]);
 }
 
 /** Reads the same context once, outside React (starting a session). */
 export async function loadProgressContext(now = new Date()): Promise<ProgressContext> {
-  const [logs, programmes, answers, inventory, profile] = await Promise.all([
+  const [logs, programmes, answers, maxTests, inventory, profile] = await Promise.all([
     repo.listSessionLogs(),
     repo.listProgrammes(),
     repo.listAnswers(),
+    repo.listMaxTests(),
     repo.getEquipment(),
     repo.getProfile(),
   ]);
@@ -98,6 +109,7 @@ export async function loadProgressContext(now = new Date()): Promise<ProgressCon
     logs,
     programmes,
     answers,
+    maxTests,
     inventory,
     ...(profile && { profile }),
     now,

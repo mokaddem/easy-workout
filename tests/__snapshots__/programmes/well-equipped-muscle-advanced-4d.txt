@@ -36,8 +36,8 @@ Main:
   2. 4 × Romanian deadlift · 10 · RIR 2 · tempo 3-0-2 · 30 kg  (rest 105s)
   3. 4 × Bulgarian split squat · 10/side · RIR 2 · bodyweight  (rest 90s)
   4. 3 × Single-leg calf raise · 15-20/side · RIR 2 · bodyweight  (rest 45s)
-  5. superset × 4 rounds (rest 60s after each round)
-       - Towel body saw · 10-12 · RIR 2
+  5. superset × 3 rounds (rest 60s after each round)
+       - Hollow body hold · 45-60s
        - Toes to bar · 10-12 · RIR 2
   6. 3 × Band hip abduction · 20/side · RIR 2 · medium band  (rest 45s)
 
@@ -90,11 +90,10 @@ Why (choices other than the first preference):
 - [b-lower-a/main/1] load-start {"exerciseId":"dumbbell-romanian-deadlift","kg":30,"targetKg":28.56,"bodyweightKg":85,"bodyweightAssumed":false}
 - [b-lower-a/main/2] load-unloaded-start {"exerciseId":"bulgarian-split-squat"}
 - [b-lower-a/main/3] load-unloaded-start {"exerciseId":"single-leg-calf-raise"}
-- [b-lower-a/main/4/0] exercise-harder-variant {"exerciseId":"towel-body-saw","slot":"plank","from":"plank"}
+- [b-lower-a/main/4/0] exercise-harder-variant {"exerciseId":"hollow-body-hold","slot":"plank","from":"plank"}
 - [b-lower-a/main/4/1] exercise-harder-variant {"exerciseId":"toes-to-bar","slot":"leg-raise","from":"hanging-leg-raise"}
 - [b-lower-a/main/5] load-band {"exerciseId":"band-hip-abduction","level":"medium"}
 - [b-lower-a] time-fit {"action":"block-added","exerciseIds":"band-hip-abduction","budget":75}
-- [b-lower-a] time-fit {"action":"round-added","exerciseIds":"towel-body-saw,toes-to-bar","budget":75}
 - [c-upper-b/main/0] load-unloaded-start {"exerciseId":"pull-up"}
 - [c-upper-b/main/1] load-start {"exerciseId":"standing-dumbbell-shoulder-press","kg":15,"targetKg":15.47,"bodyweightKg":85,"bodyweightAssumed":false}
 - [c-upper-b/main/2] load-start {"exerciseId":"bent-over-dumbbell-row","kg":17.5,"targetKg":16.66,"bodyweightKg":85,"bodyweightAssumed":false}

@@ -447,6 +447,12 @@
   position: absolute;
   inset: -6px 0 -6px -10px;
 }
+.phaseStatic {
+  cursor: default;
+}
+.phaseStatic::before {
+  content: none;
+}
 .phase:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);

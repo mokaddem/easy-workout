@@ -34,7 +34,14 @@ function bezier(name: string, fallback: Bezier): Bezier | 'linear' {
 
 export interface MotionTokens {
   /** Seconds. Already shortened by the reduced-motion overrides in the stylesheet. */
-  duration: { instant: number; fast: number; base: number; slow: number; flood: number };
+  duration: {
+    instant: number;
+    fast: number;
+    base: number;
+    slow: number;
+    flood: number;
+    celebrate: number;
+  };
   ease: {
     snap: Bezier | 'linear';
     exit: Bezier | 'linear';
@@ -54,6 +61,7 @@ export function readTokens(reduced: boolean): MotionTokens {
       base: seconds('--duration-base'),
       slow: seconds('--duration-slow'),
       flood: seconds('--duration-flood'),
+      celebrate: seconds('--duration-celebrate'),
     },
     ease: {
       snap: bezier('--ease-snap', [0.16, 1, 0.3, 1]),

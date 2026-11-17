@@ -8,7 +8,7 @@ Phases:
   W6-7 Intensity: RIR 2 (first-set); cardio +10 min
   W8 Deload + test: volume × 0.6; RIR 3 (all-sets); max test: Push-up
 
-## Session A — Full body A  [a-full-a, ~41 min]
+## Session A — Full body A  [a-full-a, ~43 min]
 Warm-up:
   1. Arm circles · 30s
   2. Bodyweight squat · 15
@@ -17,7 +17,7 @@ Main:
   1. 2 × Bodyweight squat · 10-15 · RIR 3  (rest 75s)
   2. 2 × Push-up · 10-12 · RIR 3 · bodyweight  (rest 75s)
   3. 2 × Inverted row under a table · 12 · RIR 3  (rest 75s)
-  4. 2 × Good morning · 12 · RIR 3 · tempo 3-0-2  (rest 75s)
+  4. 2 × Supported single-leg Romanian deadlift · 12/side · RIR 3 · tempo 3-0-2  (rest 75s)
   5. 2 × Door towel row · 10-15 · RIR 3  (rest 75s)
   6. 2 × Hands-elevated pike push-up · 12-15 · RIR 3  (rest 60s)
   7. superset × 2 rounds (rest 45s after each round)
@@ -26,13 +26,13 @@ Main:
 Finisher:
   1. Step jacks · 10 × (40s on / 20s off)
 
-## Session B — Full body B  [b-full-b, ~37 min]
+## Session B — Full body B  [b-full-b, ~38 min]
 Warm-up:
   1. Arm circles · 30s
   2. Bodyweight squat · 15
   3. 2 × Prone Y raise · 15  (rest 30s)
 Main:
-  1. 2 × Good morning · 10 · RIR 3  (rest 90s)
+  1. 2 × Supported single-leg Romanian deadlift · 10/side · RIR 3  (rest 90s)
   2. 2 × Door towel row · 10-15 · RIR 3  (rest 90s)
   3. 2 × Step-up · 12/side · RIR 3 · bodyweight  (rest 75s)
   4. 2 × Hands-elevated pike push-up · 10-12 · RIR 3  (rest 75s)
@@ -53,7 +53,7 @@ Main:
   4. 2 × Reverse lunge · 15/side · RIR 3 · bodyweight  (rest 60s)
   5. 2 × Door towel row · 10-15 · RIR 3  (rest 75s)
   6. 2 × Hands-elevated pike push-up · 12-15 · RIR 3  (rest 60s)
-  7. 2 × Good morning · 8-12 · RIR 3  (rest 45s)
+  7. 2 × Hamstring bridge walkout · 6-8 · RIR 3  (rest 45s)
   8. superset × 2 rounds (rest 45s after each round)
        - Plank · 45-60s
        - Superman · 12 · RIR 3
@@ -73,7 +73,7 @@ Why (choices other than the first preference):
 - [a-full-a/finisher/0] cardio-modality {"exerciseId":"step-jacks","modality":"step-intervals"}
 - [a-full-a] slot-dropped {"slot":"curl","patterns":"elbow-flexion"}
 - [a-full-a] slot-dropped {"slot":"triceps","patterns":"elbow-extension"}
-- [b-full-b/main/0] exercise-easier-variant {"exerciseId":"good-morning","slot":"hinge-main","from":"dumbbell-deadlift"}
+- [b-full-b/main/0] exercise-easier-variant {"exerciseId":"supported-single-leg-romanian-deadlift","slot":"hinge-main","from":"single-leg-romanian-deadlift"}
 - [b-full-b/main/1] exercise-fallback-pattern {"exerciseId":"door-towel-row","slot":"pull-vertical-main","pattern":"pull-horizontal","wanted":"pull-vertical"}
 - [b-full-b/main/2] load-unloaded-start {"exerciseId":"dumbbell-step-up"}
 - [b-full-b/main/3] exercise-easier-variant {"exerciseId":"hands-elevated-pike-push-up","slot":"press-vertical-main","from":"pike-push-up"}
@@ -83,7 +83,6 @@ Why (choices other than the first preference):
 - [c-full-c/main/3] load-unloaded-start {"exerciseId":"reverse-lunge"}
 - [c-full-c/main/4] exercise-fallback-pattern {"exerciseId":"door-towel-row","slot":"pull-vertical-second","pattern":"pull-horizontal","wanted":"pull-vertical"}
 - [c-full-c/main/5] exercise-easier-variant {"exerciseId":"hands-elevated-pike-push-up","slot":"press-vertical","from":"pike-push-up"}
-- [c-full-c/main/6] exercise-fallback-pattern {"exerciseId":"good-morning","slot":"leg-curl","pattern":"hinge","wanted":"knee-flexion"}
 - [c-full-c/finisher/0/0] exercise-easier-variant {"exerciseId":"mountain-climber","slot":"swing","from":"squat-thrust"}
 - [c-full-c] time-fit {"action":"block-added","exerciseIds":"mountain-climber,bear-crawl,skater-step,side-plank","budget":45}
 - max-test {"exerciseId":"push-up"}

@@ -152,6 +152,10 @@
     },
     "swappedIn": {
       "reason": "Première fois : charge de départ."
+    },
+    "fromTest": {
+      "reason": "Ton test max du {{date}} : {{test}}. Objectif relevé de {{from}} à {{to}}.",
+      "chip": "Objectif {{to}} : d’après ton test max"
     }
   },
   "summary": {

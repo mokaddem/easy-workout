@@ -62,6 +62,8 @@ export default defineConfig({
     }),
   ],
   test: {
+    // Each worker loads the whole catalogue and a DOM: a few at a time keeps memory in check.
+    maxWorkers: 4,
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],

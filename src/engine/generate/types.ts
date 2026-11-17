@@ -57,6 +57,10 @@ interface BlockOptions {
   priority?: Priority;
   /** The time fit may shorten this block but never drops it (e.g. the week's core work). */
   keep?: boolean;
+  /** Kept the same way in weeks of at most this many days, where nothing else does its job. */
+  keepUpToDays?: number;
+  /** Under 30-minute sessions, this straight block holds another slot (the week stays balanced). */
+  shortSlot?: SlotSpec;
 }
 
 export type BlockTemplate = BlockOptions &
@@ -104,6 +108,18 @@ export interface GenerateInput {
   equipment: EquipmentInventory;
   /** Breaks ties between equally good candidates; 0 keeps the default order. */
   seed?: number;
+  /** Which cycle this programme is (1 when absent): later cycles no longer teach the movements. */
+  cycle?: number;
+  /**
+   * The previous cycle's picks, by `sessionId/slotId`. Main and secondary slots keep theirs when
+   * they still fit (a new level changes the dose, not the lifts); in slots a seed may vary,
+   * another equally good exercise is picked when there is one.
+   */
+  lastCycle?: Readonly<Record<string, string>>;
+  /** The equipment last cycle was made for: where new equipment changes a slot's pick, it wins. */
+  lastCycleEquipment?: EquipmentInventory;
+  /** Exercise → the harder variant that replaces it wherever it would be picked. */
+  upgrades?: Readonly<Record<string, string>>;
   /** Defaults to a name derived from the inputs. */
   id?: string;
 }
@@ -123,5 +139,8 @@ export interface Context {
   equipment: EquipmentInventory;
   catalogue: ReadonlyMap<string, Exercise>;
   seed: number;
+  cycle: number;
+  lastCycle: ReadonlyMap<string, string>;
+  upgrades: ReadonlyMap<string, string>;
   log: NoteLog;
 }

@@ -1,0 +1,1827 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Progress tab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans); font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size); line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+:root[lang="fr"] .en, :root[lang="en"] .fr { display: none !important; }
+button, input { font: inherit; color: inherit; background: none; border: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--xs { width: 14px; height: 14px; stroke-width: 2.5; }
+svg.i--lg { width: 28px; height: 28px; }
+svg.i--fill { fill: currentColor; stroke: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.mock-bar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 12px 24px; background: color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-line); font-size: 14px; }
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; }
+.mock-bar__nav { display: flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.mock-bar__nav a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: var(--radius-pill); color: var(--color-text-muted); font-weight: 600; text-decoration: none; font-stretch: var(--font-width-label); }
+.mock-bar__nav a:hover { background: var(--color-surface-sunken); color: var(--color-text); }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible, .mock-bar__nav a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-sec { flex: 0 0 100%; max-width: 1280px; display: grid; gap: 4px; padding-top: 24px; scroll-margin-top: 72px; }
+.mock-sec h2 { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-title); }
+.mock-sec p { color: var(--color-text-muted); font-size: 15px; max-width: 60ch; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; scroll-margin-top: 80px; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); max-width: 390px; text-align: center; text-wrap: balance; }
+.mock-shot.is-flash .device { box-shadow: 0 0 0 4px var(--color-focus), 0 24px 80px rgb(0 0 0 / 0.28); }
+[data-go] { cursor: pointer; }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device { position: relative; width: 390px; height: 844px; flex: none; display: flex; flex-direction: column; border-radius: 48px; overflow: hidden; isolation: isolate; background: var(--color-bg); color: var(--color-text); box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28); transition: box-shadow var(--duration-base) var(--ease-move); }
+@media (max-width: 440px) { .mock-stage { padding: 16px 0 48px; gap: 32px; } .mock-bar { padding: 10px 16px; } .device { border-radius: 0; box-shadow: none; } }
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; position: relative; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); text-wrap: balance; }
+.t-headline, .section-title { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.muted { color: var(--color-text-muted); }
+
+/* ---------- buttons ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap-comfort); padding: 0 var(--space-6); border-radius: var(--radius-md); border: var(--border-control) solid transparent; font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); text-align: center; }
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); min-height: var(--tap-min); }
+.btn--destructive { background: var(--color-danger); color: var(--color-on-danger); }
+.btn--destructive-outline { border-color: var(--color-danger-text); color: var(--color-danger-text); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.btn--compact { min-height: var(--tap-min); padding: 0 var(--space-4); font-size: var(--type-label-size-sm); }
+.btn[disabled] { background: var(--color-surface-sunken); color: var(--color-text-disabled); border-color: transparent; cursor: default; transform: none; }
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn[disabled] { color: var(--color-text-disabled); cursor: default; }
+
+/* ---------- shell ---------- */
+.ctxbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 8px 4px 4px; background: var(--color-bg); }
+.ctxbar__text { flex: 1; min-width: 0; font-size: var(--type-meta-size); color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctxbar__titles { flex: 1; min-width: 0; display: grid; }
+.ctxbar__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.barbtn { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap-min); padding: 0 12px; border-radius: var(--radius-md); font-weight: 700; font-size: var(--font-size-16); font-stretch: var(--font-width-label); flex: none; }
+.barbtn .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.barbtn:active { background: var(--color-press-overlay); }
+.barbtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.barbtn[aria-disabled="true"] { color: var(--color-text-muted); }
+.dock { flex: none; display: grid; gap: 10px; padding: 12px 16px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-sticky); }
+.dock--home { padding-bottom: 42px; }
+.dock__row { display: flex; gap: 10px; }
+.dock__row .btn { padding: 0 var(--space-4); }
+.dock__row .btn--primary { flex: 1; min-width: 0; }
+.docknote { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text-muted); }
+.docknote .i { width: 20px; height: 20px; margin-top: 0; color: var(--color-text-subtle); }
+.docknote--alert { color: var(--color-text); }
+.docknote--alert .i { color: var(--color-danger-text); }
+.docknote b { font-weight: 700; color: var(--color-text); }
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); }
+.tab { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); text-align: center; line-height: 1.1; }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+
+/* ---------- shared bits ---------- */
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.notice > .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 0; }
+.notice b { font-weight: 700; }
+.notice__body { display: grid; gap: 4px; justify-items: start; flex: 1; }
+.notice__body .btn--ghost { padding: 0; min-height: 44px; font-size: 15px; }
+.inline-note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.inline-note .i { width: 20px; height: 20px; color: var(--color-text-subtle); }
+.well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.toast { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 20px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: var(--elevation-3); font-weight: 600; font-size: 15px; }
+.toast__text { flex: 1; line-height: 1.3; }
+.toast .btn { min-height: var(--tap-min); color: var(--color-on-inverse); border-radius: var(--radius-pill); }
+.toast-slot { position: absolute; left: 16px; right: 16px; z-index: var(--z-toast); }
+.delta { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; }
+/* ---------- stepper ---------- */
+.stepper { display: inline-flex; align-items: center; border-radius: var(--radius-md); background: var(--color-surface-sunken); flex: none; }
+.stepper__btn { width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; border-radius: var(--radius-md); color: var(--color-text); }
+.stepper__btn:active { background: var(--color-press-overlay); }
+.stepper__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.stepper__btn[disabled] { color: var(--color-text-disabled); cursor: default; }
+.stepper__value { min-width: 64px; display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; padding: 0 2px; }
+.stepper__value .num { font-size: var(--type-numeral-s-size); line-height: 1; }
+.stepper__unit { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.stepper--wide { display: flex; width: 100%; }
+.stepper--wide .stepper__value { flex: 1; }
+.stepper__word { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; }
+
+/* ---------- segmented, chips ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: 56px; border-radius: 10px; display: grid; align-content: center; gap: 2px; padding: 4px 8px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); line-height: 1.15; transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt small { font-size: 12px; font-weight: 600; font-stretch: var(--font-width-text); opacity: 0.8; }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); }
+.chip .i { width: 18px; height: 18px; stroke-width: 2.5; }
+.chip[aria-pressed="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-pressed="false"] > .i:first-child { display: none; }
+.chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- tiles (quick launcher) ---------- */
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tile { min-height: 64px; display: grid; place-content: center; justify-items: center; gap: 4px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); }
+.tile .num { font-size: var(--font-size-36); line-height: 0.9; }
+.tile span:last-child { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.tile[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.tile[aria-checked="true"] span:last-child { color: var(--color-on-inverse); }
+/* ---------- sheets, dialogs, menus ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); max-height: calc(100% - 64px); display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { align-self: center; flex: none; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.sheet__head { flex: none; display: grid; gap: 6px; padding: 8px var(--layout-gutter) 14px; }
+.sheet__eyebrow { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sheet__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 var(--layout-gutter) 20px; display: grid; gap: 22px; align-content: start; }
+.sheet__body::-webkit-scrollbar { display: none; }
+.sheet__foot { flex: none; display: grid; gap: 8px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); }
+.dlg-wrap { position: absolute; inset: 0; z-index: calc(var(--z-sheet) + 1); display: grid; place-items: center; padding: 20px; }
+.dialog { width: 100%; max-width: 24rem; display: grid; gap: 20px; padding: 24px 20px 20px; border-radius: var(--radius-xl); background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.dialog__text { display: grid; gap: 10px; }
+.dialog__title { font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; text-wrap: balance; }
+.dialog__text p { color: var(--color-text-muted); font-size: 16px; line-height: 1.45; }
+.dialog__text p b { color: var(--color-text); }
+.dialog__actions { display: grid; gap: 8px; }
+.menu { position: absolute; z-index: calc(var(--z-sheet) + 1); top: 98px; right: 12px; width: 300px; padding: 6px; border-radius: var(--radius-lg); background: var(--color-surface-raised); box-shadow: var(--elevation-3); border: var(--border-hairline) solid var(--color-line); display: grid; }
+.menu-catch { position: absolute; inset: 0; z-index: var(--z-sheet); }
+
+/* Action rows (action sheet and menu) */
+.pk-top { flex: none; display: grid; gap: 10px; padding: 4px 16px 12px; background: var(--color-bg); border-bottom: var(--border-hairline) solid var(--color-line); }
+.search { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 4px 0 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); }
+.search > .i { color: var(--color-text-muted); }
+.search input { flex: 1; min-width: 0; font-size: 17px; font-weight: 500; outline: none; }
+.search input::placeholder { color: var(--color-text-subtle); }
+.search:focus-within { border-color: var(--color-text); }
+.filters { display: flex; gap: 8px; }
+.fbtn { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 12px 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); white-space: nowrap; }
+.fbtn .i { width: 18px; height: 18px; }
+.fbtn.is-on { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.fbtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.pk { padding: 4px 16px 28px; display: grid; }
+.pk__head { display: grid; gap: 2px; padding: 18px 4px 8px; }
+.pk__head h2 { font-size: var(--font-size-16); font-weight: 800; font-stretch: var(--font-width-title); display: flex; justify-content: space-between; gap: 8px; }
+.pk__head h2 span { font-weight: 600; color: var(--color-text-muted); font-size: 14px; font-stretch: var(--font-width-text); }
+.pk__head p { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.pick { display: grid; grid-template-columns: 56px 1fr auto; column-gap: 14px; align-items: center; min-height: 76px; padding: 10px 4px; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.pk__head + .pick { border-top: 0; }
+.pick:active { background: var(--color-press-overlay); }
+.pick:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.thumb { width: 56px; height: 56px; position: relative; overflow: hidden; border-radius: var(--radius-sm); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); border: var(--border-hairline) solid var(--color-line); color: var(--color-text-subtle); display: grid; place-items: center; }
+.thumb::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: linear-gradient(to top, var(--color-line) 1px, transparent 1px) 0 100% / 100% 33% ; opacity: 0.7; }
+.thumb .i { width: 28px; height: 28px; stroke-width: 1.6; position: relative; z-index: 1; }
+.pick__text { display: grid; gap: 3px; min-width: 0; }
+.pick__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.pick__meta { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+
+a { color: inherit; text-decoration: none; }
+/* Edited tag: outline, like the change tag (outline = something you did) */
+.tag { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px 0 7px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text); white-space: nowrap; line-height: 1; }
+.tag .i { width: 14px; height: 14px; stroke-width: 2.5; color: var(--color-text-muted); }
+
+
+
+/* ================================================================== */
+/* Progress tab                                                         */
+/* ================================================================== */
+.pg { padding: 12px var(--layout-gutter) 32px; display: grid; gap: 32px; align-content: start; }
+.pg-sec { display: grid; gap: 14px; }
+.pg-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.pg-sec__meta { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); white-space: nowrap; }
+.pg-sec__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; margin-top: -8px; }
+.pg-sec__sub b { color: var(--color-text); }
+.rule { height: 1px; background: var(--color-line); }
+.appbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 8px 4px 4px; background: var(--color-bg); }
+.appbar__titles { flex: 1; min-width: 0; display: grid; }
+.appbar__title { font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; }
+.appbar__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; }
+
+/* Week figures: two numerals side by side */
+.wkfig { display: grid; grid-template-columns: auto 1fr; column-gap: 36px; align-items: end; }
+.wkfig__cell { display: grid; gap: 6px; }
+.wkfig__n { display: flex; align-items: baseline; gap: 6px; }
+.wkfig__n .num { font-size: var(--font-size-96); line-height: 0.78; }
+.wkfig__n small { font-size: var(--font-size-36); font-weight: 800; font-stretch: var(--font-width-numeral); color: var(--color-text-muted); line-height: 0.8; }
+.wkfig__label { font-size: 15px; font-weight: 600; color: var(--color-text-muted); line-height: 1.25; }
+.wkfig__note { grid-column: 1 / -1; margin-top: 12px; font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.wkfig__note b { color: var(--color-text); }
+
+/* Cycle strip: one column per programme week, one cell per planned session */
+.cyc { display: grid; gap: 10px; }
+.cyc__grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.cyc__wk { position: relative; display: grid; gap: 6px; justify-items: center; padding: 6px 0 4px; border-radius: var(--radius-sm); }
+.cyc__wk.is-now { background: var(--color-accent-tint); }
+.cyc__cells { display: flex; flex-direction: column-reverse; gap: 3px; width: 100%; padding: 0 6px; }
+.cyc__cells i { height: 12px; border-radius: 3px; background: var(--color-track); }
+.cyc__cells i.d { background: var(--color-text); }
+.cyc__cells i.t { background: transparent; box-shadow: inset 0 0 0 1.5px var(--color-line-strong); }
+.cyc__lab { font-size: 12px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); line-height: 1; font-variant-numeric: tabular-nums; }
+.cyc__wk.is-now .cyc__lab { color: var(--color-text); }
+.cyc__wk.is-later .cyc__lab { color: var(--color-text-subtle); font-weight: 600; }
+.cyc__phases { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.cyc__ph { padding-top: 5px; border-top: var(--border-strong) solid var(--color-line-strong); font-size: 12px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); line-height: 1.15; overflow-wrap: anywhere; }
+.cyc__ph.is-now { border-top-color: var(--color-accent-line); color: var(--color-text); }
+.cyc__foot { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.cyc__foot b { color: var(--color-text); }
+
+/* Highlight rows */
+.hl { display: grid; }
+.hl__row { display: grid; grid-template-columns: 40px 1fr 20px; column-gap: 14px; align-items: center; min-height: 68px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.hl__row:first-child { border-top: 0; }
+.hl__row:active { background: var(--color-press-overlay); }
+.hl__row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.hl__well { width: 40px; height: 40px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.hl__well .i { width: 22px; height: 22px; }
+.hl__text { display: grid; gap: 3px; min-width: 0; }
+.hl__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.hl__line { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+.hl__line b { color: var(--color-text); font-weight: 700; }
+.hl__row > .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.more { justify-self: start; }
+
+/* Meter list: working sets per muscle group */
+.mlist { display: grid; gap: 2px; }
+.mrow { display: grid; grid-template-columns: 96px 1fr 48px; column-gap: 12px; align-items: center; min-height: 34px; }
+.mrow__name { font-size: 15px; font-weight: 600; line-height: 1.2; }
+.mrow__track { position: relative; height: 10px; }
+.mrow__plan { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--color-track); }
+.mrow__fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--color-text); }
+.mrow__tick { position: absolute; top: -5px; width: 3px; height: 20px; margin-left: -1.5px; border-radius: 2px; background: var(--color-text-muted); box-shadow: 0 0 0 2px var(--color-bg); }
+.mrow__n { font-size: var(--font-size-21); text-align: right; line-height: 1; white-space: nowrap; }
+.mrow__n small { font-size: 15px; color: var(--color-text-muted); letter-spacing: 0; }
+.mrow.is-zero .mrow__n { color: var(--color-text-subtle); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.3; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend__bar { width: 18px; height: 10px; border-radius: 5px; background: var(--color-text); }
+.legend__tick { width: 3px; height: 16px; border-radius: 2px; background: var(--color-text-muted); }
+.legend__plan { width: 18px; height: 10px; border-radius: 5px; background: var(--color-track); }
+.legend__hollow { width: 12px; height: 14px; border-radius: 3px 3px 0 0; box-shadow: inset 0 0 0 1.5px var(--color-text); }
+.legend__band { width: 18px; height: 12px; border-radius: 2px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-line-strong); }
+.legend__step { width: 18px; height: 12px; border-right: 2px solid var(--color-text); border-top: 2px solid var(--color-text); margin-bottom: -4px; }
+
+/* Entry rows (way into each part of the history) */
+.nav { display: grid; }
+.navrow { display: grid; grid-template-columns: 48px 1fr 24px; column-gap: 14px; align-items: center; min-height: 72px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.navrow:first-child { border-top: 0; }
+.navrow:active { background: var(--color-press-overlay); }
+.navrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.navrow__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; display: block; }
+.navrow__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; display: block; margin-top: 2px; }
+.navrow > .i { color: var(--color-text-muted); }
+.navrow--other .well { background: transparent; border: var(--border-control) dashed var(--color-line-strong); }
+
+/* Empty: ghost of the cycle strip */
+.ghost { padding: 18px 16px 12px; border-radius: var(--radius-lg); border: var(--border-hairline) dashed var(--color-line-strong); display: grid; gap: 10px; }
+.ghost .cyc__cells i { background: transparent; box-shadow: inset 0 0 0 1px var(--color-line); }
+.ghost .cyc__lab { color: var(--color-text-subtle); font-weight: 600; }
+
+/* ---------- History ---------- */
+.hist { padding: 0 var(--layout-gutter) 32px; display: grid; }
+.hgrp { display: grid; padding-top: 22px; }
+.hgrp__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 6px; }
+.hgrp__title { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); }
+.hgrp__meta { font-size: 13px; font-weight: 600; color: var(--color-text-muted); white-space: nowrap; }
+.hrow { display: grid; grid-template-columns: 48px 1fr 24px; column-gap: 14px; align-items: center; min-height: 76px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.hgrp__head + .hrow { border-top: 0; }
+.hrow:active { background: var(--color-press-overlay); }
+.hrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.hrow__id { width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.hrow__id .num { font-size: var(--font-size-36); line-height: 1; }
+.hrow__id .i { width: 24px; height: 24px; }
+.hrow__text { display: grid; gap: 2px; min-width: 0; }
+.hrow__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.hrow__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+.hrow__flag { display: flex; align-items: flex-start; gap: 6px; margin-top: 3px; font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); line-height: 1.3; color: var(--color-text); }
+.hrow__flag .i { width: 16px; height: 16px; stroke-width: 2.4; color: var(--color-text-muted); margin-top: 1px; }
+.hrow__flag--pain .i, .hrow__flag--pain b { color: var(--color-danger-text); }
+.hrow > .i { color: var(--color-text-muted); }
+/* Abandoned: recedes, dashed well, no letter weight */
+.hrow--gone .hrow__id { background: transparent; border: var(--border-control) dashed var(--color-line-strong); color: var(--color-text-muted); }
+.hrow--gone .hrow__name { color: var(--color-text-muted); font-weight: 600; }
+/* Ended early: half-filled well corner */
+.hrow--early .hrow__id { background: linear-gradient(to top, var(--color-surface-sunken) 0 55%, transparent 55%); box-shadow: inset 0 0 0 1.5px var(--color-line-strong); }
+
+/* ---------- Session log detail ---------- */
+.ld { padding: 4px var(--layout-gutter) 32px; display: grid; gap: 0; }
+.ld-id { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: end; }
+.ld-letter { font-size: var(--font-size-144); line-height: 0.74; margin-left: -4px; }
+.ld-id__text { display: grid; gap: 6px; padding-bottom: 2px; }
+.ld-id__text .t-display { font-size: var(--font-size-36); }
+.ld-kicker { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); line-height: 1.25; }
+.ld-when { font-size: var(--type-body-size); color: var(--color-text-muted); line-height: 1.35; padding-top: 14px; }
+.ld-stats { display: flex; align-items: flex-end; gap: 26px; padding-top: 18px; }
+.ld-stat { display: grid; gap: 4px; }
+.ld-stat .num { font-size: var(--font-size-48); line-height: 0.82; }
+.ld-stat .num small { font-size: var(--font-size-21); font-weight: 800; color: var(--color-text-muted); margin-left: 2px; letter-spacing: 0; }
+.ld-stat__label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.ld .notice { margin-top: 18px; }
+.ld-sec { padding-top: 30px; display: grid; gap: 4px; }
+.ld-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 6px; }
+.lx { display: grid; gap: 8px; padding: 14px 0 16px; border-top: var(--border-hairline) solid var(--color-line); }
+.ld-sec__head + .lx { border-top: 0; padding-top: 4px; }
+.lx__head { display: grid; grid-template-columns: 1fr 24px; column-gap: 8px; align-items: center; min-height: 48px; text-align: left; width: 100%; border-radius: var(--radius-sm); }
+.lx__head:active { background: var(--color-press-overlay); }
+.lx__head:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.lx__name { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; text-wrap: balance; }
+.lx__head > .i { color: var(--color-text-muted); }
+.lx__why { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+
+/* Set table: read-only, so rows are compact (not targets) */
+.st { display: grid; border-radius: var(--radius-md); background: var(--color-surface-sunken); padding: 4px 12px; }
+.st__row { display: grid; grid-template-columns: 22px 1fr 1fr 64px; column-gap: 10px; align-items: baseline; min-height: 34px; padding: 7px 0; border-top: var(--border-hairline) solid var(--color-line); font-size: 15px; line-height: 1.3; }
+.st__row:first-child { border-top: 0; }
+.st--side .st__row { grid-template-columns: 22px 22px 1fr 1fr 58px; }
+.st__n { font-size: var(--font-size-16); color: var(--color-text-subtle); font-stretch: var(--font-width-numeral); font-weight: 800; font-variant-numeric: tabular-nums; }
+.st__side { font-size: 14px; font-weight: 800; font-stretch: var(--font-width-title); color: var(--color-text-muted); }
+.st__v { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.st__v small { display: block; font-size: 13px; font-weight: 500; color: var(--color-text-muted); white-space: normal; }
+.st__feel { font-size: 14px; color: var(--color-text-muted); text-align: right; }
+.st__flag { grid-column: 2 / -1; display: flex; align-items: flex-start; gap: 8px; font-weight: 600; }
+.st__flag .i { width: 18px; height: 18px; color: var(--color-text-muted); margin-top: 1px; }
+.st__flag small { font-weight: 500; color: var(--color-text-muted); }
+.st__flag--pain { color: var(--color-danger-text); }
+.st__flag--pain .i { color: var(--color-danger-text); }
+.st__row.is-off .st__n { color: var(--color-text-disabled); }
+.st__off { grid-column: 2 / -1; color: var(--color-text-muted); font-size: 14px; }
+
+.ld-note { display: grid; gap: 8px; padding: 14px 16px; border-radius: var(--radius-md); border-left: var(--border-strong) solid var(--color-line-strong); background: var(--color-surface); font-size: var(--type-body-size); line-height: 1.5; }
+.ld-del { margin-top: 36px; padding-top: 22px; border-top: var(--border-hairline) solid var(--color-line); display: grid; gap: 10px; }
+.ld-del p { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+
+/* ---------- Exercises ---------- */
+.xl { padding: 0 16px 32px; display: grid; }
+.xl__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 22px 4px 6px; }
+.xl__head h2 { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); }
+.xl__head > span { font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.xrow { display: grid; grid-template-columns: 56px 1fr auto; column-gap: 14px; align-items: center; min-height: 76px; padding: 10px 4px; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.xl__head + .xrow { border-top: 0; }
+.xrow:active { background: var(--color-press-overlay); }
+.xrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.xrow__text { display: grid; gap: 3px; min-width: 0; }
+.xrow__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.xrow__meta { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.xrow__fig { display: grid; justify-items: end; gap: 4px; text-align: right; }
+.xrow__fig .num { font-size: var(--font-size-24); line-height: 1; white-space: nowrap; }
+.xrow__fig .num small { font-size: 14px; color: var(--color-text-muted); margin-left: 2px; letter-spacing: 0; }
+.xrow__fig .w { font-size: 15px; font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.1; max-width: 92px; }
+.xrow .tag { min-height: 22px; font-size: 12px; padding: 0 7px 0 5px; }
+.xrow .tag .i { width: 12px; height: 12px; }
+
+/* Exercise detail */
+.xd { padding: 4px var(--layout-gutter) 32px; display: grid; gap: 0; }
+.xd-kicker { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); line-height: 1.3; display: flex; gap: 8px; align-items: center; }
+.xd-kicker .i { width: 18px; height: 18px; }
+.xd-name { padding-top: 8px; font-size: var(--font-size-48); }
+.xd-name.is-long { font-size: var(--font-size-36); }
+.xd-now { display: grid; grid-template-columns: auto 1fr; column-gap: 32px; align-items: start; padding-top: 18px; }
+.xd-now__cell { display: grid; gap: 6px; align-content: start; }
+.xd-now__n { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.xd-now__n .num { font-size: var(--font-size-48); line-height: 0.8; }
+.xd-now__n small { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-numeral); color: var(--color-text-muted); }
+.xd-now__w { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-display); line-height: 1.05; }
+.xd-now__label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.25; }
+.xd-since { display: flex; align-items: flex-start; gap: 8px; padding-top: 2px; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.xd-since .i { width: 18px; height: 18px; color: var(--color-text); stroke-width: 2.5; margin-top: 1px; }
+.xd-since b { color: var(--color-text); }
+.xd-sec { padding-top: 26px; display: grid; gap: 10px; }
+.xd-sec__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+.xd .notice { margin-top: 2px; }
+
+/* Chart card */
+.ch { display: grid; gap: 10px; padding: 14px 14px 12px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); box-shadow: var(--elevation-1); }
+.ch__read { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; align-items: start; min-height: 60px; }
+.ch__read-label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.3; }
+.ch__read-v { padding-top: 6px; line-height: 1; }
+.ch__read-v .num { font-size: var(--font-size-36); line-height: 0.95; white-space: nowrap; }
+.ch__read-v small { margin: 0 0.4em 0 0.2em; font-size: 16px; font-weight: 700; color: var(--color-text-muted); font-stretch: var(--font-width-label); }
+.ch__read-sub { grid-column: 1 / -1; font-size: 13px; color: var(--color-text-muted); line-height: 1.35; padding-top: 4px; }
+.ch__read-sub b { color: var(--color-text); }
+.ch__close { margin: -6px -8px 0 0; color: var(--color-text-muted); }
+.ch__close[hidden] { display: none; }
+.ch__plot { position: relative; touch-action: pan-y; border-radius: var(--radius-sm); }
+.ch__plot:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.ch__plot svg { display: block; overflow: visible; }
+.ch .legend { padding-top: 2px; }
+.seg--compact { display: inline-grid; padding: 3px; }
+.seg--compact .seg__opt { min-height: 42px; padding: 0 14px; font-size: 15px; }
+
+/* SVG marks: neutral ink only; text never wears a mark colour */
+.c-grid { stroke: var(--color-line); stroke-width: 1; shape-rendering: crispEdges; }
+.c-base { stroke: var(--color-line-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.c-stepmark { stroke: var(--color-line-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.c-band { fill: var(--color-surface-sunken); }
+.c-now { fill: var(--color-accent-tint); }
+.c-line { fill: none; stroke: var(--color-text); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.c-dot { fill: var(--color-text); stroke: var(--color-surface); stroke-width: 2; }
+.c-dot--sel { stroke-width: 3; }
+.c-col { fill: var(--color-text-subtle); }
+.c-col--sel, .c-col--last { fill: var(--color-text); }
+.c-col--over { fill: var(--color-text-subtle); }
+.c-col--hollow { fill: none; stroke: var(--color-text); stroke-width: 1.5; }
+.c-col--pain { fill: none; stroke: var(--color-danger-text); stroke-width: 1.5; }
+.c-painmark { fill: none; stroke: var(--color-danger-text); stroke-width: 1.6; stroke-linecap: round; }
+.c-gone { stroke: var(--color-text-subtle); stroke-width: 2; stroke-linecap: round; }
+.c-cross { stroke: var(--color-text); stroke-width: 1; shape-rendering: crispEdges; }
+.c-tick { fill: var(--color-text-muted); font-size: 12px; font-weight: 600; font-stretch: 88%; font-variant-numeric: tabular-nums; font-family: var(--font-sans); }
+.c-tick--now { fill: var(--color-text); font-weight: 800; }
+.c-tick--later { fill: var(--color-text-subtle); }
+.c-panel { fill: var(--color-text-muted); font-size: 12px; font-weight: 700; font-stretch: 88%; font-family: var(--font-sans); }
+.c-val { paint-order: stroke; stroke: var(--color-surface); stroke-width: 4px; stroke-linejoin: round; fill: var(--color-text); font-size: 15px; font-weight: 800; font-stretch: 62%; font-variant-numeric: tabular-nums; font-family: var(--font-sans); }
+.c-hit { fill: transparent; cursor: pointer; }
+
+/* Change timeline: rail with dots, newest first */
+.tl { display: grid; }
+.tl__item { display: grid; grid-template-columns: 18px 1fr; column-gap: 12px; padding-bottom: 16px; position: relative; }
+.tl__item::before { content: ''; position: absolute; left: 8px; top: 16px; bottom: -2px; width: 2px; background: var(--color-line-strong); }
+.tl__item:last-child::before { display: none; }
+.tl__dot { width: 12px; height: 12px; margin: 4px 0 0 3px; border-radius: 50%; background: var(--color-text); position: relative; z-index: 1; box-shadow: 0 0 0 3px var(--color-bg); }
+.tl__dot--hold { background: var(--color-bg); box-shadow: inset 0 0 0 2px var(--color-text-subtle), 0 0 0 3px var(--color-bg); }
+.tl__dot--pain { background: var(--color-bg); box-shadow: inset 0 0 0 2px var(--color-danger-text), 0 0 0 3px var(--color-bg); }
+.tl__body { display: grid; gap: 5px; justify-items: start; }
+.tl__when { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 13px; font-weight: 700; color: var(--color-text-muted); line-height: 1.3; }
+.tl__text { font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.tl__text b { font-weight: 700; }
+.tl__more { padding-left: 30px; }
+
+/* Past sessions of one exercise (the chart's table twin) */
+.xs { display: grid; }
+.xs__row { display: grid; grid-template-columns: 44px 1fr 24px; column-gap: 12px; align-items: center; min-height: 68px; padding: 8px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.xs__row:first-child { border-top: 0; }
+.xs__row:active { background: var(--color-press-overlay); }
+.xs__date { display: grid; justify-items: center; gap: 1px; }
+.xs__date .num { font-size: var(--font-size-24); line-height: 0.95; }
+.xs__date small { font-size: 12px; font-weight: 600; color: var(--color-text-muted); font-stretch: var(--font-width-label); }
+.xs__text { display: grid; gap: 2px; min-width: 0; }
+.xs__title { font-size: 15px; font-weight: 700; line-height: 1.3; }
+.xs__sets { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; }
+.xs__sets b { color: var(--color-text); }
+.xs__sets .pain { color: var(--color-danger-text); font-weight: 700; }
+.xs__row > .i { color: var(--color-text-muted); }
+
+/* ---------- Body ---------- */
+.bd-now { display: grid; gap: 8px; }
+.bd-now__n { display: flex; align-items: baseline; gap: 6px; }
+.bd-now__n .num { font-size: var(--font-size-96); line-height: 0.78; }
+.bd-now__n small { font-size: var(--font-size-36); font-weight: 800; font-stretch: var(--font-width-numeral); color: var(--color-text-muted); }
+.bd-now__label { font-size: 15px; font-weight: 600; color: var(--color-text-muted); }
+.bd-delta { display: flex; align-items: flex-start; gap: 8px; font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.bd-delta .i { width: 18px; height: 18px; color: var(--color-text); stroke-width: 2.5; margin-top: 1px; }
+.bd-delta b { color: var(--color-text); }
+.ci { display: grid; }
+.cirow { display: grid; grid-template-columns: 44px 1fr 24px; column-gap: 12px; align-items: center; min-height: 72px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.cirow:first-child { border-top: 0; }
+.cirow:active { background: var(--color-press-overlay); }
+.cirow__vals { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+.cirow__vals span { white-space: nowrap; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cirow__vals span small { font-size: 13px; color: var(--color-text-muted); font-weight: 600; }
+.cirow__vals .none { color: var(--color-text-subtle); font-weight: 500; }
+.cirow__note { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.cirow > .i { color: var(--color-text-muted); }
+
+/* Check-in sheet fields */
+.nf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.nf { display: grid; gap: 8px; min-width: 0; }
+.nf__label { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: 15px; font-weight: 700; line-height: 1.25; }
+.nf__label small { font-size: 13px; font-weight: 500; color: var(--color-text-muted); }
+.nf__box { display: flex; align-items: baseline; gap: 6px; min-height: 72px; padding: 14px 14px 0; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); }
+.nf__box .num { font-size: var(--font-size-48); line-height: 0.95; min-width: 0; }
+.nf__box .num.is-empty { color: var(--color-text-subtle); }
+.nf__box small { font-size: var(--font-size-18); font-weight: 700; color: var(--color-text-muted); }
+.nf__box.is-focus { border-color: var(--color-text); box-shadow: var(--focus-ring); }
+.nf__hint { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.nf__hint b { color: var(--color-text); font-weight: 600; }
+.datebtn { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 14px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); font-size: 16px; font-weight: 600; text-align: left; width: 100%; }
+.datebtn .i { color: var(--color-text-muted); }
+.datebtn span { flex: 1; }
+.notes { min-height: 96px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); font-size: 16px; line-height: 1.45; color: var(--color-text); }
+.notes.is-empty { color: var(--color-text-subtle); }
+.sheet-del { display: grid; gap: 8px; padding-top: 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.sheet-del p { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+
+/* ---------- Max tests ---------- */
+.mt-plan { display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: start; padding: 16px; border-radius: var(--radius-lg); border: var(--border-control) solid var(--color-line-strong); }
+.mt-plan__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.mt-plan__line { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; margin-top: 3px; }
+.mt-plan__line b { color: var(--color-text); }
+.mtrow { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: center; min-height: 60px; padding: 8px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.mtrow:first-child { border-top: 0; }
+.mtrow__when { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.mtrow__ctx { font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.mtrow__fig { display: flex; align-items: center; gap: 10px; }
+.mtrow__fig .num { font-size: var(--font-size-36); line-height: 0.9; }
+.mtrow__fig .num small { font-size: 16px; color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; font-weight: 700; }
+.choice-card { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: center; min-height: 76px; padding: 12px 16px; border-radius: var(--radius-lg); border: var(--border-control) solid var(--color-line-strong); background: var(--color-surface); text-align: left; width: 100%; }
+.choice-card[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.choice-card[aria-checked="true"] .choice__mark { background: var(--color-on-inverse); border-color: var(--color-on-inverse); color: var(--color-surface-inverse); }
+.choice-card[aria-checked="true"] .choice__mark .i { opacity: 1; }
+.choice-card[aria-checked="true"] .choice__meta { color: var(--color-on-inverse); opacity: 0.78; }
+.choice-card .choice__name { font-size: var(--font-size-21); }
+.choice__mark { width: 28px; height: 28px; border-radius: 50%; border: var(--border-strong) solid var(--color-line-strong); display: grid; place-items: center; }
+.choice__mark .i { width: 16px; height: 16px; stroke-width: 3; opacity: 0; }
+.choice__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.choice__meta { font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.steps { display: grid; gap: 10px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 15px; line-height: 1.4; }
+.steps li::before { counter-increment: s; content: counter(s); width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; border: var(--border-control) solid var(--color-line-strong); font-size: 14px; font-weight: 800; font-stretch: var(--font-width-title); }
+
+/* Picker rows (shared with the editor's picker) */
+.pk-top { flex: none; display: grid; gap: 10px; padding: 4px 16px 12px; background: var(--color-bg); border-bottom: var(--border-hairline) solid var(--color-line); }
+.search { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 4px 0 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); }
+.search > .i { color: var(--color-text-muted); }
+.search input { flex: 1; min-width: 0; font-size: 17px; font-weight: 500; outline: none; }
+.search input::placeholder { color: var(--color-text-subtle); }
+.thumb { width: 56px; height: 56px; position: relative; overflow: hidden; border-radius: var(--radius-sm); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); border: var(--border-hairline) solid var(--color-line); color: var(--color-text-subtle); display: grid; place-items: center; }
+.thumb::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: linear-gradient(to top, var(--color-line) 1px, transparent 1px) 0 100% / 100% 33%; opacity: 0.7; }
+.thumb .i { width: 28px; height: 28px; stroke-width: 1.6; position: relative; z-index: 1; }
+.pick { display: grid; grid-template-columns: 56px 1fr; column-gap: 14px; align-items: center; min-height: 76px; padding: 10px 4px; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.pick:first-child { border-top: 0; }
+.pick:active { background: var(--color-press-overlay); }
+.pick[aria-disabled="true"] { cursor: default; }
+.pick[aria-disabled="true"]:active { background: none; }
+.pick[aria-disabled="true"] .pick__name { color: var(--color-text-muted); }
+.pick[aria-disabled="true"] .thumb { opacity: 0.55; }
+.pick__why { display: flex; gap: 6px; align-items: flex-start; margin-top: 4px; font-size: 13px; line-height: 1.35; color: var(--color-text); }
+.pick__why .i { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--color-danger-text); }
+.pick__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; display: block; }
+.pick__meta { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; display: block; margin-top: 3px; }
+.pick__meta b { color: var(--color-text); }
+.pk { padding: 4px 16px 28px; display: grid; }
+.pk__note { padding: 14px 4px 4px; }
+
+/* Shared with other mockups: placement row, disclosure */
+.place { display: grid; grid-template-columns: 48px 1fr 24px; gap: 14px; align-items: center; min-height: 76px; padding: 12px 10px 12px 14px; text-align: left; width: 100%; }
+.place:active { background: var(--color-press-overlay); }
+.place__title { font-size: var(--font-size-16); font-weight: 700; line-height: 1.3; display: block; }
+.place__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; display: block; margin-top: 2px; }
+.place > .i { color: var(--color-text-muted); }
+.disc { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 8px 4px 8px 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); text-align: left; }
+.disc__text { flex: 1; display: grid; gap: 2px; }
+.disc__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.disc__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.disc__chev { width: 48px; height: 48px; display: grid; place-items: center; color: var(--color-text-muted); }
+
+/* Goal ruler (shared with session detail) */
+.gr { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.gr__bars { display: inline-flex; gap: 3px; }
+.gr__bars i { width: 10px; height: 8px; border-radius: 2px; background: var(--color-track); }
+.gr__bars i.on { background: var(--color-text); }
+.gr__bars i.out { background: transparent; box-shadow: inset 0 0 0 1.5px var(--color-line-strong); }
+.gr__bars i.on.out { background: var(--color-text); box-shadow: none; }
+.skel { border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .seg__opt, .device { transition-duration: 1ms !important; }
+  .btn:active { transform: none; }
+}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-incline" viewBox="0 0 24 24"><path d="M3 19h18L21 8z"/><path d="M16 19v-3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M2.5 7h19M5 4v6M19 4v6"/><path d="M9.5 7v3.5M14.5 7v3.5"/><circle cx="12" cy="15.5" r="2.5"/></symbol>
+  <symbol id="i-dips" viewBox="0 0 24 24"><path d="M3 8.5h6M15 8.5h6M6 8.5v12M18 8.5v12M4 20.5h4M16 20.5h4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.5"/><path d="M12 16.9h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15.5v3a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 3.5h10M7 20.5h10"/><path d="M8 3.5c0 4.5 4 5.5 4 8.5s-4 4-4 8.5M16 3.5c0 4.5-4 5.5-4 8.5s4 4 4 8.5"/></symbol>
+  <symbol id="i-step-up" viewBox="0 0 24 24"><path d="M3 19.5h5v-5h5v-5h5v-5h3"/></symbol>
+  <symbol id="i-step-down" viewBox="0 0 24 24"><path d="M3 4.5h5v5h5v5h5v5h3"/></symbol>
+  <symbol id="i-equals" viewBox="0 0 24 24"><path d="M6 9.5h12M6 14.5h12"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"/></symbol>
+  <symbol id="i-turtle" viewBox="0 0 24 24"><path d="M4 15.5c0-4 3.6-7 8-7s8 3 8 7z"/><path d="M20 13.5h1.5a1.5 1.5 0 0 0 0-3H19"/><path d="M7 15.5V18M17 15.5V18"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-belt" viewBox="0 0 24 24"><path d="M3 6.5c3 1.3 6 2 9 2s6-.7 9-2"/><path d="M8.5 8.2L12 14l3.5-5.8"/><rect x="8" y="14" width="8" height="6" rx="1.5"/></symbol>
+  <symbol id="i-treadmill" viewBox="0 0 24 24"><path d="M3 17.5h12.5a2.5 2.5 0 0 0 2.4-1.8L20.5 6"/><path d="M18 6h4.5"/><path d="M5 20.5h10"/></symbol>
+  <symbol id="i-bench" viewBox="0 0 24 24"><path d="M3 10.5h18"/><path d="M6 10.5v8M18 10.5v8"/><path d="M4 18.5h4M16 18.5h4"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3.5 7h3c4.5 0 5.5 10 10 10h3.5"/><path d="M3.5 17h3c1.5 0 2.6-1.2 3.4-2.8M13.6 9.8C14.4 8.2 15.5 7 17 7h3"/><path d="M17.5 4.5L20 7l-2.5 2.5M17.5 14.5L20 17l-2.5 2.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.5s-7-4.2-7-9.4A3.9 3.9 0 0 1 12 7.8a3.9 3.9 0 0 1 7 2.3c0 5.2-7 9.4-7 9.4z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a7.5 7.5 0 1 1 15 0"/><path d="M12 17l3.6-4.6"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-person-run" viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="1.8"/><path d="M6 21l3.5-5.5 3 2.5 1-5.5"/><path d="M8 10.5l3.5-3 4 2.5 2.5 3"/><path d="M13.5 13l2.5 2.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5"/><path d="M12 16.4h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-mat" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="1.5"/><path d="M7 9v6M17 9v6"/></symbol>
+  <symbol id="i-kettlebell" viewBox="0 0 24 24"><path d="M9 10.2V8a3 3 0 0 1 6 0v2.2"/><path d="M6.5 15a5.5 5.5 0 1 1 11 0c0 2.1-.7 3.6-1.6 5H8.1c-.9-1.4-1.6-2.9-1.6-5z"/></symbol>
+  <symbol id="i-miniband" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="5"/><ellipse cx="12" cy="12" rx="5" ry="2.3"/></symbol>
+  <symbol id="i-vest" viewBox="0 0 24 24"><path d="M8.5 3.5L5 6v14.5h5.5V16h3v4.5H19V6l-3.5-2.5c-.4 2-1.8 3.5-3.5 3.5s-3.1-1.5-3.5-3.5z"/><path d="M7.5 11h3M13.5 11h3"/></symbol>
+  <symbol id="i-bike" viewBox="0 0 24 24"><path d="M7 20.5h10M12 20.5v-5M8 6h4l1.5 9.5H17l1-5"/><path d="M16.5 10.5H20"/><circle cx="12" cy="15.5" r="0.6"/></symbol>
+  <symbol id="i-rower" viewBox="0 0 24 24"><path d="M2.5 18.5h19M5 18.5l2.5-3.5h6.5"/><path d="M14 15l4-7M16.5 8h4"/><path d="M8 11.5h4"/></symbol>
+  <symbol id="i-rope" viewBox="0 0 24 24"><path d="M5.5 3.5v6M18.5 3.5v6"/><path d="M5.5 9.5c0 7.5 3 11 6.5 11s6.5-3.5 6.5-11"/></symbol>
+  <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M2.5 12H6M18 12h3.5"/></symbol>
+  <symbol id="i-straps" viewBox="0 0 24 24"><path d="M12 2.5v5M12 7.5L7 17M12 7.5L17 17"/><path d="M5 17h4M15 17h4M7 17v3M17 17v3"/></symbol>
+  <!-- new in this phase -->
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01" stroke-width="3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/><path d="M10 11v5.5M14 11v5.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V5.5A1.5 1.5 0 0 0 14 4H5.5A1.5 1.5 0 0 0 4 5.5V14a1.5 1.5 0 0 0 1.5 1.5h3"/></symbol>
+  <symbol id="i-group" viewBox="0 0 24 24"><path d="M8 5H5v14h3"/><path d="M11 8.5h9M11 15.5h9"/></symbol>
+  <symbol id="i-ungroup" viewBox="0 0 24 24"><path d="M8 5H5v4M5 15v4h3"/><path d="M11 8.5h9M11 15.5h9"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/></symbol>
+  <symbol id="i-bookmark-plus" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/><path d="M12 7.5v5M9.5 10h5"/></symbol>
+  <symbol id="i-restore" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"/></symbol>
+  <!-- new in this phase -->
+  <symbol id="i-scale" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 9.5a5.5 5.5 0 0 1 8 0"/><path d="M12 9.5l1.4-2"/></symbol>
+  <symbol id="i-medal" viewBox="0 0 24 24"><path d="M8 3.5l2.5 6M16 3.5l-2.5 6"/><circle cx="12" cy="15" r="5.5"/><path d="M12 12.5v5"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Progress tab">Onglet Progrès</span>
+  <nav class="mock-bar__nav" aria-label="Surfaces">
+    <a href="#s1" data-en="1 Home">1 Accueil</a><a href="#s2" data-en="2 Sessions">2 Séances</a><a href="#s3" data-en="3 Exercises">3 Exercices</a><a href="#s4" data-en="4 Body">4 Corps</a><a href="#s5" data-en="5 Max tests">5 Tests max</a>
+  </nav>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s1"><h2 data-en="1. Progress home">1. Accueil Progrès</h2><p data-en="This calendar week, the programme's cycle, what moved up in the last 14 days, working sets per muscle group, and the ways into the history. No primary action once there is data: nothing here is a next step.">La semaine calendaire, le cycle du programme, ce qui a progressé ces 14 derniers jours, les séries de travail par groupe musculaire, puis les entrées vers l’historique. Pas de bouton principal une fois qu’il y a des données&#8239;: rien ici n’est une prochaine étape.</p></section>
+
+<figure class="mock-shot" id="f1a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="pg" style="gap: 24px">
+          <h1 class="t-display" data-en="Progress">Progrès</h1>
+          <div class="ghost" aria-hidden="true">
+            <div class="cyc" data-cyc="" data-weeks="8" data-per="4" data-now="0"></div>
+          </div>
+          <div style="display: grid; gap: 10px">
+            <h2 class="t-title" data-en="No finished session yet">Pas encore de séance terminée</h2>
+            <p class="muted" data-en="After your first session you’ll see your week and your cycle fill in here, and what moves up, exercise by exercise.">Après ta première séance, ta semaine et ton cycle se rempliront ici, avec ce qui progresse, exercice par exercice.</p>
+          </div>
+          <div class="pg-sec" style="gap: 4px">
+            <h2 class="section-title" data-en="Already possible">Déjà possible</h2>
+            <div class="nav">
+              <a class="navrow" href="#f4f" data-go="f4f"><span class="well"><svg class="i"><use href="#i-scale"/></svg></span><span><span class="navrow__title" data-en="Body">Corps</span><span class="navrow__meta" data-en="Log your weight, waist and sleep">Note ton poids, ton tour de taille, ton sommeil</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f5d" data-go="f5d"><span class="well"><svg class="i"><use href="#i-medal"/></svg></span><span><span class="navrow__title" data-en="Max tests">Tests max</span><span class="navrow__meta" data-en="Measure where you start">Mesure ton point de départ</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--block btn--player" type="button" data-en="See the next session">Voir la prochaine séance</button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="1a · Nothing logged yet: the cycle as a ghost, body and max tests already open">1a · Rien d’enregistré&#8239;: le cycle en fantôme, corps et tests max déjà ouverts</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="pg">
+          <h1 class="t-display" data-en="Progress">Progrès</h1>
+          <section class="pg-sec" aria-labelledby="w1b">
+            <div class="pg-sec__head"><h2 class="section-title" id="w1b" data-en="This week">Cette semaine</h2><span class="pg-sec__meta" data-en="12–18 Oct">12–18 oct.</span></div>
+            <div class="wkfig">
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">1</span></div><span class="wkfig__label" data-en="session">séance</span></div>
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">47</span><small>min</small></div><span class="wkfig__label" data-en="active, pauses left out">actives, pauses non comptées</span></div>
+            </div>
+          </section>
+          <section class="pg-sec" aria-labelledby="p1b">
+            <div class="pg-sec__head"><h2 class="section-title" id="p1b" data-en="Your programme">Ton programme</h2><span class="pg-sec__meta" data-en="Week 1 of 8">Semaine 1 sur 8</span></div>
+            <p class="pg-sec__sub" data-en="Re-adaptation. &lt;b&gt;1 session of 4&lt;/b&gt; done this week.">Réadaptation. <b>1 séance sur 4</b> faite cette semaine.</p>
+            <div class="cyc" data-cyc="1" data-weeks="8" data-per="4" data-now="1"></div>
+          </section>
+          <section class="pg-sec" aria-labelledby="h1b">
+            <h2 class="section-title" id="h1b" data-en="Moving up">Ce qui progresse</h2>
+            <div class="notice"><svg class="i"><use href="#i-info"/></svg><span data-en="Each exercise moves on from its second session. Its load and rep steps will show here.">Chaque exercice avance dès sa deuxième séance. Ses hausses de charge et de reps s’afficheront ici.</span></div>
+          </section>
+          <section class="pg-sec" aria-labelledby="m1b">
+            <h2 class="section-title" id="m1b" data-en="Working sets in week 1">Séries de travail en semaine 1</h2>
+            <p class="pg-sec__sub" data-en="Done of planned in this programme week, main muscles only.">Faites sur prévues dans cette semaine du programme, muscles principaux seulement.</p>
+            <div class="mlist" data-meter="first"></div>
+          </section>
+        </div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="1b · First week: one session, no highlights yet, working sets of one session against the week’s plan">1b · Première semaine&#8239;: une séance, pas encore de hausses, les séries d’une séance face au prévu de la semaine</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="pg">
+          <h1 class="t-display" data-en="Progress">Progrès</h1>
+          <section class="pg-sec" aria-labelledby="w1c">
+            <div class="pg-sec__head"><h2 class="section-title" id="w1c" data-en="This week">Cette semaine</h2><span class="pg-sec__meta" data-en="9–15 Nov">9–15 nov.</span></div>
+            <div class="wkfig">
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">4</span></div><span class="wkfig__label" data-en="sessions">séances</span></div>
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">2</span><small>h</small><span class="num">40</span></div><span class="wkfig__label" data-en="active, pauses left out">actives, pauses non comptées</span></div>
+              <p class="wkfig__note" data-en="3 programme sessions and 1 quick session.">3 séances du programme et 1 séance rapide.</p>
+            </div>
+          </section>
+          <section class="pg-sec" aria-labelledby="p1c">
+            <div class="pg-sec__head"><h2 class="section-title" id="p1c" data-en="Your programme">Ton programme</h2><span class="pg-sec__meta" data-en="Week 5 of 8">Semaine 5 sur 8</span></div>
+            <p class="pg-sec__sub" data-en="Intensity. &lt;b&gt;3 sessions of 4&lt;/b&gt; done this week.">Intensité. <b>3 séances sur 4</b> faites cette semaine.</p>
+            <div class="cyc" data-cyc="4,4,4,4,3" data-weeks="8" data-per="4" data-now="5"></div>
+            <p class="cyc__foot" data-en="&lt;b&gt;19 sessions of 32&lt;/b&gt; and 16 h 05 active since 12 October."><b>19 séances sur 32</b> et 16&nbsp;h&nbsp;05 actives depuis le 12 octobre.</p>
+          </section>
+          <section class="pg-sec" aria-labelledby="h1c">
+            <div class="pg-sec__head"><h2 class="section-title" id="h1c" data-en="Moving up">Ce qui progresse</h2><span class="pg-sec__meta" data-en="Last 14 days">14 derniers jours</span></div>
+            <div class="hl">
+              <a class="hl__row" href="#f3b" data-go="f3b"><span class="hl__well"><svg class="i"><use href="#i-arrow-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Floor press">Développé couché au sol</span><span class="hl__line" data-en="One step up: &lt;b&gt;17.5 kg&lt;/b&gt; per dumbbell. Thu 12 Nov">Un cran au-dessus&#8239;: <b>17,5&nbsp;kg</b> par haltère. Jeu.&nbsp;12&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row" href="#f3g" data-go="f3g"><span class="hl__well"><svg class="i"><use href="#i-medal"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Push-up">Pompes</span><span class="hl__line" data-en="Best set: &lt;b&gt;21 reps&lt;/b&gt;. Thu 12 Nov">Meilleure série&#8239;: <b>21 reps</b>. Jeu.&nbsp;12&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row" href="#f1d" data-go="f1d"><span class="hl__well"><svg class="i"><use href="#i-arrow-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Goblet squat">Squat goblet</span><span class="hl__line" data-en="One step up: &lt;b&gt;20 kg&lt;/b&gt;. Tue 10 Nov">Un cran au-dessus&#8239;: <b>20&nbsp;kg</b>. Mar.&nbsp;10&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row" href="#f3e" data-go="f3e"><span class="hl__well"><svg class="i"><use href="#i-step-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Band-assisted pull-up">Traction assistée élastique</span><span class="hl__line" data-en="Less help: &lt;b&gt;light band&lt;/b&gt;. Thu 5 Nov">Moins d’aide&#8239;: <b>élastique léger</b>. Jeu.&nbsp;5&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+            </div>
+            <button class="btn btn--ghost more" type="button" data-en="See the other 6">Voir les 6 autres</button>
+          </section>
+        </div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="1c · Mid-cycle: the week, the cycle strip, what moved up">1c · Milieu de cycle&#8239;: la semaine, le cycle, ce qui progresse</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1d" data-scroll="840">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="pg">
+          <h1 class="t-display" data-en="Progress">Progrès</h1>
+          <section class="pg-sec">
+            <div class="pg-sec__head"><h2 class="section-title" data-en="This week">Cette semaine</h2><span class="pg-sec__meta" data-en="9–15 Nov">9–15 nov.</span></div>
+            <div class="wkfig">
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">4</span></div><span class="wkfig__label" data-en="sessions">séances</span></div>
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">2</span><small>h</small><span class="num">40</span></div><span class="wkfig__label" data-en="active, pauses left out">actives, pauses non comptées</span></div>
+              <p class="wkfig__note" data-en="3 programme sessions and 1 quick session.">3 séances du programme et 1 séance rapide.</p>
+            </div>
+          </section>
+          <section class="pg-sec">
+            <div class="pg-sec__head"><h2 class="section-title" data-en="Your programme">Ton programme</h2><span class="pg-sec__meta" data-en="Week 5 of 8">Semaine 5 sur 8</span></div>
+            <p class="pg-sec__sub" data-en="Intensity. &lt;b&gt;3 sessions of 4&lt;/b&gt; done this week.">Intensité. <b>3 séances sur 4</b> faites cette semaine.</p>
+            <div class="cyc" data-cyc="4,4,4,4,3" data-weeks="8" data-per="4" data-now="5"></div>
+            <p class="cyc__foot" data-en="&lt;b&gt;19 sessions of 32&lt;/b&gt; and 16 h 05 active since 12 October."><b>19 séances sur 32</b> et 16&nbsp;h&nbsp;05 actives depuis le 12 octobre.</p>
+          </section>
+          <section class="pg-sec">
+            <div class="pg-sec__head"><h2 class="section-title" data-en="Moving up">Ce qui progresse</h2><span class="pg-sec__meta" data-en="Last 14 days">14 derniers jours</span></div>
+            <div class="hl">
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-arrow-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Floor press">Développé couché au sol</span><span class="hl__line" data-en="One step up: &lt;b&gt;17.5 kg&lt;/b&gt; per dumbbell. Thu 12 Nov">Un cran au-dessus&#8239;: <b>17,5&nbsp;kg</b> par haltère. Jeu.&nbsp;12&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-medal"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Push-up">Pompes</span><span class="hl__line" data-en="Best set: &lt;b&gt;21 reps&lt;/b&gt;. Thu 12 Nov">Meilleure série&#8239;: <b>21 reps</b>. Jeu.&nbsp;12&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-arrow-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Goblet squat">Squat goblet</span><span class="hl__line" data-en="One step up: &lt;b&gt;20 kg&lt;/b&gt;. Tue 10 Nov">Un cran au-dessus&#8239;: <b>20&nbsp;kg</b>. Mar.&nbsp;10&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-step-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Band-assisted pull-up">Traction assistée élastique</span><span class="hl__line" data-en="Less help: &lt;b&gt;light band&lt;/b&gt;. Thu 5 Nov">Moins d’aide&#8239;: <b>élastique léger</b>. Jeu.&nbsp;5&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+            </div>
+            <button class="btn btn--ghost more" type="button" data-en="See the other 6">Voir les 6 autres</button>
+          </section>
+          <section class="pg-sec" aria-labelledby="m1d">
+            <h2 class="section-title" id="m1d" data-en="Working sets in week 5">Séries de travail en semaine 5</h2>
+            <p class="pg-sec__sub" data-en="Done of planned in this programme week, main muscles only. Session D is still to come; your quick session counts too.">Faites sur prévues dans cette semaine du programme, muscles principaux seulement. Il reste la séance D&#8239;; ta séance rapide compte aussi.</p>
+            <div class="legend" aria-hidden="true"><span><i class="legend__bar"></i><span data-en="Done">Faites</span></span><span><i class="legend__plan"></i><span data-en="Planned">Prévues</span></span></div>
+            <div class="mlist" data-meter="mid"></div>
+          </section>
+          <section class="pg-sec" aria-labelledby="n1d" style="gap: 4px">
+            <h2 class="section-title" id="n1d" data-en="Your history">Ton historique</h2>
+            <div class="nav">
+              <a class="navrow" href="#f2a" data-go="f2a"><span class="well"><svg class="i"><use href="#i-list"/></svg></span><span><span class="navrow__title" data-en="Sessions">Séances</span><span class="navrow__meta" data-en="22 sessions, the last one yesterday">22 séances, la dernière hier</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f3a" data-go="f3a"><span class="well"><svg class="i"><use href="#i-dumbbell"/></svg></span><span><span class="navrow__title" data-en="Exercises">Exercices</span><span class="navrow__meta" data-en="21 exercises done">21 exercices faits</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f4a" data-go="f4a"><span class="well"><svg class="i"><use href="#i-scale"/></svg></span><span><span class="navrow__title" data-en="Body">Corps</span><span class="navrow__meta" data-en="Last check-in 6 days ago">Dernières mesures il y a 6 jours</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f5a" data-go="f5a"><span class="well"><svg class="i"><use href="#i-medal"/></svg></span><span><span class="navrow__title" data-en="Max tests">Tests max</span><span class="navrow__meta" data-en="Last one: 23 push-ups on 8 Nov">Dernier&#8239;: 23 pompes le 8 nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow"><span class="well"><svg class="i"><use href="#i-calendar"/></svg></span><span><span class="navrow__title" data-en="Past programmes">Programmes passés</span><span class="navrow__meta" data-en="1 replaced programme">1 programme remplacé</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+            </div>
+          </section>
+        </div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="1d · Scrolled: working sets per muscle group, done of planned in programme week 5">1d · Défilé&#8239;: séries de travail par groupe musculaire, faites sur prévues en semaine 5 du programme</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1e" data-scroll="3000">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="pg">
+          <h1 class="t-display" data-en="Progress">Progrès</h1>
+          <section class="pg-sec">
+            <div class="pg-sec__head"><h2 class="section-title" data-en="This week">Cette semaine</h2><span class="pg-sec__meta" data-en="9–15 Nov">9–15 nov.</span></div>
+            <div class="wkfig">
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">4</span></div><span class="wkfig__label" data-en="sessions">séances</span></div>
+              <div class="wkfig__cell"><div class="wkfig__n"><span class="num">2</span><small>h</small><span class="num">40</span></div><span class="wkfig__label" data-en="active, pauses left out">actives, pauses non comptées</span></div>
+              <p class="wkfig__note" data-en="3 programme sessions and 1 quick session.">3 séances du programme et 1 séance rapide.</p>
+            </div>
+          </section>
+          <section class="pg-sec">
+            <div class="pg-sec__head"><h2 class="section-title" data-en="Your programme">Ton programme</h2><span class="pg-sec__meta" data-en="Week 5 of 8">Semaine 5 sur 8</span></div>
+            <p class="pg-sec__sub" data-en="Intensity. &lt;b&gt;3 sessions of 4&lt;/b&gt; done this week.">Intensité. <b>3 séances sur 4</b> faites cette semaine.</p>
+            <div class="cyc" data-cyc="4,4,4,4,3" data-weeks="8" data-per="4" data-now="5"></div>
+            <p class="cyc__foot" data-en="&lt;b&gt;19 sessions of 32&lt;/b&gt; and 16 h 05 active since 12 October."><b>19 séances sur 32</b> et 16&nbsp;h&nbsp;05 actives depuis le 12 octobre.</p>
+          </section>
+          <section class="pg-sec">
+            <div class="pg-sec__head"><h2 class="section-title" data-en="Moving up">Ce qui progresse</h2><span class="pg-sec__meta" data-en="Last 14 days">14 derniers jours</span></div>
+            <div class="hl">
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-arrow-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Floor press">Développé couché au sol</span><span class="hl__line" data-en="One step up: &lt;b&gt;17.5 kg&lt;/b&gt; per dumbbell. Thu 12 Nov">Un cran au-dessus&#8239;: <b>17,5&nbsp;kg</b> par haltère. Jeu.&nbsp;12&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-medal"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Push-up">Pompes</span><span class="hl__line" data-en="Best set: &lt;b&gt;21 reps&lt;/b&gt;. Thu 12 Nov">Meilleure série&#8239;: <b>21 reps</b>. Jeu.&nbsp;12&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-arrow-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Goblet squat">Squat goblet</span><span class="hl__line" data-en="One step up: &lt;b&gt;20 kg&lt;/b&gt;. Tue 10 Nov">Un cran au-dessus&#8239;: <b>20&nbsp;kg</b>. Mar.&nbsp;10&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="hl__row"><span class="hl__well"><svg class="i"><use href="#i-step-up"/></svg></span><span class="hl__text"><span class="hl__name" data-en="Band-assisted pull-up">Traction assistée élastique</span><span class="hl__line" data-en="Less help: &lt;b&gt;light band&lt;/b&gt;. Thu 5 Nov">Moins d’aide&#8239;: <b>élastique léger</b>. Jeu.&nbsp;5&nbsp;nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+            </div>
+            <button class="btn btn--ghost more" type="button" data-en="See the other 6">Voir les 6 autres</button>
+          </section>
+          <section class="pg-sec" aria-labelledby="m1e">
+            <h2 class="section-title" id="m1e" data-en="Working sets in week 5">Séries de travail en semaine 5</h2>
+            <p class="pg-sec__sub" data-en="Done of planned in this programme week, main muscles only. Session D is still to come; your quick session counts too.">Faites sur prévues dans cette semaine du programme, muscles principaux seulement. Il reste la séance D&#8239;; ta séance rapide compte aussi.</p>
+            <div class="legend" aria-hidden="true"><span><i class="legend__bar"></i><span data-en="Done">Faites</span></span><span><i class="legend__plan"></i><span data-en="Planned">Prévues</span></span></div>
+            <div class="mlist" data-meter="mid"></div>
+          </section>
+          <section class="pg-sec" aria-labelledby="n1e" style="gap: 4px">
+            <h2 class="section-title" id="n1e" data-en="Your history">Ton historique</h2>
+            <div class="nav">
+              <a class="navrow" href="#f2a" data-go="f2a"><span class="well"><svg class="i"><use href="#i-list"/></svg></span><span><span class="navrow__title" data-en="Sessions">Séances</span><span class="navrow__meta" data-en="22 sessions, the last one yesterday">22 séances, la dernière hier</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f3a" data-go="f3a"><span class="well"><svg class="i"><use href="#i-dumbbell"/></svg></span><span><span class="navrow__title" data-en="Exercises">Exercices</span><span class="navrow__meta" data-en="21 exercises done">21 exercices faits</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f4a" data-go="f4a"><span class="well"><svg class="i"><use href="#i-scale"/></svg></span><span><span class="navrow__title" data-en="Body">Corps</span><span class="navrow__meta" data-en="Last check-in 6 days ago">Dernières mesures il y a 6 jours</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow" href="#f5a" data-go="f5a"><span class="well"><svg class="i"><use href="#i-medal"/></svg></span><span><span class="navrow__title" data-en="Max tests">Tests max</span><span class="navrow__meta" data-en="Last one: 23 push-ups on 8 Nov">Dernier&#8239;: 23 pompes le 8 nov.</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+              <a class="navrow"><span class="well"><svg class="i"><use href="#i-calendar"/></svg></span><span><span class="navrow__title" data-en="Past programmes">Programmes passés</span><span class="navrow__meta" data-en="1 replaced programme">1 programme remplacé</span></span><svg class="i"><use href="#i-chev-right"/></svg></a>
+            </div>
+          </section>
+        </div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="1e · Bottom: the ways into the history. Past programmes opens the cycle flow’s screen">1e · En bas&#8239;: les entrées de l’historique. Programmes passés ouvre l’écran du flux de cycle</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s2"><h2 data-en="2. Session history">2. Historique des séances</h2><p data-en="Every logged session, newest first, grouped by calendar week. Abandoned sessions recede (dashed well, muted name); ended-early ones keep their letter with a half-filled well and say how far they got. The detail is read-only; deleting asks once, then offers Undo.">Toutes les séances, la plus récente en haut, par semaine calendaire. Les séances abandonnées s’effacent (case en pointillé, nom en gris)&#8239;; celles arrêtées avant la fin gardent leur lettre dans une case à moitié pleine et disent où elles se sont arrêtées. Le détail est en lecture seule&#8239;; la suppression demande une confirmation, puis propose Annuler.</p></section>
+
+<figure class="mock-shot" id="f2a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Sessions">Séances</span><span class="appbar__meta" data-en="22 sessions since 12 October">22 séances depuis le 12 octobre</span></div></div>
+      <div class="scroll">
+        <div class="hist" data-hist="full"></div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="2a · History: programme, quick and own sessions; pain, abandoned and ended early">2a · Historique&#8239;: programme, séances rapides et à toi&#8239;; douleur, abandon, arrêt avant la fin</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux séances" data-en-label="Back to sessions"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Sessions">Séances</span></div>
+      <div class="scroll">
+        <div class="ld" data-log="c"></div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="2b · Session detail: week and phase, active time, sets as done, the change that applied, a pain stop">2b · Détail d’une séance&#8239;: semaine et phase, temps actif, séries faites, le changement appliqué, un arrêt pour douleur</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2c" data-scroll="900">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux séances" data-en-label="Back to sessions"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Sessions">Séances</span></div>
+      <div class="scroll">
+        <div class="ld" data-log="c"></div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="2c · Scrolled: per side, no equipment, the note, then Delete">2c · Défilé&#8239;: par côté, pas le matériel, la note, puis Supprimer</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2d" data-scroll="900">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux séances" data-en-label="Back to sessions"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Sessions">Séances</span></div>
+      <div class="scroll">
+        <div class="ld" data-log="c"></div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+      <div class="scrim"></div>
+      <div class="dlg-wrap">
+        <div class="dialog" role="alertdialog" aria-labelledby="dlg2" aria-describedby="dlg2d">
+          <div class="dialog__text">
+            <h2 class="dialog__title" id="dlg2" data-en="Delete this session?">Supprimer cette séance&#8239;?</h2>
+            <p id="dlg2d" data-en="Its &lt;b&gt;14 sets&lt;/b&gt; leave your history. Your rotation and your loads are worked out again without it: &lt;b&gt;session C&lt;/b&gt; becomes your next session.">Ses <b>14 séries</b> quittent ton historique. Ta rotation et tes charges sont recalculées sans elle&#8239;: la <b>séance C</b> redevient ta prochaine séance.</p>
+          </div>
+          <div class="dialog__actions">
+            <button class="btn btn--destructive btn--block" type="button" data-en="Delete the session">Supprimer la séance</button>
+            <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="2d · Delete: one confirmation that says what is recomputed">2d · Supprimer&#8239;: une confirmation qui dit ce qui est recalculé</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2e">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Sessions">Séances</span><span class="appbar__meta" data-en="21 sessions since 12 October">21 séances depuis le 12 octobre</span></div></div>
+      <div class="scroll">
+        <div class="hist" data-hist="deleted"></div>
+      </div>
+      <nav class="tabbar" data-tab="progress"></nav>
+      <div class="toast-slot" style="bottom: 114px"><div class="toast" role="status"><span class="toast__text" data-en="Session deleted. Loads worked out again.">Séance supprimée. Charges recalculées.</span><button class="btn btn--ghost" type="button" data-en="Undo">Annuler</button></div></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="2e · Back on the list, the row gone, with Undo for 5 s">2e · Retour à la liste, la ligne partie, avec Annuler pendant 5&nbsp;s</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s3"><h2 data-en="3. Exercises">3. Exercices</h2><p data-en="Search, the five most recent, then every exercise done grouped by movement. The detail leads with where the exercise stands now, then the ladder chart: load (or band, or added load) as a step line on top, reps or seconds as columns below, against the target range. Rep gains at the same load climb the columns; a load step shows on the line and the columns drop back to the bottom of the range.">Recherche, les cinq plus récents, puis tous les exercices faits, par mouvement. Le détail commence par où en est l’exercice, puis le graphique en escalier&#8239;: la charge (ou l’élastique, ou le lest) en marches en haut, les reps ou les secondes en colonnes en bas, sur la fourchette visée. Un gain de reps à charge égale fait monter les colonnes&#8239;; une hausse de charge se voit sur la marche et les colonnes retombent au bas de la fourchette.</p></section>
+
+<figure class="mock-shot" id="f3a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Exercises">Exercices</span><span class="appbar__meta" data-en="21 exercises done">21 exercices faits</span></div></div>
+      <div class="pk-top"><label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" placeholder="Chercher un exercice" data-en-placeholder="Search an exercise" aria-label="Chercher un exercice" data-en-label="Search an exercise"></label></div>
+      <div class="scroll"><div class="xl" data-xlist="1"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3a · Exercises: search, recent first, then by movement; the figure is where each one stands now">3a · Exercices&#8239;: recherche, récents d’abord, puis par mouvement&#8239;; le chiffre est où chacun en est</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux exercices" data-en-label="Back to exercises"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Exercises">Exercices</span></div>
+      <div class="scroll"><div class="xd" data-xd="floor"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3b · Dumbbell move: 12.5 → 15 → 17.5 kg on the steps, reps climbing then dropping back under each step">3b · Haltères&#8239;: 12,5 → 15 → 17,5&nbsp;kg en marches, les reps qui montent puis retombent à chaque marche</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux exercices" data-en-label="Back to exercises"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Exercises">Exercices</span></div>
+      <div class="scroll"><div class="xd" data-xd="floor" data-sel="7"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3c · Inspect: a finger on the chart snaps to the nearest session; the readout above it switches to that session (try it)">3c · Inspecter&#8239;: le doigt sur le graphique se cale sur la séance la plus proche&#8239;; l’encart au-dessus passe à cette séance (essaie)</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3d" data-scroll="610">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux exercices" data-en-label="Back to exercises"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Exercises">Exercices</span></div>
+      <div class="scroll"><div class="xd" data-xd="floor"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3d · Scrolled: the change timeline (each automatic step and its why, no revert), then the sessions, which double as the chart’s table">3d · Défilé&#8239;: les changements (chaque étape automatique et sa raison, sans retour arrière), puis les séances, qui servent aussi de tableau du graphique</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3e">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux exercices" data-en-label="Back to exercises"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Exercises">Exercices</span></div>
+      <div class="scroll"><div class="xd" data-xd="pull"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3e · Band-assisted: the top panel is the help, on a ladder of the owned bands up to “none”">3e · Assistée&#8239;: le panneau du haut est l’aide, sur l’échelle des élastiques possédés jusqu’à «&#8239;sans&#8239;»</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3f">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux exercices" data-en-label="Back to exercises"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Exercises">Exercices</span></div>
+      <div class="scroll"><div class="xd" data-xd="side"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3f · One session only (a quick session): per-side hold, the weaker side plotted, no timeline">3f · Une seule séance (séance rapide)&#8239;: gainage par côté, le côté le plus faible tracé, pas de changements</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3g" data-scroll="560">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><a class="icon-btn" aria-label="Retour aux exercices" data-en-label="Back to exercises"><svg class="i"><use href="#i-back"/></svg></a><span class="ctxbar__text" data-en="Exercises">Exercices</span></div>
+      <div class="scroll"><div class="xd" data-xd="push"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="3g · Bodyweight reps past the range in week 5; the max tests, then the timeline with the goal raised by a test">3g · Reps au poids du corps au-delà de la fourchette en semaine 5&#8239;; les tests max, puis l’objectif relevé par un test</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s4"><h2 data-en="4. Body">4. Corps</h2><p data-en="One measure at a time (view tabs), its latest value as the figure, one chart, then every check-in. The check-in sheet is the same one the weekly card on the Programme tab opens. A check-in never changes the profile.">Une mesure à la fois (onglets), sa dernière valeur en grand, un graphique, puis toutes les mesures. La feuille de saisie est la même que celle ouverte par la carte hebdomadaire de l’onglet Programme. Une mesure ne change jamais le profil.</p></section>
+
+<figure class="mock-shot" id="f4a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Body">Corps</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 24px" data-body="weight"></div></div>
+      <div class="dock"><button class="btn btn--primary btn--block" type="button" data-go="f4d"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add a check-in">Noter mes mesures</span></button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="4a · Weight: latest value, change since the first check-in, the line">4a · Poids&#8239;: dernière valeur, écart depuis la première mesure, la courbe</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Body">Corps</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 24px" data-body="sleep"></div></div>
+      <div class="dock"><button class="btn btn--primary btn--block" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add a check-in">Noter mes mesures</span></button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="4b · Sleep: hours per night as columns; a missing value leaves a gap, never a zero">4b · Sommeil&#8239;: heures par nuit en colonnes&#8239;; une valeur manquante laisse un vide, jamais un zéro</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4c" data-scroll="520">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Body">Corps</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 24px" data-body="waist"></div></div>
+      <div class="dock"><button class="btn btn--primary btn--block" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add a check-in">Noter mes mesures</span></button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="4c · Scrolled: every check-in, newest first; a row opens it to edit or delete">4c · Défilé&#8239;: toutes les mesures, la plus récente en haut&#8239;; une ligne s’ouvre pour modifier ou supprimer</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4d">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Body">Corps</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 24px" data-body="weight"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="sh4d">
+        <div class="sheet__grab"></div>
+        <div class="sheet__head"><h2 class="sheet__title" id="sh4d" data-en="New check-in">Nouvelles mesures</h2><p class="muted t-meta" data-en="Everything is optional: fill in what you have.">Tout est facultatif&#8239;: remplis ce que tu as.</p></div>
+        <div class="sheet__body" data-ci="new"></div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block" type="button" data-en="Save">Enregistrer</button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="4d · New check-in (also opened by the weekly card on the Programme tab): weight being typed, waist left empty">4d · Nouvelles mesures (aussi ouvertes par la carte de l’onglet Programme)&#8239;: poids en cours de saisie, taille laissée vide</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4e" data-sheet-scroll="400">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Body">Corps</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 24px" data-body="weight"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="sh4e">
+        <div class="sheet__grab"></div>
+        <div class="sheet__head"><h2 class="sheet__title" id="sh4e" data-en="Check-in of 8 November">Mesures du 8 novembre</h2></div>
+        <div class="sheet__body" data-ci="edit"></div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block" type="button" disabled data-en="Save">Enregistrer</button><button class="btn btn--secondary btn--block" type="button" data-en="Close">Fermer</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="4e · Editing a past check-in: Save stays off until something changes; delete is at the end, with Undo">4e · Modifier des mesures&#8239;: Enregistrer reste inactif tant que rien ne change&#8239;; supprimer en bas, avec Annuler</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4f">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Body">Corps</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 20px; gap: 16px">
+        <span class="well"><svg class="i"><use href="#i-scale"/></svg></span>
+        <h1 class="t-title" data-en="No check-in yet">Aucune mesure pour l’instant</h1>
+        <p class="muted" data-en="Once a week, note your weight, waist and sleep. You’ll see how they change here, and the end-of-cycle review uses them. Your profile stays as it is.">Une fois par semaine, note ton poids, ton tour de taille et ton sommeil. Tu verras leur évolution ici, et la revue de fin de cycle s’en servira. Ton profil ne change pas.</p>
+      </div></div>
+      <div class="dock"><button class="btn btn--primary btn--block" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add a check-in">Noter mes mesures</span></button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="4f · No check-in yet">4f · Aucune mesure</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s5"><h2 data-en="5. Max tests">5. Tests max</h2><p data-en="The programme’s test first (when it runs), then each tested exercise with its own chart and list. Test now opens a sheet that defaults to the programme’s test exercise; the test itself runs in the player.">Le test du programme d’abord (quand il a lieu), puis chaque exercice testé avec son graphique et sa liste. Faire un test ouvre une feuille réglée sur l’exercice du programme&#8239;; le test se déroule dans le lecteur.</p></section>
+
+<figure class="mock-shot" id="f5a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Max tests">Tests max</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 28px" data-tests="1"></div></div>
+      <div class="dock"><button class="btn btn--primary btn--block" type="button" data-go="f5b"><svg class="i"><use href="#i-play"/></svg><span data-en="Take a test">Faire un test</span></button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="5a · Max tests: the programme’s test, then the history per exercise; fresh and in-session results are compared only with their own kind">5a · Tests max&#8239;: le test du programme, puis l’historique par exercice&#8239;; hors séance et en séance ne se comparent qu’entre eux</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Max tests">Tests max</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 4px; gap: 28px" data-tests="1"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="sh5b">
+        <div class="sheet__grab"></div>
+        <div class="sheet__head"><h2 class="sheet__title" id="sh5b" data-en="Take a max test">Faire un test max</h2><p class="muted t-meta" data-en="One set, as many clean reps as you can (or as long as you can hold). It takes under 2 minutes.">Une série, le plus de reps propres possible (ou le plus longtemps possible en gainage). Moins de 2 minutes.</p></div>
+        <div class="sheet__body">
+          <div class="choices" role="radiogroup" aria-label="Exercice" data-en-label="Exercise" style="display: grid; gap: 8px">
+            <button class="choice-card" role="radio" aria-checked="true" type="button"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span><span class="choice__name" data-en="Push-up">Pompes</span><span class="choice__meta" style="display: block; margin-top: 3px" data-en="Your programme’s test. Last: 23 reps on 8 Nov">Le test de ton programme. Dernier&#8239;: 23 reps le 8 nov.</span></span></button>
+            <button class="place" type="button" style="border-radius: var(--radius-lg); border: var(--border-control) dashed var(--color-line-strong)" data-go="f5c"><span class="well"><svg class="i"><use href="#i-search"/></svg></span><span><span class="place__title" data-en="Another exercise">Un autre exercice</span><span class="place__sub" data-en="Bodyweight reps or a hold">Au poids du corps, en reps ou en gainage</span></span><svg class="i"><use href="#i-chev-right"/></svg></button>
+          </div>
+          <ol class="steps">
+            <li data-en="Warm up first if this isn’t the end of a session.">Échauffe-toi d’abord si tu ne sors pas d’une séance.</li>
+            <li data-en="One set, no pause. Stop when a rep is no longer clean, or at 50 reps (180 s for a hold).">Une série, sans pause. Arrête-toi quand une rep n’est plus propre, ou à 50 reps (180&nbsp;s en gainage).</li>
+            <li data-en="Your result is kept here and can move your goal up, never down.">Ton résultat est gardé ici et peut monter ton objectif, jamais le baisser.</li>
+          </ol>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Start the test">Commencer le test</span></button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="5b · Test now: the programme’s test exercise picked; Start opens the player’s test flow (other designer)">5b · Faire un test&#8239;: l’exercice du programme choisi&#8239;; Commencer ouvre le test dans le lecteur (autre designer)</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Exercise to test">Exercice à tester</span></div></div>
+      <div class="pk-top"><label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" placeholder="Chercher un exercice" data-en-placeholder="Search an exercise" aria-label="Chercher un exercice" data-en-label="Search an exercise"></label></div>
+      <div class="scroll"><div class="pk" data-tpick="1"></div></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="5c · The exercise picker, limited to the testable moves; one is unavailable after a recent pain on a similar move">5c · Le choix d’exercice, limité aux mouvements testables&#8239;; l’un est indisponible après une douleur récente sur un mouvement proche</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5d">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar"><a class="icon-btn" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></a><div class="appbar__titles"><span class="appbar__title" data-en="Max tests">Tests max</span></div></div>
+      <div class="scroll"><div class="pg" style="padding-top: 20px; gap: 16px">
+        <span class="well"><svg class="i"><use href="#i-medal"/></svg></span>
+        <h1 class="t-title" data-en="No test yet">Aucun test pour l’instant</h1>
+        <p class="muted" data-en="A max test measures the most clean reps (or seconds) you can do in one set. Your programme has one at the end of week 8; you can also take one now to know where you start.">Un test max mesure le plus de reps propres (ou de secondes) que tu fais en une série. Ton programme en prévoit un à la fin de la semaine 8&#8239;; tu peux aussi en faire un maintenant pour connaître ton point de départ.</p>
+      </div></div>
+      <div class="dock"><button class="btn btn--primary btn--block" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Take a test">Faire un test</span></button></div>
+      <nav class="tabbar" data-tab="progress"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="5d · No test yet">5d · Aucun test</figcaption>
+</figure>
+
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : 'dark';
+  var NN = ' ', NB = ' ';
+
+  /* ---------- helpers ---------- */
+  function L(fr, en) { return '<span class="fr">' + fr + '</span><span class="en">' + en + '</span>'; }
+  function fmt(v, l) { return new Intl.NumberFormat((l || lang) === 'fr' ? 'fr-FR' : 'en-GB', { maximumFractionDigits: 1 }).format(v); }
+  function both(fn) { return L(fn('fr'), fn('en')); }
+  function day(d, l, opts) { return new Intl.DateTimeFormat(l === 'fr' ? 'fr-FR' : 'en-GB', opts || { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(d + 'T12:00:00')); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function icon(id, cls) { return '<svg class="i' + (cls ? ' ' + cls : '') + '"><use href="#i-' + id + '"/></svg>'; }
+  var colon = function (l) { return l === 'fr' ? NN + ':' : ':'; };
+
+  /* ---------- statusbar, tabs ---------- */
+  var SB = '<span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span>';
+  document.querySelectorAll('.statusbar').forEach(function (el) { el.setAttribute('aria-hidden', 'true'); el.innerHTML = SB; });
+  document.querySelectorAll('.homebar').forEach(function (el) { el.setAttribute('aria-hidden', 'true'); });
+  var TABS = [['programme', 'calendar', 'Programme', 'Programme'], ['quick', 'bolt', 'Séance rapide', 'Quick session'], ['progress', 'chart', 'Progrès', 'Progress'], ['settings', 'sliders', 'Réglages', 'Settings']];
+  document.querySelectorAll('nav.tabbar[data-tab]').forEach(function (nav) {
+    nav.setAttribute('aria-label', 'Navigation');
+    nav.innerHTML = TABS.map(function (t) {
+      var cur = t[0] === nav.dataset.tab;
+      return '<a class="tab' + (cur ? ' is-current" aria-current="page' : '') + '"><span class="tab__icon">' + icon(t[1]) + '</span>' + L(t[2], t[3]) + '</a>';
+    }).join('');
+  });
+
+  /* ================================================================ */
+  /* Data (mid-cycle intermediate: adjustable dumbbells 2.5–25 kg,    */
+  /* doorway pull-up bar, light / medium / heavy bands; 4 days)        */
+  /* ================================================================ */
+  function P(date, w, d, s, load, v, sets, feel, extra) { var p = { date: date, w: w, d: d, s: s, load: load, v: v, sets: sets, feel: feel }; for (var k in extra || {}) p[k] = extra[k]; return p; }
+  var CH = {
+    floor: { kind: 'kg', weeks: 8, now: 5, range: [8, 12],
+      top: ['Charge, kg par haltère', 'Load, kg per dumbbell'], bot: ['Reps, meilleure série', 'Reps, best set'],
+      pts: [P('2026-10-12', 1, .1, 'A', 12.5, 10, [10, 10, 10, 10], 'right'), P('2026-10-15', 1, .55, 'C', 12.5, 11, [11, 11, 11, 11], 'right'), P('2026-10-19', 2, .1, 'A', 12.5, 12, [12, 12, 12, 12], 'right'), P('2026-10-22', 2, .55, 'C', 15, 8, [8, 8, 8, 8], 'right'), P('2026-10-26', 3, .1, 'A', 15, 9, [9, 9, 9, 9], 'right'), P('2026-10-29', 3, .55, 'C', 15, 9, [9, 9, 8, 8], 'hard'), P('2026-11-02', 4, .1, 'A', 15, 10, [10, 10, 10, 10], 'right'), P('2026-11-05', 4, .55, 'C', 15, 11, [11, 11, 11, 11], 'right'), P('2026-11-09', 5, .1, 'A', 15, 12, [12, 12, 12, 12], 'right'), P('2026-11-12', 5, .55, 'C', 17.5, 8, [8, 8, 7, 7], 'hard')] },
+    pull: { kind: 'band', weeks: 8, now: 5, range: [5, 8],
+      levels: [['Fort', 'Heavy'], ['Moyen', 'Medium'], ['Léger', 'Light'], ['Sans', 'None']],
+      top: ['Aide de l’élastique', 'Band help'], bot: ['Reps, meilleure série', 'Reps, best set'],
+      pts: [P('2026-10-12', 1, .1, 'A', 0, 6, [6, 6, 5, 5], 'right'), P('2026-10-15', 1, .55, 'C', 0, 7, [7, 6, 6, 6], 'right'), P('2026-10-19', 2, .1, 'A', 0, 8, [8, 8, 8, 8], 'right'), P('2026-10-22', 2, .55, 'C', 1, 5, [5, 5, 5, 5], 'right'), P('2026-10-26', 3, .1, 'A', 1, 6, [6, 6, 6, 6], 'right'), P('2026-10-29', 3, .55, 'C', 1, 7, [7, 7, 7, 7], 'right'), P('2026-11-02', 4, .1, 'A', 1, 8, [8, 8, 8, 8], 'right'), P('2026-11-05', 4, .55, 'C', 2, 5, [5, 5, 5, 5], 'right'), P('2026-11-09', 5, .1, 'A', 2, 6, [6, 6, 6, 6], 'right'), P('2026-11-12', 5, .55, 'C', 2, 7, [7, 7, 6, 6], 'right')] },
+    push: { kind: 'bw', weeks: 8, now: 5, range: [12, 20],
+      bot: ['Reps, meilleure série', 'Reps, best set'],
+      pts: [P('2026-10-15', 1, .55, 'C', 0, 15, [15, 12], 'right'), P('2026-10-22', 2, .55, 'C', 0, 16, [16, 13], 'right'), P('2026-10-29', 3, .55, 'C', 0, 18, [18, 14], 'right'), P('2026-11-05', 4, .55, 'C', 0, 19, [19, 15], 'right'), P('2026-11-12', 5, .55, 'C', 0, 21, [21, 17], 'right')] },
+    side: { kind: 'hold', side: true, weeks: 8, now: 5, range: [20, 40],
+      bot: ['Secondes, côté le plus faible', 'Seconds, weaker side'],
+      pts: [P('2026-11-13', 5, .62, null, 0, 30, null, 'right', { sub: ['Côté le plus faible. Gauche <b>35 et 32' + NB + 's</b>, droite <b>30 et 30' + NB + 's</b>.', 'Weaker side. Left <b>35 and 32' + NB + 's</b>, right <b>30 and 30' + NB + 's</b>.'] })] }
+  };
+  var BODY = {
+    weight: { kind: 'line', unit: 'kg', step: 1, pts: [['2026-10-11', 81.2], ['2026-10-18', 80.9], ['2026-10-25', 80.6], ['2026-11-01', 80.8], ['2026-11-08', 79.7]] },
+    waist: { kind: 'line', unit: 'cm', step: 1, pts: [['2026-10-11', 89], ['2026-10-18', 88.5], ['2026-10-25', null], ['2026-11-01', 88], ['2026-11-08', 86.5]] },
+    sleep: { kind: 'col', unit: 'h', ticks: [0, 3, 6, 9], pts: [['2026-10-11', 6.5], ['2026-10-18', 7], ['2026-10-25', 7.5], ['2026-11-01', 6], ['2026-11-08', 7.5]] }
+  };
+  var TESTS = {
+    push: { unit: 'reps', pts: [['2026-10-10', 15], ['2026-10-18', 18], ['2026-11-08', 23]] },
+    plank: { unit: 's', pts: [['2026-10-25', 75]] }
+  };
+
+  /* ================================================================ */
+  /* Small builders                                                    */
+  /* ================================================================ */
+  // Cycle strip
+  document.querySelectorAll('.cyc[data-cyc]').forEach(function (el) {
+    var done = el.dataset.cyc ? el.dataset.cyc.split(',').map(Number) : [];
+    var weeks = +el.dataset.weeks, per = +el.dataset.per, now = +el.dataset.now;
+    var h = '<div class="cyc__grid" aria-hidden="true">';
+    for (var w = 1; w <= weeks; w++) {
+      var cls = w === now ? ' is-now' : (w > now ? ' is-later' : '');
+      h += '<div class="cyc__wk' + cls + '"><div class="cyc__cells">';
+      for (var k = 0; k < per; k++) h += '<i class="' + (k < (done[w - 1] || 0) ? 'd' : (w === now ? 't' : '')) + '"></i>';
+      h += '</div><span class="cyc__lab">' + L('S' + w, 'W' + w) + '</span></div>';
+    }
+    el.innerHTML = h + '</div>';
+  });
+
+  // Working sets per group
+  var GROUPS = [['Pectoraux', 'Chest'], ['Dos', 'Back'], ['Épaules', 'Shoulders'], ['Bras', 'Arms'], ['Abdos', 'Core'], ['Quadriceps', 'Quads'], ['Fessiers', 'Glutes'], ['Ischios', 'Hamstrings'], ['Mollets', 'Calves']];
+  // [done, planned] for the current programme week; sessions outside the programme add to done
+  var METER = { first: [[3, 10], [4, 10], [3, 7], [4, 8], [0, 6], [0, 9], [0, 10], [0, 7], [0, 6]], mid: [[8, 10], [8, 10], [4, 7], [6, 8], [9, 6], [6, 9], [6, 10], [3, 7], [3, 6]] };
+  document.querySelectorAll('[data-meter]').forEach(function (el) {
+    var rows = METER[el.dataset.meter], max = 12;
+    el.innerHTML = rows.map(function (r, i) {
+      var g = GROUPS[i];
+      return '<div class="mrow' + (r[0] ? '' : ' is-zero') + '"><span class="mrow__name">' + L(g[0], g[1]) + '</span><span class="mrow__track" aria-hidden="true"><i class="mrow__plan" style="width:' + (r[1] / max * 100) + '%"></i><i class="mrow__fill" style="width:' + (Math.min(r[0], max) / max * 100) + '%"></i></span><span class="mrow__n num">' + r[0] + '<small>/' + r[1] + '</small><span class="sr-only">' + L(' sur ' + r[1] + ' prévues', ' of ' + r[1] + ' planned') + '</span></span></div>';
+    }).join('');
+  });
+
+  // History
+  function hrow(r) {
+    var well = r.id.length === 1 ? '<span class="num">' + r.id + '</span>' : icon(r.id);
+    var cls = r.gone ? ' hrow--gone' : (r.early ? ' hrow--early' : '');
+    var flag = '';
+    if (r.flag === 'pain') flag = '<span class="hrow__flag hrow__flag--pain">' + icon('stop') + '<span>' + L('<b>Douleur</b>' + NN + ': Développé épaules assis', '<b>Pain</b>: Seated shoulder press') + '</span></span>';
+    if (r.flag === 'gone') flag = '<span class="hrow__flag">' + icon('close') + '<span>' + L('Abandonnée, ne compte pas', 'Abandoned, doesn’t count') + '</span></span>';
+    if (r.flag === 'early') flag = '<span class="hrow__flag">' + icon('flag') + '<span>' + L('Arrêtée avant la fin' + NN + ': 11 séries sur 18', 'Ended early: 11 sets of 18') + '</span></span>';
+    if (r.flag === 'own') flag = '<span class="hrow__flag">' + icon('bookmark') + '<span>' + L('Ta séance, lancée seule', 'Your session, run on its own') + '</span></span>';
+    return '<a class="hrow' + cls + '"' + (r.go ? ' href="#' + r.go + '" data-go="' + r.go + '"' : '') + '><span class="hrow__id">' + well + '</span><span class="hrow__text"><span class="hrow__name">' + L(r.n[0], r.n[1]) + '</span><span class="hrow__meta">' + L(r.m[0], r.m[1]) + '</span>' + flag + '</span>' + icon('chev-right') + '</a>';
+  }
+  var HIST = [
+    { t: ['Cette semaine', 'This week'], m: ['4 séances, 2' + NB + 'h' + NB + '40', '4 sessions, 2' + NB + 'h' + NB + '40'], rows: [
+      { id: 'bolt', n: ['Séance rapide', 'Quick session'], m: ['Ven. 13 nov., gainage, 21' + NB + 'min, 9 séries', 'Fri 13 Nov, core, 21' + NB + 'min, 9 sets'] },
+      { id: 'C', n: ['Haut du corps', 'Upper body'], m: ['Jeu. 12 nov., 41' + NB + 'min, 14 séries', 'Thu 12 Nov, 41' + NB + 'min, 14 sets'], flag: 'pain', go: 'f2b', del: true },
+      { id: 'B', n: ['Bas du corps', 'Lower body'], m: ['Mer. 11 nov., 48' + NB + 'min, 18 séries', 'Wed 11 Nov, 48' + NB + 'min, 18 sets'] },
+      { id: 'B', gone: true, n: ['Bas du corps', 'Lower body'], m: ['Mar. 10 nov., 14' + NB + 'min', 'Tue 10 Nov, 14' + NB + 'min'], flag: 'gone' },
+      { id: 'A', n: ['Haut du corps', 'Upper body'], m: ['Lun. 9 nov., 52' + NB + 'min, 19 séries', 'Mon 9 Nov, 52' + NB + 'min, 19 sets'] } ] },
+    { t: ['Semaine du 2 novembre', 'Week of 2 November'], m: ['5 séances, 3' + NB + 'h' + NB + '18', '5 sessions, 3' + NB + 'h' + NB + '18'], rows: [
+      { id: 'D', early: true, n: ['Bas du corps', 'Lower body'], m: ['Sam. 7 nov., 29' + NB + 'min, 11 séries', 'Sat 7 Nov, 29' + NB + 'min, 11 sets'], flag: 'early' },
+      { id: 'C', n: ['Haut du corps', 'Upper body'], m: ['Jeu. 5 nov., 47' + NB + 'min, 19 séries', 'Thu 5 Nov, 47' + NB + 'min, 19 sets'] },
+      { id: 'bookmark', n: ['Haut express', 'Upper express'], m: ['Mer. 4 nov., 28' + NB + 'min, 10 séries', 'Wed 4 Nov, 28' + NB + 'min, 10 sets'], flag: 'own' },
+      { id: 'B', n: ['Bas du corps', 'Lower body'], m: ['Mar. 3 nov., 50' + NB + 'min, 18 séries', 'Tue 3 Nov, 50' + NB + 'min, 18 sets'] },
+      { id: 'A', n: ['Haut du corps', 'Upper body'], m: ['Lun. 2 nov., 54' + NB + 'min, 19 séries', 'Mon 2 Nov, 54' + NB + 'min, 19 sets'] } ] }
+  ];
+  document.querySelectorAll('[data-hist]').forEach(function (el) {
+    var deleted = el.dataset.hist === 'deleted';
+    el.innerHTML = HIST.map(function (g, gi) {
+      var m = gi === 0 && deleted ? ['3 séances, 1' + NB + 'h' + NB + '59', '3 sessions, 1' + NB + 'h' + NB + '59'] : g.m;
+      return '<section class="hgrp"><div class="hgrp__head"><h2 class="hgrp__title">' + L(g.t[0], g.t[1]) + '</h2><span class="hgrp__meta">' + L(m[0], m[1]) + '</span></div>' +
+        g.rows.filter(function (r) { return !(deleted && r.del); }).map(hrow).join('') + '</section>';
+    }).join('');
+  });
+
+  // Session log detail (session C, week 5)
+  function strow(n, load, reps, feel, extra) { return '<div class="st__row"><span class="st__n">' + n + '</span><span class="st__v">' + load + '</span><span class="st__v">' + reps + '</span><span class="st__feel">' + feel + '</span></div>'; }
+  var KG = function (v) { return both(function (l) { return fmt(v, l) + NB + 'kg'; }); };
+  var REPS = function (v, goal) { return L(v + ' reps' + (goal ? '<small>objectif ' + goal + '</small>' : ''), v + ' reps' + (goal ? '<small>goal ' + goal + '</small>' : '')); };
+  var F = { right: L('Idéal', 'Right'), hard: L('Dur', 'Hard'), easy: L('Facile', 'Easy') };
+  function lx(name, go, why, table) {
+    return '<div class="lx"><a class="lx__head"' + (go ? ' href="#' + go + '" data-go="' + go + '"' : '') + '><span class="lx__name">' + name + '</span>' + icon('chev-right') + '</a>' + (why ? '<div class="lx__why">' + why + '</div>' : '') + table + '</div>';
+  }
+  function tag(ic, txt) { return '<span class="tag">' + icon(ic) + txt + '</span>'; }
+  document.querySelectorAll('[data-log="c"]').forEach(function (el) {
+    var bw = L('Poids du corps', 'Bodyweight');
+    var h = '<div class="ld-id"><span class="ld-letter num">C</span><div class="ld-id__text"><span class="ld-kicker">' + L('Semaine 5, Intensité', 'Week 5, Intensity') + '</span><h1 class="t-display">' + L('Haut du corps', 'Upper body') + '</h1></div></div>' +
+      '<p class="ld-when">' + L('Jeudi 12 novembre, 18:05–18:52', 'Thursday 12 November, 18:05–18:52') + '</p>' +
+      '<div class="ld-stats"><div class="ld-stat"><span class="num">41<small>min</small></span><span class="ld-stat__label">' + L('actives', 'active') + '</span></div><div class="ld-stat"><span class="num">14<small>/19</small></span><span class="ld-stat__label">' + L('séries', 'sets') + '</span></div><div class="ld-stat"><span class="num">134</span><span class="ld-stat__label">' + L('reps', 'reps') + '</span></div></div>' +
+      '<div class="notice"><svg class="i" style="color: var(--color-danger-text)"><use href="#i-stop"/></svg><span>' + L('<b style="color: var(--color-danger-text)">Douleur</b>' + NN + ': Développé épaules assis, arrêté à la série 2.', '<b style="color: var(--color-danger-text)">Pain</b>: Seated shoulder press, stopped at set 2.') + '</span></div>' +
+      '<section class="ld-sec"><div class="ld-sec__head"><h2 class="section-title">' + L('Exercice par exercice', 'Exercise by exercise') + '</h2><span class="pg-sec__meta">' + L('6 exercices', '6 exercises') + '</span></div>' +
+      '<div class="lx"><button class="disc" type="button" aria-expanded="false"><span class="disc__text"><span class="disc__title">' + L('Échauffement', 'Warm-up') + '</span><span class="disc__meta">' + L('4 exercices, 1 passé', '4 exercises, 1 skipped') + '</span></span><span class="disc__chev">' + icon('chev-down') + '</span></button></div>' +
+      lx(L('Développé couché au sol', 'Floor press'), 'f3b', tag('arrow-up', both(function (l) { return fmt(2.5, l) + NB + 'kg'; })) + '<span>' + L('Nouvelle charge, objectif 8.', 'New weight, goal 8.') + '</span>',
+        '<div class="st">' + strow(1, KG(17.5), REPS(8), F.right) + strow(2, KG(17.5), REPS(8), F.right) + strow(3, KG(17.5), REPS(7, 8), F.hard) + strow(4, KG(17.5), REPS(7, 8), F.hard) + '</div>') +
+      lx(L('Traction assistée élastique', 'Band-assisted pull-up'), 'f3e', tag('arrow-up', '1 rep') + '<span>' + L('Objectif tenu' + NN + ': +1 rep.', 'Goal met: +1 rep.') + '</span>',
+        '<div class="st">' + strow(1, L('Élastique léger', 'Light band'), REPS(7), F.right) + strow(2, L('Élastique léger', 'Light band'), REPS(7), F.right) + strow(3, L('Élastique léger', 'Light band'), REPS(6, 7), F.right) + strow(4, L('Élastique léger', 'Light band'), REPS(6, 7), F.right) + '</div>') +
+      lx(L('Développé épaules assis', 'Seated shoulder press'), null, null,
+        '<div class="st">' + strow(1, KG(10), REPS(9), F.hard) +
+        '<div class="st__row"><span class="st__n">2</span><span class="st__flag st__flag--pain">' + icon('stop') + '<span>' + L('Douleur <small>après 4 reps</small>', 'Pain <small>after 4 reps</small>') + '</span></span></div>' +
+        '<div class="st__row is-off"><span class="st__n">3</span><span class="st__off">' + L('Pas faite' + NN + ': exercice arrêté', 'Not done: exercise stopped') + '</span></div></div>') +
+      lx(L('Rowing unilatéral', 'One-arm row'), null, null,
+        '<div class="st st--side">' + [[1, 'G', 'L', 11, 0, 'right'], [1, 'D', 'R', 11, 0, 'right'], [2, 'G', 'L', 10, 0, 'right'], [2, 'D', 'R', 10, 0, 'right'], [3, 'G', 'L', 10, 0, 'hard'], [3, 'D', 'R', 9, 10, 'hard']].map(function (r) {
+          return '<div class="st__row"><span class="st__n">' + r[0] + '</span><span class="st__side">' + L(r[1], r[2]) + '</span><span class="st__v">' + KG(15) + '</span><span class="st__v">' + REPS(r[3], r[4] || null) + '</span><span class="st__feel">' + F[r[5]] + '</span></div>';
+        }).join('') + '</div>') +
+      lx(L('Pompes', 'Push-up'), 'f3g', tag('medal', L('Meilleure série', 'Best set')),
+        '<div class="st">' + strow(1, bw, REPS(21), F.right) + strow(2, bw, REPS(17), F.hard) + '</div>') +
+      lx(L('Élévations latérales à l’élastique', 'Band lateral raise'), null, null,
+        '<div class="st"><div class="st__row"><span class="st__n">1–3</span><span class="st__flag">' + icon('band') + '<span>' + L('Pas le matériel aujourd’hui <small>(c’était ponctuel)</small>', 'No equipment today <small>(a one-off)</small>') + '</span></span></div></div>') +
+      '</section>' +
+      '<section class="ld-sec"><div class="ld-sec__head"><h2 class="section-title">' + L('Ta note', 'Your note') + '</h2></div><p class="ld-note">' + L('Épaule droite qui tire en haut du développé. À surveiller la semaine prochaine.', 'Right shoulder pulling at the top of the press. Keep an eye on it next week.') + '</p></section>' +
+      '<div class="ld-del"><button class="btn btn--destructive-outline btn--block" type="button" data-go="f2d">' + icon('trash') + '<span>' + L('Supprimer cette séance', 'Delete this session') + '</span></button><p>' + L('Ta rotation et tes charges seront recalculées sans elle.', 'Your rotation and loads will be worked out again without it.') + '</p></div>';
+    el.innerHTML = h;
+  });
+
+  // Exercise list
+  function xrow(r) {
+    return '<a class="xrow"' + (r.go ? ' href="#' + r.go + '" data-go="' + r.go + '"' : '') + '><span class="thumb">' + icon(r.ic) + '</span><span class="xrow__text"><span class="xrow__name">' + L(r.n[0], r.n[1]) + '</span><span class="xrow__meta">' + L(r.m[0], r.m[1]) + '</span></span><span class="xrow__fig">' + r.fig + (r.tag || '') + '</span></a>';
+  }
+  function nfig(v, u) { return '<span class="num">' + v + '<small>' + u + '</small></span>'; }
+  var XL = [
+    { h: ['Récents', 'Recent'], rows: [
+      { ic: 'mat', n: ['Gainage latéral', 'Side plank'], m: ['Ven. 13 nov., 1 séance', 'Fri 13 Nov, 1 session'], fig: nfig(30, NB + 's'), go: 'f3f' },
+      { ic: 'mat', n: ['Dead bug', 'Dead bug'], m: ['Ven. 13 nov., 1 séance', 'Fri 13 Nov, 1 session'], fig: nfig(10, NB + 'reps') },
+      { ic: 'dumbbell', n: ['Développé couché au sol', 'Floor press'], m: ['Jeu. 12 nov., 10 séances', 'Thu 12 Nov, 10 sessions'], fig: '<span class="num">' + both(function (l) { return fmt(17.5, l); }) + '<small>' + NB + 'kg</small></span>', tag: tag('arrow-up', both(function (l) { return fmt(2.5, l) + NB + 'kg'; })), go: 'f3b' },
+      { ic: 'band', n: ['Traction assistée élastique', 'Band-assisted pull-up'], m: ['Jeu. 12 nov., 10 séances', 'Thu 12 Nov, 10 sessions'], fig: '<span class="w">' + L('Léger', 'Light') + '</span>' + nfig(7, NB + 'reps'), go: 'f3e' },
+      { ic: 'dumbbell', n: ['Développé épaules assis', 'Seated shoulder press'], m: ['Jeu. 12 nov., <b style="color: var(--color-danger-text)">douleur</b>', 'Thu 12 Nov, <b style="color: var(--color-danger-text)">pain</b>'], fig: nfig(10, NB + 'kg') } ] },
+    { h: ['Poussée', 'Push'], c: 5, rows: [
+      { ic: 'dumbbell', n: ['Développé couché au sol', 'Floor press'], m: ['Jeu. 12 nov., 10 séances', 'Thu 12 Nov, 10 sessions'], fig: '<span class="num">' + both(function (l) { return fmt(17.5, l); }) + '<small>' + NB + 'kg</small></span>' },
+      { ic: 'mat', n: ['Pompes', 'Push-up'], m: ['Jeu. 12 nov., 5 séances', 'Thu 12 Nov, 5 sessions'], fig: nfig(21, NB + 'reps'), tag: tag('medal', L('Record', 'Best')), go: 'f3g' } ] }
+  ];
+  document.querySelectorAll('[data-xlist]').forEach(function (el) {
+    el.innerHTML = XL.map(function (g) { return '<div class="xl__head"><h2>' + L(g.h[0], g.h[1]) + '</h2>' + (g.c ? '<span>' + g.c + '</span>' : '') + '</div>' + g.rows.map(xrow).join(''); }).join('');
+  });
+
+  /* ---------- Exercise detail ---------- */
+  function ruler(min, max, goal, over) {
+    var b = '', top = Math.max(max, goal);
+    for (var v = min; v <= top; v++) b += '<i class="' + (v <= goal ? 'on' : '') + (v > max ? ' out' : '') + '"></i>';
+    return '<span class="gr" aria-hidden="true"><span>' + min + '</span><span class="gr__bars">' + b + '</span><span>' + max + '</span></span>';
+  }
+  function chartCard(id, legend, sel) {
+    return '<div class="ch"><div class="ch__read" aria-live="polite"><div><div class="ch__read-label"></div><div class="ch__read-v"></div></div><button class="icon-btn ch__close" type="button" hidden aria-label="Revenir à la dernière séance" data-en-label="Back to the last session">' + icon('close') + '</button><div class="ch__read-sub"></div></div>' +
+      '<div class="ch__plot" tabindex="0" role="group" data-chart="' + id + '"' + (sel != null ? ' data-sel="' + sel + '" data-inspect="1"' : '') + ' aria-label="' + (lang === 'fr' ? 'Graphique de progression. Flèches gauche et droite pour parcourir les séances.' : 'Progress chart. Left and right arrows move between sessions.') + '"></div>' +
+      (legend ? '<div class="legend" aria-hidden="true">' + legend + '</div>' : '') + '</div>';
+  }
+  function rangeToggle() {
+    return '<div class="seg seg--compact" role="radiogroup" aria-label="Période" data-en-label="Period"><button class="seg__opt" role="radio" aria-checked="true" type="button">' + L('Ce cycle', 'This cycle') + '</button><button class="seg__opt" role="radio" aria-checked="false" type="button">' + L('Tout', 'All') + '</button></div>';
+  }
+  function tlItem(dot, when, tg, text) {
+    return '<div class="tl__item"><span class="tl__dot' + (dot ? ' tl__dot--' + dot : '') + '"></span><div class="tl__body"><span class="tl__when">' + when + (tg || '') + '</span><p class="tl__text">' + text + '</p></div></div>';
+  }
+  function xsRow(d, mo, title, sets, go) {
+    return '<a class="xs__row"' + (go ? ' href="#' + go + '" data-go="' + go + '"' : '') + '><span class="xs__date"><span class="num">' + d + '</span><small>' + mo + '</small></span><span class="xs__text"><span class="xs__title">' + title + '</span><span class="xs__sets">' + sets + '</span></span>' + icon('chev-right') + '</a>';
+  }
+  var nov = L('nov.', 'Nov'), oct = L('oct.', 'Oct');
+  var LEG_BAND = function (a, b, u) { return '<span><i class="legend__band"></i>' + L('Fourchette visée, ' + a + '–' + b + (u ? NB + u : ''), 'Target range, ' + a + '–' + b + (u ? NB + u : '')) + '</span>'; };
+  var LEG_STEP = function (fr, en) { return '<span><i class="legend__tick" style="width:1px;background:var(--color-line-strong)"></i>' + L(fr, en) + '</span>'; };
+
+  var XD = {
+    floor: function (sel) {
+      return '<span class="xd-kicker">' + icon('dumbbell') + L('Poussée horizontale, haltères', 'Horizontal push, dumbbells') + '</span>' +
+        '<h1 class="t-display xd-name is-long">' + L('Développé couché au sol', 'Floor press') + '</h1>' +
+        '<div class="xd-now"><div class="xd-now__cell"><span class="xd-now__n"><span class="num">' + both(function (l) { return fmt(17.5, l); }) + '</span><small>kg</small></span><span class="xd-now__label">' + L('par haltère', 'per dumbbell') + '</span></div>' +
+        '<div class="xd-now__cell"><span class="xd-now__n"><span class="num">8</span><small>reps</small></span><span class="xd-now__label">' + L('visées la prochaine fois', 'to aim for next time') + '</span>' + ruler(8, 12, 8) + '</div></div>' +
+        
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Progression', 'Progress') + '</h2>' + rangeToggle() + '</div>' +
+        chartCard('floor', LEG_BAND(8, 12) + LEG_STEP('Changement de charge', 'Load change'), sel) + '<p class="xd-since">' + icon('arrow-up') + '<span>' + L('Depuis le 12 octobre' + NN + ': <b>+5' + NB + 'kg</b> par haltère, de 12,5 à 17,5' + NB + 'kg.', 'Since 12 October: <b>+5' + NB + 'kg</b> per dumbbell, from 12.5 to 17.5' + NB + 'kg.') + '</span></p>' + '</section>' +
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Ce qui a changé', 'What changed') + '</h2><span class="pg-sec__meta">' + L('9 changements', '9 changes') + '</span></div><div class="tl">' +
+        tlItem('', L('Jeu. 12 nov., séance C', 'Thu 12 Nov, session C'), tag('arrow-up', both(function (l) { return fmt(2.5, l) + NB + 'kg'; })), L('La dernière fois, 4 × 12 à 15' + NB + 'kg. Haut de la fourchette' + NN + ': un cran au-dessus, objectif 8.', 'Last time, 4 × 12 at 15' + NB + 'kg. Top of the range: one step up, goal 8.')) +
+        tlItem('', L('Lun. 9 nov., séance A', 'Mon 9 Nov, session A'), tag('arrow-up', '1 rep'), L('La dernière fois, 4 × 11 à 15' + NB + 'kg. Objectif tenu' + NN + ': +1 rep.', 'Last time, 4 × 11 at 15' + NB + 'kg. Goal met: +1 rep.')) +
+        tlItem('', L('Jeu. 5 nov., séance C', 'Thu 5 Nov, session C'), tag('arrow-up', '1 rep'), L('La dernière fois, 4 × 10 à 15' + NB + 'kg. Objectif tenu' + NN + ': +1 rep.', 'Last time, 4 × 10 at 15' + NB + 'kg. Goal met: +1 rep.')) +
+        tlItem('hold', L('Lun. 2 nov., séance A', 'Mon 2 Nov, session A'), '', L('La dernière fois, 9, 9, 8, 8 reps à 15' + NB + 'kg, une série dure. Une série sous l’objectif ou ressentie dure' + NN + ': même objectif.', 'Last time, 9, 9, 8, 8 reps at 15' + NB + 'kg, one set hard. One set short or felt hard: same goal.')) +
+        '</div><button class="btn btn--ghost more" type="button">' + L('Voir les 5 autres', 'See the other 5') + '</button></section>' +
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Séances', 'Sessions') + '</h2><span class="pg-sec__meta">10</span></div><div class="xs">' +
+        xsRow(12, nov, L('Séance C, semaine 5', 'Session C, week 5'), L('4 séries' + NN + ': 8, 8, 7, 7 reps à <b>17,5' + NB + 'kg</b>', '4 sets: 8, 8, 7, 7 reps at <b>17.5' + NB + 'kg</b>'), 'f2b') +
+        xsRow(9, nov, L('Séance A, semaine 5', 'Session A, week 5'), L('4 × 12 à <b>15' + NB + 'kg</b>', '4 × 12 at <b>15' + NB + 'kg</b>')) +
+        xsRow(5, nov, L('Séance C, semaine 4', 'Session C, week 4'), L('4 × 11 à <b>15' + NB + 'kg</b>', '4 × 11 at <b>15' + NB + 'kg</b>')) +
+        xsRow(2, nov, L('Séance A, semaine 4', 'Session A, week 4'), L('4 × 10 à <b>15' + NB + 'kg</b>', '4 × 10 at <b>15' + NB + 'kg</b>')) +
+        '</div><button class="btn btn--ghost more" type="button">' + L('Voir les 10 séances', 'See all 10 sessions') + '</button></section>';
+    },
+    pull: function () {
+      return '<span class="xd-kicker">' + icon('band') + L('Tirage vertical, barre et élastique', 'Vertical pull, bar and band') + '</span>' +
+        '<h1 class="t-display xd-name is-long">' + L('Traction assistée élastique', 'Band-assisted pull-up') + '</h1>' +
+        '<div class="xd-now"><div class="xd-now__cell"><span class="xd-now__w">' + L('Élastique léger', 'Light band') + '</span><span class="xd-now__label">' + L('le moins d’aide que tu as', 'the least help you own') + '</span></div>' +
+        '<div class="xd-now__cell"><span class="xd-now__n"><span class="num">8</span><small>reps</small></span><span class="xd-now__label">' + L('visées la prochaine fois', 'to aim for next time') + '</span>' + ruler(5, 8, 8) + '</div></div>' +
+        
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Progression', 'Progress') + '</h2>' + rangeToggle() + '</div>' +
+        chartCard('pull', LEG_BAND(5, 8) + LEG_STEP('Changement d’élastique', 'Band change')) + '<p class="xd-since">' + icon('step-up') + '<span>' + L('Depuis le 12 octobre' + NN + ': <b>deux élastiques de moins</b>, du fort au léger. Ensuite, sans élastique.', 'Since 12 October: <b>two bands less</b>, from heavy to light. Next, no band.') + '</span></p>' + '</section>';
+    },
+    side: function () {
+      return '<span class="xd-kicker">' + icon('mat') + L('Gainage latéral, au sol', 'Lateral core, floor') + '</span>' +
+        '<h1 class="t-display xd-name">' + L('Gainage latéral', 'Side plank') + '</h1>' +
+        '<div class="xd-now"><div class="xd-now__cell"><span class="xd-now__n"><span class="num">30</span><small>s</small></span><span class="xd-now__label">' + L('par côté, côté le plus faible', 'per side, weaker side') + '</span></div></div>' +
+        '<div class="notice" style="margin-top: 18px">' + icon('bolt') + '<span>' + L('Fait seulement en séance rapide' + NN + ': pas de progression automatique.', 'Only done in a quick session: no automatic progression.') + '</span></div>' +
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Progression', 'Progress') + '</h2>' + rangeToggle() + '</div>' +
+        chartCard('side', LEG_BAND(20, 40, 's')) +
+        '<p class="inline-note">' + icon('info') + '<span>' + L('Une seule séance pour l’instant. La courbe se dessine dès la deuxième.', 'One session so far. The chart takes shape from the second one.') + '</span></p></section>' +
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Séances', 'Sessions') + '</h2><span class="pg-sec__meta">1</span></div><div class="xs">' +
+        xsRow(13, nov, L('Séance rapide, gainage', 'Quick session, core'), L('2 séries' + NN + ': gauche 35 et 32' + NB + 's, droite 30 et 30' + NB + 's', '2 sets: left 35 and 32' + NB + 's, right 30 and 30' + NB + 's')) + '</div></section>';
+    },
+    push: function () {
+      return '<span class="xd-kicker">' + icon('mat') + L('Poussée horizontale, poids du corps', 'Horizontal push, bodyweight') + '</span>' +
+        '<h1 class="t-display xd-name">' + L('Pompes', 'Push-up') + '</h1>' +
+        '<div class="xd-now"><div class="xd-now__cell"><span class="xd-now__n"><span class="num">21</span><small>reps</small></span><span class="xd-now__label">' + L('meilleure série, 12 nov.', 'best set, 12 Nov') + '</span></div>' +
+        '<div class="xd-now__cell"><span class="xd-now__n"><span class="num">22</span><small>reps</small></span><span class="xd-now__label">' + L('visées, au-delà de 12–20', 'to aim for, past 12–20') + '</span>' + ruler(12, 20, 22) + '</div></div>' +
+        
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Progression', 'Progress') + '</h2>' + rangeToggle() + '</div>' +
+        chartCard('push', LEG_BAND(12, 20)) + '<p class="xd-since">' + icon('arrow-up') + '<span>' + L('Depuis le 15 octobre' + NN + ': <b>+6 reps</b> sur ta meilleure série.', 'Since 15 October: <b>+6 reps</b> on your best set.') + '</span></p>' + '</section>' +
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Tests max', 'Max tests') + '</h2><span class="pg-sec__meta">3</span></div><div>' +
+        mtRow(L('Dim. 8 nov.', 'Sun 8 Nov'), L('Hors séance', 'Fresh'), 23, 'reps', 5) + mtRow(L('Dim. 18 oct.', 'Sun 18 Oct'), L('Hors séance', 'Fresh'), 18, 'reps', 3) + mtRow(L('Sam. 10 oct.', 'Sat 10 Oct'), L('Hors séance, avant le programme', 'Fresh, before the programme'), 15, 'reps') +
+        '</div><a class="btn btn--ghost more" href="#f5a" data-go="f5a">' + L('Tous les tests max', 'All max tests') + '</a></section>' +
+        '<section class="xd-sec"><div class="xd-sec__head"><h2 class="section-title">' + L('Ce qui a changé', 'What changed') + '</h2><span class="pg-sec__meta">' + L('4 changements', '4 changes') + '</span></div><div class="tl">' +
+        tlItem('', L('Jeu. 12 nov., séance C', 'Thu 12 Nov, session C'), tag('medal', L('Test max', 'Max test')), L('Objectif relevé après ton test max du 8 novembre (23 reps)' + NN + ': <b>20 reps</b>.', 'Goal raised after your max test on 8 November (23 reps): <b>20 reps</b>.')) +
+        tlItem('', L('Jeu. 5 nov., séance C', 'Thu 5 Nov, session C'), tag('arrow-up', '1 rep'), L('La dernière fois, 18 et 14 reps. Objectif tenu' + NN + ': +1 rep.', 'Last time, 18 and 14 reps. Goal met: +1 rep.')) + '</div></section>';
+    }
+  };
+  function mtRow(when, ctx, v, unit, delta) {
+    return '<div class="mtrow"><div><div class="mtrow__when">' + when + '</div><div class="mtrow__ctx">' + ctx + '</div></div><div class="mtrow__fig">' + (delta ? tag('arrow-up', delta + NB + (unit === 's' ? 's' : 'reps')) : '') + '<span class="num">' + v + '<small>' + (unit === 's' ? 's' : 'reps') + '</small></span></div></div>';
+  }
+  document.querySelectorAll('[data-xd]').forEach(function (el) { el.innerHTML = XD[el.dataset.xd](el.dataset.sel != null ? +el.dataset.sel : null); });
+
+  /* ---------- Body ---------- */
+  function seg3(sel) {
+    var o = [['weight', 'Poids', 'Weight'], ['waist', 'Taille', 'Waist'], ['sleep', 'Sommeil', 'Sleep']];
+    return '<div class="seg" role="tablist" aria-label="Mesure" data-en-label="Measure">' + o.map(function (x) { return '<button class="seg__opt" role="tab" type="button" aria-selected="' + (x[0] === sel) + '"' + (x[0] === sel ? ' aria-checked="true"' : '') + '>' + L(x[1], x[2]) + '</button>'; }).join('') + '</div>';
+  }
+  function cirow(d, mo, vals, note) {
+    return '<a class="cirow" href="#f4e" data-go="f4e"><span class="xs__date"><span class="num">' + d + '</span><small>' + mo + '</small></span><span><span class="cirow__vals">' + vals + '</span>' + (note ? '<span class="cirow__note">' + note + '</span>' : '') + '</span>' + icon('chev-right') + '</a>';
+  }
+  function cv(v, u) { return v == null ? '<span class="none">' + L('Taille –', 'Waist –') + '</span>' : '<span>' + both(function (l) { return fmt(v, l); }) + '<small>' + NB + u + '</small></span>'; }
+  var CI = [[8, nov, 79.7, 86.5, 6.5, L('Repas de famille samedi.', 'Family dinner on Saturday.')], [1, nov, 80.8, 88, 6, L('Deux nuits courtes, semaine chargée.', 'Two short nights, busy week.')], [25, oct, 80.6, null, 7.5], [18, oct, 80.9, 88.5, 7], [11, oct, 81.2, 89, 6.5]];
+  var BNOW = {
+    weight: ['79,7', '79.7', 'kg', L('Dimanche 8 novembre, dernière mesure', 'Sunday 8 November, latest'), 'arrow-down', L('<b>−1' + NB + 'kg</b> en 4 semaines, en moyenne sur 2 mesures à chaque bout.', '<b>−1' + NB + 'kg</b> over 4 weeks, averaging 2 check-ins at each end.')],
+    waist: ['86,5', '86.5', 'cm', L('Dimanche 8 novembre, dernière mesure', 'Sunday 8 November, latest'), 'arrow-down', L('<b>−1,5' + NB + 'cm</b> en 4 semaines, en moyenne sur 2 mesures à chaque bout.', '<b>−1.5' + NB + 'cm</b> over 4 weeks, averaging 2 check-ins at each end.')],
+    sleep: ['6,5', '6.5', 'h', L('par nuit, semaine du 2 novembre', 'a night, week of 2 November'), 'clock', L('En moyenne <b>6,9' + NB + 'h</b> sur 5 mesures.', 'On average <b>6.9' + NB + 'h</b> over 5 check-ins.')]
+  };
+  document.querySelectorAll('[data-body]').forEach(function (el) {
+    var k = el.dataset.body, b = BNOW[k];
+    el.innerHTML = seg3(k) +
+      '<div class="bd-now"><div class="bd-now__n"><span class="num">' + L(b[0], b[1]) + '</span><small>' + b[2] + '</small></div><span class="bd-now__label">' + b[3] + '</span><p class="bd-delta">' + icon(b[4]) + '<span>' + b[5] + '</span></p></div>' +
+      '<div class="ch"><div class="ch__plot" tabindex="0" role="group" data-body-chart="' + k + '" aria-label="' + (lang === 'fr' ? 'Graphique des mesures' : 'Check-in chart') + '"></div></div>' +
+      (k === 'weight' ? '<p class="inline-note">' + icon('info') + '<span>' + L('Ces mesures ne changent pas ton profil. À la fin du cycle, la revue te proposera d’y reprendre ton dernier poids.', 'These check-ins don’t change your profile. At the end of the cycle, the review offers to use your latest weight there.') + '</span></p>' : '') +
+      '<section class="pg-sec" style="gap: 4px"><div class="pg-sec__head"><h2 class="section-title">' + L('Toutes les mesures', 'All check-ins') + '</h2><span class="pg-sec__meta">5</span></div><div class="ci">' +
+      CI.map(function (c) { return cirow(c[0], c[1], cv(c[2], 'kg') + cv(c[3], 'cm') + cv(c[4], 'h'), c[5]); }).join('') + '</div></section>';
+  });
+
+  // Check-in sheet bodies
+  function nf(label, unit, val, hint, focus) {
+    return '<div class="nf"><span class="nf__label">' + label + '</span><div class="nf__box' + (focus ? ' is-focus' : '') + '"><span class="num' + (val == null ? ' is-empty' : '') + '">' + (val == null ? '–' : both(function (l) { return fmt(val, l); })) + '</span><small>' + unit + '</small></div>' + (hint ? '<span class="nf__hint">' + hint + '</span>' : '') + '</div>';
+  }
+  function sleepStepper(v) {
+    return '<div class="nf"><span class="nf__label">' + L('Sommeil', 'Sleep') + '</span><div class="stepper stepper--wide"><button class="stepper__btn" type="button" aria-label="Moins" data-en-label="Less"' + (v == null ? ' disabled' : '') + '>' + icon('minus') + '</button><span class="stepper__value"><span class="num' + (v == null ? '" style="color:var(--color-text-subtle)' : '') + '">' + (v == null ? '–' : both(function (l) { return fmt(v, l); })) + '</span><span class="stepper__unit">' + L('h par nuit', 'h a night') + '</span></span><button class="stepper__btn" type="button" aria-label="Plus" data-en-label="More">' + icon('plus') + '</button></div><span class="nf__hint">' + L('En moyenne sur la semaine, par demi-heure.', 'On average over the week, in half hours.') + '</span></div>';
+  }
+  document.querySelectorAll('[data-ci]').forEach(function (el) {
+    var edit = el.dataset.ci === 'edit';
+    el.innerHTML = '<button class="datebtn" type="button">' + icon('calendar') + '<span>' + (edit ? L('Dimanche 8 novembre', 'Sunday 8 November') : L('Aujourd’hui, samedi 14 novembre', 'Today, Saturday 14 November')) + '</span>' + icon('pencil', 'i--sm') + '</button>' +
+      '<div class="nf-row">' + nf(L('Poids', 'Weight'), 'kg', edit ? 79.7 : 79.4, edit ? '' : L('La dernière fois' + NN + ': <b>79,7' + NB + 'kg</b>', 'Last time: <b>79.7' + NB + 'kg</b>'), !edit) +
+      nf(L('Tour de taille', 'Waist'), 'cm', edit ? 86.5 : null, edit ? '' : L('Au niveau du nombril', 'At the navel')) + '</div>' +
+      sleepStepper(edit ? 6.5 : null) +
+      '<div class="nf"><span class="nf__label">' + L('Notes', 'Notes') + '</span><div class="notes' + (edit ? '' : ' is-empty') + '">' + (edit ? L('Repas de famille samedi.', 'Family dinner on Saturday.') : L('Fatigue, douleur, alimentation…', 'Tiredness, pain, food…')) + '</div></div>' +
+      (edit ? '<div class="sheet-del"><button class="btn btn--destructive-outline btn--block" type="button">' + icon('trash') + '<span>' + L('Supprimer ces mesures', 'Delete this check-in') + '</span></button><p>' + L('Tu pourras annuler juste après.', 'You can undo it right after.') + '</p></div>' : '');
+  });
+
+  /* ---------- Max tests ---------- */
+  document.querySelectorAll('[data-tests]').forEach(function (el) {
+    el.innerHTML = '<div class="mt-plan"><span class="well">' + icon('medal') + '</span><div><div class="mt-plan__title">' + L('Test du programme' + NN + ': Pompes', 'Programme test: Push-up') + '</div><p class="mt-plan__line">' + L('À la fin de la <b>séance C de la semaine 8</b>, en fin de cycle.', 'At the end of <b>session C in week 8</b>, to close the cycle.') + '</p></div></div>' +
+      '<section class="pg-sec"><div class="pg-sec__head"><h2 class="section-title">' + L('Pompes', 'Push-up') + '</h2><span class="pg-sec__meta">' + L('3 tests', '3 tests') + '</span></div>' +
+      '<div class="ch"><div class="ch__plot" tabindex="0" role="group" data-test-chart="push" aria-label="' + (lang === 'fr' ? 'Graphique des tests' : 'Test chart') + '"></div><div class="legend" aria-hidden="true"><span><i class="legend__bar" style="width:12px;height:14px;border-radius:3px 3px 0 0"></i>' + L('Hors séance', 'Fresh') + '</span><span><i class="legend__hollow"></i>' + L('En séance (semaine 8)', 'In a session (week 8)') + '</span></div></div><div>' +
+      mtRow(L('Dim. 8 nov.', 'Sun 8 Nov'), L('Hors séance', 'Fresh'), 23, 'reps', 5) + mtRow(L('Dim. 18 oct.', 'Sun 18 Oct'), L('Hors séance', 'Fresh'), 18, 'reps', 3) + mtRow(L('Sam. 10 oct.', 'Sat 10 Oct'), L('Hors séance, avant le programme', 'Fresh, before the programme'), 15, 'reps') + '</div></section>' +
+      '<section class="pg-sec"><div class="pg-sec__head"><h2 class="section-title">' + L('Gainage planche', 'Plank') + '</h2><span class="pg-sec__meta">' + L('1 test', '1 test') + '</span></div>' +
+      '<div class="ch"><div class="ch__plot" tabindex="0" role="group" data-test-chart="plank" aria-label="' + (lang === 'fr' ? 'Graphique des tests' : 'Test chart') + '"></div></div>' +
+      '<div>' + mtRow(L('Dim. 25 oct.', 'Sun 25 Oct'), L('Hors séance', 'Fresh'), 75, 's') + '</div></section>';
+  });
+  document.querySelectorAll('[data-tpick]').forEach(function (el) {
+    var rows = [['mat', 'Pompes', 'Push-up', 'Le test de ton programme. Dernier' + NN + ': <b>23 reps</b>', 'Your programme’s test. Last: <b>23 reps</b>'],
+      ['mat', 'Gainage planche', 'Plank', 'Dernier test' + NN + ': <b>75' + NB + 's</b>', 'Last test: <b>75' + NB + 's</b>'],
+      ['mat', 'Pompes en V (pike)', 'Pike push-up', 'Poussée verticale, en reps', 'Vertical push, reps', 1],
+      ['bar', 'Traction pronation', 'Pull-up', 'Tirage vertical, en reps', 'Vertical pull, reps'],
+      ['mat', 'Rowing inversé sous une table', 'Inverted row under a table', 'Tirage horizontal, en reps', 'Horizontal pull, reps'],
+      ['mat', 'Squat au poids du corps', 'Bodyweight squat', 'Squat, en reps', 'Squat, reps'],
+      ['mat', 'Chaise contre le mur', 'Wall sit', 'En secondes', 'Seconds'],
+      ['bar', 'Suspension menton au-dessus de la barre', 'Flexed-arm hang', 'En secondes', 'Seconds']];
+    el.innerHTML = '<p class="inline-note pk__note">' + icon('info') + '<span>' + L('Pompes, tractions, rowings, squats au poids du corps, et quatre gainages. Les deux côtés à la fois.', 'Push-ups, pull-ups, rows and squats with your bodyweight, plus four holds. Both sides at once.') + '</span></p><div style="display:grid">' +
+      rows.map(function (r) { return r[5] ? '<div class="pick" role="button" aria-disabled="true"><span class="thumb">' + icon(r[0]) + '</span><span><span class="pick__name">' + L(r[1], r[2]) + '</span><span class="pick__meta">' + L(r[3], r[4]) + '</span><span class="pick__why">' + icon('stop') + '<span>' + L('Pas de test pour l’instant' + NN + ': douleur récente sur un mouvement proche. Encore 2 séances sans douleur.', 'No test for now: recent pain on a similar move. 2 pain-free sessions first.') + '</span></span></span></div>' : '<a class="pick" href="#f5b" data-go="f5b"><span class="thumb">' + icon(r[0]) + '</span><span><span class="pick__name">' + L(r[1], r[2]) + '</span><span class="pick__meta">' + L(r[3], r[4]) + '</span></span></a>'; }).join('') + '</div>';
+  });
+
+  /* ================================================================ */
+  /* SVG charts                                                        */
+  /* ================================================================ */
+  var NS = 'http://www.w3.org/2000/svg';
+  function S(tag, a, parent) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (parent) parent.appendChild(e); return e; }
+  function T(txt, a, parent) { var e = S('text', a, parent); e.textContent = txt; return e; }
+  function colPath(x, yTop, yBase, w) {
+    var r = Math.min(4, w / 2, Math.max(0, yBase - yTop)); var l = x - w / 2, rr = x + w / 2;
+    return 'M' + l + ',' + yBase + ' V' + (yTop + r) + ' Q' + l + ',' + yTop + ' ' + (l + r) + ',' + yTop + ' H' + (rr - r) + ' Q' + rr + ',' + yTop + ' ' + rr + ',' + (yTop + r) + ' V' + yBase + ' Z';
+  }
+  function feelText(f, l) { return l === 'fr' ? (f === 'hard' ? 'Ressenti' + NN + ': dur.' : f === 'easy' ? 'Ressenti' + NN + ': facile.' : 'Ressenti' + NN + ': idéal.') : (f === 'hard' ? 'Felt hard.' : f === 'easy' ? 'Felt easy.' : 'Felt right.'); }
+
+  /* Ladder: optional level panel (load / band / added load) over a column panel (reps / seconds / minutes) */
+  function ladder(el) {
+    var cfg = CH[el.dataset.chart], pts = cfg.pts, n = pts.length;
+    var sel = el.dataset.sel != null && el.dataset.sel !== '' ? +el.dataset.sel : n - 1;
+    var inspect = el.dataset.inspect === '1';
+    var W = el.clientWidth || 320;
+    var hasTop = cfg.kind === 'kg' || cfg.kind === 'band' || cfg.kind === 'added';
+    var g = cfg.kind === 'band' ? 50 : 30, pw = W - g - 4;
+    var topY0 = 22, topH = !hasTop ? 0 : cfg.kind === 'band' ? 18 * (cfg.levels.length - 1) + 8 : 48, topY1 = topY0 + topH;
+    var botY0 = hasTop ? topY1 + 38 : 22, botH = hasTop ? 100 : 130, botY1 = botY0 + botH, H = botY1 + 24;
+    var svg = S('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' });
+    function X(p) { return g + ((p.w - 1 + p.d) / cfg.weeks) * pw; }
+    var plotTop = hasTop ? topY0 - 6 : botY0 - 6;
+    // current week
+    S('rect', { x: g + (cfg.now - 1) / cfg.weeks * pw, y: plotTop, width: pw / cfg.weeks, height: botY1 - plotTop, rx: 4, class: 'c-now' }, svg);
+    // step markers (behind everything else)
+    if (hasTop) for (var i = 1; i < n; i++) if (pts[i].load !== pts[i - 1].load) { var xm = Math.round((X(pts[i - 1]) + X(pts[i])) / 2) + .5; S('line', { x1: xm, x2: xm, y1: topY0 - 4, y2: botY1, class: 'c-stepmark' }, svg); }
+    if (inspect) { var xc = Math.round(X(pts[sel])) + .5; S('line', { x1: xc, x2: xc, y1: plotTop, y2: botY1, class: 'c-cross' }, svg); }
+    // top panel
+    if (hasTop) {
+      T(cfg.top[lang === 'fr' ? 0 : 1], { x: 0, y: 11, class: 'c-panel' }, svg);
+      var vals = cfg.kind === 'band' ? cfg.levels.map(function (_, k) { return k; }) : pts.map(function (p) { return p.load; }).filter(function (v, k, a) { return a.indexOf(v) === k; }).sort(function (a, b) { return a - b; });
+      var lo = vals[0], hi = vals[vals.length - 1];
+      var YT = function (v) { return hi === lo ? (topY0 + topY1) / 2 : topY1 - 4 - (v - lo) / (hi - lo) * (topH - 8); };
+      vals.forEach(function (v) { var y = Math.round(YT(v)) + .5; S('line', { x1: g, x2: W, y1: y, y2: y, class: 'c-grid' }, svg); T(cfg.kind === 'band' ? cfg.levels[v][lang === 'fr' ? 0 : 1] : fmt(v), { x: g - 8, y: y + 4, 'text-anchor': 'end', class: 'c-tick' }, svg); });
+      var d = 'M' + X(pts[0]) + ',' + YT(pts[0].load);
+      for (var j = 1; j < n; j++) d += ' H' + X(pts[j]) + ' V' + YT(pts[j].load);
+      S('path', { d: d, class: 'c-line' }, svg);
+      pts.forEach(function (p, k) { S('circle', { cx: X(p), cy: YT(p.load), r: k === sel && inspect ? 6 : 4, class: 'c-dot' + (k === sel && inspect ? ' c-dot--sel' : '') }, svg); });
+    }
+    // bottom panel
+    T(cfg.bot[lang === 'fr' ? 0 : 1], { x: 0, y: botY0 - 12, class: 'c-panel' }, svg);
+    var vmax = Math.max(cfg.range ? cfg.range[1] : 0, Math.max.apply(null, pts.map(function (p) { return p.v; }))) * 1.18;
+    var YB = function (v) { return botY1 - v / vmax * botH; };
+    if (cfg.range) {
+      S('rect', { x: g, y: YB(cfg.range[1]), width: pw + 4, height: YB(cfg.range[0]) - YB(cfg.range[1]), class: 'c-band' }, svg);
+      cfg.range.forEach(function (v) { T(fmt(v), { x: g - 8, y: YB(v) + 4, 'text-anchor': 'end', class: 'c-tick' }, svg); });
+    }
+    T('0', { x: g - 8, y: botY1 + 4, 'text-anchor': 'end', class: 'c-tick' }, svg);
+    S('line', { x1: g, x2: W, y1: botY1 + .5, y2: botY1 + .5, class: 'c-base' }, svg);
+    var minDx = pw / cfg.weeks; for (var m = 1; m < n; m++) minDx = Math.min(minDx, X(pts[m]) - X(pts[m - 1]));
+    var cw = Math.max(4, Math.min(14, minDx * 0.55));
+    pts.forEach(function (p, k) {
+      var cls = 'c-col' + (k === sel ? ' c-col--sel' : '') + (p.pain ? ' c-col--pain' : '');
+      S('path', { d: colPath(X(p), YB(p.v), botY1, cw), class: cls }, svg);
+    });
+    var sp = pts[sel];
+    T(fmt(sp.v), { x: X(sp), y: YB(sp.v) - 7, 'text-anchor': 'middle', class: 'c-val' }, svg);
+    // week labels
+    for (var w = 1; w <= cfg.weeks; w++) T((lang === 'fr' ? 'S' : 'W') + w, { x: g + (w - .5) / cfg.weeks * pw, y: botY1 + 18, 'text-anchor': 'middle', class: 'c-tick' + (w === cfg.now ? ' c-tick--now' : w > cfg.now ? ' c-tick--later' : '') }, svg);
+    // hit layer (bigger than the marks: full plot height, whole width)
+    var hit = S('rect', { x: g - 8, y: 0, width: pw + 12, height: H, class: 'c-hit' }, svg);
+    hit.addEventListener('pointerdown', pick); hit.addEventListener('pointermove', function (e) { if (e.buttons) pick(e); });
+    function pick(e) {
+      var r = svg.getBoundingClientRect(), x = (e.clientX - r.left) * (W / r.width), best = 0;
+      pts.forEach(function (p, k) { if (Math.abs(X(p) - x) < Math.abs(X(pts[best]) - x)) best = k; });
+      el.dataset.sel = best; el.dataset.inspect = '1'; ladder(el);
+    }
+    el.innerHTML = ''; el.appendChild(svg);
+    readout(el, cfg, sel, inspect);
+  }
+  function readout(el, cfg, sel, inspect) {
+    var card = el.closest('.ch'), p = cfg.pts[sel];
+    var when = function (l) {
+      var dd = day(p.date, l), who = p.s ? (l === 'fr' ? 'séance ' + p.s : 'session ' + p.s) : (l === 'fr' ? 'séance rapide' : 'quick session');
+      return inspect ? cap(who) + ', ' + dd : (l === 'fr' ? 'Dernière séance, ' : 'Last session, ') + dd;
+    };
+    var val = function (l) {
+      if (cfg.kind === 'kg') return '<span class="num">' + p.v + '</span><small>' + (l === 'fr' ? 'reps à' : 'reps at') + '</small><span class="num">' + fmt(p.load, l) + '</span><small>kg</small>';
+      if (cfg.kind === 'band') return '<span class="num">' + p.v + '</span><small>' + (l === 'fr' ? 'reps, élastique ' + cfg.levels[p.load][0].toLowerCase() : 'reps, ' + cfg.levels[p.load][1].toLowerCase() + ' band') + '</small>';
+      if (cfg.kind === 'hold') return '<span class="num">' + p.v + '</span><small>' + (cfg.side ? (l === 'fr' ? 's par côté' : 's per side') : 's') + '</small>';
+      return '<span class="num">' + p.v + '</span><small>reps</small>';
+    };
+    var sub = function (l) {
+      if (p.sub) return p.sub[l === 'fr' ? 0 : 1];
+      return (l === 'fr' ? p.sets.length + ' séries' + NN + ': <b>' : p.sets.length + ' sets: <b>') + p.sets.join(', ') + '</b> reps. ' + feelText(p.feel, l);
+    };
+    card.querySelector('.ch__read-label').innerHTML = both(when);
+    card.querySelector('.ch__read-v').innerHTML = both(val);
+    card.querySelector('.ch__read-sub').innerHTML = both(sub);
+    card.querySelector('.ch__close').hidden = !inspect;
+  }
+
+  /* Body: line (weight, waist) or columns (sleep), on a time axis */
+  function bodyChart(el) {
+    var cfg = BODY[el.dataset.bodyChart], pts = cfg.pts;
+    var W = el.clientWidth || 320, g = 30, top = 10, ph = 140, H = top + ph + 26, pw = W - g - 12;
+    var svg = S('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' });
+    var t = function (d) { return new Date(d + 'T12:00:00').getTime(); };
+    var t0 = t(pts[0][0]), t1 = t(pts[pts.length - 1][0]);
+    var X = function (d) { return g + 10 + (t(d) - t0) / (t1 - t0) * (pw - 20); };
+    var vs = pts.map(function (p) { return p[1]; }).filter(function (v) { return v != null; });
+    var lo, hi, ticks = [];
+    if (cfg.ticks) { ticks = cfg.ticks; lo = ticks[0]; hi = ticks[ticks.length - 1]; }
+    else { lo = Math.floor(Math.min.apply(null, vs) - .4); hi = Math.ceil(Math.max.apply(null, vs) + .4); for (var v = lo; v <= hi; v += cfg.step) ticks.push(v); if (ticks.length > 5) ticks = ticks.filter(function (_, k) { return k % 2 === 0; }); }
+    var Y = function (v) { return top + ph - (v - lo) / (hi - lo) * ph; };
+    ticks.forEach(function (v) { var y = Math.round(Y(v)) + .5; S('line', { x1: g, x2: W, y1: y, y2: y, class: v === lo && cfg.kind === 'col' ? 'c-base' : 'c-grid' }, svg); T(fmt(v), { x: g - 8, y: y + 4, 'text-anchor': 'end', class: 'c-tick' }, svg); });
+    var last = pts.length - 1;
+    if (cfg.kind === 'line') {
+      var d = '', on = false;
+      pts.forEach(function (p) { if (p[1] == null) return; d += (on ? ' L' : 'M') + X(p[0]) + ',' + Y(p[1]); on = true; });
+      S('path', { d: d, class: 'c-line' }, svg);
+      pts.forEach(function (p, k) { if (p[1] != null) S('circle', { cx: X(p[0]), cy: Y(p[1]), r: k === last ? 5 : 4, class: 'c-dot' }, svg); });
+    } else {
+      pts.forEach(function (p, k) { if (p[1] != null) S('path', { d: colPath(X(p[0]), Y(p[1]), Y(lo), 16), class: 'c-col' + (k === last ? ' c-col--sel' : '') }, svg); });
+      T(fmt(pts[last][1]), { x: X(pts[last][0]), y: Y(pts[last][1]) - 7, 'text-anchor': 'middle', class: 'c-val' }, svg);
+    }
+    pts.forEach(function (p, k) { T(day(p[0], lang, { day: 'numeric', month: 'short' }), { x: X(p[0]), y: top + ph + 20, 'text-anchor': 'middle', class: 'c-tick' + (k === last ? ' c-tick--now' : '') }, svg); });
+    el.innerHTML = ''; el.appendChild(svg);
+  }
+
+  /* Max tests: one column per test, evenly spaced */
+  function testChart(el) {
+    var cfg = TESTS[el.dataset.testChart], pts = cfg.pts, n = pts.length;
+    var W = el.clientWidth || 320, g = 30, top = 22, ph = n > 1 ? 110 : 80, H = top + ph + 26, pw = W - g - 4;
+    var svg = S('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' });
+    var slots = Math.max(n, 5), sw = pw / slots;
+    var X = function (k) { return g + (k + .5) * sw; };
+    var vmax = Math.max.apply(null, pts.map(function (p) { return p[1]; })) * 1.2;
+    var Y = function (v) { return top + ph - v / vmax * ph; };
+    S('line', { x1: g, x2: W, y1: top + ph + .5, y2: top + ph + .5, class: 'c-base' }, svg);
+    T('0', { x: g - 8, y: top + ph + 4, 'text-anchor': 'end', class: 'c-tick' }, svg);
+    var best = 0; pts.forEach(function (p, k) { if (p[1] >= pts[best][1]) best = k; });
+    pts.forEach(function (p, k) {
+      S('path', { d: colPath(X(k), Y(p[1]), top + ph, Math.min(24, sw * .5)), class: 'c-col' + (k === n - 1 ? ' c-col--sel' : '') }, svg);
+      if (k === n - 1 || k === best) T(fmt(p[1]) + (cfg.unit === 's' ? NB + 's' : ''), { x: X(k), y: Y(p[1]) - 7, 'text-anchor': 'middle', class: 'c-val' }, svg);
+      T(day(p[0], lang, { day: 'numeric', month: 'short' }), { x: X(k), y: top + ph + 18, 'text-anchor': 'middle', class: 'c-tick' + (k === n - 1 ? ' c-tick--now' : '') }, svg);
+    });
+    el.innerHTML = ''; el.appendChild(svg);
+  }
+
+  function renderCharts() {
+    document.querySelectorAll('[data-chart]').forEach(ladder);
+    document.querySelectorAll('[data-body-chart]').forEach(bodyChart);
+    document.querySelectorAll('[data-test-chart]').forEach(testChart);
+  }
+
+  /* ---------- language, theme ---------- */
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)); });
+  }
+  function swapAttr(el, attr, enAttr) {
+    var frAttr = 'data-fr-' + attr;
+    if (!el.hasAttribute(frAttr)) el.setAttribute(frAttr, el.getAttribute(attr) || '');
+    el.setAttribute(attr, lang === 'en' ? el.getAttribute(enAttr) : el.getAttribute(frAttr));
+  }
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) { swapAttr(el, 'aria-label', 'data-en-label'); });
+    document.querySelectorAll('[data-en-placeholder]').forEach(function (el) { swapAttr(el, 'placeholder', 'data-en-placeholder'); });
+    renderCharts();
+    sync();
+  }
+  function applyTheme() { root.dataset.theme = theme; sync(); }
+  function flash(id) {
+    var fig = document.getElementById(id); if (!fig) return;
+    fig.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    fig.classList.add('is-flash'); setTimeout(function () { fig.classList.remove('is-flash'); }, 1200);
+  }
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]'); if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var th = e.target.closest('[data-set-theme]'); if (th) { theme = th.dataset.setTheme; applyTheme(); return; }
+    var cl = e.target.closest('.ch__close'); if (cl) { var pl = cl.closest('.ch').querySelector('[data-chart]'); delete pl.dataset.sel; delete pl.dataset.inspect; ladder(pl); return; }
+    var opt = e.target.closest('.seg__opt'); if (opt) { opt.parentElement.querySelectorAll('.seg__opt').forEach(function (o) { o.setAttribute('aria-checked', String(o === opt)); }); return; }
+    var go = e.target.closest('[data-go]'); if (go) { e.preventDefault(); flash(go.dataset.go); }
+  });
+  document.addEventListener('keydown', function (e) {
+    var pl = e.target.closest && e.target.closest('[data-chart]'); if (!pl) return;
+    var n = CH[pl.dataset.chart].pts.length, cur = pl.dataset.sel != null ? +pl.dataset.sel : n - 1;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); pl.dataset.sel = Math.max(0, Math.min(n - 1, cur + (e.key === 'ArrowLeft' ? -1 : 1))); pl.dataset.inspect = '1'; ladder(pl); }
+    if (e.key === 'Escape') { delete pl.dataset.sel; delete pl.dataset.inspect; ladder(pl); }
+  });
+  applyTheme();
+  applyLang();
+  document.querySelectorAll('[data-scroll]').forEach(function (f) { var sc = f.querySelector('.scroll'); if (sc) sc.scrollTop = +f.dataset.scroll; });
+  document.querySelectorAll('[data-sheet-scroll]').forEach(function (f) { var sb = f.querySelector('.sheet__body'); if (sb) sb.scrollTop = +f.dataset.sheetScroll; });
+  if (document.fonts) document.fonts.ready.then(renderCharts);
+})();
+</script>
+</body>
+</html>

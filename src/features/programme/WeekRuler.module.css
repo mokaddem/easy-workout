@@ -84,6 +84,12 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* A one-week phase at the end of the ruler keeps its whole name: it grows leftwards, never clipped. */
+.phase:last-child {
+  display: flex;
+  justify-content: flex-end;
+  overflow: visible;
+}
 .phaseSelected {
   color: var(--color-text);
   border-top-color: var(--color-text);

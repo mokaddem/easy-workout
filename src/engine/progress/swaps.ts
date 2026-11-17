@@ -11,6 +11,8 @@ import { exerciseById as catalogueById, catalogue } from '../../catalogue';
 import { equipmentCapabilities, isExerciseAvailable, usableSetups } from '../equipment';
 import { redose } from '../generate/dose';
 import { startingLoad, type LoadContext } from '../generate/loads';
+import { isExerciseSafe, isMainLift } from '../generate/safety';
+import { levelCap } from '../generate/select';
 import { itemKey } from '../play';
 
 export interface Swaps {
@@ -121,6 +123,66 @@ export function variantFor(
   return exercise[direction]
     .map((id) => exercises.get(id))
     .find((e): e is Exercise => !!e && isExerciseAvailable(e, capabilities) && filter(e));
+}
+
+const jumps = (e: Exercise) => e.tags.includes('plyometric') || e.tags.includes('ballistic');
+
+/**
+ * A harder link that does the same job (pattern, compound or isolation, metric) one difficulty
+ * step up at most, within the level when one is given. Jumps and swings only follow jumps, swings
+ * or conditioning, and a lift leading its session stays a main lift. Equipment aside.
+ */
+export function fitsAsHarder(
+  candidate: Exercise,
+  exercise: Exercise,
+  level?: LoadContext['level'],
+  options: { leads?: boolean } = {},
+): boolean {
+  const c = candidate;
+  if (c.pattern !== exercise.pattern || c.metric !== exercise.metric) return false;
+  if (!shareTag(c, exercise, 'compound') || !shareTag(c, exercise, 'isolation')) return false;
+  if (c.difficulty > exercise.difficulty + 1) return false;
+  if (jumps(c) && !jumps(exercise) && exercise.pattern !== 'conditioning') return false;
+  if (options.leads && !isMainLift(c)) return false;
+  return !level || c.difficulty <= levelCap(level, c);
+}
+
+/** The harder variant that may take an exercise's place, first in its links, safe with what is owned. */
+export function harderVariantFor(
+  exercise: Exercise,
+  ctx: { inventory: EquipmentInventory } & Partial<Pick<LoadContext, 'level' | 'bodyweightKg'>>,
+  exercises: ReadonlyMap<string, Exercise> = catalogueById,
+  options: { leads?: boolean } = {},
+): Exercise | undefined {
+  return variantFor(
+    exercise,
+    'harder',
+    ctx.inventory,
+    exercises,
+    (c) =>
+      fitsAsHarder(c, exercise, ctx.level, options) &&
+      (!ctx.level || isExerciseSafe(c, { ...ctx, level: ctx.level })),
+  );
+}
+
+/**
+ * A harder variant would fit but needs equipment the user doesn't own: only then is buying
+ * the advice (a level or a missing variant is not something to buy).
+ */
+export function harderNeedsEquipment(
+  exercise: Exercise,
+  ctx: { inventory: EquipmentInventory } & Partial<Pick<LoadContext, 'level'>>,
+  exercises: ReadonlyMap<string, Exercise> = catalogueById,
+): boolean {
+  const capabilities = equipmentCapabilities(ctx.inventory);
+  return exercise.harder
+    .map((id) => exercises.get(id))
+    .some(
+      (c) =>
+        c !== undefined &&
+        fitsAsHarder(c, exercise, ctx.level) &&
+        !isExerciseAvailable(c, capabilities),
+    );
 }
 
 const itemsOf = (block: Block) => (block.type === 'straight' ? [block.item] : block.items);

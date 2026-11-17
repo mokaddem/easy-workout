@@ -11,6 +11,8 @@ export interface PhaseOptions {
   maxTest?: { exerciseId: string; name: LocalizedText };
   /** The user can add load (belt, vest) to bodyweight moves in the programme. */
   addedLoad: boolean;
+  /** Which cycle: from the second one, the movements are known. */
+  cycle?: number;
 }
 
 const text = (fr: string, en: string): LocalizedText => ({ fr, en });
@@ -33,10 +35,16 @@ export const phasesFor = (options: PhaseOptions): Phase[] => {
       fromWeek: 1,
       toWeek: peak ? 2 : 3,
       adjustments: [{ kind: 'rir', value: 3, scope: 'all-sets' }],
-      note: text(
-        'Apprends les mouvements, note tes charges.',
-        'Learn the movements and log your loads.',
-      ),
+      note:
+        (options.cycle ?? 1) > 1
+          ? text(
+              'Reprends le rythme après la décharge, et prends en main les nouveaux exercices.',
+              'Get back into rhythm after the deload, and settle into the new exercises.',
+            )
+          : text(
+              'Apprends les mouvements, note tes charges.',
+              'Learn the movements and log your loads.',
+            ),
     },
     {
       name: text('Volume', 'Volume'),

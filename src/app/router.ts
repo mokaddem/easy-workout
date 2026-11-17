@@ -6,11 +6,27 @@ export type Route =
   | { name: 'session'; sessionId: string; week?: number }
   | { name: 'quick'; view?: 'session' }
   | { name: 'progress' }
+  /** Progress: logged sessions, one of them, exercises, one exercise, body, max tests. */
+  | { name: 'history' }
+  | { name: 'log'; logId: string }
+  | { name: 'exercises' }
+  | { name: 'exercise'; exerciseId: string }
+  | { name: 'body' }
+  | { name: 'tests' }
+  /** Finished and replaced programmes, one of them, and one of its sessions. */
+  | { name: 'past' }
+  | { name: 'past-programme'; programmeId: string; view?: 'sessions' }
+  | { name: 'past-session'; programmeId: string; sessionId: string }
+  /** A cycle's review, full screen. */
+  | { name: 'review'; programmeId: string }
   | { name: 'settings' }
   | { name: 'profile' }
-  | { name: 'equipment' }
+  /** `buy`: straight to the "what to buy next" view. */
+  | { name: 'equipment'; view?: 'buy' }
   | { name: 'data' }
   | { name: 'play'; source?: 'quick' }
+  /** A max test on its own, outside any session. */
+  | { name: 'test'; exerciseId: string }
   /** The user's own sessions: the full list, and one of them. */
   | { name: 'mine-list' }
   | { name: 'mine'; sessionId: string }
@@ -32,11 +48,22 @@ const STATIC: Record<string, Route> = {
   '/settings/data': { name: 'data' },
   '/play': { name: 'play' },
   '/quick/mine': { name: 'mine-list' },
+  '/progress/history': { name: 'history' },
+  '/progress/exercises': { name: 'exercises' },
+  '/progress/body': { name: 'body' },
+  '/progress/tests': { name: 'tests' },
+  '/progress/programmes': { name: 'past' },
 };
 
 const SESSION_PATH = /^\/programme\/session\/([^/]+)$/;
 const MINE_PATH = /^\/quick\/mine\/([^/]+)$/;
 const EDIT_PATH = /^\/edit\/(programme|mine)\/([^/]+)$/;
+const LOG_PATH = /^\/progress\/session\/([^/]+)$/;
+const EXERCISE_PATH = /^\/progress\/exercise\/([^/]+)$/;
+const PAST_PATH = /^\/progress\/programmes\/([^/]+)$/;
+const PAST_SESSION_PATH = /^\/progress\/programmes\/([^/]+)\/session\/([^/]+)$/;
+const REVIEW_PATH = /^\/programme\/review\/([^/]+)$/;
+const TEST_PATH = /^\/test\/([^/]+)$/;
 
 export function parseLocation(pathname: string, search = ''): Route {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
@@ -50,6 +77,8 @@ export function parseLocation(pathname: string, search = ''): Route {
     return { name: 'quick', view: 'session' };
   if (path === '/play' && new URLSearchParams(search).get('source') === 'quick')
     return { name: 'play', source: 'quick' };
+  if (path === '/settings/equipment' && new URLSearchParams(search).get('view') === 'buy')
+    return { name: 'equipment', view: 'buy' };
   if (path === '/programme' && new URLSearchParams(search).get('preview') === 'new')
     return { name: 'programme', preview: 'new' };
   const fixed = STATIC[path];
@@ -66,6 +95,28 @@ export function parseLocation(pathname: string, search = ''): Route {
   }
   const mine = MINE_PATH.exec(path);
   if (mine?.[1]) return { name: 'mine', sessionId: decodeURIComponent(mine[1]) };
+  const log = LOG_PATH.exec(path);
+  if (log?.[1]) return { name: 'log', logId: decodeURIComponent(log[1]) };
+  const exercise = EXERCISE_PATH.exec(path);
+  if (exercise?.[1]) return { name: 'exercise', exerciseId: decodeURIComponent(exercise[1]) };
+  const pastSession = PAST_SESSION_PATH.exec(path);
+  if (pastSession?.[1] && pastSession[2])
+    return {
+      name: 'past-session',
+      programmeId: decodeURIComponent(pastSession[1]),
+      sessionId: decodeURIComponent(pastSession[2]),
+    };
+  const past = PAST_PATH.exec(path);
+  if (past?.[1])
+    return {
+      name: 'past-programme',
+      programmeId: decodeURIComponent(past[1]),
+      ...(new URLSearchParams(search).get('view') === 'sessions' && { view: 'sessions' as const }),
+    };
+  const review = REVIEW_PATH.exec(path);
+  if (review?.[1]) return { name: 'review', programmeId: decodeURIComponent(review[1]) };
+  const test = TEST_PATH.exec(path);
+  if (test?.[1]) return { name: 'test', exerciseId: decodeURIComponent(test[1]) };
   const edit = EDIT_PATH.exec(path);
   if (edit?.[1] && edit[2])
     return {
@@ -93,7 +144,7 @@ export function routeHref(route: Route): string {
     case 'profile':
       return '/settings/profile';
     case 'equipment':
-      return '/settings/equipment';
+      return route.view ? `/settings/equipment?view=${route.view}` : '/settings/equipment';
     case 'data':
       return '/settings/data';
     case 'mine-list':
@@ -102,6 +153,30 @@ export function routeHref(route: Route): string {
       return `/quick/mine/${encodeURIComponent(route.sessionId)}`;
     case 'edit':
       return `/edit/${route.target}/${encodeURIComponent(route.sessionId)}`;
+    case 'history':
+      return '/progress/history';
+    case 'log':
+      return `/progress/session/${encodeURIComponent(route.logId)}`;
+    case 'exercises':
+      return '/progress/exercises';
+    case 'exercise':
+      return `/progress/exercise/${encodeURIComponent(route.exerciseId)}`;
+    case 'body':
+      return '/progress/body';
+    case 'tests':
+      return '/progress/tests';
+    case 'past':
+      return '/progress/programmes';
+    case 'past-programme': {
+      const base = `/progress/programmes/${encodeURIComponent(route.programmeId)}`;
+      return route.view ? `${base}?view=${route.view}` : base;
+    }
+    case 'past-session':
+      return `/progress/programmes/${encodeURIComponent(route.programmeId)}/session/${encodeURIComponent(route.sessionId)}`;
+    case 'review':
+      return `/programme/review/${encodeURIComponent(route.programmeId)}`;
+    case 'test':
+      return `/test/${encodeURIComponent(route.exerciseId)}`;
     case 'not-found':
       return route.path;
     default:
@@ -120,6 +195,15 @@ export function tabOf(route: Route): Tab | null {
     case 'mine':
       return 'quick';
     case 'progress':
+    case 'history':
+    case 'log':
+    case 'exercises':
+    case 'exercise':
+    case 'body':
+    case 'tests':
+    case 'past':
+    case 'past-programme':
+    case 'past-session':
       return 'progress';
     case 'settings':
     case 'data':
@@ -147,6 +231,24 @@ export function parentOf(route: Route): Route {
     case 'equipment':
     case 'data':
       return { name: 'settings' };
+    case 'history':
+    case 'exercises':
+    case 'body':
+    case 'tests':
+    case 'past':
+      return { name: 'progress' };
+    case 'log':
+      return { name: 'history' };
+    case 'exercise':
+      return { name: 'exercises' };
+    case 'past-programme':
+      return { name: 'past' };
+    case 'past-session':
+      return { name: 'past-programme', programmeId: route.programmeId, view: 'sessions' };
+    case 'review':
+      return { name: 'programme' };
+    case 'test':
+      return { name: 'tests' };
     default:
       return { name: 'programme' };
   }

@@ -3,6 +3,7 @@ import type {
   AnswerKind,
   EquipmentInventory,
   Exercise,
+  MaxTest,
   Profile,
   Programme,
   ProgressionNote,
@@ -17,6 +18,8 @@ export interface ProgressContext {
   /** Programmes the logs belong to, archived ones included, to know each week's phase. */
   programmes: readonly Programme[];
   answers: readonly Answer[];
+  /** Max tests: a recent one can lift a goal. */
+  maxTests?: readonly MaxTest[];
   inventory: EquipmentInventory;
   /** Level and bodyweight for the starting load of an exercise swapped in. */
   profile?: Pick<Profile, 'level' | 'bodyweightKg'>;

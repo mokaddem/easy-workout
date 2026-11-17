@@ -39,7 +39,37 @@
     "copied": "Séance copiée dans Mes séances",
     "copiedView": "Voir",
     "placed": "<b>Ta séance, à la place de la séance {{letter}}</b> du programme. Elle progresse et suit les semaines.",
-    "unplace": "Retirer du programme"
+    "unplace": "Retirer du programme",
+    "testNotice": "<b>Test max à la fin de cette séance :</b> {{name}}. Cette séance ne fait pas travailler {{muscles}} : tu testes reposé.",
+    "testNoticeFirst": "<b>Test max juste après l’échauffement :</b> {{name}}. Toutes les séances de la semaine font travailler {{muscles}} : il passe d’abord.",
+    "testNoticeBlocked": "<b>Pas de test max cette fois.</b> La raison est en bas de la séance.",
+    "testTitle": "Test max",
+    "testRuleReps": "Après 3 min de repos : une série, le plus de reps propres possible, jusqu’à 50. Arrête-toi à l’échec, ou dès que la forme casse.",
+    "testRuleHold": "Après 3 min de repos : un essai, le plus longtemps possible, 3:00 au plus. Arrête le chrono dès que la forme casse.",
+    "testLast": "Dernier test de fin de cycle : <b>{{value}}</b>, le {{date}}.",
+    "testNone": "Premier test de fin de cycle : il servira de repère.",
+    "testDone": "Fait le {{date}} : <b>{{value}}</b>.",
+    "testDoneNoValue": "Fait le {{date}}.",
+    "testSkipped": "Passé le {{date}}. Tu peux en faire un depuis Progrès, avec Faire un test.",
+    "testBlockedTitle": "{{name}} : pas cette fois",
+    "testBlocked_one": "{{exercise}} a fait mal le {{date}}. Un test à fond attend 2 séances sans douleur sur un mouvement proche ; il y en a eu {{count}} pour l’instant.",
+    "testBlocked_other": "{{exercise}} a fait mal le {{date}}. Un test à fond attend 2 séances sans douleur sur un mouvement proche ; il y en a eu {{count}} pour l’instant.",
+    "testBlockedLater": "Rien n’est enregistré. Tu pourras tester plus tard depuis Progrès, une fois que ce sera le cas.",
+    "testWhy": "Pourquoi ce test ?",
+    "testMinutes": "~5 min",
+    "testMuscles": {
+      "chest": "les pectoraux",
+      "back": "le dos",
+      "shoulders": "les épaules",
+      "arms": "les bras",
+      "core": "les abdos",
+      "quads": "les quadriceps",
+      "glutes": "les fessiers",
+      "hamstrings": "les ischios",
+      "calves": "les mollets"
+    },
+    "testReps_one": "{{count}} rep",
+    "testReps_other": "{{count}} reps"
   },
   "week": {
     "group": "Semaine du programme",
@@ -105,7 +135,13 @@
     "weekOf": "Semaine {{week}} sur {{total}}",
     "week": "Semaine",
     "of": "sur {{total}}",
-    "phase": "Phase {{name}}"
+    "phase": "Phase {{name}}",
+    "cycleDone": "Cycle terminé",
+    "cycleDoneLine": "Huit semaines, toutes les séances faites. Ton bilan est prêt.",
+    "cycleDoneSeen": "Tes charges t’attendent là où tu les as laissées.",
+    "cycleWaiting_one": "Terminé il y a {{count}} jour. Tes charges t’attendent là où tu les as laissées.",
+    "cycleWaiting_other": "Terminé il y a {{count}} jours. Tes charges t’attendent là où tu les as laissées.",
+    "weekDone": "Semaine {{week}} sur {{total}}, terminée"
   },
   "phase": {
     "readapt": {
@@ -177,7 +213,9 @@
   },
   "next": {
     "label": "Prochaine séance",
-    "details": "Voir la séance"
+    "details": "Voir la séance",
+    "testFact": "Puis un test max : {{name}}",
+    "testFactFirst": "Commence par un test max : {{name}}"
   },
   "start": "Commencer la séance",
   "rotation": {
@@ -209,7 +247,8 @@
     "withCardio_one": "{{weeks}} semaines, {{count}} séance (+ {{cardio}} jour cardio) par semaine",
     "withCardio_other": "{{weeks}} semaines, {{count}} séances (+ {{cardio}} jour cardio) par semaine",
     "plain_one": "{{weeks}} semaines, {{count}} séance par semaine",
-    "plain_other": "{{weeks}} semaines, {{count}} séances par semaine"
+    "plain_other": "{{weeks}} semaines, {{count}} séances par semaine",
+    "cycle": "Cycle {{cycle}}, {{meta}}"
   },
   "menu": {
     "button": "Options du programme",
@@ -345,5 +384,28 @@
       "sets_other": "{{count}} séries",
       "rest": "repos {{value}} s"
     }
+  },
+  "cycleEnd": {
+    "label": "Fin du cycle {{n}}",
+    "title": "Ton bilan est prêt",
+    "see": "Voir le bilan",
+    "note": "Le cycle {{next}} se lance depuis le bilan, quand tu veux.",
+    "readyTitle": "Cycle {{next}} prêt à démarrer",
+    "readyLine": "Même découpage, mêmes exercices principaux, accessoires renouvelés. Tu vois chaque changement avant de lancer.",
+    "start": "Lancer le cycle {{next}}",
+    "again": "Revoir le bilan",
+    "meanwhile": "En attendant, une séance rapide ne change rien à ton programme.",
+    "testFact": "{{name}} : {{from}} → <b>{{to}}</b>",
+    "testFactFirst": "{{name}} : <b>{{to}}</b>"
+  },
+  "checkin": {
+    "title": "Tes mesures de la semaine",
+    "body_one": "Poids, tour de taille, sommeil : moins d’une minute. Dernières mesures il y a {{count}} jour.",
+    "body_other": "Poids, tour de taille, sommeil : moins d’une minute. Dernières mesures il y a {{count}} jours.",
+    "first": "Poids, tour de taille, sommeil : moins d’une minute. Tes premières mesures serviront de repère.",
+    "open": "Noter mes mesures",
+    "later": "Pas cette semaine",
+    "hidden": "Rappel masqué jusqu’au {{date}}",
+    "undo": "Annuler"
   }
 }

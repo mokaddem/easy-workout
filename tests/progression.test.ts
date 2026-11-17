@@ -145,15 +145,16 @@ describe('progression over a cycle', () => {
     expect(before.goal).toBeGreaterThanOrEqual(8 + 2 - 1);
   });
 
-  it('holds climb five seconds a session, then offer a harder variant', () => {
+  it('holds climb five seconds a session, then offer a hold one step harder', () => {
     const sim = sims.get('reference, one tap')!;
     const [[, plank]] = traceOf(sim, 'plank') as [[string, TracePoint[]]];
     expect(plank.slice(0, 4).map((p) => p.goal)).toEqual([45, 50, 55, 60]);
-    expect(
-      sim.prepared.some((p) =>
-        p.proposals.some((x) => x.kind === 'harder' && x.exerciseId === 'plank'),
-      ),
-    ).toBe(true);
+    // The same job, timed, one step up: never a shoulder-tap swap or a move two steps harder.
+    const offered = sim.prepared.flatMap((p) =>
+      p.proposals.filter((x) => x.kind === 'harder' && x.exerciseId === 'plank'),
+    );
+    expect(offered.length).toBeGreaterThan(0);
+    expect(new Set(offered.map((x) => x.substituteId))).toEqual(new Set(['hollow-body-hold']));
   });
 
   it('one exercise in two different blocks progresses once a week in each', () => {

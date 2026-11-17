@@ -83,6 +83,8 @@
   white-space: nowrap;
 }
 .barTitle {
+  line-height: 1.15;
+  text-wrap: balance;
   font-size: var(--type-headline-size);
   font-weight: var(--type-title-weight);
   font-stretch: var(--type-title-width);

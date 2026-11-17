@@ -1,4 +1,5 @@
 import type {
+  Answer,
   Block,
   Exercise,
   Load,
@@ -28,13 +29,21 @@ import {
 } from './exposures';
 import { capacity, effectiveKg, ladderFor, loadAt, predictReps, rungCount, rungOf } from './ladder';
 import { flagProposals, holdForPain, ladderProposal, painState } from './proposals';
-import { compatible, progressItem } from './rules';
+import { compatible, liftFromTest, progressItem } from './rules';
 import { activeSwaps, applySwaps } from './swaps';
 import type { PreparedSession, ProgressContext, Proposal } from './types';
 
 export type { PreparedSession, ProgressContext, Proposal } from './types';
-export { activeSwaps, replacementItem, substituteFor, substitutesFor } from './swaps';
-export { BREAK_DAYS, loadToken } from './rules';
+export {
+  activeSwaps,
+  fitsAsHarder,
+  harderNeedsEquipment,
+  harderVariantFor,
+  replacementItem,
+  substituteFor,
+  substitutesFor,
+} from './swaps';
+export { BREAK_DAYS, liftFromTest, loadToken } from './rules';
 export { weekRole, type WeekRole } from './exposures';
 export { capacity, predictReps } from './ladder';
 
@@ -71,6 +80,42 @@ const lookup = (ctx: ProgressContext) => ctx.exercises ?? catalogueById;
  * A session as it should run next: swaps in place, then each exercise's load, goal and tempo
  * from its history, with the why. Quick sessions only take the latest load of each exercise.
  */
+/**
+ * A max test stopped because it hurt counts as a pain stop already answered "keep": the exercise
+ * holds where it was until two sessions go well, it counts towards the repeat rule, and no harder
+ * variant is offered meanwhile. There is no card to answer: the test was not a working set.
+ */
+function withTestPain(ctx: ProgressContext): {
+  ctx: ProgressContext;
+  flagged: (all: readonly Exposure[], exerciseId: string) => readonly Exposure[];
+} {
+  const stopped = (ctx.maxTests ?? []).filter((t) => t.stopped === 'pain');
+  if (stopped.length === 0) return { ctx, flagged: (all) => all };
+  const answers: Answer[] = stopped.map((t) => ({
+    id: `${t.id}-keep`,
+    exerciseId: t.exerciseId,
+    kind: 'pain',
+    logId: t.id,
+    answer: 'keep',
+    at: t.at,
+  }));
+  return {
+    ctx: { ...ctx, answers: [...ctx.answers, ...answers] },
+    flagged: (all, exerciseId) => {
+      const tests = stopped.filter((t) => t.exerciseId === exerciseId);
+      if (tests.length === 0) return all;
+      const out = [...all];
+      for (const t of tests) {
+        // It holds the exercise at what it was doing when the test hurt.
+        const before = all.find((e) => e.at < t.at) ?? all[0];
+        if (!before) continue;
+        out.push({ ...before, logId: t.id, at: t.at, pain: true, evidence: [], note: undefined });
+      }
+      return out.sort((a, b) => b.at.localeCompare(a.at));
+    },
+  };
+}
+
 export function prepareSession(
   session: Session,
   ctx: ProgressContext,
@@ -93,8 +138,11 @@ export function prepareSession(
     },
     exercises,
   );
+  const tested = withTestPain(ctx);
+  ctx = tested.ctx;
   const exposures = exposureCache(ctx);
-  const flagged = exposureCache(ctx, true);
+  const flaggedRaw = exposureCache(ctx, true);
+  const flagged = (exerciseId: string) => tested.flagged(flaggedRaw(exerciseId), exerciseId);
   const times = sessionTimes(ctx.logs);
   const now = ctx.now.getTime();
   const notes: Record<string, ProgressionNote> = {};
@@ -130,6 +178,15 @@ export function prepareSession(
             ...(ctx.profile?.level && { level: ctx.profile.level }),
             now,
           });
+          if (ctx.maxTests?.length)
+            result = liftFromTest(result, {
+              base,
+              exercise,
+              exposures: all.filter((e) => e.key === key),
+              ...(options.role && { role: options.role }),
+              context,
+              tests: ctx.maxTests,
+            });
           const pain = painState(flagged(exercise.id), ctx.answers);
           if (pain) result = holdForPain(result, pain, base, exercise, ctx);
           const ik = itemKey(section, blockIndex, itemIndex);

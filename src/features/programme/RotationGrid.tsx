@@ -14,7 +14,8 @@ export function RotationGrid({
 }: {
   programme: Programme;
   position: Position;
-  onPhase: (phase: Phase) => void;
+  /** Without it the phase brackets are plain labels (a past programme). */
+  onPhase?: (phase: Phase) => void;
 }) {
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
@@ -83,22 +84,32 @@ export function RotationGrid({
           letters={columns.map((c) => identities[c % size]?.letter)}
         />
       ))}
-      {programme.phases.map((phase) => (
-        <button
-          key={phase.fromWeek}
-          type="button"
-          className={`${styles.phase} ${
-            position.week >= phase.fromWeek && position.week <= phase.toWeek ? styles.phaseNow : ''
-          }`}
-          style={{
-            gridColumn: `${columns.length + 2}`,
-            gridRow: `${phase.fromWeek + 1} / ${phase.toWeek + 2}`,
-          }}
-          onClick={() => onPhase(phase)}
-        >
-          {phase.name[lang]}
-        </button>
-      ))}
+      {programme.phases.map((phase) => {
+        const now = position.week >= phase.fromWeek && position.week <= phase.toWeek;
+        const style = {
+          gridColumn: `${columns.length + 2}`,
+          gridRow: `${phase.fromWeek + 1} / ${phase.toWeek + 2}`,
+        };
+        return onPhase ? (
+          <button
+            key={phase.fromWeek}
+            type="button"
+            className={`${styles.phase} ${now ? styles.phaseNow : ''}`}
+            style={style}
+            onClick={() => onPhase(phase)}
+          >
+            {phase.name[lang]}
+          </button>
+        ) : (
+          <span
+            key={phase.fromWeek}
+            className={`${styles.phase} ${styles.phaseStatic}`}
+            style={style}
+          >
+            {phase.name[lang]}
+          </span>
+        );
+      })}
     </div>
   );
 }

@@ -39,6 +39,35 @@ const PlayScreen = lazyScreen(() => import('@/features/play/PlayScreen'), 'PlayS
 const MineListScreen = lazyScreen(() => import('@/features/mine/MineListScreen'), 'MineListScreen');
 const MineScreen = lazyScreen(() => import('@/features/mine/MineScreen'), 'MineScreen');
 const EditorScreen = lazyScreen(() => import('@/features/editor/EditorScreen'), 'EditorScreen');
+const HistoryScreen = lazyScreen(
+  () => import('@/features/progress/history/HistoryScreen'),
+  'HistoryScreen',
+);
+const LogScreen = lazyScreen(() => import('@/features/progress/history/LogScreen'), 'LogScreen');
+const ExercisesScreen = lazyScreen(
+  () => import('@/features/progress/exercise/ExercisesScreen'),
+  'ExercisesScreen',
+);
+const ExerciseScreen = lazyScreen(
+  () => import('@/features/progress/exercise/ExerciseScreen'),
+  'ExerciseScreen',
+);
+const BodyScreen = lazyScreen(() => import('@/features/progress/body/BodyScreen'), 'BodyScreen');
+const TestsScreen = lazyScreen(
+  () => import('@/features/progress/tests/TestsScreen'),
+  'TestsScreen',
+);
+const PastScreen = lazyScreen(() => import('@/features/past/PastScreen'), 'PastScreen');
+const PastProgrammeScreen = lazyScreen(
+  () => import('@/features/past/PastProgrammeScreen'),
+  'PastProgrammeScreen',
+);
+const PastSessionScreen = lazyScreen(
+  () => import('@/features/past/PastSessionScreen'),
+  'PastSessionScreen',
+);
+const ReviewScreen = lazyScreen(() => import('@/features/cycle/ReviewScreen'), 'ReviewScreen');
+const TestScreen = lazyScreen(() => import('@/features/play/TestScreen'), 'TestScreen');
 
 function lazyScreen<K extends string, P extends object>(
   load: () => Promise<Record<K, ComponentType<P>>>,
@@ -65,7 +94,7 @@ function Screen({ route }: { route: Route }) {
     case 'profile':
       return <ProfileScreen />;
     case 'equipment':
-      return <EquipmentScreen />;
+      return <EquipmentScreen route={route} />;
     case 'data':
       return <DataScreen />;
     case 'play':
@@ -76,6 +105,28 @@ function Screen({ route }: { route: Route }) {
       return <MineScreen route={route} />;
     case 'edit':
       return <EditorScreen route={route} />;
+    case 'history':
+      return <HistoryScreen />;
+    case 'log':
+      return <LogScreen route={route} />;
+    case 'exercises':
+      return <ExercisesScreen />;
+    case 'exercise':
+      return <ExerciseScreen route={route} />;
+    case 'body':
+      return <BodyScreen />;
+    case 'tests':
+      return <TestsScreen />;
+    case 'past':
+      return <PastScreen />;
+    case 'past-programme':
+      return <PastProgrammeScreen route={route} />;
+    case 'past-session':
+      return <PastSessionScreen route={route} />;
+    case 'review':
+      return <ReviewScreen route={route} />;
+    case 'test':
+      return <TestScreen route={route} />;
     case 'not-found':
       return <PlaceholderScreen title={t('common.notFound')} icon="close" back />;
   }

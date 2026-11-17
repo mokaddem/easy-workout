@@ -6,6 +6,7 @@ import { repo } from '@/db/repo';
 import type { EquipmentInventory, Session, SessionLog } from '@/domain';
 import {
   countsAsDoneByDefault,
+  scheduledTest,
   playSteps,
   prepareSession,
   resumeIndex,
@@ -14,6 +15,7 @@ import {
   setAdjustments,
   weekRole,
 } from '@/engine';
+import { attachTest } from './testStore';
 import { idleSince } from './usePlayer';
 
 /**
@@ -32,7 +34,14 @@ export async function startProgrammeSession(
     role: weekRole(programme, position.week),
   });
   const adjustments = setAdjustments({ ...plan, session: prepared.session }, inventory);
-  return repo.startSession({
+  // The test week's chosen session runs the max test; a movement that hurt lately gets none.
+  const test = scheduledTest(programme, position.sessionId, position.week, {
+    ...ctx,
+    ...(ctx.profile && { level: ctx.profile.level }),
+    ...(ctx.profile?.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
+    maxTests: ctx.maxTests ?? [],
+  });
+  const log = await repo.startSession({
     source: {
       kind: 'programme',
       programmeId: programme.id,
@@ -43,6 +52,7 @@ export async function startProgrammeSession(
     ...(adjustments && { adjustments }),
     progression: prepared.notes,
   });
+  return test?.kind === 'run' ? attachTest(log, test.test) : log;
 }
 
 /**

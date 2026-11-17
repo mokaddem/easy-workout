@@ -27,6 +27,14 @@ export const GenerationSchema = z.strictObject({
   profile: ProfileSchema,
   equipment: EquipmentInventorySchema,
   seed: int(0),
+  /** Which cycle of training this programme is: 2 when it follows a finished one. Absent = 1. */
+  cycle: int(1).optional(),
+  /** The previous cycle's picks by `sessionId/slotId`: lifts kept, accessories rotated. */
+  lastCycle: z.record(z.string(), SlugSchema).optional(),
+  /** The equipment the previous cycle was made for. */
+  lastCycleEquipment: EquipmentInventorySchema.optional(),
+  /** Exercise → harder variant taking its place in this cycle. */
+  upgrades: z.record(SlugSchema, SlugSchema).optional(),
   notes: z.array(GenerationNoteSchema),
 });
 export type Generation = z.infer<typeof GenerationSchema>;

@@ -152,6 +152,10 @@
     },
     "swappedIn": {
       "reason": "First time: starting load."
+    },
+    "fromTest": {
+      "reason": "Your max test on {{date}}: {{test}}. Goal raised from {{from}} to {{to}}.",
+      "chip": "Goal {{to}}: from your max test"
     }
   },
   "summary": {

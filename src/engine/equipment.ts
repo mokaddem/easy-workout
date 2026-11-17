@@ -106,3 +106,23 @@ export const availableExercises = (
   const capabilities = equipmentCapabilities(inventory);
   return exercises.filter((exercise) => isExerciseAvailable(exercise, capabilities));
 };
+
+/** Same content, whatever the key order: object keys sorted at every level. */
+const canonical = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([x], [y]) => x.localeCompare(y))
+        .map(([k, v]) => [k, canonical(v)]),
+    );
+  return value;
+};
+
+/** Same items with the same specs, whatever the order. */
+export const sameEquipment = (a: EquipmentInventory, b: EquipmentInventory): boolean => {
+  if (a.length !== b.length) return false;
+  const key = (items: EquipmentInventory) =>
+    JSON.stringify([...items].sort((x, y) => x.id.localeCompare(y.id)).map(canonical));
+  return key(a) === key(b);
+};

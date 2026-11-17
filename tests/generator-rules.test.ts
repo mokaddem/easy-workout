@@ -16,6 +16,7 @@ import {
   equipmentCapabilities,
   generateProgramme,
   isExerciseAvailable,
+  isTestable,
   sessionForWeek,
   sessionSeconds,
 } from '../src/engine';
@@ -641,5 +642,44 @@ describe('time fit — reducers', () => {
     expect(big.included).toBe(false);
     expect(small.included).toBe(true);
     expect(minutesOf(session)).toBeLessThanOrEqual(budget);
+  });
+  it('gives bodyweight beginners at least 4 hamstring sets a week (good mornings aside; not two 20-minute sessions)', () => {
+    expect(
+      violations((c) => {
+        if (c.label.split('/')[0] !== 'bodyweight' || c.profile.level !== 'beginner') return [];
+        // Two 20-minute sessions a week are thin on every group, and muscle-gain rests leave
+        // three 20-minute sessions one set short.
+        if (
+          c.profile.sessionMinutes < 30 &&
+          (c.profile.daysPerWeek < 3 ||
+            (c.profile.goal === 'muscle' && c.profile.daysPerWeek === 3))
+        )
+          return [];
+        const perRun = c.programme.sessionsPerWeek / c.programme.rotation.length;
+        let sets = 0;
+        for (const session of c.programme.rotation)
+          for (const block of [...session.main, ...session.finisher]) {
+            const count = block.type === 'straight' ? block.sets : block.rounds;
+            for (const item of items(block)) {
+              const e = exercise(item.exerciseId);
+              if (e.id !== 'good-morning' && e.primaryMuscles.includes('hamstrings'))
+                sets += count * perRun;
+            }
+          }
+        return sets < 4 ? [`${sets.toFixed(1)} hamstring sets a week`] : [];
+      }),
+    ).toEqual([]);
+  });
+  it('closes each cycle with a test the whitelist allows at that level', () => {
+    expect(
+      violations((c) => {
+        const ids = c.programme.phases.flatMap((p) =>
+          p.adjustments.flatMap((a) => (a.kind === 'max-test' ? a.exerciseIds : [])),
+        );
+        return ids
+          .filter((id) => !isTestable(exercise(id), c.profile.level))
+          .map((id) => `tests ${id}`);
+      }),
+    ).toEqual([]);
   });
 });

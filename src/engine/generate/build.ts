@@ -21,6 +21,7 @@ import {
 } from './fit';
 import { rampLoad, startingLoad } from './loads';
 import { selectExercise, type Selection, type SelectionState } from './select';
+import { SHORT_SESSION_MINUTES } from './templates';
 import type { BlockTemplate, CardioSpec, Context, SessionTemplate, SlotSpec } from './types';
 
 export interface BuildOptions {
@@ -43,6 +44,14 @@ export interface BuildOptions {
 const MIN_RAMP_WORKING_KG = 10;
 /** The one ramp-up set kept under time pressure, as a share of the working load. */
 const COLLAPSED_RAMP_FRACTION = 0.6;
+
+/** How a pick is dosed: a kept stand-in from a neighbouring pattern stays dosed as one. */
+const dosedAs = (sel: Selection) => (sel.fallback ? 'fallback-pattern' : sel.method);
+
+/** The time fit may shorten the block but must not drop it. */
+const keeps = (tpl: BlockTemplate, ctx: Context): boolean =>
+  tpl.keep === true ||
+  (tpl.keepUpToDays !== undefined && ctx.profile.daysPerWeek <= tpl.keepUpToDays);
 
 const selectionNote = (sel: Selection, slot: SlotSpec, itemIndex?: number): PendingNote[] => {
   const at = itemIndex === undefined ? {} : { itemIndex };
@@ -72,6 +81,9 @@ const selectionNote = (sel: Selection, slot: SlotSpec, itemIndex?: number): Pend
         ...at,
       });
       break;
+    case 'kept':
+      notes.push({ code: 'exercise-kept', params: base, ...at });
+      break;
     case 'fallback-pattern':
       notes.push({
         code: 'exercise-fallback-pattern',
@@ -86,6 +98,12 @@ const selectionNote = (sel: Selection, slot: SlotSpec, itemIndex?: number): Pend
       params: { ...base, from: sel.harderFrom },
       ...at,
     });
+  if (sel.upgradedFrom)
+    notes.push({
+      code: 'exercise-upgraded',
+      params: { ...base, from: sel.upgradedFrom },
+      ...at,
+    });
   return notes;
 };
 
@@ -96,7 +114,7 @@ const buildItem = (
   notes: PendingNote[],
   itemIndex?: number,
 ): SessionItem => {
-  const dose = itemDose(slot, sel.exercise, sel.method, ctx.profile.goal, ctx.level);
+  const dose = itemDose(slot, sel.exercise, dosedAs(sel), ctx.profile.goal, ctx.level);
   const load = startingLoad(
     sel.exercise,
     sel.setup,
@@ -127,7 +145,7 @@ const buildBlock = (
       priority,
       role: 'cardio',
       included: priority < 3,
-      ...(tpl.keep ? { keep: true } : {}),
+      ...(keeps(tpl, ctx) ? { keep: true } : {}),
       muscles: [],
       notes: [
         {
@@ -159,13 +177,13 @@ const buildBlock = (
           tpl.slot.role,
           ctx.profile.goal,
           sel.exercise,
-          sel.method,
+          dosedAs(sel),
         ),
       },
       priority,
       role: tpl.slot.role,
       included: priority < 3,
-      ...(tpl.keep ? { keep: true } : {}),
+      ...(keeps(tpl, ctx) ? { keep: true } : {}),
       notes,
       setup: sel.setup,
       muscles: [sel.exercise.primaryMuscles],
@@ -200,7 +218,7 @@ const buildBlock = (
       priority,
       role: first.slot.role,
       included: priority < 3,
-      ...(tpl.keep ? { keep: true } : {}),
+      ...(keeps(tpl, ctx) ? { keep: true } : {}),
       notes,
       muscles: [first.sel.exercise.primaryMuscles],
     };
@@ -222,7 +240,7 @@ const buildBlock = (
     priority,
     role: first.slot.role,
     included: priority < 3,
-    ...(tpl.keep ? { keep: true } : {}),
+    ...(keeps(tpl, ctx) ? { keep: true } : {}),
     notes,
     muscles: picks.map(({ sel }) => sel.exercise.primaryMuscles),
   };
@@ -365,12 +383,15 @@ export const buildSession = (
 ): Session | null => {
   state.session = new Set();
   state.warmup = new Set();
+  state.sessionId = options.id;
   const dropped: PendingNote[] = [];
   const cardioDay = tpl.key === 'cardio';
   const place = options.cardioPlace ?? (cardioDay ? 'day' : 'finisher');
 
+  const short = ctx.profile.sessionMinutes < SHORT_SESSION_MINUTES;
   const build = (blocks: readonly BlockTemplate[]) =>
     blocks
+      .map((b) => (short && b.type === 'straight' && b.shortSlot ? { ...b, slot: b.shortSlot } : b))
       .map((b) =>
         place === 'day' && b.type === 'cardio'
           ? buildBlock(

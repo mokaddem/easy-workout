@@ -2,7 +2,13 @@ import type { Answer, AnswerKind, Exercise, SessionItem } from '../../domain';
 import type { Exposure } from './exposures';
 import { ladderFor, loadAt, rungOf } from './ladder';
 import { loadToken, note, type ItemResult, type LadderEnd } from './rules';
-import { substituteFor, variantFor, type Swaps } from './swaps';
+import {
+  harderNeedsEquipment,
+  harderVariantFor,
+  substituteFor,
+  variantFor,
+  type Swaps,
+} from './swaps';
 import type { ProgressContext, Proposal } from './types';
 
 /** Pain-free sessions after a pain stop before the exercise may get harder again. */
@@ -163,12 +169,17 @@ export function ladderProposal(
   end: LadderEnd,
   exercise: Exercise,
   all: readonly Exposure[],
-  ctx: Pick<ProgressContext, 'answers' | 'inventory' | 'exercises'>,
+  ctx: Pick<ProgressContext, 'answers' | 'inventory' | 'exercises' | 'profile'>,
 ): Proposal | 'buy-next' | undefined {
   if (end.kind === 'buy-next') return 'buy-next';
+  if (end.kind === 'none') return undefined;
   const variant =
     end.kind === 'harder'
-      ? variantFor(exercise, 'harder', ctx.inventory, ctx.exercises)
+      ? harderVariantFor(
+          exercise,
+          { inventory: ctx.inventory, ...ctx.profile },
+          ctx.exercises ?? undefined,
+        )
       : end.kind === 'easier'
         ? variantFor(exercise, 'easier', ctx.inventory, ctx.exercises)
         : variantFor(
@@ -178,7 +189,11 @@ export function ladderProposal(
             ctx.exercises,
             (e) => e.loadType === 'band-assisted',
           );
-  if (!variant) return end.kind === 'harder' ? 'buy-next' : undefined;
+  if (!variant)
+    return end.kind === 'harder' &&
+      harderNeedsEquipment(exercise, { inventory: ctx.inventory, ...ctx.profile }, ctx.exercises)
+      ? 'buy-next'
+      : undefined;
   if (suppressed(ctx.answers, exercise.id, end.kind, end.logId, all)) return undefined;
   return { kind: end.kind, exerciseId: exercise.id, logId: end.logId, substituteId: variant.id };
 }

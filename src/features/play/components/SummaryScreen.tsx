@@ -5,6 +5,7 @@ import {
   useActiveProgramme,
   useAnswers,
   useEquipment,
+  useMaxTests,
   useProgrammes,
   useSessionLog,
   useSessionLogs,
@@ -14,13 +15,18 @@ import { nextSession } from '@/app/programme-state';
 import { navigate } from '@/app/router';
 import { repo } from '@/db/repo';
 import type { Language, SessionLog } from '@/domain';
-import { activeSeconds, phaseForWeek, sessionTotals, type Proposal } from '@/engine';
-import { Button, Card, Icon, SetStrip, SwitchRow } from '@/ui/components';
+import { activeSeconds, phaseForWeek, previousTest, sessionTotals, type Proposal } from '@/engine';
+import { Rich } from '@/features/adapt';
+import { Button, Card, Icon, SetStrip, SwitchRow, TestResultRow } from '@/ui/components';
 import { BackupLine } from '../../settings/BackupBanner';
 import { useBackupReminder } from '../../settings/useBackupReminder';
 import { programmeIdentities } from '../../programme/format';
 import { durationParts, numberText, stripGroups } from '../format';
 import { clearSummary } from '../lifecycle';
+import { resultValue } from '../testFlow';
+import { valueText } from '../testFormat';
+import { exerciseById } from '@/catalogue';
+import { exerciseLabel } from '../format';
 import { Decisions } from './summary/Decisions';
 import { ExerciseList, type ListMode } from './summary/ExerciseList';
 import { mainExercises } from './summary/rows';
@@ -52,6 +58,7 @@ function Summary({ log }: { log: SessionLog }) {
   const programmes = useProgrammes();
   const answers = useAnswers() ?? [];
   const nextTime = useNextTime(log);
+  const maxTests = useMaxTests();
 
   // The decisions the session raised, kept as they were when the summary opened so an answered
   // card stays on screen with its Undo.
@@ -74,13 +81,16 @@ function Summary({ log }: { log: SessionLog }) {
 
   // What the rotation does once this session counts.
   let onLine = t('play.summary.switchOn');
+  let endsProgramme = false;
   if (inRotation && programme && log.source.kind === 'programme') {
     const after = nextSession(
       programme,
       (logs ?? []).map((l) => (l.id === log.id ? { ...l, countsAsDone: true } : l)),
     );
-    if (after.finished) onLine = t('play.summary.switchOnEnd');
-    else {
+    if (after.finished) {
+      onLine = t('play.summary.switchOnEnd');
+      endsProgramme = true;
+    } else {
       const identity = programmeIdentities(programme, lang)[after.index]!;
       const name = identity.letter
         ? t('play.summary.sessionLetter', { letter: identity.letter })
@@ -126,6 +136,46 @@ function Summary({ log }: { log: SessionLog }) {
     clearSummary();
     navigate({ name: quick ? 'quick' : 'programme' }, { replace: true });
   };
+  const toReview = inRotation && counts && endsProgramme && log.source.kind === 'programme';
+  const review = () => {
+    oneOffs.record();
+    clearSummary();
+    if (log.source.kind === 'programme')
+      navigate({ name: 'review', programmeId: log.source.programmeId }, { replace: true });
+  };
+
+  // The max test this session ran: its result against the last one, or that it was skipped.
+  const tested = (maxTests ?? []).find((x) => x.logId === log.id && !x.stopped);
+  const testRow = tested ? (
+    (() => {
+      const kind = tested.result.kind === 'reps' ? 'reps' : 'time';
+      const before = previousTest(tested, maxTests ?? []);
+      const to = valueText(kind, resultValue(tested));
+      const from = before ? valueText(kind, resultValue(before)) : undefined;
+      return (
+        <TestResultRow
+          kicker={t('play.summary.testKicker')}
+          name={exerciseLabel(exerciseById.get(tested.exerciseId), lang, tested.exerciseId)}
+          figure={{
+            ...(from !== undefined && { from }),
+            to,
+            ...(kind === 'reps' && { unit: t('labels.unit.reps') }),
+            srText:
+              from !== undefined
+                ? t('play.test.srFigure', { from, to })
+                : t('play.test.srFirst', { to }),
+          }}
+        />
+      );
+    })()
+  ) : log.test?.outcome === 'skipped' ? (
+    <p className={styles.notice}>
+      <Icon name="info" size={20} />
+      <span>
+        <Rich text={t('play.summary.testSkipped')} />
+      </span>
+    </p>
+  ) : null;
 
   return (
     <div className={styles.root}>
@@ -207,6 +257,8 @@ function Summary({ log }: { log: SessionLog }) {
             </p>
           ) : null}
 
+          {testRow}
+
           <Decisions
             proposals={proposals ?? []}
             rows={rows}
@@ -230,8 +282,10 @@ function Summary({ log }: { log: SessionLog }) {
         </div>
       </div>
       <div className={styles.dock}>
-        <Button size="player" fullWidth onClick={back}>
-          {t(quick ? 'play.summary.backQuick' : 'play.summary.backProgramme')}
+        <Button size="player" fullWidth onClick={toReview ? review : back}>
+          {toReview
+            ? t('play.summary.toReview')
+            : t(quick ? 'play.summary.backQuick' : 'play.summary.backProgramme')}
         </Button>
       </div>
     </div>

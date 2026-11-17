@@ -24,6 +24,8 @@
   "easierFrom": "Version plus facile pour ton niveau (base : {{from}}).",
   "easier": "Version plus facile, pour ton niveau.",
   "harderFrom": "Version plus difficile pour ton niveau (base : {{from}}).",
+  "upgraded": "Version plus difficile après ton cycle précédent. Avant : {{from}}.",
+  "kept": "Gardé de ton cycle précédent : tu continues à le faire progresser.",
   "harder": "Version plus difficile, pour ton niveau.",
   "fallback": "Ton matériel ne permet pas le mouvement habituel ({{wanted}}) : celui-ci s’en rapproche.",
   "slotDropped": "Pas d’exercice de {{patterns}} : ton matériel ne le permet pas, la place est retirée.",

@@ -9,8 +9,10 @@ export {
   RowMotion,
   Tick,
   Pulse,
+  CountUp,
   Flood,
   Swap,
+  Appear,
   Reposition,
   type RepositionAnchor,
 } from './primitives';

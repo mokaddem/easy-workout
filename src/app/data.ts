@@ -1,5 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import type { Answer, EquipmentInventory, Language, Profile, SessionLog, Settings } from '@/domain';
+import type {
+  Answer,
+  CheckIn,
+  EquipmentInventory,
+  Language,
+  MaxTest,
+  Profile,
+  SessionLog,
+  Settings,
+} from '@/domain';
 import type { CustomSessionRecord, ProgrammeRecord } from '@/db';
 import { repo } from '@/db/repo';
 import i18n from '@/i18n';
@@ -38,6 +47,16 @@ export function useAnswers(): Answer[] | undefined {
   return useLiveQuery(() => repo.listAnswers());
 }
 
+/** Every check-in, oldest first. */
+export function useCheckIns(): CheckIn[] | undefined {
+  return useLiveQuery(() => repo.listCheckIns());
+}
+
+/** Every max test, oldest first. */
+export function useMaxTests(): MaxTest[] | undefined {
+  return useLiveQuery(() => repo.listMaxTests());
+}
+
 /** The user's own sessions, most recently changed first. */
 export function useCustomSessions(): CustomSessionRecord[] | undefined {
   return useLiveQuery(() => repo.listCustomSessions());
@@ -58,9 +77,8 @@ export function useOpenSession(): Loaded<SessionLog> {
   return useLiveQuery(async () => (await repo.getOpenSession()) ?? null);
 }
 
-export async function updateSettings(change: Partial<Settings>): Promise<void> {
-  const current = await repo.getSettings(currentLanguage());
-  await repo.saveSettings({ ...current, ...change });
+export function updateSettings(change: Partial<Settings>): Promise<void> {
+  return repo.updateSettings(change, currentLanguage());
 }
 
 function currentLanguage(): Language {

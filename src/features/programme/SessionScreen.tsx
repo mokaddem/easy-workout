@@ -43,6 +43,8 @@ import { effortText } from './effort';
 import { exerciseName, sessionIdentity, weekChanges, type WeekChanges } from './format';
 import { hasHistory, placeState } from './edits';
 import { SessionView } from './SessionView';
+import { sessionTest } from './cycleTest';
+import { TestBlock, TestNotice } from './TestBlock';
 import { WeekRuler } from './WeekRuler';
 import styles from './SessionScreen.module.css';
 
@@ -139,6 +141,20 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const openSession = useOpenSession();
   const answers = useAnswers();
   const ctx = useProgressContext();
+  const testCtx = useMemo(
+    () =>
+      ctx
+        ? {
+            ...ctx,
+            ...(ctx.profile?.level && { level: ctx.profile.level }),
+            ...(ctx.profile?.bodyweightKg !== undefined && {
+              bodyweightKg: ctx.profile.bodyweightKg,
+            }),
+            maxTests: ctx.maxTests ?? [],
+          }
+        : undefined,
+    [ctx],
+  );
   const { begin, dialog: beginDialog } = useBegin();
   const [choose, setChoose] = useState<Proposal | null>(null);
   const [back, setBack] = useState<string | null>(null);
@@ -238,7 +254,7 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const isNext = session.id === position.sessionId;
   const canStart = isCurrentWeek && isNext && !position.finished;
   const over = profile ? plan.session.estimatedMinutes - profile.sessionMinutes : 0;
-  const tests = plan.maxTests;
+  const testView = testCtx ? sessionTest(record, session.id, week, testCtx) : undefined;
 
   const selectWeek = (next: number) =>
     navigate(
@@ -283,6 +299,7 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
           </div>
         </div>
       ) : null}
+      {testView ? <TestNotice view={testView} /> : null}
       {brk ? (
         <p className={styles.flag}>
           <Icon name="hourglass" size={20} />
@@ -339,18 +356,6 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
         onSelect={selectWeek}
       />
       {previous ? <Changes week={week - 1} changes={weekChanges(previous, plan)} /> : null}
-      {tests.length > 0 ? (
-        <p className={styles.flag}>
-          <Icon name="flag" size={20} />
-          <span>
-            {t('programme.week.test', {
-              names: new Intl.ListFormat(lang, { type: 'conjunction' }).format(
-                tests.map((id) => exerciseNameLower(id, lang)),
-              ),
-            })}
-          </span>
-        </p>
-      ) : null}
     </div>
   );
 
@@ -410,6 +415,11 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
           {...(previous ? { previous: previous.session } : {})}
           setRir={plan.setRir}
           notices={notices}
+          {...(testView && testView.kind === 'run' && testView.placement === 'after-warmup'
+            ? { testAfterWarmup: <TestBlock view={testView} /> }
+            : testView
+              ? { testAtEnd: <TestBlock view={testView} /> }
+              : {})}
           ruler={ruler}
           contentKey={week}
         />
@@ -610,6 +620,3 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
     return t('adapt.detail.dialog.body', { old: exerciseName(id, lang), at }) + why;
   }
 }
-
-const exerciseNameLower = (id: string, lang: Language) =>
-  exerciseName(id, lang).toLocaleLowerCase(lang);

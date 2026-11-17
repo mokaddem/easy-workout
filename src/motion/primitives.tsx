@@ -213,6 +213,71 @@ export function Tick({ value, className, children }: TickProps) {
   );
 }
 
+interface CountUpProps {
+  from: number;
+  to: number;
+  /** Turns a number into its display text ("24", "1:05"). */
+  format: (value: number) => string;
+  /** Play the count and the punch; false shows the final number at once. */
+  enabled?: boolean;
+  className?: string;
+}
+
+/**
+ * A better result: the numeral counts from the old value to the new one over `celebrate`, `exit`
+ * (fast at the start, landing softly), then punches once. The final number is in the document from
+ * the first frame (for screen readers and layout); the counting text is drawn over it. Under
+ * reduced motion, or when disabled, only the final number shows.
+ */
+export function CountUp({ from, to, format, enabled = true, className }: CountUpProps) {
+  const t = useMotionTokens();
+  const live = useRef<HTMLSpanElement>(null);
+  const box = useRef<HTMLSpanElement>(null);
+  const play = enabled && !t.reduced && from !== to;
+  const final = format(to);
+  useLayoutEffect(() => {
+    const el = live.current;
+    const wrap = box.current;
+    if (!play || !el || !wrap) return;
+    el.textContent = format(from);
+    el.style.visibility = 'visible';
+    wrap.style.visibility = 'hidden';
+    const reveal = () => {
+      el.style.visibility = 'hidden';
+      wrap.style.visibility = 'visible';
+    };
+    const count = animate(from, to, {
+      duration: t.duration.celebrate,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        el.textContent = format(Math.round(v));
+      },
+      onComplete: () => {
+        reveal();
+        animate(
+          box.current ?? wrap,
+          { scale: [1, 1.08, 1] },
+          { duration: t.duration.base, ease: t.ease.punch },
+        );
+      },
+    });
+    return () => {
+      count.stop();
+      reveal();
+    };
+    // The count plays once per arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <span className={className} style={{ display: 'inline-grid' }}>
+      <span ref={box} style={{ gridArea: '1 / 1' }}>
+        {final}
+      </span>
+      <span ref={live} aria-hidden="true" style={{ gridArea: '1 / 1', visibility: 'hidden' }} />
+    </span>
+  );
+}
+
 interface PulseProps {
   /** Each change fires one pulse; `undefined` or `false` rests. */
   fire: string | number | false | undefined;
@@ -407,5 +472,32 @@ export function Reposition({
     <div ref={ref} className={className}>
       {children}
     </div>
+  );
+}
+
+/**
+ * Content that fades in when its identity changes (a range, a tab, a view): `base`, `move`. The
+ * old content is replaced at once, so there are never two copies in the tree and nothing waits.
+ * Plays no entrance on first mount.
+ */
+export function Appear({
+  id,
+  className,
+  onMount = false,
+  children,
+}: PresenceProps & {
+  /** Also fade in when first mounted (a view that is swapped in whole). */ onMount?: boolean;
+}) {
+  const t = useMotionTokens();
+  const [first] = useState(id);
+  return (
+    <m.div
+      key={id}
+      className={className}
+      initial={!onMount && first === id ? false : { opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: t.duration.base, ease: t.ease.move } }}
+    >
+      {children}
+    </m.div>
   );
 }

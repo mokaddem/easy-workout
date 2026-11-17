@@ -214,3 +214,109 @@ describe("sessions of the user's own", () => {
     expect(active.generatedRotation).toBeUndefined();
   });
 });
+
+describe('progress records', () => {
+  const log = async (repo: ReturnType<typeof setup>) => {
+    const programme = generateProgramme({ profile, equipment });
+    const plan = sessionForWeek(programme, programme.rotation[0]!.id, 1).session;
+    return repo.startSession({
+      source: { kind: 'quick' } as never,
+      plan,
+    });
+  };
+  const test = (logId?: string) => ({
+    id: `t-${logId ?? 'x'}`,
+    date: '2026-11-14',
+    at: '2026-11-14T08:00:00.000Z',
+    exerciseId: 'push-up',
+    context: 'fresh' as const,
+    ...(logId && { logId }),
+    result: { kind: 'reps' as const, reps: 20 },
+  });
+
+  it('keeps one check-in per date and lists them oldest first', async () => {
+    const repo = setup();
+    const b = await repo.saveCheckIn({ date: '2026-11-10', weightKg: 80 });
+    const a = await repo.saveCheckIn({ date: '2026-11-03', weightKg: 81 });
+    const again = await repo.saveCheckIn({ date: '2026-11-10', weightKg: 79 });
+    expect(again.id).toBe(b.id);
+    expect(a.id).not.toBe(b.id);
+    expect((await repo.listCheckIns()).map((c) => [c.date, c.weightKg])).toEqual([
+      ['2026-11-03', 81],
+      ['2026-11-10', 79],
+    ]);
+    const removed = await repo.deleteCheckIn(a.id);
+    expect(await repo.listCheckIns()).toHaveLength(1);
+    await repo.restoreCheckIn(removed!);
+    expect(await repo.listCheckIns()).toHaveLength(2);
+  });
+
+  it('dismisses the check-in card and switches the prompt, keeping defaults', async () => {
+    const repo = setup();
+    await repo.dismissCheckIn(new Date('2026-11-14T09:00:00Z'));
+    await repo.setCheckInPrompt(false);
+    expect(await repo.getSettings('fr')).toMatchObject({
+      checkInPrompt: false,
+      checkInDismissedAt: '2026-11-14T09:00:00.000Z',
+      voice: true,
+    });
+  });
+
+  it('lists max tests oldest first and deletes one', async () => {
+    const repo = setup();
+    await repo.saveMaxTest({ ...test(), id: 'b', at: '2026-11-14T09:00:00.000Z' });
+    await repo.saveMaxTest({ ...test(), id: 'a' });
+    expect((await repo.listMaxTests()).map((t) => t.id)).toEqual(['a', 'b']);
+    await repo.deleteMaxTest('a');
+    expect((await repo.listMaxTests()).map((t) => t.id)).toEqual(['b']);
+  });
+
+  it('deletes a finished log with its tests, restores both, refuses an open one', async () => {
+    const repo = setup();
+    const open = await log(repo);
+    await expect(repo.deleteSessionLog(open.id)).rejects.toThrow();
+    await repo.logSets(open.id, [
+      { ...setLogBase(playSteps(open.plan)[0]!), actual: { reps: 5 }, at: '2026-11-14T08:00:00Z' },
+    ]);
+    await repo.finishSession(open.id, { endedEarly: false, countsAsDone: true });
+    await repo.saveMaxTest(test(open.id));
+    await repo.saveMaxTest({ ...test(), id: 'other' });
+    const removed = await repo.deleteSessionLog(open.id);
+    expect(removed.tests.map((t) => t.id)).toEqual([`t-${open.id}`]);
+    expect(await repo.listSessionLogs()).toHaveLength(0);
+    expect((await repo.listMaxTests()).map((t) => t.id)).toEqual(['other']);
+    await repo.restoreSessionLog(removed);
+    expect(await repo.listSessionLogs()).toHaveLength(1);
+    expect(await repo.listMaxTests()).toHaveLength(2);
+  });
+
+  it('stamps archived programmes and starts a next cycle', async () => {
+    const repo = setup();
+    const first = await repo.activateProgramme(
+      generateProgramme({ profile, equipment }),
+      new Date(1),
+    );
+    const second = await repo.activateProgramme(
+      generateProgramme({ profile, equipment }),
+      new Date(Date.UTC(2026, 10, 1)),
+    );
+    expect((await db.programmes.get(first.id))?.endedAt).toBe('2026-11-01T00:00:00.000Z');
+    const now = new Date(Date.UTC(2026, 11, 1));
+    const next = await repo.startNextCycle(
+      second.id,
+      generateProgramme({ profile, equipment }),
+      now,
+    );
+    expect(next).toMatchObject({
+      status: 'active',
+      previousId: second.id,
+      startedAt: now.toISOString(),
+    });
+    expect(await db.programmes.get(second.id)).toMatchObject({
+      status: 'completed',
+      endedAt: now.toISOString(),
+    });
+    expect((await repo.getActiveProgramme())?.id).toBe(next.id);
+    expect(await repo.listProgrammes()).toHaveLength(3);
+  });
+});

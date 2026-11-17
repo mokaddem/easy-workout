@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { updateSettings, useEquipment, useProfile, useSettings } from '@/app/data';
 import { navigate } from '@/app/router';
+import { repo } from '@/db/repo';
 import type { Language, Settings } from '@/domain';
 import { equipmentSummary } from '@/features/onboarding/summary';
 import { Card, Dialog, ListRow, SegmentedControl, SwitchRow } from '@/ui/components';
@@ -59,6 +60,15 @@ export function SettingsScreen() {
             title={t('settings.profile')}
             meta={profile ? profileSummary(profile, t, language) : undefined}
             onClick={() => navigate({ name: 'profile' })}
+          />
+          <SwitchRow
+            checked={settings?.checkInPrompt ?? true}
+            onChange={(on) => void repo.setCheckInPrompt(on)}
+            className={styles.checkRow}
+            title={t('settings.checkin.title')}
+            meta={t(
+              (settings?.checkInPrompt ?? true) ? 'settings.checkin.on' : 'settings.checkin.off',
+            )}
           />
           <ListRow
             icon="dumbbell"

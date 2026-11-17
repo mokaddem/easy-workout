@@ -3,6 +3,7 @@ import { BLOCKING_CONCERNS, exerciseSafety, isMainLift } from '../generate/safet
 import { levelCap } from '../generate/select';
 import { isSteadyCardio, loadContext, type EditContext } from './dose';
 import { itemsOf, placedItems, type Section } from './slots';
+import { isStrengthWork, MAJOR_GROUPS, MUSCLE_GROUPS } from '../volume';
 
 /**
  * Something wrong with a session. `block`: it can't be saved or run as is (impossible or
@@ -66,7 +67,7 @@ const repBased = (item: SessionItem) => item.target.kind === 'reps' || item.targ
 const hardSets = (block: Block, exercises: ReadonlyMap<string, Exercise>) =>
   itemsOf(block).filter((i) => {
     const e = exercises.get(i.exerciseId);
-    return e && !isSteadyCardio(e) && !e.tags.includes('warmup') && !e.tags.includes('mobility');
+    return e && !isSteadyCardio(e) && !e.tags.includes('mobility');
   }).length * (block.type === 'straight' ? block.sets : block.rounds);
 
 /** Everything wrong with one session, in order. */
@@ -196,14 +197,7 @@ function muscleSets(
     const count = block.type === 'straight' ? block.sets : block.rounds;
     for (const item of itemsOf(block)) {
       const e = exercises.get(item.exerciseId);
-      if (
-        !e ||
-        isSteadyCardio(e) ||
-        e.tags.includes('warmup') ||
-        e.tags.includes('mobility') ||
-        !counts(e)
-      )
-        continue;
+      if (!e || isSteadyCardio(e) || e.tags.includes('mobility') || !counts(e)) continue;
       for (const m of e.primaryMuscles) out.set(m, (out.get(m) ?? 0) + count);
     }
   }
@@ -229,27 +223,12 @@ export function checkSession(
   return issues.filter((i) => !before.has(issueKey(i)));
 }
 
-/** Major groups a week should keep training, by the primary muscles that count for each. */
-const MAJOR_GROUPS: Record<string, readonly Muscle[]> = {
-  chest: ['chest'],
-  back: ['lats', 'upper-back'],
-  shoulders: ['front-delts', 'side-delts', 'rear-delts'],
-  quads: ['quads'],
-  glutes: ['glutes'],
-  hamstrings: ['hamstrings'],
-};
 /** Fewer hard sets a week than this for a major group is flagged (judgement). */
 const WEEKLY_GROUP_FLOOR = 4;
 /** More pushing than this many times the pulling is flagged. */
 const PUSH_PULL_RATIO = 2;
 const PUSH = new Set(['push-horizontal', 'push-vertical']);
 const PULL = new Set(['pull-horizontal', 'pull-vertical']);
-
-/** Jumps, swings and conditioning train the heart more than a muscle group's strength. */
-const strengthWork = (exercise: Exercise) =>
-  exercise.pattern !== 'conditioning' &&
-  !exercise.tags.includes('plyometric') &&
-  !exercise.tags.includes('ballistic');
 
 function weeklyIssues(programme: Programme, ctx: EditContext): Issue[] {
   const perRun = programme.sessionsPerWeek / programme.rotation.length;
@@ -258,9 +237,9 @@ function weeklyIssues(programme: Programme, ctx: EditContext): Issue[] {
   let pull = 0;
   for (const session of programme.rotation) {
     const work = [...session.main, ...session.finisher];
-    const sets = muscleSets(work, ctx.exercises, strengthWork);
-    for (const [group, muscles] of Object.entries(MAJOR_GROUPS)) {
-      const most = Math.max(0, ...muscles.map((m) => sets.get(m) ?? 0));
+    const sets = muscleSets(work, ctx.exercises, isStrengthWork);
+    for (const group of MAJOR_GROUPS) {
+      const most = Math.max(0, ...MUSCLE_GROUPS[group].map((m) => sets.get(m) ?? 0));
       groups.set(group, (groups.get(group) ?? 0) + most * perRun);
     }
     for (const block of work) {

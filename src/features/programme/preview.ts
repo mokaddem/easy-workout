@@ -2,6 +2,7 @@ import { exerciseById } from '@/catalogue';
 import type { EquipmentInventory, Profile, Programme } from '@/domain';
 import {
   carryEdits,
+  cycleInputs,
   generateProgramme,
   programmeChanges,
   type CarriedEdit,
@@ -19,13 +20,16 @@ export function nextProgramme(
   equipment: EquipmentInventory,
 ): Programme {
   const generation = current.generation;
+  // A later cycle stays that cycle: same number, same rotation away from the previous one.
+  const cycle = cycleInputs(generation);
   return mode === 'variant' && generation
     ? generateProgramme({
         profile: generation.profile,
         equipment: generation.equipment,
         seed: generation.seed + 1,
+        ...cycle,
       })
-    : generateProgramme({ profile, equipment, seed: 0 });
+    : generateProgramme({ profile, equipment, seed: 0, ...cycle });
 }
 
 export interface PreviewData {

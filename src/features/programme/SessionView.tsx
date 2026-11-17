@@ -84,6 +84,9 @@ export interface SessionViewProps {
   kickerLabel?: string;
   /** Glyph of the hero tile when the session has no letter (the user's own: bookmark). */
   heroIcon?: IconName;
+  /** The week's max test as a section: right after the warm-up, or at the end of the session. */
+  testAfterWarmup?: ReactNode;
+  testAtEnd?: ReactNode;
   /** Changes when the content is replaced in place (another week, a shuffle): the sections fade in. */
   contentKey?: string | number;
 }
@@ -106,6 +109,8 @@ export function SessionView({
   editing,
   kickerLabel,
   heroIcon,
+  testAfterWarmup,
+  testAtEnd,
   contentKey = 0,
 }: SessionViewProps) {
   const { t, i18n } = useTranslation();
@@ -403,6 +408,8 @@ export function SessionView({
         </section>
       ) : null}
 
+      {testAfterWarmup}
+
       <section key={`main-${contentKey}`} className={`${styles.section} ${swap ?? ''}`}>
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>{t('programme.session.main')}</h2>
@@ -424,6 +431,8 @@ export function SessionView({
           {renderBlocks('finisher')}
         </section>
       ) : null}
+
+      {testAtEnd}
 
       <WhySheet request={why} onClose={() => setWhy(null)} />
     </div>

@@ -162,5 +162,10 @@
     "lineAge_other": "Dernière sauvegarde il y a <b>{{count}} jours</b>.",
     "lineNever": "Aucune sauvegarde pour l’instant.",
     "lineExport": "Exporter"
+  },
+  "checkin": {
+    "title": "Rappel des mesures de la semaine",
+    "on": "Une carte sur Programme quand tes dernières mesures datent de plus de 7 jours.",
+    "off": "Aucune carte. Tu peux toujours noter tes mesures depuis Progrès."
   }
 }

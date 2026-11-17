@@ -62,7 +62,13 @@ export const coreExercises: readonly Exercise[] = [
     unilateral: false,
     difficulty: 2,
     easier: ['knee-plank'],
-    harder: ['plank-shoulder-tap', 'towel-body-saw', 'suspension-fallout', 'suspension-knee-tuck'],
+    harder: [
+      'hollow-body-hold',
+      'plank-shoulder-tap',
+      'towel-body-saw',
+      'suspension-fallout',
+      'suspension-knee-tuck',
+    ],
     animation: null,
   },
   {
@@ -321,7 +327,7 @@ export const coreExercises: readonly Exercise[] = [
     metric: 'time',
     unilateral: false,
     difficulty: 3,
-    easier: ['dead-bug'],
+    easier: ['dead-bug', 'plank'],
     harder: [],
     animation: null,
   },

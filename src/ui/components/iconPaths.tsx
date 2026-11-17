@@ -426,6 +426,27 @@ export const PATHS = {
       <path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4" />
     </>
   ),
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 12h.01" strokeWidth="3" />
+    </>
+  ),
+  scale: (
+    <>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+      <path d="M7.5 11a5.5 5.5 0 0 1 9 0z" />
+      <path d="M12 11l1.8-2.6" />
+    </>
+  ),
+  medal: (
+    <>
+      <path d="M8 3.5l2.5 6M16 3.5l-2.5 6" />
+      <circle cx="12" cy="15" r="5.5" />
+      <path d="M12 12.5v5" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

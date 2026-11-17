@@ -132,6 +132,19 @@ export const ProgressionNoteSchema = z.strictObject({
 });
 export type ProgressionNote = z.infer<typeof ProgressionNoteSchema>;
 
+/**
+ * The max test a session runs, decided when it starts: at the end of the session, or right after
+ * the warm-up when every session of the week works the tested muscles. The result is a `MaxTest`.
+ */
+export const SessionTestSchema = z.strictObject({
+  exerciseId: SlugSchema,
+  kind: z.enum(['reps', 'time']),
+  placement: z.enum(['end', 'after-warmup']),
+  /** Absent while the test is still to come. Pain: stopped because it hurt. */
+  outcome: z.enum(['done', 'skipped', 'pain']).optional(),
+});
+export type SessionTest = z.infer<typeof SessionTestSchema>;
+
 export const SessionLogSchema = z.strictObject({
   id: IdSchema,
   source: SessionSourceSchema,
@@ -152,6 +165,8 @@ export const SessionLogSchema = z.strictObject({
   /** A completed programme session moves the rotation on unless this is false. */
   countsAsDone: z.boolean().optional(),
   note: z.string().max(2000).optional(),
+  /** The programme's max test, when this session runs it. */
+  test: SessionTestSchema.optional(),
   /** Only while the session is open. */
   live: LiveClockSchema.optional(),
   sets: z.array(SetLogSchema),
@@ -168,10 +183,24 @@ export const CheckInSchema = z.strictObject({
 });
 export type CheckIn = z.infer<typeof CheckInSchema>;
 
+/** Where a test was done: inside a programme session, or on its own (only like is compared with like). */
+export const TEST_CONTEXTS = ['session', 'fresh'] as const;
+export const TestContextSchema = z.enum(TEST_CONTEXTS);
+export type TestContext = z.infer<typeof TestContextSchema>;
+
 export const MaxTestSchema = z.strictObject({
   id: IdSchema,
   date: DateSchema,
+  /** When it was done, for ordering tests of the same day. */
+  at: DateTimeSchema,
   exerciseId: SlugSchema,
+  context: TestContextSchema,
+  /** The session that ran it (a scheduled test). */
+  logId: IdSchema.optional(),
+  /** The programme whose test week it was. */
+  programmeId: IdSchema.optional(),
+  /** Stopped because it hurt: what was done is kept, but it is not a result. */
+  stopped: z.literal('pain').optional(),
   result: z.discriminatedUnion('kind', [
     z.strictObject({ kind: z.literal('reps'), reps: int(0) }),
     z.strictObject({ kind: z.literal('time'), seconds: int(0) }),

@@ -16,6 +16,12 @@ export const isMainLift = (exercise: Exercise): boolean =>
   !exercise.tags.includes('plyometric') &&
   !exercise.tags.includes('ballistic');
 
+/**
+ * Drills that are too easy to be work outside the warm-up: an unloaded good morning can't get
+ * near its effort target, so it never takes a hinge slot.
+ */
+export const WARMUP_ONLY: readonly string[] = ['good-morning'];
+
 /** Kipping-prone bar work that a door frame should not take. */
 export const NOT_ON_DOORWAY_BAR: readonly string[] = ['toes-to-bar'];
 

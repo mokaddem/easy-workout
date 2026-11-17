@@ -29,5 +29,9 @@ export const SettingsSchema = z.strictObject({
   lastBackupAt: DateTimeSchema.optional(),
   /** "Later" on the backup reminder hides it until then. */
   backupSnoozedUntil: DateTimeSchema.optional(),
+  /** The weekly check-in card on the Programme tab. */
+  checkInPrompt: z.boolean(),
+  /** The check-in card was dismissed then; it comes back a week later. */
+  checkInDismissedAt: DateTimeSchema.optional(),
 });
 export type Settings = z.infer<typeof SettingsSchema>;

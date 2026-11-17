@@ -1,0 +1,120 @@
+.sec {
+  display: grid;
+  gap: 14px;
+}
+.head {
+  display: grid;
+  gap: 4px;
+}
+.head p {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.title {
+  margin: 0;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.lvl {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+.lvlHead {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.lvlHead > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.well {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.kicker {
+  font-size: var(--type-meta-size);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+.lvlTitle {
+  margin: 0;
+  font-size: var(--font-size-21);
+  font-weight: 700;
+  font-stretch: var(--font-width-title);
+  line-height: 1.15;
+}
+.why {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.why li,
+.done p,
+.offer p {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.why strong,
+.offer strong {
+  font-weight: 700;
+}
+.why svg,
+.done svg {
+  stroke-width: 2.5;
+}
+.then {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.done {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+.offer {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  padding: 12px 14px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+.offer p {
+  font-size: var(--type-meta-size);
+}
+.offer svg {
+  color: var(--color-text-muted);
+}
+.offer .inline {
+  background: var(--color-surface);
+}
+.swapLevel {
+  display: grid;
+  gap: 14px;
+}
+.swapOffer {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}

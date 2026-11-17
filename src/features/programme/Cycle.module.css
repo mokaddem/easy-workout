@@ -1,0 +1,113 @@
+.card {
+  display: grid;
+  gap: var(--space-4);
+  margin: 28px var(--space-4) 0;
+  padding: var(--space-5);
+}
+.label {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+}
+.title {
+  margin: 0;
+  font-size: var(--font-size-36);
+  line-height: var(--type-display-line);
+  font-weight: var(--type-display-weight);
+  font-stretch: var(--type-display-width);
+  text-wrap: balance;
+}
+.muted {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+}
+.facts svg {
+  color: var(--color-text-muted);
+}
+.facts strong {
+  font-weight: var(--font-weight-heavy);
+}
+.note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.note svg {
+  flex: none;
+  color: var(--color-text-subtle);
+}
+.checkInRow {
+  margin: var(--space-4) var(--space-4) 0;
+}
+.cardBody {
+  display: grid;
+  gap: var(--space-4);
+}
+.checkIn {
+  display: grid;
+  gap: 14px;
+  padding: var(--space-4);
+}
+.checkInHead {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.well {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.checkInText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.checkInText .muted {
+  font-size: var(--type-meta-size);
+}
+.checkInTitle {
+  margin: 0;
+  font-size: var(--font-size-18);
+  line-height: 1.2;
+  font-weight: var(--font-weight-bold);
+  font-stretch: var(--type-title-width);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+.actions > :first-child {
+  flex: 1 1 168px;
+  white-space: nowrap;
+}
+.actions > :last-child {
+  flex: 1 1 auto;
+}

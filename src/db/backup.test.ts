@@ -69,7 +69,78 @@ async function populated() {
   return db;
 }
 
+async function withProgressRecords() {
+  const db = await populated();
+  const repo = createRepo(db);
+  const programme = (await repo.getActiveProgramme())!;
+  const next = await repo.startNextCycle(
+    programme.id,
+    generateProgramme({ profile, equipment }),
+    new Date('2026-12-01T09:00:00Z'),
+  );
+  const log = (await repo.listSessionLogs())[0]!;
+  await db.sessionLogs.put({
+    ...log,
+    test: { exerciseId: 'push-up', kind: 'reps', placement: 'end', outcome: 'done' },
+  });
+  await repo.saveCheckIn({
+    date: '2026-11-10',
+    weightKg: 80.5,
+    waistCm: 85,
+    sleepHours: 7.5,
+    notes: 'ok',
+  });
+  await repo.saveMaxTest({
+    id: 'mt1',
+    date: '2026-11-14',
+    at: '2026-11-14T08:30:00.000Z',
+    exerciseId: 'push-up',
+    context: 'session',
+    logId: log.id,
+    programmeId: programme.id,
+    result: { kind: 'reps', reps: 22 },
+    load: { kind: 'added-kg', kg: 5, implement: 'weight-vest' },
+  });
+  await repo.saveSettings({
+    ...(await repo.getSettings('fr')),
+    checkInPrompt: false,
+    checkInDismissedAt: '2026-11-12T08:00:00.000Z',
+  });
+  return { db, next };
+}
+
 describe('backup', () => {
+  it('round-trips check-ins, tests, cycles and check-in settings', async () => {
+    const { db: source, next } = await withProgressRecords();
+    const file = await exportBackup(source, new Date('2026-12-02T09:00:00Z'));
+    const parsed = parseBackup(JSON.parse(JSON.stringify(file)));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const { data } = parsed.backup;
+    expect(data.checkIns).toHaveLength(1);
+    expect(data.maxTests[0]).toMatchObject({ context: 'session', programmeId: expect.any(String) });
+    expect(data.sessionLogs[0]!.test).toMatchObject({ outcome: 'done' });
+    expect(data.programmes.find((p) => p.id === next.id)).toMatchObject({
+      previousId: expect.any(String),
+    });
+    expect(data.programmes.some((p) => p.status === 'completed' && p.endedAt)).toBe(true);
+    expect(data.settings).toMatchObject({
+      checkInPrompt: false,
+      checkInDismissedAt: '2026-11-12T08:00:00.000Z',
+    });
+    const { db: target } = fresh();
+    await importBackup(parsed.backup, target);
+    expect(await exportBackup(target, new Date('2026-12-02T09:00:00Z'))).toEqual(parsed.backup);
+  });
+
+  it('still imports a version 3 file', async () => {
+    const file = await exportBackup(await populated());
+    const old = JSON.parse(JSON.stringify({ ...file, schemaVersion: 3 }));
+    const parsed = parseBackup(old);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(parsed.backup.schemaVersion).toBe(BACKUP_SCHEMA_VERSION);
+  });
+
   it('round-trips everything through a JSON file', async () => {
     const source = await populated();
     const file = await exportBackup(source, new Date('2026-11-14T09:00:00Z'));

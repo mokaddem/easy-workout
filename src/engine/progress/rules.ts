@@ -2,6 +2,7 @@ import type {
   Exercise,
   Level,
   Load,
+  MaxTest,
   ProgressionNote,
   SessionItem,
   Target,
@@ -75,7 +76,10 @@ export interface ItemInput {
 }
 
 export type LadderEnd =
-  { kind: 'harder' | 'easier' | 'assisted'; logId: string } | { kind: 'buy-next' };
+  | { kind: 'harder' | 'easier' | 'assisted'; logId: string }
+  | { kind: 'buy-next' }
+  /** Nothing harder exists and nothing to buy would help: the goal holds at its top. */
+  | { kind: 'none' };
 
 export interface ItemResult {
   item: SessionItem;
@@ -684,8 +688,19 @@ function progressReps(input: ItemInput): ItemResult {
 const maxBeyondFor = (ladder: Ladder, hi: number) =>
   ladder.kind === 'band' && ladder.assisted ? hi : hi + BEYOND_REPS;
 
+/** Buying helps only a move that takes more weight or a stronger band. */
+const takesLoad = (exercise: Exercise) =>
+  exercise.loadType === 'external' ||
+  exercise.loadType === 'band' ||
+  exercise.loadType === 'band-assisted' ||
+  (exercise.addedLoad?.length ?? 0) > 0;
+
 const endOfLadder = (exercise: Exercise, logId: string): LadderEnd =>
-  exercise.harder.length > 0 ? { kind: 'harder', logId } : { kind: 'buy-next' };
+  exercise.harder.length > 0
+    ? { kind: 'harder', logId }
+    : takesLoad(exercise)
+      ? { kind: 'buy-next' }
+      : { kind: 'none' };
 
 /** Time off: ease the goal, or step back a load and start the range again. */
 function breakAdjust(input: ItemInput, result: ItemResult, ladder: Ladder, lo: number): ItemResult {
@@ -860,5 +875,66 @@ function progressInterval(input: ItemInput): ItemResult {
   return {
     item: { ...base, target: { ...target, workSec: work, rounds } },
     ...(result && { note: result }),
+  };
+}
+
+/** Seconds of a hold test a goal may take: most people hold a set well under their limit. */
+const TEST_HOLD_SHARE = 0.7;
+/** The most a test lifts a goal at once. */
+const TEST_LIFT_REPS = 2;
+const TEST_LIFT_SEC = 10;
+
+/**
+ * A max test done since this range was last trained, at bodyweight, lifts the goal: reps to the
+ * test minus the reserve and one, holds to 70 % of the test, by two reps or ten seconds at most and
+ * never past the top of the range. It never lowers anything, and it leaves loads, stages and
+ * thresholds alone. Only straight sets at the normal tempo compare with a test; never in a deload
+ * or right after a break.
+ */
+export function liftFromTest(
+  result: ItemResult,
+  input: Pick<ItemInput, 'base' | 'exercise' | 'exposures' | 'role'> & {
+    context: 'straight' | 'group';
+    tests: readonly MaxTest[];
+  },
+): ItemResult {
+  const { base, exercise } = input;
+  const target = base.target;
+  if (input.role === 'deload' || input.context !== 'straight') return result;
+  if (target.kind !== 'reps' && target.kind !== 'time') return result;
+  if (exercise.loadType !== 'bodyweight' && exercise.loadType !== 'bodyweight-loadable')
+    return result;
+  if (FIXED_REP_EXERCISES.has(exercise.id)) return result;
+  const item = result.item;
+  if (item.load && item.load.kind !== 'bodyweight') return result;
+  if (result.note?.newLoad || slower(item.tempo, base.tempo)) return result;
+  if (
+    result.note &&
+    ['goal-eased', 'welcome-back', 'hold-pain', 'pain-lighter'].includes(result.note.code)
+  )
+    return result;
+  const since = input.exposures[0]?.at ?? '';
+  const test = input.tests
+    .filter((t) => t.exerciseId === exercise.id && !t.stopped && t.at > since)
+    .sort((a, b) => b.at.localeCompare(a.at))[0];
+  if (!test) return result;
+  const [lo, hi] = spanOf(target, false);
+  const current = item.goal ?? lo;
+  let wanted: number;
+  if (target.kind === 'reps' && test.result.kind === 'reps')
+    wanted = Math.min(test.result.reps - (base.rir ?? 2) - 1, current + TEST_LIFT_REPS, hi);
+  else if (target.kind === 'time' && test.result.kind === 'time')
+    wanted = Math.min(
+      Math.round((test.result.seconds * TEST_HOLD_SHARE) / 5) * 5,
+      current + TEST_LIFT_SEC,
+      hi,
+    );
+  else return result;
+  if (wanted <= current) return result;
+  const value = test.result.kind === 'reps' ? test.result.reps : test.result.seconds;
+  return {
+    ...result,
+    item: { ...item, goal: wanted },
+    note: note('from-test', { from: current, to: wanted, test: value, date: test.date }),
   };
 }

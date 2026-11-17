@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@/app/router';
 import { useActiveProgramme, useEquipment, useProfile } from '@/app/data';
 import { sameInventory } from '@/app/programme-state';
 import { goBack, useLeaveGuard } from '@/app/router';
@@ -17,12 +18,19 @@ import styles from './EquipmentScreen.module.css';
 
 type View = 'mine' | 'buy';
 
-export function EquipmentScreen() {
+export function EquipmentScreen({ route }: { route: Extract<Route, { name: 'equipment' }> }) {
   const stored = useEquipment();
   const profile = useProfile();
   const programme = useActiveProgramme();
   if (stored === undefined) return <Loading />;
-  return <Editor stored={stored} profile={profile} programme={programme} />;
+  return (
+    <Editor
+      stored={stored}
+      profile={profile}
+      programme={programme}
+      initialView={route.view === 'buy' ? 'buy' : 'mine'}
+    />
+  );
 }
 
 function Loading() {
@@ -41,7 +49,9 @@ function Editor({
   stored,
   profile,
   programme,
+  initialView,
 }: {
+  initialView: View;
   stored: EquipmentInventory;
   profile: ReturnType<typeof useProfile>;
   programme: ReturnType<typeof useActiveProgramme>;
@@ -49,7 +59,7 @@ function Editor({
   const { t } = useTranslation();
   const toast = useToast();
   const [draft, setDraft] = useState<EquipmentInventory | undefined>(undefined);
-  const [view, setView] = useState<View>('mine');
+  const [view, setView] = useState<View>(initialView);
   const [showErrors, setShowErrors] = useState(false);
   /** Set while the leave dialog is open: leaves the screen when called. */
   const [leave, setLeave] = useState<(() => void) | null>(null);

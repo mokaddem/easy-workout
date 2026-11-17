@@ -137,6 +137,10 @@ export function describeNote(
         seconds: num(p.seconds),
       });
     }
+    case 'exercise-upgraded':
+      return t('why.upgraded', { from: exerciseName(p.from, language) });
+    case 'exercise-kept':
+      return t('why.kept');
     case 'max-test':
       return t('why.maxTest', { name });
     case 'quick-session':
@@ -154,6 +158,7 @@ const INLINE_CODES = new Set([
   'exercise-fallback-pattern',
   'exercise-easier-variant',
   'exercise-harder-variant',
+  'exercise-upgraded',
   'exercise-preferred',
   'load-unloaded-start',
 ]);

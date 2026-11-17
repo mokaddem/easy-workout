@@ -1,7 +1,209 @@
 {
   "title": "Progress",
   "weekShort": "W{{week}}",
-  "emptyTitle": "No finished session yet",
-  "emptyBody": "After your first session you will see your loads and reps per exercise here, and your volume week after week.",
-  "seeNext": "See the next session"
+  "seeNext": "See the next session",
+  "unit": {
+    "h": "h",
+    "min": "min"
+  },
+  "week": {
+    "title": "This week",
+    "sessions_one": "session",
+    "sessions_other": "sessions",
+    "active": "active, pauses left out",
+    "none": "No session yet this week.",
+    "mix": "{{list}}.",
+    "mixProgramme_one": "{{count}} programme session",
+    "mixProgramme_other": "{{count}} programme sessions",
+    "mixQuick_one": "{{count}} quick session",
+    "mixQuick_other": "{{count}} quick sessions",
+    "mixOwn_one": "{{count}} session of your own",
+    "mixOwn_other": "{{count}} sessions of your own",
+    "sr": "{{sessions}}, {{time}} active."
+  },
+  "cycle": {
+    "title": "Your programme",
+    "week": "Week {{week}} of {{weeks}}",
+    "done_one": "<b>{{done}} session of {{perWeek}}</b> done this week.",
+    "done_other": "<b>{{done}} sessions of {{perWeek}}</b> done this week.",
+    "total_one": "<b>{{done}} session of {{planned}}</b> and {{time}} active since {{date}}.",
+    "total_other": "<b>{{done}} sessions of {{planned}}</b> and {{time}} active since {{date}}.",
+    "ended_one": "<b>Cycle finished: {{done}} session of {{planned}}.</b>",
+    "ended_other": "<b>Cycle finished: {{done}} sessions of {{planned}}.</b>",
+    "review": "See the review",
+    "noProgramme": "No programme in progress.",
+    "create": "Create my programme"
+  },
+  "highlights": {
+    "title": "Moving up",
+    "window": "Last 14 days",
+    "loadUp": "One step up: <b>{{load}}</b>{{perDumbbell}}. {{date}}",
+    "perDumbbell": " per dumbbell",
+    "addedLoad": "Load added: <b>{{load}}</b>. {{date}}",
+    "best": "Best set: <b>{{value}}</b>. {{date}}",
+    "lessHelp": "Less help: <b>{{band}} band</b>. {{date}}",
+    "moreHelp": "More help: <b>{{band}} band</b>. {{date}}",
+    "repsUp": "Goal raised: <b>{{goal}}</b>. {{date}}",
+    "beyond": "Past the range: <b>{{goal}}</b>. {{date}}",
+    "workLonger": "Longer work: <b>{{value}}</b>. {{date}}",
+    "test": "Max test: <b>{{value}}</b>. {{date}}",
+    "generic": "Moved up. {{date}}",
+    "empty": "Each exercise moves on from its second session. Its load and rep steps will show here.",
+    "more_one": "See the other one",
+    "more_other": "See the other {{count}}",
+    "less": "See less"
+  },
+  "sets": {
+    "title": "Working sets in week {{week}}",
+    "sub": "Done of planned in this programme week, main muscles only.",
+    "left_one": "Session {{names}} is still to come.",
+    "left_other": "Sessions {{names}} are still to come.",
+    "outsideQuick": "Your quick session counts too.",
+    "outside": "Your sessions outside the programme count too.",
+    "done": "Done",
+    "planned": "Planned",
+    "sr": "{{done}} of {{planned}} planned"
+  },
+  "group": {
+    "chest": "Chest",
+    "back": "Back",
+    "shoulders": "Shoulders",
+    "arms": "Arms",
+    "core": "Core",
+    "quads": "Quads",
+    "glutes": "Glutes",
+    "hamstrings": "Hamstrings",
+    "calves": "Calves"
+  },
+  "history": {
+    "title": "Your history"
+  },
+  "nav": {
+    "sessions": {
+      "title": "Sessions",
+      "meta_one": "{{count}} session, the last one {{when}}",
+      "meta_other": "{{count}} sessions, the last one {{when}}",
+      "none": "No finished session"
+    },
+    "exercises": {
+      "title": "Exercises",
+      "meta_one": "{{count}} exercise done",
+      "meta_other": "{{count}} exercises done",
+      "none": "No exercise done yet"
+    },
+    "body": {
+      "title": "Body",
+      "meta": "Last check-in {{when}}",
+      "none": "Log your weight, waist and sleep"
+    },
+    "tests": {
+      "title": "Max tests",
+      "meta": "Last one: {{name}}, {{value}}, {{date}}",
+      "none": "Measure where you start"
+    },
+    "past": {
+      "title": "Past programmes",
+      "meta_one": "{{count}} programme",
+      "meta_other": "{{count}} programmes"
+    }
+  },
+  "empty": {
+    "title": "No finished session yet",
+    "body": "After your first session you’ll see your week and your cycle fill in here, and what moves up, exercise by exercise.",
+    "already": "Already possible"
+  },
+  "sessions": {
+    "title": "Sessions",
+    "back": "Back to progress",
+    "meta_one": "{{count}} session since {{date}}",
+    "meta_other": "{{count}} sessions since {{date}}",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "weekOf": "Week of {{date}}",
+    "groupMeta_one": "{{count}} session, {{time}}",
+    "groupMeta_other": "{{count}} sessions, {{time}}",
+    "groupMetaNone": "None finished",
+    "rowMeta_one": "{{day}}, {{minutes}} min, {{count}} set",
+    "rowMeta_other": "{{day}}, {{minutes}} min, {{count}} sets",
+    "rowMetaNoSets": "{{day}}, {{minutes}} min",
+    "pain": "<b>Pain</b>: {{exercise}}",
+    "abandoned": "Abandoned, doesn’t count",
+    "endedEarly": "Ended early: {{done}} sets of {{total}}",
+    "endedEarlyNoCount": "Ended early: {{done}} sets of {{total}}, doesn’t count",
+    "ownAlone": "Your session, run on its own",
+    "quick": "Quick session",
+    "emptyTitle": "No finished session",
+    "emptyBody": "Your sessions will show up here as soon as you finish one.",
+    "seeProgramme": "See the next session"
+  },
+  "log": {
+    "back": "Back to sessions",
+    "context": "Sessions",
+    "kicker": "Week {{week}}, {{phase}}",
+    "kickerQuick": "Quick session",
+    "kickerOwn": "My session",
+    "when": "{{day}}, {{start}}–{{end}}",
+    "whenStart": "{{day}}, {{start}}",
+    "statActive": "active",
+    "statSets": "sets",
+    "statReps": "reps",
+    "painNotice": "<b>Pain</b>: {{exercise}}, stopped at set {{set}}.",
+    "abandonedNotice": "Abandoned: doesn’t count in your rotation.",
+    "earlyNotice": "Ended early: {{done}} sets of {{total}}. Counted as done.",
+    "earlyNoCountNotice": "Ended early: {{done}} sets of {{total}}. Not counted: the session was offered again.",
+    "byExercise": "Exercise by exercise",
+    "warmup": "Warm-up",
+    "warmupMeta_one": "{{count}} exercise",
+    "warmupMeta_other": "{{count}} exercises",
+    "warmupSkipped_one": ", {{skipped}} skipped",
+    "warmupSkipped_other": ", {{skipped}} skipped",
+    "warmupPassed": "Skipped",
+    "warmupDone": "Done",
+    "goal": "goal {{goal}}",
+    "side": {
+      "left": "L",
+      "right": "R"
+    },
+    "sideLabel": {
+      "left": "Left side",
+      "right": "Right side"
+    },
+    "painSet": "Pain",
+    "painAfter": "after {{reps}} reps",
+    "notDone": "Not done: exercise stopped",
+    "notReached": "Not reached",
+    "noEquipment": "No equipment today",
+    "oneOff": "a one-off",
+    "forGood": "swapped for good",
+    "skipped": "Skipped",
+    "reps_one": "{{count}} rep",
+    "reps_other": "{{count}} reps",
+    "seconds": "{{count}} s",
+    "rounds_one": "{{count}} round",
+    "rounds_other": "{{count}} rounds",
+    "minutes": "{{count}} min",
+    "bestSet": "Best set",
+    "note": "Your note",
+    "delete": "Delete this session",
+    "deleteHint": "Your rotation and loads will be worked out again without it.",
+    "deleteDialog": {
+      "title": "Delete this session?",
+      "body_one": "Its <b>{{sets}} set</b> leaves your history. Your rotation and your loads are worked out again without it.",
+      "body_other": "Its <b>{{sets}} sets</b> leave your history. Your rotation and your loads are worked out again without it.",
+      "next": "<b>Session {{name}}</b> becomes your next session.",
+      "test": "Its max test is deleted too.",
+      "confirm": "Delete the session",
+      "nextTitle": "<b>{{name}}</b> becomes your next session."
+    },
+    "deleted": "Session deleted. Loads worked out again.",
+    "missingTitle": "Session not found",
+    "missingBody": "It may have been deleted.",
+    "missingAction": "See sessions",
+    "sr": {
+      "medal": "Record"
+    },
+    "kickerWeek": "Week {{week}}",
+    "exerciseCount_one": "{{count}} exercise",
+    "exerciseCount_other": "{{count}} exercises"
+  }
 }

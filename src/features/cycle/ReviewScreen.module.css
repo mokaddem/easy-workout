@@ -1,0 +1,46 @@
+.root {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.ctx {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  min-height: 56px;
+  padding: 4px 8px 4px 4px;
+}
+.ctx > span {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-14);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+.scroll {
+  flex: 1;
+}
+.skeleton {
+  display: grid;
+  gap: 16px;
+  padding: 8px var(--layout-gutter);
+}
+.openNote {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+/* The nudge brings its own side margins: take the section's away. */
+.decisions {
+  display: grid;
+  gap: 12px;
+  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0;
+}
+.decisions .openNote {
+  margin: 0 var(--space-4);
+}

@@ -22,6 +22,12 @@ export type ProgrammeRecord = Programme & {
   startedAt?: DateTime;
   /** The one-time "why this programme" card was dismissed. */
   whySeen?: boolean;
+  /** When it was finished (`completed`) or replaced (`archived`). */
+  endedAt?: DateTime;
+  /** The finished programme this one continues, as its next cycle. */
+  previousId?: string;
+  /** When its cycle review was first seen. */
+  reviewSeenAt?: DateTime;
 };
 /**
  * A session of the user's own. `base`: what it started from when it was copied (a programme

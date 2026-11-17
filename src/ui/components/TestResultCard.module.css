@@ -1,0 +1,55 @@
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.well {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.id {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.kicker {
+  font-size: var(--type-meta-size);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+.name {
+  margin: 0;
+  font-size: var(--font-size-21);
+  font-weight: 700;
+  font-stretch: var(--font-width-title);
+  line-height: 1.15;
+}
+.line {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}
+.line b {
+  font-weight: 700;
+}
+.row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+.fig {
+  white-space: nowrap;
+}

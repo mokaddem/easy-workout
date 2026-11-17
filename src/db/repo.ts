@@ -1,6 +1,8 @@
 import {
   setLogKey,
   type Answer,
+  type CheckIn,
+  type MaxTest,
   type EquipmentInventory,
   type Language,
   type LiveClock,
@@ -10,6 +12,7 @@ import {
   type Session,
   type SessionLog,
   type SessionSource,
+  type SessionTest,
   type Settings,
   type SetAdjustments,
   type SetLog,
@@ -37,6 +40,7 @@ export function defaultSettings(language: Language): Settings {
     sounds: true,
     vibration: true,
     restDisplay: 'takeover',
+    checkInPrompt: true,
   };
 }
 
@@ -88,6 +92,15 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     return db.programmes.toArray();
   }
 
+  /** Replaced programmes are kept as archived, with the day they were replaced. */
+  async function archiveActive(now: Date, except?: string): Promise<void> {
+    await db.programmes
+      .where('status')
+      .equals('active')
+      .filter((p) => p.id !== except)
+      .modify({ status: 'archived', endedAt: now.toISOString() });
+  }
+
   /**
    * Makes `programme` the active one. The previous programme is kept as archived,
    * not deleted, so its history stays available.
@@ -103,14 +116,68 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
       status: 'active',
     };
     await db.transaction('rw', db.programmes, async () => {
-      await db.programmes.where('status').equals('active').modify({ status: 'archived' });
+      await archiveActive(now);
       await db.programmes.put(record);
     });
     return record;
   }
 
+  /** Finishes `previousId` as a completed cycle and starts `next` as its continuation. */
+  function startNextCycle(
+    previousId: string,
+    next: Programme,
+    now = new Date(),
+  ): Promise<ProgrammeRecord> {
+    return db.transaction('rw', db.programmes, async () => {
+      if (!(await db.programmes.get(previousId))) throw new Error(`no programme ${previousId}`);
+      await archiveActive(now, previousId);
+      await db.programmes.update(previousId, { status: 'completed', endedAt: now.toISOString() });
+      const record: ProgrammeRecord = {
+        ...next,
+        id: programmeId(next, now),
+        createdAt: next.createdAt ?? now.toISOString(),
+        status: 'active',
+        startedAt: now.toISOString(),
+        previousId,
+      };
+      await db.programmes.put(record);
+      return record;
+    });
+  }
+
   async function markWhySeen(programmeId: string): Promise<void> {
     await db.programmes.update(programmeId, { whySeen: true });
+  }
+
+  /** Gives a session just opened the max test it runs; nothing is recorded until the test is. */
+  async function attachSessionTest(logId: string, test: SessionTest): Promise<void> {
+    await db.sessionLogs.update(logId, { test });
+  }
+
+  /**
+   * Closes a session's max test with its outcome. A result (or a pain stop) is stored in the same
+   * transaction, so a test is never recorded without its session knowing, nor the reverse.
+   */
+  async function closeSessionTest(
+    logId: string,
+    outcome: NonNullable<SessionTest['outcome']>,
+    result?: MaxTest,
+  ): Promise<void> {
+    await db.transaction('rw', [db.sessionLogs, db.maxTests], async () => {
+      const log = await db.sessionLogs.get(logId);
+      if (!log?.test) return;
+      await db.sessionLogs.put({ ...log, test: { ...log.test, outcome } });
+      if (result) await db.maxTests.put(result);
+    });
+  }
+
+  /** The first time only: the Programme tab then offers the next cycle instead of the review. */
+  async function markReviewSeen(programmeId: string, now = new Date()): Promise<void> {
+    await db.transaction('rw', db.programmes, async () => {
+      const record = await db.programmes.get(programmeId);
+      if (record && !record.reviewSeenAt)
+        await db.programmes.update(programmeId, { reviewSeenAt: now.toISOString() });
+    });
   }
 
   /** Profile, equipment and first programme are written together, so a half-finished setup never sticks. */
@@ -253,6 +320,97 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     );
   }
 
+  /** Deletes a finished or abandoned log and the max tests it ran, so Undo can restore both. */
+  function deleteSessionLog(id: string): Promise<{ log: SessionLog; tests: MaxTest[] }> {
+    return db.transaction('rw', [db.sessionLogs, db.maxTests], async () => {
+      const log = await db.sessionLogs.get(id);
+      if (!log) throw new Error(`no session ${id}`);
+      if (log.status === 'in-progress') throw new Error(`session ${id} is still open`);
+      const tests = await db.maxTests.filter((t) => t.logId === id).toArray();
+      await db.maxTests.bulkDelete(tests.map((t) => t.id));
+      await db.sessionLogs.delete(id);
+      return { log, tests };
+    });
+  }
+
+  async function restoreSessionLog({
+    log,
+    tests,
+  }: {
+    log: SessionLog;
+    tests: readonly MaxTest[];
+  }): Promise<void> {
+    await db.transaction('rw', [db.sessionLogs, db.maxTests], async () => {
+      await db.sessionLogs.put(log);
+      await db.maxTests.bulkPut([...tests]);
+    });
+  }
+
+  /** One check-in per date: saving a date that has one replaces it and keeps its id. */
+  function saveCheckIn(input: Omit<CheckIn, 'id'>, now = new Date()): Promise<CheckIn> {
+    return db.transaction('rw', db.checkIns, async () => {
+      const existing = await db.checkIns.where('date').equals(input.date).first();
+      const record: CheckIn = { ...input, id: existing?.id ?? newLogId(now) };
+      await db.checkIns.put(record);
+      return record;
+    });
+  }
+
+  /** Returns what was deleted, for Undo. */
+  function deleteCheckIn(id: string): Promise<CheckIn | undefined> {
+    return db.transaction('rw', db.checkIns, async () => {
+      const record = await db.checkIns.get(id);
+      await db.checkIns.delete(id);
+      return record;
+    });
+  }
+
+  async function restoreCheckIn(record: CheckIn): Promise<void> {
+    await db.checkIns.put(record);
+  }
+
+  /** Oldest first. */
+  function listCheckIns(): Promise<CheckIn[]> {
+    return db.checkIns.orderBy('date').toArray();
+  }
+
+  /**
+   * Changes some settings, the others as stored (defaults filled in). Read and write happen in one
+   * transaction, so two quick changes never undo each other. The language only matters before a
+   * first save.
+   */
+  async function updateSettings(
+    change: Partial<Settings>,
+    fallbackLanguage: Language = 'en',
+  ): Promise<void> {
+    await db.transaction('rw', db.settings, async () => {
+      await saveSettings({ ...(await getSettings(fallbackLanguage)), ...change });
+    });
+  }
+
+  /** "Not now" on the check-in card. */
+  function dismissCheckIn(now = new Date(), fallbackLanguage?: Language): Promise<void> {
+    return updateSettings({ checkInDismissedAt: now.toISOString() }, fallbackLanguage);
+  }
+
+  function setCheckInPrompt(on: boolean, fallbackLanguage?: Language): Promise<void> {
+    return updateSettings({ checkInPrompt: on }, fallbackLanguage);
+  }
+
+  async function saveMaxTest(test: MaxTest): Promise<void> {
+    await db.maxTests.put(test);
+  }
+
+  /** Oldest first. */
+  async function listMaxTests(): Promise<MaxTest[]> {
+    // `at` is not indexed and the list is small, so sorting here avoids a schema change.
+    return (await db.maxTests.toArray()).sort((a, b) => a.at.localeCompare(b.at));
+  }
+
+  async function deleteMaxTest(id: string): Promise<void> {
+    await db.maxTests.delete(id);
+  }
+
   /** The user's own sessions, most recently changed first. */
   function listCustomSessions(): Promise<CustomSessionRecord[]> {
     return db.customSessions.orderBy('updatedAt').reverse().toArray();
@@ -361,7 +519,23 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     replaceEquipment,
     getActiveProgramme,
     activateProgramme,
+    startNextCycle,
     markWhySeen,
+    markReviewSeen,
+    attachSessionTest,
+    closeSessionTest,
+    deleteSessionLog,
+    restoreSessionLog,
+    saveCheckIn,
+    deleteCheckIn,
+    restoreCheckIn,
+    listCheckIns,
+    updateSettings,
+    dismissCheckIn,
+    setCheckInPrompt,
+    saveMaxTest,
+    listMaxTests,
+    deleteMaxTest,
     completeSetup,
     getOpenSession,
     getSessionLog,

@@ -24,6 +24,8 @@
   "easierFrom": "Easier version of {{from}}, for your level.",
   "easier": "Easier version, for your level.",
   "harderFrom": "Harder version of {{from}}, for your level.",
+  "upgraded": "Moved up to a harder version after your last cycle. Before: {{from}}.",
+  "kept": "Kept from your last cycle: you keep building on it.",
   "harder": "Harder version, for your level.",
   "fallback": "Your equipment doesn’t allow the usual movement ({{wanted}}): this one comes close.",
   "slotDropped": "No {{patterns}} exercise: your equipment doesn’t allow it, so the slot is removed.",

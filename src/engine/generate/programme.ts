@@ -1,7 +1,8 @@
 import { catalogue as defaultCatalogue } from '../../catalogue';
-import type { Exercise, Goal, LocalizedText, Programme, Session } from '../../domain';
-import { equipmentCapabilities, meetsRequirement } from '../equipment';
+import type { Exercise, Generation, Goal, LocalizedText, Programme, Session } from '../../domain';
+import { equipmentCapabilities, meetsRequirement, sameEquipment } from '../equipment';
 import { sessionMinutes, sessionSeconds } from '../duration';
+import { isTestable } from '../testable';
 import { buildSession } from './build';
 import { OVER_TOLERANCE } from './fit';
 import { ownedWeights } from './loads';
@@ -11,7 +12,7 @@ import { SHORT_SESSION_MINUTES, splitFor, template } from './templates';
 import { NoteLog, type Context, type GenerateInput, type TemplateKey } from './types';
 
 /** Bumped whenever the rules change what the same inputs produce. */
-export const GENERATOR_VERSION = 2;
+export const GENERATOR_VERSION = 3;
 
 const PROGRAMME_NAME: Record<Goal, LocalizedText> = {
   muscle: { fr: 'Prise de muscle 8 semaines', en: '8-week muscle gain' },
@@ -34,6 +35,9 @@ export const makeContext = (
   equipment: input.equipment,
   catalogue: new Map(exercises.map((e) => [e.id, e])),
   seed: input.seed ?? 0,
+  cycle: input.cycle ?? 1,
+  lastCycle: new Map(Object.entries(input.lastCycle ?? {})),
+  upgrades: new Map(Object.entries(input.upgrades ?? {})),
   log: new NoteLog(),
 });
 
@@ -191,10 +195,7 @@ const maxTestExercise = (sessions: Session[], ctx: Context): Exercise | undefine
     .map((item) => ctx.catalogue.get(item.exerciseId))
     .filter(
       (e): e is Exercise =>
-        e !== undefined &&
-        e.pattern === 'push-horizontal' &&
-        (e.loadType === 'bodyweight' || e.loadType === 'bodyweight-loadable') &&
-        e.metric === 'reps',
+        e !== undefined && e.pattern === 'push-horizontal' && isTestable(e, ctx.level),
     );
   const fallback = ctx.level === 'beginner' ? 'knee-push-up' : 'push-up';
   return pushUps.find((e) => e.id === 'push-up') ?? pushUps[0] ?? ctx.catalogue.get(fallback);
@@ -222,11 +223,50 @@ const hasCardioFinisher = (sessions: Session[]) =>
  * Generates an 8-week programme from the profile and the equipment. Deterministic: the same
  * inputs and seed always give the same programme. Every choice is recorded as a note.
  */
+/** Each slot's exercise, by `sessionId/slotId`, as generated (before the user's edits). */
+export const slotPicks = (programme: Programme): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const session of programme.generatedRotation ?? programme.rotation)
+    for (const block of [...session.main, ...session.finisher])
+      for (const item of block.type === 'straight' ? [block.item] : block.items)
+        if (item.slot) out[`${session.id}/${item.slot}`] = item.exerciseId;
+  return out;
+};
+
+/**
+ * Last cycle's picks that new equipment leaves alone: a slot where the equipment bought (or
+ * given up) since changes what a fresh programme picks takes the fresh pick instead.
+ */
+const keptPicks = (
+  input: GenerateInput,
+  exercises: readonly Exercise[],
+): Readonly<Record<string, string>> | undefined => {
+  const { lastCycle, lastCycleEquipment } = input;
+  if (!lastCycle || !lastCycleEquipment || sameEquipment(lastCycleEquipment, input.equipment))
+    return lastCycle;
+  const fresh = (equipment: GenerateInput['equipment']) =>
+    slotPicks(
+      generateProgramme(
+        {
+          profile: input.profile,
+          equipment,
+          ...(input.seed !== undefined && { seed: input.seed }),
+          ...(input.cycle !== undefined && { cycle: input.cycle }),
+        },
+        exercises,
+      ),
+    );
+  const before = fresh(lastCycleEquipment);
+  const now = fresh(input.equipment);
+  return Object.fromEntries(Object.entries(lastCycle).filter(([key]) => before[key] === now[key]));
+};
+
 export const generateProgramme = (
   input: GenerateInput,
   exercises: readonly Exercise[] = defaultCatalogue,
 ): Programme => {
-  const ctx = makeContext(input, exercises);
+  const lastCycle = keptPicks(input, exercises);
+  const ctx = makeContext({ ...input, ...(lastCycle && { lastCycle }) }, exercises);
   const { profile } = input;
   const split = splitFor(profile.daysPerWeek, profile.sessionMinutes);
   ctx.log.add('split', {
@@ -289,6 +329,7 @@ export const generateProgramme = (
     level: profile.level,
     cardioFinishers: hasCardioFinisher(rotation),
     addedLoad: canAddLoad(rotation, ctx),
+    cycle: ctx.cycle,
     ...(maxTest ? { maxTest: { exerciseId: maxTest.id, name: maxTest.name } } : {}),
   });
   if (maxTest) ctx.log.add('max-test', { exerciseId: maxTest.id });
@@ -315,7 +356,27 @@ export const generateProgramme = (
       profile,
       equipment: input.equipment,
       seed,
+      ...(ctx.cycle > 1 && { cycle: ctx.cycle }),
+      ...(input.lastCycle &&
+        Object.keys(input.lastCycle).length > 0 && { lastCycle: { ...input.lastCycle } }),
+      ...(input.lastCycle &&
+        input.lastCycleEquipment && { lastCycleEquipment: input.lastCycleEquipment }),
+      ...(input.upgrades &&
+        Object.keys(input.upgrades).length > 0 && { upgrades: { ...input.upgrades } }),
       notes: ctx.log.notes,
     },
   };
 };
+
+/**
+ * What a programme's cycle carries into a regeneration of it (new profile, equipment or seed):
+ * its number, the exercises it rotated away from and its upgrades.
+ */
+export const cycleInputs = (
+  generation: Generation | undefined,
+): Pick<GenerateInput, 'cycle' | 'lastCycle' | 'lastCycleEquipment' | 'upgrades'> => ({
+  ...(generation?.cycle && { cycle: generation.cycle }),
+  ...(generation?.lastCycle && { lastCycle: generation.lastCycle }),
+  ...(generation?.lastCycleEquipment && { lastCycleEquipment: generation.lastCycleEquipment }),
+  ...(generation?.upgrades && { upgrades: generation.upgrades }),
+});

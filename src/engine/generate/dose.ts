@@ -88,6 +88,17 @@ const repsFloor = (reps: RepsSpec, exercise: Exercise): RepsSpec => {
   return reps[0] >= BODYWEIGHT_MIN_REPS ? reps : [BODYWEIGHT_MIN_REPS, Math.max(12, reps[1])];
 };
 
+/** Moves that cramp or break form in long sets: their range never goes past this. */
+const REP_CEILING: Readonly<Record<string, number>> = {
+  'hamstring-bridge-walkout': 8,
+};
+
+const repsCeiling = (reps: RepsSpec, exercise: Exercise): RepsSpec => {
+  const ceiling = REP_CEILING[exercise.id];
+  if (reps === 'max' || ceiling === undefined || reps[1] <= ceiling) return reps;
+  return [Math.min(reps[0], ceiling - 2), ceiling];
+};
+
 export interface ItemDose {
   target: Target;
   rir?: number;
@@ -112,6 +123,7 @@ export const itemDose = (
     let reps = repsForLoadType(base, exercise);
     reps = repsForGoal(reps, slot.role, goal, exercise);
     reps = repsFloor(reps, exercise);
+    reps = repsCeiling(reps, exercise);
     reps = EXERCISE_REPS[exercise.id] ?? reps;
     target = reps === 'max' ? { kind: 'max' } : { kind: 'reps', min: reps[0], max: reps[1] };
   }
@@ -159,6 +171,7 @@ export const redose = (
           : [8, 12];
     reps = repsForLoadType(reps, exercise);
     reps = repsFloor(reps, exercise);
+    reps = repsCeiling(reps, exercise);
     reps = EXERCISE_REPS[exercise.id] ?? reps;
     target = reps === 'max' ? { kind: 'max' } : { kind: 'reps', min: reps[0], max: reps[1] };
   }
@@ -180,6 +193,7 @@ export const fitTarget = (target: Target, exercise: Exercise): Target => {
   let reps: RepsSpec = [target.min, target.max];
   reps = repsForLoadType(reps, exercise);
   reps = repsFloor(reps, exercise);
+  reps = repsCeiling(reps, exercise);
   reps = EXERCISE_REPS[exercise.id] ?? reps;
   return reps === 'max' ? { kind: 'max' } : { kind: 'reps', min: reps[0], max: reps[1] };
 };

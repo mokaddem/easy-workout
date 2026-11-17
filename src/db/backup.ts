@@ -4,6 +4,7 @@ import {
   CheckInSchema,
   DateTimeSchema,
   EquipmentItemSchema,
+  IdSchema,
   MaxTestSchema,
   ProfileSchema,
   ProgrammeSchema,
@@ -16,16 +17,19 @@ import { defaultSettings } from './repo';
 
 export const BACKUP_FORMAT = 'easy-workout-backup';
 /** Raised whenever the stored shape changes; older files are migrated on import. */
-export const BACKUP_SCHEMA_VERSION = 3;
+export const BACKUP_SCHEMA_VERSION = 4;
 
 const ProgrammeRecordSchema = z
   .looseObject({
     status: z.enum(['active', 'completed', 'archived']),
     startedAt: DateTimeSchema.optional(),
     whySeen: z.boolean().optional(),
+    endedAt: DateTimeSchema.optional(),
+    previousId: IdSchema.optional(),
+    reviewSeenAt: DateTimeSchema.optional(),
   })
   .transform((record, ctx) => {
-    const { status, startedAt, whySeen, ...programme } = record;
+    const { status, startedAt, whySeen, endedAt, previousId, reviewSeenAt, ...programme } = record;
     const parsed = ProgrammeSchema.safeParse(programme);
     if (!parsed.success) {
       for (const issue of parsed.error.issues) ctx.addIssue({ ...issue, code: 'custom' });
@@ -36,6 +40,9 @@ const ProgrammeRecordSchema = z
       status,
       ...(startedAt && { startedAt }),
       ...(whySeen !== undefined && { whySeen }),
+      ...(endedAt && { endedAt }),
+      ...(previousId && { previousId }),
+      ...(reviewSeenAt && { reviewSeenAt }),
     };
     return result;
   });
@@ -113,6 +120,8 @@ const MIGRATIONS: Record<number, (data: unknown) => unknown> = {
   1: (data) => (data && typeof data === 'object' ? { answers: [], ...data } : data),
   /** Version 3 adds edited and replaced programme sessions; earlier files have none. */
   2: (data) => data,
+  /** Version 4 adds tests run in sessions, cycles and check-in settings; nothing to convert. */
+  3: (data) => data,
 };
 
 /** Checks a file read from disk before anything is replaced. */

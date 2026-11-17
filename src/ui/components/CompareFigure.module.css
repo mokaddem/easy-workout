@@ -1,0 +1,85 @@
+.cmp {
+  position: relative;
+}
+.visual {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.cell {
+  display: grid;
+  gap: 6px;
+}
+.num {
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--type-numeral-tracking);
+  white-space: nowrap;
+}
+.old {
+  font-size: var(--font-size-48);
+  line-height: 0.8;
+  color: var(--color-text-muted);
+}
+.new {
+  font-size: var(--font-size-96);
+  line-height: 0.78;
+}
+.new small,
+.old small {
+  margin-left: 4px;
+  font-size: var(--font-size-24);
+  letter-spacing: 0;
+  color: var(--color-text-muted);
+}
+.cap {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+.arrow {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 26px;
+  color: var(--color-text-muted);
+}
+.tag {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.medium .old {
+  font-size: var(--font-size-24);
+  line-height: 1;
+}
+.medium .new {
+  font-size: var(--font-size-48);
+  line-height: 0.82;
+}
+.medium .new small {
+  font-size: var(--font-size-18);
+}
+.medium .visual {
+  align-items: baseline;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+.medium .arrow {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 0;
+  align-self: center;
+}
+.sr {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -1,4 +1,4 @@
-export { generateProgramme, GENERATOR_VERSION } from './programme';
+export { cycleInputs, generateProgramme, GENERATOR_VERSION } from './programme';
 export type { GenerateInput } from './types';
 export { generateQuickSession, QUICK_FOCUSES } from './quick';
 export type { QuickFocus, QuickSession, QuickSessionInput } from './quick';

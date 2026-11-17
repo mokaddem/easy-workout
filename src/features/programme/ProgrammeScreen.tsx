@@ -1,21 +1,26 @@
 import { AnimatePresence, m } from 'motion/react';
 import { EXIT_RATIO, Reposition, useMotionTokens, type RepositionAnchor } from '@/motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveProgramme,
+  useAnswers,
+  useCheckIns,
   useEquipment,
+  useMaxTests,
   useOpenSession,
   useProfile,
   useSessionLogs,
+  useSettings,
 } from '@/app/data';
 import { nextSession, programmeFreshness } from '@/app/programme-state';
-import { usePendingProposals, usePreparedSession } from '@/app/progress';
+import { usePendingProposals, usePreparedSession, useProgressContext } from '@/app/progress';
 import { handleLinkClick, navigate, routeHref, type Route } from '@/app/router';
 import type { Language, Phase } from '@/domain';
-import { phaseForWeek, sessionForWeek, type Proposal } from '@/engine';
+import { checkInDue, cycleReview, phaseForWeek, sessionForWeek, type Proposal } from '@/engine';
 import { repo } from '@/db/repo';
-import { AppBar, Button, Card, Icon, Skeleton } from '@/ui/components';
+import { AppBar, Button, Card, Icon, Skeleton, useToast } from '@/ui/components';
+import { CheckInSheet } from '../checkin';
 import { useBegin } from '../play/begin';
 import { ResumeBanner } from '../play/components/ResumeBanner';
 import { clearSummary } from '../play/lifecycle';
@@ -39,6 +44,9 @@ import { PhaseSheet } from './PhaseSheet';
 import { ProgrammeWhySheet } from './ProgrammeWhySheet';
 import { RotationGrid } from './RotationGrid';
 import { placeState } from './edits';
+import { CheckInSlot, CycleEndCard } from './CycleCards';
+import { sessionTest } from './cycleTest';
+import { dayMonth } from './testFormat';
 import { equipmentGapCount, hasEquipmentGaps } from './why';
 import styles from './Overview.module.css';
 
@@ -52,6 +60,14 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const logs = useSessionLogs();
   const openSession = useOpenSession();
   const { begin, dialog: beginDialog } = useBegin();
+  const settings = useSettings();
+  const checkIns = useCheckIns();
+  const maxTests = useMaxTests();
+  const answers = useAnswers();
+  const progressCtx = useProgressContext();
+  const toast = useToast();
+  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [now] = useState(() => new Date());
 
   const [preview, setPreview] = useState<PreviewMode | null>(
     route.preview === 'new' ? 'new' : null,
@@ -67,6 +83,55 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const current = record ? nextSession(record, logs) : null;
   const pending = usePendingProposals(record, current?.week);
   const prepared = usePreparedSession(record, current?.sessionId, current?.week);
+
+  const testCtx = useMemo(
+    () =>
+      progressCtx
+        ? {
+            ...progressCtx,
+            ...(progressCtx.profile?.level && { level: progressCtx.profile.level }),
+            ...(progressCtx.profile?.bodyweightKg !== undefined && {
+              bodyweightKg: progressCtx.profile.bodyweightKg,
+            }),
+            maxTests: progressCtx.maxTests ?? [],
+          }
+        : undefined,
+    [progressCtx],
+  );
+  const finished = record && current ? current.finished : false;
+  const review = useMemo(() => {
+    if (
+      !record ||
+      !profile ||
+      !finished ||
+      !logs ||
+      !progressCtx ||
+      !checkIns ||
+      !maxTests ||
+      !answers
+    )
+      return undefined;
+    const done = logs.filter(
+      (l) => l.source.kind === 'programme' && l.source.programmeId === record.id,
+    );
+    const until =
+      record.endedAt ??
+      done
+        .map((l) => l.endedAt ?? l.startedAt)
+        .sort()
+        .pop() ??
+      now.toISOString();
+    return cycleReview(record, {
+      logs,
+      programmes: progressCtx.programmes,
+      answers,
+      maxTests,
+      checkIns,
+      level: profile.level,
+      ...(profile.bodyweightKg !== undefined && { bodyweightKg: profile.bodyweightKg }),
+      until,
+    });
+  }, [record, profile, finished, logs, progressCtx, checkIns, maxTests, answers, now]);
 
   // The preview URL only opens the sheet once.
   const [opened, setOpened] = useState(route.preview === 'new');
@@ -103,6 +168,51 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
   const sessions = record.rotation.length - cardioDays;
   const shown = prepared?.session ?? plan.session;
   const cardio = finisherCardio(shown);
+  const testView =
+    record && testCtx && !position.finished
+      ? sessionTest(record, position.sessionId, position.week, testCtx)
+      : undefined;
+  const runsTest = testView?.kind === 'run' ? testView : undefined;
+  const cycle = record.generation?.cycle ?? 1;
+  const due =
+    settings && checkIns && logs
+      ? checkInDue(checkIns, settings, logs, now) && !openSession
+      : false;
+  const lastCheckIn =
+    checkIns && checkIns.length > 0
+      ? [...checkIns].sort((a, b) => b.date.localeCompare(a.date))[0]
+      : undefined;
+  const daysSince = lastCheckIn
+    ? Math.max(
+        0,
+        Math.floor((now.getTime() - Date.parse(`${lastCheckIn.date}T12:00:00`)) / 86_400_000),
+      )
+    : undefined;
+  const hideCheckIn = async () => {
+    const previous = settings?.checkInDismissedAt;
+    await repo.dismissCheckIn();
+    const until = new Date(Date.now() + 7 * 86_400_000);
+    toast.show({
+      message: t('programme.checkin.hidden', { date: dayMonth(until.toISOString(), lang) }),
+      action: {
+        label: t('programme.checkin.undo'),
+        onAction: () => {
+          void (async () => {
+            const { checkInDismissedAt: _drop, ...rest } = await repo.getSettings(lang);
+            await repo.saveSettings({ ...rest, ...(previous && { checkInDismissedAt: previous }) });
+          })();
+        },
+      },
+    });
+  };
+  const checkInCard = (
+    <CheckInSlot
+      show={Boolean(due)}
+      daysSince={daysSince}
+      onOpen={() => setCheckInOpen(true)}
+      onLater={() => void hideCheckIn()}
+    />
+  );
   const buyNext = pending?.buyNext ?? [];
   const gapCount = (hasEquipmentGaps(notes) ? equipmentGapCount(notes) : 0) + buyNext.length;
   const gaps = gapCount > 0;
@@ -144,6 +254,15 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
     if (whyOnce) dismissWhy();
   };
 
+  const baseMeta =
+    cardioDays > 0
+      ? t('programme.meta.withCardio', {
+          weeks: record.weeks,
+          count: sessions,
+          cardio: cardioDays,
+        })
+      : t('programme.meta.plain', { weeks: record.weeks, count: sessions });
+
   const reasons = [
     { icon: 'calendar', text: t('programme.whyCard.schedule', { count: sessions, sessions }) },
     {
@@ -165,15 +284,7 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
     <>
       <AppBar
         title={record.name[lang]}
-        meta={
-          cardioDays > 0
-            ? t('programme.meta.withCardio', {
-                weeks: record.weeks,
-                count: sessions,
-                cardio: cardioDays,
-              })
-            : t('programme.meta.plain', { weeks: record.weeks, count: sessions })
-        }
+        meta={cycle > 1 ? t('programme.meta.cycle', { cycle, meta: baseMeta }) : baseMeta}
         actions={
           <OptionsMenu
             actions={[
@@ -299,7 +410,10 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
           <div
             className={styles.heroWeek}
             role="img"
-            aria-label={t('programme.hero.weekOf', { week: position.week, total: record.weeks })}
+            aria-label={t(position.finished ? 'programme.hero.weekDone' : 'programme.hero.weekOf', {
+              week: position.week,
+              total: record.weeks,
+            })}
           >
             <span className={styles.heroLabel}>{t('programme.hero.week')}</span>
             <span className={styles.heroRow}>
@@ -314,12 +428,34 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
               <i
                 key={i}
                 className={
-                  i + 1 < position.week ? styles.done : i + 1 === position.week ? styles.cur : ''
+                  i + 1 < position.week || position.finished
+                    ? styles.done
+                    : i + 1 === position.week
+                      ? styles.cur
+                      : ''
                 }
               />
             ))}
           </div>
-          {currentPhase ? (
+          {position.finished ? (
+            <div className={styles.heroPhase}>
+              <h2 className={styles.phaseTitle}>{t('programme.hero.cycleDone')}</h2>
+              <p className={styles.muted}>
+                {record.reviewSeenAt && review?.sessions.last
+                  ? t('programme.hero.cycleWaiting', {
+                      count: Math.max(
+                        0,
+                        Math.floor((now.getTime() - Date.parse(review.sessions.last)) / 86_400_000),
+                      ),
+                    })
+                  : t(
+                      record.reviewSeenAt
+                        ? 'programme.hero.cycleDoneSeen'
+                        : 'programme.hero.cycleDoneLine',
+                    )}
+              </p>
+            </div>
+          ) : currentPhase ? (
             <div className={styles.heroPhase}>
               <h2 className={styles.phaseTitle}>
                 {t('programme.hero.phase', {
@@ -363,62 +499,88 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
         </AnimatePresence>
         {ordered.length === 0 ? equipmentNudge : null}
 
-        <Card as="article" className={`${styles.card} ${styles.next}`}>
-          <div>
-            <p className={styles.nextLabel}>{t('programme.next.label')}</p>
-            <h2 className={styles.nextTitle}>{identity.fullName}</h2>
-            {plan.session.focus ? (
-              <p className={styles.nextMuscles}>{plan.session.focus[lang]}</p>
-            ) : null}
-          </div>
-          <ul className={styles.facts}>
-            <li>
-              <Icon name="clock" size={20} />
-              <span>
-                ~{shown.estimatedMinutes} {t('labels.unit.min')}
-              </span>
-            </li>
-            {exerciseCount(shown) > 0 ? (
+        {position.finished && !openIsNext ? (
+          <CycleEndCard
+            programmeId={record.id}
+            cycle={cycle}
+            seen={Boolean(record.reviewSeenAt)}
+            {...(review?.sessions.first && { first: review.sessions.first })}
+            {...(review?.sessions.last && { last: review.sessions.last })}
+            {...(review?.test && { test: review.test })}
+            resuming={Boolean(openSession)}
+          />
+        ) : (
+          <Card as="article" className={`${styles.card} ${styles.next}`}>
+            <div>
+              <p className={styles.nextLabel}>{t('programme.next.label')}</p>
+              <h2 className={styles.nextTitle}>{identity.fullName}</h2>
+              {plan.session.focus ? (
+                <p className={styles.nextMuscles}>{plan.session.focus[lang]}</p>
+              ) : null}
+            </div>
+            <ul className={styles.facts}>
               <li>
-                <Icon name="list" size={20} />
+                <Icon name="clock" size={20} />
                 <span>
-                  {t('programme.session.exercisesCount', { count: exerciseCount(shown) })}
+                  ~{shown.estimatedMinutes + (runsTest ? 5 : 0)} {t('labels.unit.min')}
                 </span>
               </li>
-            ) : null}
-            {cardio ? (
-              <li>
-                <Icon name="incline" size={20} />
-                <span>
-                  {exerciseName(cardio.exerciseId, lang)}, {cardio.minutes} {t('labels.unit.min')}
-                </span>
-              </li>
-            ) : null}
-          </ul>
-          <Button
-            size="player"
-            fullWidth
-            icon="play"
-            variant={openSession ? 'secondary' : 'primary'}
-            onClick={() => {
-              if (openSession && openIsNext) {
-                clearSummary();
-                navigate({ name: 'play' });
-                return;
-              }
-              void begin(() => startProgrammeSession(record, equipment), identity.fullName);
-            }}
-            disabled={position.finished && !openIsNext}
-          >
-            {t(openIsNext ? 'programme.resumeSession' : 'programme.start')}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => navigate({ name: 'session', sessionId: position.sessionId })}
-          >
-            {t('programme.next.details')}
-          </Button>
-        </Card>
+              {exerciseCount(shown) > 0 ? (
+                <li>
+                  <Icon name="list" size={20} />
+                  <span>
+                    {t('programme.session.exercisesCount', { count: exerciseCount(shown) })}
+                  </span>
+                </li>
+              ) : null}
+              {runsTest ? (
+                <li>
+                  <Icon name="target" size={20} />
+                  <span>
+                    {t(
+                      runsTest.placement === 'end'
+                        ? 'programme.next.testFact'
+                        : 'programme.next.testFactFirst',
+                      { name: exerciseName(runsTest.exerciseId, lang) },
+                    )}
+                  </span>
+                </li>
+              ) : null}
+              {cardio ? (
+                <li>
+                  <Icon name="incline" size={20} />
+                  <span>
+                    {exerciseName(cardio.exerciseId, lang)}, {cardio.minutes} {t('labels.unit.min')}
+                  </span>
+                </li>
+              ) : null}
+            </ul>
+            <Button
+              size="player"
+              fullWidth
+              icon="play"
+              variant={openSession ? 'secondary' : 'primary'}
+              onClick={() => {
+                if (openSession && openIsNext) {
+                  clearSummary();
+                  navigate({ name: 'play' });
+                  return;
+                }
+                void begin(() => startProgrammeSession(record, equipment), identity.fullName);
+              }}
+              disabled={position.finished && !openIsNext}
+            >
+              {t(openIsNext ? 'programme.resumeSession' : 'programme.start')}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate({ name: 'session', sessionId: position.sessionId })}
+            >
+              {t('programme.next.details')}
+            </Button>
+          </Card>
+        )}
+        {checkInCard}
 
         {ordered.length > 0 ? equipmentNudge : null}
 
@@ -429,7 +591,13 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
             </h2>
             <p className={styles.small}>{t('programme.rotation.intro')}</p>
           </div>
-          <RotationGrid programme={record} position={position} onPhase={setPhase} />
+          <RotationGrid
+            programme={record}
+            position={
+              position.finished ? { ...position, week: record.weeks + 1, index: 0 } : position
+            }
+            onPhase={setPhase}
+          />
         </section>
 
         <section className={styles.list} aria-labelledby="slist-title">
@@ -495,6 +663,11 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
       />
       <ProgrammeWhySheet programme={record} open={whyOpen} onClose={() => setWhyOpen(false)} />
       {beginDialog}
+      <CheckInSheet
+        open={checkInOpen}
+        onClose={() => setCheckInOpen(false)}
+        onSaved={() => toast.show({ message: t('checkin.saved') })}
+      />
       <ChangePreviewSheet
         mode={preview}
         current={record}

@@ -388,6 +388,21 @@ const walkingLunge: SlotSpec = {
   reps: [12, 12],
 };
 
+const hingeShort: SlotSpec = {
+  id: 'hinge-short',
+  role: 'accessory',
+  patterns: ['hinge'],
+  fallbackPatterns: ['hip-extension'],
+  tag: 'compound',
+  prefer: [
+    'dumbbell-romanian-deadlift',
+    'single-leg-romanian-deadlift',
+    'supported-single-leg-romanian-deadlift',
+    'heels-on-chair-bridge',
+  ],
+  reps: [10, 12],
+};
+
 const hingeTempo: SlotSpec = {
   id: 'hinge-tempo',
   role: 'secondary',
@@ -398,7 +413,7 @@ const hingeTempo: SlotSpec = {
     'dumbbell-romanian-deadlift',
     'single-leg-romanian-deadlift',
     'band-pull-through',
-    'good-morning',
+    'supported-single-leg-romanian-deadlift',
   ],
   reps: [10, 10],
   tempo: eccentricTempo,
@@ -424,7 +439,13 @@ const hipThrust: SlotSpec = {
   role: 'accessory',
   patterns: ['hip-extension'],
   tag: 'compound',
-  prefer: ['bench-hip-thrust', 'floor-hip-thrust', 'single-leg-glute-bridge', 'glute-bridge'],
+  prefer: [
+    'bench-hip-thrust',
+    'floor-hip-thrust',
+    'single-leg-glute-bridge',
+    'heels-on-chair-bridge',
+    'glute-bridge',
+  ],
   reps: [15, 15],
 };
 
@@ -439,6 +460,7 @@ const legCurl: SlotSpec = {
     'suspension-hamstring-curl',
     'single-leg-sliding-leg-curl',
     'nordic-curl-eccentric',
+    'hamstring-bridge-walkout',
   ],
   reps: [10, 12],
 };
@@ -768,7 +790,8 @@ const templates: SessionTemplate[] = [
       straight(lungeMain, 3, 90),
       straight(pressVerticalMain, 3, 90),
       straight(rowBilateral, 3, 75, 2),
-      straight(vary(pushSecond, { role: 'accessory' }), 3, 75, 2),
+      // Session B's only horizontal press: a two-day week has no other chest work.
+      { ...straight(vary(pushSecond, { role: 'accessory' }), 3, 75, 2), keepUpToDays: 2 },
       straight(vary(hipThrust, { reps: [12, 15] }), 3, 75, 3),
       group('superset', 3, 60, [sidePlank, rotation], 3),
     ],
@@ -809,7 +832,8 @@ const templates: SessionTemplate[] = [
         3,
         90,
       ),
-      straight(walkingLunge, 3, 75),
+      // Short sessions already squat twice a week: their second lower slot hinges instead.
+      { ...straight(walkingLunge, 3, 75), shortSlot: hingeShort },
       straight(pullVerticalSecond, 3, 90, 2),
       straight(pressVertical, 3, 75, 2),
       straight(legCurl, 3, 60, 2),
