@@ -38,6 +38,7 @@ import { useBackupReminder } from '../settings/useBackupReminder';
 import { PhaseSheet } from './PhaseSheet';
 import { ProgrammeWhySheet } from './ProgrammeWhySheet';
 import { RotationGrid } from './RotationGrid';
+import { placeState } from './edits';
 import { equipmentGapCount, hasEquipmentGaps } from './why';
 import styles from './Overview.module.css';
 
@@ -438,6 +439,7 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
           <div className={styles.rows}>
             {record.rotation.map((session, i) => {
               const id = identities[i]!;
+              const state = placeState(record, session.id);
               const href = routeHref({ name: 'session', sessionId: session.id });
               return (
                 <a
@@ -446,7 +448,9 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
                   href={href}
                   onClick={(event) => handleLinkClick(event, href)}
                 >
-                  <span className={styles.rowId}>
+                  <span
+                    className={`${styles.rowId} ${state.kind === 'placed' ? styles.rowIdMine : ''}`}
+                  >
                     {id.letter ? (
                       <span className={styles.num}>{id.letter}</span>
                     ) : (
@@ -456,7 +460,16 @@ export function ProgrammeScreen({ route }: { route: Extract<Route, { name: 'prog
                   <span className={styles.rowText}>
                     <span className={styles.rowName}>{id.title}</span>
                     <span className={styles.rowMeta}>
-                      ~{session.estimatedMinutes} {t('labels.unit.min')}
+                      {state.kind === 'placed'
+                        ? t('programme.sessions.mineMeta', {
+                            minutes: session.estimatedMinutes,
+                            name: state.generatedName[lang],
+                          })
+                        : state.kind === 'edited'
+                          ? t('programme.sessions.editedMeta', {
+                              minutes: session.estimatedMinutes,
+                            })
+                          : `~${session.estimatedMinutes} ${t('labels.unit.min')}`}
                     </span>
                   </span>
                   <Icon name="chev-right" size={20} />

@@ -1,12 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { exerciseById } from '../src/catalogue';
-import type { Answer, EquipmentInventory, Profile, Programme, SessionItem } from '../src/domain';
+import type {
+  Answer,
+  Block,
+  EquipmentInventory,
+  Profile,
+  Programme,
+  SessionItem,
+  SessionLog,
+} from '../src/domain';
 import {
   generateProgramme,
   generateQuickSession,
   nextTime,
   playSteps,
   prepareSession,
+  suggestPlacing,
   type ProgressContext,
 } from '../src/engine';
 import { parseBackup } from '../src/db/backup';
@@ -279,6 +288,25 @@ describe('pain', () => {
     expect(swapped.prepared[nextA]!.proposals.some((p) => p.kind === 'pain')).toBe(false);
   });
 
+  it('a pain stop in a session outside the programme still makes the next one lighter', () => {
+    const [painLog] = run().logs;
+    const own = { ...painLog!, source: { kind: 'custom' as const, sessionId: 'my-session' } };
+    const ctx: ProgressContext = {
+      logs: [own],
+      programmes: [referenceProgramme],
+      answers: [],
+      inventory: referenceEquipment,
+      now: new Date('2026-01-07T08:00:00.000Z'),
+      exercises: exerciseById,
+    };
+    const ready = prepareSession(referenceProgramme.rotation[0]!, ctx);
+    expect(ready.notes['main/0/0']).toMatchObject({ code: 'pain-lighter' });
+    expect(ready.proposals.find((p) => p.kind === 'pain')).toMatchObject({ logId: painLog!.id });
+    expect(nextTime(own, referenceProgramme, ctx).proposals).toEqual([
+      expect.objectContaining({ kind: 'pain', exerciseId: floorPress, logId: painLog!.id }),
+    ]);
+  });
+
   it('a second pain stop drops "keep"', () => {
     const twice: Policy = (s) =>
       (s.session === firstA || s.session === nextA) &&
@@ -423,5 +451,161 @@ describe('backups', () => {
       },
     });
     expect(parsed.ok && parsed.backup.data.answers).toEqual([]);
+  });
+});
+
+describe('range edits', () => {
+  const size = referenceProgramme.rotation.length;
+  const sim = simulate(referenceProgramme, referenceEquipment, oneTap, { sessions: 5 * size });
+  const ctx: ProgressContext = {
+    logs: sim.logs,
+    programmes: [referenceProgramme],
+    answers: [],
+    inventory: referenceEquipment,
+    now: new Date(Date.parse(sim.logs.at(-1)!.startedAt) + 86_400_000),
+    exercises: exerciseById,
+  };
+  const session = referenceProgramme.rotation.find((s) => s.id === 'c-lower-core')!;
+  const lead = session.main[0]!;
+  const kg = (block: Block | undefined) =>
+    block?.type === 'straight' && block.item.load?.kind === 'kg' ? block.item.load.kg : NaN;
+  const withRange = (min: number, max: number) =>
+    prepareSession(
+      {
+        ...session,
+        main: [
+          lead.type === 'straight'
+            ? { ...lead, item: { ...lead.item, target: { kind: 'reps', min, max } } }
+            : lead,
+          ...session.main.slice(1),
+        ],
+      },
+      ctx,
+    ).session.main[0];
+  const built = kg(prepareSession(session, ctx).session.main[0]);
+
+  it('keeps what a one-tapper built up when the range changes', () => {
+    expect(lead.type === 'straight' && lead.item.exerciseId).toBe('goblet-squat');
+    expect(built).toBeGreaterThan(kg(lead));
+    expect(kg(withRange(12, 15))).toBeGreaterThan(kg(lead));
+  });
+
+  it('goes at most one step heavier for a lower range', () => {
+    const heavier = kg(withRange(5, 6));
+    expect(heavier).toBeGreaterThanOrEqual(built);
+    expect(heavier - built).toBeLessThanOrEqual(2);
+  });
+});
+
+describe("sessions of the user's own, on their own", () => {
+  const session = {
+    ...referenceProgramme.rotation.find((s) => s.id === 'c-lower-core')!,
+    id: 'own-1',
+  };
+  const goblet = (s: typeof session) => {
+    const b = s.main[0]!;
+    return b.type === 'straight' ? b.item : undefined;
+  };
+  const run = (at: string, kg: number): SessionLog => ({
+    id: `own-${at}`,
+    source: { kind: 'custom', sessionId: 'own-1' },
+    plan: session,
+    status: 'completed',
+    startedAt: at,
+    endedAt: at,
+    countsAsDone: true,
+    sets: [
+      {
+        section: 'main',
+        blockIndex: 0,
+        itemIndex: 0,
+        set: 1,
+        exerciseId: 'goblet-squat',
+        planned: { target: { kind: 'reps', min: 8, max: 10 }, load: { kind: 'kg', kg: 14 } },
+        actual: { reps: 10, load: { kind: 'kg', kg } },
+        edited: true,
+        feel: 'right',
+        at,
+      },
+    ],
+  });
+  const ctx = (logs: SessionLog[]): ProgressContext => ({
+    logs,
+    programmes: [referenceProgramme],
+    answers: [],
+    inventory: referenceEquipment,
+    now: new Date('2026-02-01T08:00:00.000Z'),
+    exercises: exerciseById,
+  });
+
+  it('remember the load of their last run, and move nothing', () => {
+    const logs = [run('2026-01-10T08:00:00.000Z', 16), run('2026-01-20T08:00:00.000Z', 18)];
+    const own = prepareSession(session, ctx(logs), 'quick', { ownSessionId: 'own-1' });
+    expect(goblet(own.session)?.load).toEqual({ kind: 'kg', kg: 18 });
+    const programme = prepareSession(
+      referenceProgramme.rotation.find((s) => s.id === 'c-lower-core')!,
+      ctx(logs),
+    );
+    expect(goblet(programme.session)?.load).toEqual(goblet(session)?.load);
+  });
+
+  it('suggest the programme after three runs in three weeks', () => {
+    const now = new Date('2026-01-25T08:00:00.000Z');
+    const two = [run('2026-01-10T08:00:00.000Z', 16), run('2026-01-20T08:00:00.000Z', 16)];
+    expect(suggestPlacing(two, 'own-1', now)).toBe(false);
+    expect(suggestPlacing([...two, run('2026-01-24T08:00:00.000Z', 16)], 'own-1', now)).toBe(true);
+  });
+});
+
+describe('coming back to a range', () => {
+  const size = referenceProgramme.rotation.length;
+  const lower = referenceProgramme.rotation.find((s) => s.id === 'c-lower-core')!;
+  const lead = lower.main[0]!;
+  const kg = (block: Block | undefined) =>
+    block?.type === 'straight' && block.item.load?.kind === 'kg' ? block.item.load.kg : NaN;
+  const heavy: Programme = {
+    ...referenceProgramme,
+    rotation: referenceProgramme.rotation.map((s) =>
+      s.id === lower.id && lead.type === 'straight'
+        ? {
+            ...s,
+            main: [
+              { ...lead, item: { ...lead.item, target: { kind: 'reps', min: 5, max: 6 } } },
+              ...s.main.slice(1),
+            ],
+          }
+        : s,
+    ),
+  };
+  const first = simulate(referenceProgramme, referenceEquipment, oneTap, { sessions: 3 * size });
+  const before = kg(first.prepared[2 * size + 2]?.session.main[0]);
+  const then = simulate(heavy, referenceEquipment, oneTap, {
+    sessions: 4 * size,
+    logs: first.logs,
+    start: new Date(Date.parse(first.logs.at(-1)!.startedAt) + 86_400_000),
+  });
+  const ctx = (role?: 'deload'): [ProgressContext, { role?: 'deload' }] => [
+    {
+      logs: then.logs,
+      programmes: [referenceProgramme],
+      answers: [],
+      inventory: referenceEquipment,
+      now: new Date(Date.parse(then.logs.at(-1)!.startedAt) + 86_400_000),
+      exercises: exerciseById,
+    },
+    role ? { role } : {},
+  ];
+
+  it('never drops more than one step under what was lifted in that range', () => {
+    expect(before).toBeGreaterThan(0);
+    const [c, o] = ctx();
+    const back = kg(prepareSession(lower, c, 'programme', o).session.main[0]);
+    expect(back).toBeGreaterThanOrEqual(before - 2);
+  });
+
+  it("stays on that range's own history in a deload week", () => {
+    const [c, o] = ctx('deload');
+    const back = kg(prepareSession(lower, c, 'programme', o).session.main[0]);
+    expect(back).toBeGreaterThanOrEqual(before - 2);
   });
 });

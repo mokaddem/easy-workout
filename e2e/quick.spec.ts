@@ -14,7 +14,7 @@ test('compose a 20-minute push session, shuffle it and start it', async ({ page 
   await page.getByRole('button', { name: 'Build my session' }).click();
 
   await expect(page.getByRole('heading', { level: 1, name: 'Push' })).toBeVisible();
-  await expect(page.getByText('Not saved until you start it.')).toBeVisible();
+  await expect(page.getByText(/Not saved until you start it/)).toBeVisible();
 
   // Push has a single template: nothing else to shuffle to.
   await expect(page.getByText('No other combination with this equipment.')).toBeVisible();

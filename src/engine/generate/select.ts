@@ -12,7 +12,7 @@ import {
   type EquipmentCapabilities,
 } from '../equipment';
 import { tieBreak } from './hash';
-import { externalLoad } from './loads';
+import { NOT_MAIN_LIFT, NOT_ON_DOORWAY_BAR, onlyDoorwayBars, setupConcern } from './safety';
 import type { Context, SlotRole, SlotSpec } from './types';
 
 /** Hardest difficulty offered at each level. */
@@ -29,12 +29,6 @@ export const LEVEL_CAP: Record<Level, number> = {
  */
 export const levelCap = (level: Level, exercise: Exercise): number =>
   level === 'returning' && exercise.loadType !== 'external' ? 3 : LEVEL_CAP[level];
-
-/** Supplementary lifts that never carry a session: the renegade row is limited by the plank. */
-const NOT_MAIN_LIFT: readonly string[] = ['renegade-row'];
-
-/** Kipping-prone bar work that a door frame should not take. */
-const NOT_ON_DOORWAY_BAR: readonly string[] = ['toes-to-bar'];
 
 /** Difficulty the generic ranking aims for at each level. */
 const LEVEL_TARGET: Record<Level, number> = {
@@ -122,33 +116,6 @@ export interface Selection {
   instead?: { id: string; missing: string[] };
 }
 
-const needsJumpRope = (setup: readonly EquipmentRequirement[]) =>
-  setup.some((req) => req.kind === 'jump-rope');
-
-const onlyDoorwayBars = (ctx: Context) => {
-  const bars = ctx.equipment.filter((item) => item.kind === 'pull-up-bar');
-  return (
-    bars.length > 0 && bars.every((bar) => bar.kind === 'pull-up-bar' && bar.mount === 'doorway')
-  );
-};
-
-/** The setup uses dumbbells and every dumbbell owned is a selector set, which must not be swung. */
-const needsSelectorDumbbells = (setup: readonly EquipmentRequirement[], ctx: Context) =>
-  setup.some((req) => req.kind === 'dumbbell') &&
-  ctx.equipment
-    .filter((item) => item.kind === 'dumbbell')
-    .every(
-      (item) => item.kind === 'dumbbell' && 'mechanism' in item && item.mechanism === 'selector',
-    );
-
-/** Some owned weight is a sensible starting load for this person. */
-const loadFits = (exercise: Exercise, setup: readonly EquipmentRequirement[], ctx: Context) =>
-  externalLoad(exercise, setup, {
-    inventory: ctx.equipment,
-    level: ctx.level,
-    bodyweightKg: ctx.profile.bodyweightKg,
-  }) !== undefined;
-
 /** Hard filters: what a slot may never receive. */
 const eligible = (
   exercise: Exercise,
@@ -171,16 +138,16 @@ const eligible = (
     !exercise.primaryMuscles.some((m) => slot.muscles?.includes(m))
   )
     return null;
-  if (NOT_ON_DOORWAY_BAR.includes(exercise.id) && onlyDoorwayBars(ctx)) return null;
+  if (NOT_ON_DOORWAY_BAR.includes(exercise.id) && onlyDoorwayBars(ctx.equipment)) return null;
   const used = slot.role === 'warmup' ? state.warmup : state.session;
   if (used.has(exercise.id)) return null;
+  const loadCtx = {
+    inventory: ctx.equipment,
+    level: ctx.level,
+    ...(ctx.profile.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
+  };
   const setups = usableSetups(exercise, capabilities).filter(
-    (setup) =>
-      (ctx.level !== 'beginner' || !needsJumpRope(setup)) &&
-      (!exercise.tags.includes('ballistic') || !needsSelectorDumbbells(setup, ctx)) &&
-      (slot.role === 'warmup' ||
-        exercise.loadType !== 'external' ||
-        loadFits(exercise, setup, ctx)),
+    (setup) => !setupConcern(exercise, setup, loadCtx, slot.role === 'warmup'),
   );
   return setups[0] ?? null;
 };

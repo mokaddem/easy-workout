@@ -45,6 +45,23 @@ export async function startProgrammeSession(
   });
 }
 
+/**
+ * Opens one of the user's own sessions on its own: prefilled from each exercise's latest loads
+ * (its last run of this session included); nothing in it moves them. Exercises the user chose
+ * to skip are already left out of `session`.
+ */
+export async function startCustomSession(
+  session: Session,
+  inventory: EquipmentInventory,
+): Promise<SessionLog> {
+  const ctx = { ...(await loadProgressContext()), inventory };
+  const prepared = prepareSession(session, ctx, 'quick', { ownSessionId: session.id });
+  return repo.startSession({
+    source: { kind: 'custom', sessionId: session.id },
+    plan: prepared.session,
+  });
+}
+
 /** Stores a quick session as it starts: it was not kept before. */
 export function startQuickSession(session: Session): Promise<SessionLog> {
   return repo.startSession({ source: { kind: 'quick' }, plan: session });

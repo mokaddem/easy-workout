@@ -33,7 +33,7 @@ import { activeSwaps, applySwaps } from './swaps';
 import type { PreparedSession, ProgressContext, Proposal } from './types';
 
 export type { PreparedSession, ProgressContext, Proposal } from './types';
-export { activeSwaps, substituteFor } from './swaps';
+export { activeSwaps, replacementItem, substituteFor, substitutesFor } from './swaps';
 export { BREAK_DAYS, loadToken } from './rules';
 export { weekRole, type WeekRole } from './exposures';
 export { capacity, predictReps } from './ladder';
@@ -42,17 +42,25 @@ const itemsOf = (block: Block) => (block.type === 'straight' ? [block.item] : bl
 const withItems = (block: Block, items: SessionItem[]): Block =>
   block.type === 'straight' ? { ...block, item: items[0]! } : { ...block, items };
 
-/** Exposures per exercise, shared by every call reading the same logs and programmes. */
+/**
+ * Exposures per exercise, shared by every call reading the same logs and programmes. With
+ * `anySource`, every kind of session counts (for pain and no-equipment stops).
+ */
 const exposureCaches = new WeakMap<object, WeakMap<object, Map<string, Exposure[]>>>();
-const exposureCache = (ctx: ProgressContext) => {
+const exposureCache = (ctx: ProgressContext, anySource = false) => {
   let byProgrammes = exposureCaches.get(ctx.logs);
   if (!byProgrammes) exposureCaches.set(ctx.logs, (byProgrammes = new WeakMap()));
   let cache = byProgrammes.get(ctx.programmes);
   if (!cache) byProgrammes.set(ctx.programmes, (cache = new Map()));
   const shared = cache;
+  const prefix = anySource ? 'any|' : '';
   return (exerciseId: string) => {
-    let e = shared.get(exerciseId);
-    if (!e) shared.set(exerciseId, (e = exposuresOf(exerciseId, ctx.logs, ctx.programmes)));
+    let e = shared.get(prefix + exerciseId);
+    if (!e)
+      shared.set(
+        prefix + exerciseId,
+        (e = exposuresOf(exerciseId, ctx.logs, ctx.programmes, { anySource })),
+      );
     return e;
   };
 };
@@ -67,7 +75,11 @@ export function prepareSession(
   session: Session,
   ctx: ProgressContext,
   mode: 'programme' | 'quick' = 'programme',
-  options: { role?: WeekRole } = {},
+  options: {
+    role?: WeekRole;
+    /** A session of the user's own run on its own: its last run is remembered too. */
+    ownSessionId?: string;
+  } = {},
 ): PreparedSession {
   const exercises = lookup(ctx);
   const swaps = activeSwaps(ctx.answers);
@@ -82,6 +94,7 @@ export function prepareSession(
     exercises,
   );
   const exposures = exposureCache(ctx);
+  const flagged = exposureCache(ctx, true);
   const times = sessionTimes(ctx.logs);
   const now = ctx.now.getTime();
   const notes: Record<string, ProgressionNote> = {};
@@ -96,7 +109,8 @@ export function prepareSession(
           const exercise = exercises.get(base.exerciseId);
           if (!exercise) return base;
           const all = exposures(exercise.id);
-          if (mode === 'quick') return quickItem(base, exercise, all, ctx);
+          if (mode === 'quick')
+            return quickItem(base, exercise, all, flagged(exercise.id), ctx, options.ownSessionId);
           const context = block.type === 'straight' ? 'straight' : 'group';
           const lastAt = all[0] ? Date.parse(all[0].at) : undefined;
           const gapDays = lastAt === undefined ? undefined : longestGapDays(times, lastAt, now);
@@ -116,7 +130,7 @@ export function prepareSession(
             ...(ctx.profile?.level && { level: ctx.profile.level }),
             now,
           });
-          const pain = painState(all, ctx.answers);
+          const pain = painState(flagged(exercise.id), ctx.answers);
           if (pain) result = holdForPain(result, pain, base, exercise, ctx);
           const ik = itemKey(section, blockIndex, itemIndex);
           const replaced = swapped.replaces[ik];
@@ -130,7 +144,8 @@ export function prepareSession(
               if (result.note) notes[ik] = { ...result.note, code: 'buy-next' };
             } else if (proposal) proposals.push(proposal);
           }
-          for (const p of flagProposals(exercise, all, ctx, swaps)) proposals.push(p);
+          for (const p of flagProposals(exercise, flagged(exercise.id), ctx, swaps))
+            proposals.push(p);
           return result.item;
         }),
       ),
@@ -170,7 +185,9 @@ function quickItem(
   base: SessionItem,
   exercise: Exercise,
   all: readonly Exposure[],
+  flagged: readonly Exposure[],
   ctx: ProgressContext,
+  ownSessionId?: string,
 ): SessionItem {
   const latest = all.find((e) => e.evidence.length > 0 && e.item.load && e.role === 'build');
   let item = base;
@@ -192,8 +209,31 @@ function quickItem(
     const load = ladder.kind === 'none' ? undefined : loadAt(ladder, rung);
     if (load) item = { ...base, load };
   }
-  const pain = painState(all, ctx.answers);
+  // A session of the user's own remembers what it was last done with, when that's newer.
+  const own = ownSessionId ? lastRun(ctx.logs, ownSessionId, exercise.id) : undefined;
+  if (own && (!latest || own.at > latest.at) && compatible(exercise, own.load, item.load))
+    item = { ...item, load: own.load };
+  const pain = painState(flagged, ctx.answers);
   return pain ? holdForPain({ item }, pain, item, exercise, ctx).item : item;
+}
+
+/** The load an exercise's first working set was done with, the last time this own session ran. */
+function lastRun(
+  logs: readonly SessionLog[],
+  sessionId: string,
+  exerciseId: string,
+): { load: Load; at: string } | undefined {
+  let best: { load: Load; at: string } | undefined;
+  for (const log of logs) {
+    if (log.status === 'in-progress' || log.source.kind !== 'custom') continue;
+    if (log.source.sessionId !== sessionId || (best && log.startedAt <= best.at)) continue;
+    const set = log.sets.find(
+      (s) => s.exerciseId === exerciseId && s.section !== 'warmup' && s.actual && !s.flag,
+    );
+    const load = set?.actual?.load ?? set?.planned.load;
+    if (load) best = { load, at: log.startedAt };
+  }
+  return best;
 }
 
 /** Ramp-up sets keep their share of the working load when it moves. */
@@ -266,8 +306,8 @@ export function nextTime(
 ): NextTime {
   const empty: NextTime = { lines: [], proposals: [], buyNext: [] };
   const source = log.source;
-  if (source.kind !== 'programme' || !programme || programme.id !== source.programmeId)
-    return empty;
+  if (source.kind !== 'programme') return { ...empty, proposals: logProposals(log, ctx) };
+  if (!programme || programme.id !== source.programmeId) return empty;
   if (!programme.rotation.some((s) => s.id === source.sessionId)) return empty;
   const week = Math.min(source.week + 1, programme.weeks);
   const prepared = prepareSession(
@@ -301,6 +341,35 @@ export function nextTime(
     proposals: prepared.proposals.filter((p) => p.logId === log.id),
     buyNext: prepared.buyNext,
   };
+}
+
+/**
+ * Pain and no-equipment stops of a session outside the programme (one of the user's own, or a
+ * quick one): nothing progresses from it, but its stops still ask what to do next time.
+ */
+function logProposals(log: SessionLog, ctx: ProgressContext): Proposal[] {
+  const exercises = lookup(ctx);
+  const swaps = activeSwaps(ctx.answers);
+  const flagged = exposureCache(ctx, true);
+  const ids = new Set(
+    log.sets
+      .filter((s) => s.flag === 'pain' || s.flag === 'no-equipment')
+      .map((s) => {
+        const block = log.plan[s.section][s.blockIndex];
+        return block && itemsOf(block)[s.itemIndex]?.exerciseId;
+      }),
+  );
+  const out: Proposal[] = [];
+  for (const id of ids) {
+    const exercise = id ? exercises.get(id) : undefined;
+    if (!exercise) continue;
+    out.push(
+      ...flagProposals(exercise, flagged(exercise.id), ctx, swaps).filter(
+        (p) => p.logId === log.id,
+      ),
+    );
+  }
+  return unique(out);
 }
 
 /**

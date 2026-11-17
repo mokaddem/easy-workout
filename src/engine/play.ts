@@ -30,7 +30,7 @@ import { equipmentCapabilities, usableSetups, type EquipmentCapabilities } from 
 import { FIXED_REP_EXERCISES } from './generate/dose';
 import { DEFAULT_BODYWEIGHT_KG, ownedWeights, snapDown } from './generate/loads';
 import { bodyShare, capacity, predictReps } from './progress/ladder';
-import type { WeekPlan } from './week';
+import { takesPhaseRir, type WeekPlan } from './week';
 
 /** The prescription of one set, week changes included. */
 export type SetPrescription = SetLog['planned'];
@@ -72,6 +72,9 @@ const roundRestOf = (block: Block) =>
 const transitionInto = (section: Section) =>
   section === 'warmup' ? WARMUP_TRANSITION_SEC : BLOCK_TRANSITION_SEC;
 
+/** A week's first- or last-set RIR moves a set at most this many reps closer to failure. */
+const MAX_SET_RIR_STEP = 2;
+
 /** Lightest share of the top set's load a back-off set may drop to. */
 export const MIN_BACK_OFF_SHARE = 0.8;
 
@@ -95,9 +98,15 @@ function prescription(
   let rir = item.rir;
   let load = item.load;
   let goal = item.goal;
-  if (adjustments && takesSetRir(section, item.target)) {
-    if (set === 1 && adjustments.firstSetRir !== undefined) rir = adjustments.firstSetRir;
-    else if (set === sets && adjustments.lastSetRir !== undefined) rir = adjustments.lastSetRir;
+  if (adjustments && takesSetRir(section, item.target) && takesPhaseRir(item)) {
+    // A week's first- or last-set RIR makes a set harder, never easier than the item's own, and
+    // at most two reps closer to failure. Jumps keep none.
+    const own = item.rir;
+    const harder = (phase: number) =>
+      own === undefined ? phase : Math.max(Math.min(phase, own), own - MAX_SET_RIR_STEP);
+    if (set === 1 && adjustments.firstSetRir !== undefined) rir = harder(adjustments.firstSetRir);
+    else if (set === sets && adjustments.lastSetRir !== undefined)
+      rir = harder(adjustments.lastSetRir);
     // A set closer to failure asks for as many more reps as it gives up in reserve, unless the
     // rep count is the movement itself.
     const fixed =
@@ -110,7 +119,8 @@ function prescription(
       load = backOff;
       // A lighter back-off set aims for what the top set's goal predicts at its load.
       const top = item.load;
-      const firstRir = adjustments.firstSetRir ?? item.rir;
+      const firstRir =
+        adjustments.firstSetRir === undefined ? item.rir : harder(adjustments.firstSetRir);
       if (
         !fixed &&
         item.goal !== undefined &&
@@ -247,6 +257,9 @@ export function setAdjustments(
     plan.session.main.forEach((block, blockIndex) =>
       itemsOf(block).forEach((item, itemIndex) => {
         if (!takesSetRir('main', item.target) || item.load?.kind !== 'kg') return;
+        // Back-off sets follow a top set harder than the rest; an item already that hard has none.
+        const first = plan.setRir.first;
+        if (first !== undefined && item.rir !== undefined && item.rir <= first) return;
         const exercise = exerciseById.get(item.exerciseId);
         const implement = exercise && implementOf(exercise, capabilities);
         if (!implement) return;

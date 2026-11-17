@@ -59,15 +59,15 @@ const implementKinds = (exercise: Exercise, inventory: EquipmentInventory) =>
   );
 
 /**
- * Another exercise for the same job: same pattern, a primary muscle in common, same compound /
- * isolation tag, doable with what is owned, not a warm-up drill, not swapped away for pain.
- * After pain, an easier one or one done with another implement comes first.
+ * Other exercises for the same job, best first: same pattern, a primary muscle in common, same
+ * compound / isolation tag, doable with what is owned, not a warm-up drill, not swapped away for
+ * pain. Closest difficulty first; after pain, an easier one or one done with another implement.
  */
-export function substituteFor(
+export function substitutesFor(
   exercise: Exercise,
   inventory: EquipmentInventory,
   options: { pain?: boolean; avoid?: ReadonlySet<string>; exercises?: readonly Exercise[] } = {},
-): Exercise | undefined {
+): Exercise[] {
   const capabilities = equipmentCapabilities(inventory);
   const own = implementKinds(exercise, inventory);
   const pool = (options.exercises ?? catalogue).filter(
@@ -96,7 +96,17 @@ export function substituteFor(
       for (let i = 0; i < a.key.length; i++)
         if (a.key[i] !== b.key[i]) return a.key[i]! - b.key[i]!;
       return 0;
-    })[0]?.c;
+    })
+    .map(({ c }) => c);
+}
+
+/** The best other exercise for the same job (see {@link substitutesFor}). */
+export function substituteFor(
+  exercise: Exercise,
+  inventory: EquipmentInventory,
+  options: { pain?: boolean; avoid?: ReadonlySet<string>; exercises?: readonly Exercise[] } = {},
+): Exercise | undefined {
+  return substitutesFor(exercise, inventory, options)[0];
 }
 
 /** The first linked variant (harder or easier) that can be done with what is owned. */
@@ -116,6 +126,29 @@ export function variantFor(
 const itemsOf = (block: Block) => (block.type === 'straight' ? [block.item] : block.items);
 const withItems = (block: Block, items: SessionItem[]): Block =>
   block.type === 'straight' ? { ...block, item: items[0]! } : { ...block, items };
+
+/**
+ * Another exercise taking over an item's place: re-dosed for the slot, starting from the usual
+ * estimate (progression later brings its own history in), same RIR and slot.
+ */
+export function replacementItem(
+  item: SessionItem,
+  previous: Exercise,
+  next: Exercise,
+  leadLift: boolean,
+  ctx: { inventory: EquipmentInventory; level: LoadContext['level']; bodyweightKg?: number },
+): SessionItem {
+  const setup = usableSetups(next, equipmentCapabilities(ctx.inventory))[0] ?? [];
+  const role = leadLift ? 'main' : next.tags.includes('isolation') ? 'isolation' : 'secondary';
+  const load = startingLoad(next, setup, role, { ...ctx }, () => {});
+  return {
+    ...(item.slot !== undefined && { slot: item.slot }),
+    exerciseId: next.id,
+    ...redose(item, previous, next),
+    ...(item.rir !== undefined && { rir: item.rir }),
+    ...(load && { load }),
+  };
+}
 
 /**
  * The session with swapped exercises in place. A replacement is re-dosed for the slot and
@@ -148,21 +181,7 @@ export function applySwaps(
           if (!previous || !next) return item;
           replaces[itemKey(section, blockIndex, itemIndex)] = item.exerciseId;
           swapped.set(item.exerciseId, next);
-          const setup = usableSetups(next, capabilities)[0] ?? [];
-          const role =
-            section === 'main' && blockIndex === 0
-              ? 'main'
-              : next.tags.includes('isolation')
-                ? 'isolation'
-                : 'secondary';
-          const load = startingLoad(next, setup, role, { ...ctx }, () => {});
-          const replaced: SessionItem = {
-            exerciseId: next.id,
-            ...redose(item, previous, next),
-            ...(item.rir !== undefined && { rir: item.rir }),
-            ...(load && { load }),
-          };
-          return replaced;
+          return replacementItem(item, previous, next, section === 'main' && blockIndex === 0, ctx);
         }),
       ),
     );

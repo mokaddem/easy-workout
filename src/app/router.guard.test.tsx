@@ -37,6 +37,21 @@ describe('leave guard', () => {
     unmount();
   });
 
+  it('lets an overlay drop its own history entry without asking or moving', () => {
+    navigate('/edit/programme/a-push');
+    const onLeave = vi.fn<LeaveHandler>();
+    const { unmount } = render(<Guarded active onLeave={onLeave} />);
+    const screen = history.state as { index: number };
+    history.pushState({ ...screen, picker: true }, '');
+    act(() => {
+      history.replaceState(screen, '');
+      window.dispatchEvent(new PopStateEvent('popstate', { state: screen }));
+    });
+    expect(onLeave).not.toHaveBeenCalled();
+    expect(path()).toBe('/edit/programme/a-push');
+    unmount();
+  });
+
   it('does nothing while inactive or after unmount', () => {
     navigate('/settings');
     const onLeave = vi.fn<LeaveHandler>();

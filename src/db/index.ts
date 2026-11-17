@@ -23,7 +23,11 @@ export type ProgrammeRecord = Programme & {
   /** The one-time "why this programme" card was dismissed. */
   whySeen?: boolean;
 };
-export type CustomSessionRecord = Session & { updatedAt: DateTime };
+/**
+ * A session of the user's own. `base`: what it started from when it was copied (a programme
+ * session, a quick session), so checks only flag what the user changed.
+ */
+export type CustomSessionRecord = Session & { updatedAt: DateTime; base?: Session };
 
 export class WorkoutDatabase extends Dexie {
   profile!: EntityTable<ProfileRecord, 'id'>;

@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { Answer, EquipmentInventory, Language, Profile, SessionLog, Settings } from '@/domain';
-import type { ProgrammeRecord } from '@/db';
+import type { CustomSessionRecord, ProgrammeRecord } from '@/db';
 import { repo } from '@/db/repo';
 import i18n from '@/i18n';
 
@@ -36,6 +36,16 @@ export function useProgrammes(): ProgrammeRecord[] | undefined {
 /** Every answer to a proposal, oldest first. */
 export function useAnswers(): Answer[] | undefined {
   return useLiveQuery(() => repo.listAnswers());
+}
+
+/** The user's own sessions, most recently changed first. */
+export function useCustomSessions(): CustomSessionRecord[] | undefined {
+  return useLiveQuery(() => repo.listCustomSessions());
+}
+
+/** One of the user's own sessions; `null` when it doesn't exist. */
+export function useCustomSession(id: string | undefined): Loaded<CustomSessionRecord> {
+  return useLiveQuery(async () => (id ? ((await repo.getCustomSession(id)) ?? null) : null), [id]);
 }
 
 /** One session log by id; `null` when it doesn't exist. */

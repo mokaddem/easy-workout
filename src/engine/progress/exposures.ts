@@ -102,24 +102,31 @@ const valueOf = (set: SetLog): number | undefined => {
 
 const itemsOf = (block: Block) => (block.type === 'straight' ? [block.item] : block.items);
 
+/** Logs that are over, newest first: programme ones only, or every kind. */
+const finishedLogs = (logs: readonly SessionLog[], anySource: boolean): SessionLog[] =>
+  logs
+    .filter((l) => l.status !== 'in-progress' && (anySource || l.source.kind === 'programme'))
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+
 /** Programme logs that are over, newest first. */
 export const finishedProgrammeLogs = (logs: readonly SessionLog[]): SessionLog[] =>
-  logs
-    .filter((l) => l.status !== 'in-progress' && l.source.kind === 'programme')
-    .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+  finishedLogs(logs, false);
 
 /**
  * Every exposure of an exercise in finished programme sessions, newest first. When the same key
- * appears twice in one session, the heavier one counts.
+ * appears twice in one session, the heavier one counts. With `anySource`, sessions of the user's
+ * own and quick sessions count too: pain and no-equipment stops are read from every session,
+ * progression evidence only from programme ones.
  */
 export function exposuresOf(
   exerciseId: string,
   logs: readonly SessionLog[],
   programmes: readonly Programme[],
+  options: { anySource?: boolean } = {},
 ): Exposure[] {
   const byId = new Map(programmes.map((p) => [p.id, p]));
   const out: Exposure[] = [];
-  for (const log of finishedProgrammeLogs(logs)) {
+  for (const log of finishedLogs(logs, options.anySource ?? false)) {
     const source = log.source.kind === 'programme' ? log.source : undefined;
     const role = weekRole(source && byId.get(source.programmeId), source?.week);
     const seen = new Map<string, Exposure>();

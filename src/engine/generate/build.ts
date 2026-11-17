@@ -1,5 +1,15 @@
-import type { Block, LocalizedText, Session, SessionItem } from '../../domain';
+import type {
+  Block,
+  EquipmentInventory,
+  EquipmentRequirement,
+  Exercise,
+  LocalizedText,
+  MovementPattern,
+  Session,
+  SessionItem,
+} from '../../domain';
 import { sessionMinutes } from '../duration';
+import { ensureSlots } from '../edit/slots';
 import { CARDIO_LABEL, resolveCardio } from './cardio';
 import { groupRest, groupRounds, itemDose, straightRest, straightSets } from './dose';
 import {
@@ -95,7 +105,7 @@ const buildItem = (
     (code, params) =>
       notes.push({ code, params, ...(itemIndex === undefined ? {} : { itemIndex }) }),
   );
-  return { exerciseId: sel.exercise.id, ...dose, ...(load ? { load } : {}) };
+  return { slot: slot.id, exerciseId: sel.exercise.id, ...dose, ...(load ? { load } : {}) };
 };
 
 const buildBlock = (
@@ -219,52 +229,80 @@ const buildBlock = (
 };
 
 /**
- * Two lighter sets of the first lift when it is loaded and nothing in the warm-up
- * already rehearses its movement pattern.
+ * Two lighter sets of a session's first lift when it is a loaded compound and nothing in the
+ * warm-up already rehearses its movement pattern: 50 % × 10 then 75 % × 5, snapped to owned
+ * weights. Their slots are `ramp-1`, `ramp-2`.
  */
-const rampUp = (built: BuiltSession, ctx: Context): BuiltBlock[] => {
-  const first = built.main[0]?.block;
-  const setup = built.main[0]?.setup;
-  if (!first || !setup || first.type !== 'straight' || first.item.load?.kind !== 'kg') return [];
-  const exercise = ctx.catalogue.get(first.item.exerciseId);
-  if (!exercise || !exercise.tags.includes('compound')) return [];
-  const warmupPatterns = built.warmup.map((b) =>
-    b.block.type === 'straight' ? ctx.catalogue.get(b.block.item.exerciseId)?.pattern : undefined,
-  );
+export const rampUpBlocks = (
+  exercise: Exercise,
+  setup: readonly EquipmentRequirement[],
+  working: number,
+  warmupPatterns: readonly (MovementPattern | undefined)[],
+  equipment: EquipmentInventory,
+): Block[] => {
+  if (!exercise.tags.includes('compound')) return [];
   if (warmupPatterns.includes(exercise.pattern)) return [];
-
-  const working = first.item.load.kg;
   if (working < MIN_RAMP_WORKING_KG) return [];
   const sets: { fraction: number; reps: number; rest: number }[] = [
     { fraction: 0.5, reps: 10, rest: 30 },
     { fraction: 0.75, reps: 5, rest: 60 },
   ];
-  const blocks: BuiltBlock[] = [];
+  const blocks: Block[] = [];
   let previous: number | undefined;
   for (const { fraction, reps, rest } of sets) {
-    const kg = rampLoad(setup, working, fraction, ctx.equipment);
+    const kg = rampLoad(setup, working, fraction, equipment);
     if (kg === undefined || kg >= working || kg === previous) continue;
     previous = kg;
-    const block: Block = {
+    blocks.push({
       type: 'straight',
       item: {
+        slot: `ramp-${blocks.length + 1}`,
         exerciseId: exercise.id,
         target: { kind: 'reps', min: reps, max: reps },
         load: { kind: 'kg', kg },
       },
       sets: 1,
       restSec: rest,
-    };
-    blocks.push({
-      block,
-      priority: 1,
-      role: 'warmup',
-      included: true,
-      ramp: true,
-      muscles: [],
-      notes: [{ code: 'ramp-up', params: { exerciseId: exercise.id, kg, workingKg: working } }],
     });
   }
+  return blocks;
+};
+
+/** The ramp-up sets of the session being built, as {@link rampUpBlocks} defines them. */
+const rampUp = (built: BuiltSession, ctx: Context): BuiltBlock[] => {
+  const first = built.main[0]?.block;
+  const setup = built.main[0]?.setup;
+  if (!first || !setup || first.type !== 'straight' || first.item.load?.kind !== 'kg') return [];
+  const exercise = ctx.catalogue.get(first.item.exerciseId);
+  if (!exercise) return [];
+  const warmupPatterns = built.warmup.map((b) =>
+    b.block.type === 'straight' ? ctx.catalogue.get(b.block.item.exerciseId)?.pattern : undefined,
+  );
+  const working = first.item.load.kg;
+  const blocks: BuiltBlock[] = rampUpBlocks(
+    exercise,
+    setup,
+    working,
+    warmupPatterns,
+    ctx.equipment,
+  ).map((block) => ({
+    block,
+    priority: 1,
+    role: 'warmup',
+    included: true,
+    ramp: true,
+    muscles: [],
+    notes: [
+      {
+        code: 'ramp-up',
+        params: {
+          exerciseId: exercise.id,
+          kg: block.type === 'straight' && block.item.load?.kind === 'kg' ? block.item.load.kg : 0,
+          workingKg: working,
+        },
+      },
+    ],
+  }));
   // When time is short the ramp-up shrinks to one set at about 60 % of the working load.
   const [lead, ...rest] = blocks;
   if (lead && rest.length > 0) {
@@ -282,6 +320,7 @@ const rampUp = (built: BuiltSession, ctx: Context): BuiltBlock[] => {
         block: {
           type: 'straight',
           item: {
+            slot: 'ramp-1',
             exerciseId: exercise.id,
             target: { kind: 'reps', min: 6, max: 6 },
             load: { kind: 'kg', kg: collapsedKg },
@@ -404,11 +443,12 @@ export const buildSession = (
   for (const change of changes)
     ctx.log.add('time-fit', { ...change, budget: options.budget }, { sessionId });
 
-  return {
+  // Cardio and ramp-up items have no template slot: they get one from their position.
+  return ensureSlots({
     id: sessionId,
     name,
     ...(tpl.focus ? { focus: tpl.focus } : {}),
     estimatedMinutes: sessionMinutes(session),
     ...session,
-  };
+  });
 };

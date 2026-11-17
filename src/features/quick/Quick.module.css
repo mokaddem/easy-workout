@@ -229,3 +229,31 @@
 .enterBack {
   animation: slide-back var(--duration-slow) var(--ease-snap) backwards;
 }
+
+.saveForm {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.saveNote {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--type-meta-size);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+.barSave {
+  margin-left: auto;
+}
+.rule {
+  height: 0;
+  margin: 0 calc(-1 * var(--layout-gutter));
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+.compose {
+  display: grid;
+  gap: var(--space-2);
+}

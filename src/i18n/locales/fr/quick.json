@@ -21,10 +21,46 @@
   "noEquipmentHint": "Aucun matériel",
   "compose": "Composer la séance",
   "backToChoices": "Retour aux choix",
-  "notSaved": "Pas enregistrée tant que tu ne la commences pas.",
+  "notSaved": "Pas enregistrée tant que tu ne la commences pas, ou que tu ne l’ajoutes pas à tes séances.",
   "shuffle": "Mélanger",
   "shuffled_one": "Séance mélangée : {{count}} exercice a changé",
   "shuffled_other": "Séance mélangée : {{count}} exercices ont changé",
   "noOther": "Pas d’autre combinaison avec ce matériel.",
-  "start": "Commencer"
+  "start": "Commencer",
+  "mine": {
+    "title": "Mes séances",
+    "new": "Nouvelle séance",
+    "emptyTitle": "Aucune séance à toi pour l’instant",
+    "emptyBody": "Construis-en une avec les exercices de ton choix, ou enregistre une séance rapide qui t’a plu.",
+    "meta": "{{focus}}, faite {{when}}",
+    "never": "{{focus}}, jamais faite",
+    "when": {
+      "today": "aujourd’hui",
+      "yesterday": "hier",
+      "days": "il y a {{count}} jours",
+      "date": "le {{date}}"
+    },
+    "placed": "Dans ton programme",
+    "placedSr": ", à la place de la séance {{letter}}",
+    "flag_one": "{{count}} exercice n’est plus faisable",
+    "flag_other": "{{count}} exercices ne sont plus faisables",
+    "seeAll": "Voir les {{count}} séances",
+    "rowSr": "{{name}}, environ {{minutes}} minutes"
+  },
+  "composeTitle": "Composer une séance rapide",
+  "save": "Enregistrer",
+  "saveSr": "Enregistrer dans mes séances",
+  "saved": "Enregistrée",
+  "saveSheet": {
+    "title": "Enregistrer dans mes séances",
+    "line": "Tu pourras la lancer quand tu veux, la modifier ou la placer dans ton programme.",
+    "name": "Nom",
+    "default": "{{focus}}, {{minutes}} min",
+    "loads": "Les charges viennent de ton historique à chaque lancement.",
+    "confirm": "Enregistrer",
+    "cancel": "Annuler",
+    "error": "Donne un nom à ta séance."
+  },
+  "savedToast": "Enregistrée dans mes séances",
+  "savedView": "Voir"
 }

@@ -112,3 +112,13 @@ test('the one-time "why" card shows until dismissed', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Got it' }).click();
   await expect(page.getByRole('heading', { name: 'Why this programme?' })).toHaveCount(0);
 });
+
+test('a long session detail scrolls inside the screen, never the whole page', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedSetup(page, reference);
+  for (const id of ['a-push', 'c-lower-core']) {
+    await page.goto(`/programme/session/${id}`);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(844);
+  }
+});

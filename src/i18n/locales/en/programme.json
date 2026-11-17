@@ -26,7 +26,20 @@
     "sameEveryWeek": "Same session every week: the cardio day doesn’t follow the phases.",
     "context": "{{name}}, week {{week}} of {{total}}",
     "previewNote": "A look at another week. Today’s session stays the one from week {{week}}.",
-    "backToWeek": "Back to week {{week}}"
+    "backToWeek": "Back to week {{week}}",
+    "edit": "Edit",
+    "more": "More actions",
+    "mine": "My session",
+    "edited_one": "<b>Edited by you</b>: 1 change, for the whole cycle.",
+    "edited_other": "<b>Edited by you</b>: {{count}} changes, for the whole cycle.",
+    "restore": "Restore the programme’s session",
+    "copy": "Copy to my sessions",
+    "copyHint": "To make it your own session",
+    "copyName": "{{name}} (copy)",
+    "copied": "Session copied to My sessions",
+    "copiedView": "View",
+    "placed": "<b>Your session, in place of session {{letter}}</b> of the programme. It progresses and follows the weeks.",
+    "unplace": "Remove from programme"
   },
   "week": {
     "group": "Programme week",
@@ -183,10 +196,14 @@
       "next": "Week {{week}}: next session",
       "todo": "Week {{week}}: to do",
       "later": "Week {{week}}: later"
-    }
+    },
+    "mine": "Mine",
+    "mineSr": "{{letter}}, my session"
   },
   "sessions": {
-    "title": "Sessions"
+    "title": "Sessions",
+    "mineMeta": "My session, ~{{minutes}} min. Replaces: {{name}}",
+    "editedMeta": "~{{minutes}} min, edited by you"
   },
   "meta": {
     "withCardio_one": "{{weeks}} weeks, {{count}} session (+ {{cardio}} cardio day) a week",
@@ -224,7 +241,58 @@
     "keepCurrentNew": "Keep the current one",
     "doneNew": "New programme in place",
     "doneVariant": "Variation in place",
-    "openSession": "A session is open: it carries on with its own plan and won’t count towards the new programme."
+    "openSession": "A session is open: it carries on with its own plan and won’t count towards the new programme.",
+    "edits": {
+      "title": "Your changes",
+      "kept_one": "kept",
+      "kept_other": "kept",
+      "dropped_one": "no longer applies",
+      "dropped_other": "no longer apply",
+      "allKept": "All of them carry over to the new programme.",
+      "where": "Session {{letter}}, {{session}}: {{what}}",
+      "whereNoLetter": "{{session}}: {{what}}",
+      "what": {
+        "added": "your addition",
+        "removed": "removed by you",
+        "replaced": "replaced by you",
+        "dose": "{{new}} instead of {{old}}",
+        "grouped": "superset you made",
+        "placed": "your session placed here",
+        "edited": "edited by you"
+      },
+      "why": {
+        "equipment": "Needs {{equipment}}, no longer in your equipment.",
+        "unusable": "This exercise is no longer possible with your new profile or equipment.",
+        "slotGone": "The exercise leaves the session: the new programme’s version applies.",
+        "sessionGone": "Session {{letter}} no longer exists with {{days}} days a week.",
+        "sessionGoneNoLetter": "This session no longer exists with {{days}} days a week.",
+        "placementUnusable": "Your session has an exercise that is no longer possible. It stays in My sessions."
+      },
+      "equip": {
+        "dumbbell": "dumbbells",
+        "kettlebell": "a kettlebell",
+        "band": "a band",
+        "mini-band": "a mini band",
+        "weight-belt": "a weight belt",
+        "weight-vest": "a weight vest",
+        "pull-up-bar": "a pull-up bar",
+        "dip-bars": "dip bars",
+        "bench": "a bench",
+        "treadmill": "a treadmill",
+        "stationary-bike": "a stationary bike",
+        "rower": "a rower",
+        "jump-rope": "a jump rope",
+        "ab-wheel": "an ab wheel",
+        "suspension-trainer": "a suspension trainer"
+      },
+      "showKept_one": "See the kept one",
+      "showKept_other": "See the {{count}} kept",
+      "splitChanged_one": "The split changes: your change no longer applies.",
+      "splitChanged_other": "The split changes: your {{count}} changes no longer apply.",
+      "showList": "See the list",
+      "checkTitle": "Worth a look",
+      "check": "{{session}}: {{issue}}"
+    }
   },
   "why": {
     "title": "Why this programme?",
@@ -243,5 +311,39 @@
     "cue": "Key cue",
     "close": "Got it"
   },
-  "resumeSession": "Resume session"
+  "resumeSession": "Resume session",
+  "restore": {
+    "title": "Restore the programme’s session?",
+    "body_one": "Your change to session {{letter}} is erased, for every week. Sessions you’ve done stay in your history.",
+    "body_other": "Your {{count}} changes to session {{letter}} are erased, for every week. Sessions you’ve done stay in your history.",
+    "confirm": "Restore the session",
+    "done": "Session {{letter}} restored"
+  },
+  "unplace": {
+    "title": "Remove from your programme?",
+    "body": "{{name}} takes back session {{letter}}, with its loads. Your session stays in My sessions.",
+    "confirm": "Remove from programme",
+    "done": "{{name}} is back as session {{letter}}"
+  },
+  "edit": {
+    "range": "Edited by you: {{new}} instead of {{old}}. Same load, goal re-set.",
+    "time": "Edited by you: {{new}} instead of {{old}}.",
+    "minutes": "Edited by you: {{new}} instead of {{old}}.",
+    "sets": "Edited by you: {{new}} instead of {{old}}.",
+    "effort": "Edited by you: {{new}} instead of {{old}}.",
+    "rest": "Edited by you: {{new}} instead of {{old}}.",
+    "replaced": "Edited by you. Before: {{name}}.",
+    "added": "Added by you. Starting load from your history.",
+    "addedNew": "Added by you. First time: estimated starting load.",
+    "grouped": "Put in a superset by you.",
+    "several": "Edited by you: {{list}}.",
+    "unit": {
+      "reps": "{{value}} reps",
+      "s": "{{value}} s",
+      "min": "{{value}} min",
+      "sets_one": "{{count}} set",
+      "sets_other": "{{count}} sets",
+      "rest": "rest {{value}} s"
+    }
+  }
 }

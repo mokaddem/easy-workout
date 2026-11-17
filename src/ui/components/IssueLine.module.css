@@ -1,0 +1,39 @@
+.issue {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}
+.issue > svg {
+  margin-top: 0;
+}
+.body {
+  display: grid;
+  flex: 1;
+  gap: var(--space-2);
+  justify-items: start;
+  min-width: 0;
+}
+.block {
+  color: var(--color-danger-text);
+  font-weight: 600;
+}
+.block .body > :not(span) {
+  color: var(--color-text);
+}
+.warn {
+  padding: 10px 6px 4px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+}
+.warn > svg {
+  margin-top: 1px;
+  color: var(--color-text-muted);
+}
+.dismiss {
+  min-height: var(--tap-min);
+  padding: 0;
+  font-size: 15px;
+}

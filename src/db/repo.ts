@@ -14,7 +14,20 @@ import {
   type SetAdjustments,
   type SetLog,
 } from '../domain';
-import { db as defaultDb, type ProgrammeRecord, type WorkoutDatabase } from './index';
+import {
+  placeSession,
+  placesOf,
+  removePlacements,
+  resetSession,
+  saveSessionEdit,
+  syncPlacements,
+} from '../engine/edit';
+import {
+  db as defaultDb,
+  type CustomSessionRecord,
+  type ProgrammeRecord,
+  type WorkoutDatabase,
+} from './index';
 
 export function defaultSettings(language: Language): Settings {
   return {
@@ -240,6 +253,89 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     );
   }
 
+  /** The user's own sessions, most recently changed first. */
+  function listCustomSessions(): Promise<CustomSessionRecord[]> {
+    return db.customSessions.orderBy('updatedAt').reverse().toArray();
+  }
+
+  function getCustomSession(id: string): Promise<CustomSessionRecord | undefined> {
+    return db.customSessions.get(id);
+  }
+
+  /**
+   * Saves one of the user's own sessions (a new one gets an id); wherever the active programme
+   * runs it, the programme gets the new version too.
+   */
+  function saveCustomSession(
+    session: Omit<Session, 'id'> & { id?: string; base?: Session; updatedAt?: string },
+    now = new Date(),
+  ): Promise<CustomSessionRecord> {
+    return db.transaction('rw', [db.customSessions, db.programmes], async () => {
+      const id = session.id ?? `own-${newLogId(now)}`;
+      // What it was copied from stays, whatever the caller kept of the record.
+      const base =
+        session.base ?? (session.id ? (await db.customSessions.get(id))?.base : undefined);
+      const record: CustomSessionRecord = {
+        ...withoutUpdatedAt({ ...session, id, updatedAt: '' }),
+        id,
+        updatedAt: now.toISOString(),
+        ...(base && { base }),
+      };
+      await db.customSessions.put(record);
+      const active = await getActiveProgramme();
+      if (active && placesOf(active, record.id).length > 0)
+        await db.programmes.put(syncPlacements(active, withoutUpdatedAt(record)));
+      return record;
+    });
+  }
+
+  /** Deletes one of the user's own sessions; the programme gets back what it replaced. */
+  function deleteCustomSession(id: string): Promise<void> {
+    return db.transaction('rw', [db.customSessions, db.programmes], async () => {
+      await db.customSessions.delete(id);
+      const active = await getActiveProgramme();
+      if (active && placesOf(active, id).length > 0)
+        await db.programmes.put(removePlacements(active, id));
+    });
+  }
+
+  /** Changes the active programme in one transaction. */
+  function changeProgramme(
+    programmeId: string,
+    change: (programme: ProgrammeRecord) => ProgrammeRecord,
+  ): Promise<void> {
+    return db.transaction('rw', db.programmes, async () => {
+      const programme = await db.programmes.get(programmeId);
+      if (!programme) throw new Error(`no programme ${programmeId}`);
+      await db.programmes.put(change(programme));
+    });
+  }
+
+  /** The user's version of a programme session, for the whole cycle. */
+  function saveProgrammeSession(programmeId: string, session: Session): Promise<void> {
+    return changeProgramme(programmeId, (p) => saveSessionEdit(p, session));
+  }
+
+  /** A programme session back to how it was generated (or out of the programme, for a placed one). */
+  function resetProgrammeSession(programmeId: string, sessionId: string): Promise<void> {
+    return changeProgramme(programmeId, (p) => resetSession(p, sessionId));
+  }
+
+  /** Runs one of the user's own sessions in place of a programme session. */
+  function placeCustomSession(
+    programmeId: string,
+    sessionId: string,
+    customId: string,
+  ): Promise<void> {
+    return db.transaction('rw', [db.customSessions, db.programmes], async () => {
+      const custom = await db.customSessions.get(customId);
+      if (!custom) throw new Error(`no session ${customId}`);
+      const programme = await db.programmes.get(programmeId);
+      if (!programme) throw new Error(`no programme ${programmeId}`);
+      await db.programmes.put(placeSession(programme, sessionId, withoutUpdatedAt(custom)));
+    });
+  }
+
   /** Every answer to a proposal, oldest first. */
   function listAnswers(): Promise<Answer[]> {
     return db.answers.orderBy('at').toArray();
@@ -282,7 +378,22 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     listAnswers,
     saveAnswer,
     deleteAnswer,
+    listCustomSessions,
+    getCustomSession,
+    saveCustomSession,
+    deleteCustomSession,
+    saveProgrammeSession,
+    resetProgrammeSession,
+    placeCustomSession,
   };
+}
+
+/** The session itself, without what the record keeps around it. */
+function withoutUpdatedAt(record: CustomSessionRecord): Session {
+  const copy: Partial<CustomSessionRecord> = { ...record };
+  delete copy.updatedAt;
+  delete copy.base;
+  return copy as Session;
 }
 
 /** Unique enough for one device; `crypto.randomUUID` is missing outside secure contexts (LAN dev server). */

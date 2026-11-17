@@ -1,0 +1,56 @@
+{
+  "back": "Retour à l’éditeur",
+  "replace": "Remplacer",
+  "addTo": {
+    "warmup": "Ajouter à l’échauffement",
+    "main": "Ajouter au bloc principal",
+    "finisher": "Ajouter en fin de séance"
+  },
+  "search": "Chercher un exercice",
+  "clear": "Effacer la recherche",
+  "movement": "Mouvement",
+  "muscle": "Muscle",
+  "filterOne": "{{group}} : {{value}}",
+  "filterMany": "{{group}} ({{count}})",
+  "suggested": "Suggestions",
+  "suggestedLine": "Même mouvement et mêmes muscles, avec ton matériel. La dose est réglée pour ce créneau.",
+  "noSuggestion": "Aucun exercice équivalent avec ton matériel.",
+  "all": "Tous les exercices",
+  "allCount": "{{count}} avec ton matériel",
+  "results": "Résultats",
+  "resultsCount": "{{count}} avec ton matériel",
+  "meta": "{{pattern}}, {{muscles}}",
+  "current": "Actuel",
+  "inSession": "Déjà dans cette séance",
+  "away": "{{name}} le remplace dans tes séances.",
+  "concern": {
+    "rope-beginner": "Technique exigeante",
+    "no-fitting-load": "Charge à vérifier"
+  },
+  "ownedNote": "Seuls les exercices que ton matériel permet sont listés. Un exercice choisi part avec la dose prévue pour sa partie.",
+  "empty": {
+    "title": "Aucun exercice trouvé",
+    "body": "Essaie un autre mot, ou retire un filtre.",
+    "equipment_one": "<b>{{count}} exercice</b> correspond mais demande du matériel que tu n’as pas : {{equipment}}.",
+    "equipment_other": "<b>{{count}} exercices</b> correspondent mais demandent du matériel que tu n’as pas : {{equipment}}.",
+    "clearFilters": "Retirer les filtres",
+    "clearSearch": "Effacer la recherche"
+  },
+  "filter": {
+    "title": "Filtrer",
+    "line": "Choisis-en autant que tu veux. Seulement ce que ton matériel permet.",
+    "show_one": "Voir {{count}} exercice",
+    "show_other": "Voir {{count}} exercices",
+    "none": "Aucun exercice",
+    "clearAll": "Tout effacer"
+  },
+  "bringBack": {
+    "title": "Ramener cet exercice ?",
+    "body": "<b>{{name}}</b> revient dans toutes tes séances, avec sa charge et son objectif. {{replacement}} ne le remplace plus.",
+    "pain": "Tu l’avais écarté après une douleur. La charge ne montera pas avant deux séances sans douleur.",
+    "hereReplace": "Il est aussi placé ici, à la place de l’exercice actuel.",
+    "hereAdd": "Il est aussi ajouté ici.",
+    "confirm": "Le ramener",
+    "cancel": "Annuler"
+  }
+}

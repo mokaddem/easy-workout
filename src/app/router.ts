@@ -11,6 +11,11 @@ export type Route =
   | { name: 'equipment' }
   | { name: 'data' }
   | { name: 'play'; source?: 'quick' }
+  /** The user's own sessions: the full list, and one of them. */
+  | { name: 'mine-list' }
+  | { name: 'mine'; sessionId: string }
+  /** The session editor: a programme session, or one of the user's own (`new` for a blank one). */
+  | { name: 'edit'; target: 'programme' | 'mine'; sessionId: string }
   | { name: 'not-found'; path: string };
 
 export type Tab = 'programme' | 'quick' | 'progress' | 'settings';
@@ -26,9 +31,12 @@ const STATIC: Record<string, Route> = {
   '/settings/equipment': { name: 'equipment' },
   '/settings/data': { name: 'data' },
   '/play': { name: 'play' },
+  '/quick/mine': { name: 'mine-list' },
 };
 
 const SESSION_PATH = /^\/programme\/session\/([^/]+)$/;
+const MINE_PATH = /^\/quick\/mine\/([^/]+)$/;
+const EDIT_PATH = /^\/edit\/(programme|mine)\/([^/]+)$/;
 
 export function parseLocation(pathname: string, search = ''): Route {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
@@ -56,6 +64,15 @@ export function parseLocation(pathname: string, search = ''): Route {
       ...(Number.isInteger(week) && week > 0 ? { week } : {}),
     };
   }
+  const mine = MINE_PATH.exec(path);
+  if (mine?.[1]) return { name: 'mine', sessionId: decodeURIComponent(mine[1]) };
+  const edit = EDIT_PATH.exec(path);
+  if (edit?.[1] && edit[2])
+    return {
+      name: 'edit',
+      target: edit[1] as 'programme' | 'mine',
+      sessionId: decodeURIComponent(edit[2]),
+    };
   return { name: 'not-found', path };
 }
 
@@ -79,6 +96,12 @@ export function routeHref(route: Route): string {
       return '/settings/equipment';
     case 'data':
       return '/settings/data';
+    case 'mine-list':
+      return '/quick/mine';
+    case 'mine':
+      return `/quick/mine/${encodeURIComponent(route.sessionId)}`;
+    case 'edit':
+      return `/edit/${route.target}/${encodeURIComponent(route.sessionId)}`;
     case 'not-found':
       return route.path;
     default:
@@ -93,6 +116,8 @@ export function tabOf(route: Route): Tab | null {
     case 'session':
       return 'programme';
     case 'quick':
+    case 'mine-list':
+    case 'mine':
       return 'quick';
     case 'progress':
       return 'progress';
@@ -109,6 +134,15 @@ export function parentOf(route: Route): Route {
   switch (route.name) {
     case 'session':
       return { name: 'programme' };
+    case 'mine-list':
+    case 'mine':
+      return { name: 'quick' };
+    case 'edit':
+      return route.target === 'programme'
+        ? { name: 'session', sessionId: route.sessionId }
+        : route.sessionId === 'new'
+          ? { name: 'quick' }
+          : { name: 'mine', sessionId: route.sessionId };
     case 'profile':
     case 'equipment':
     case 'data':
@@ -163,6 +197,8 @@ if (typeof window !== 'undefined') {
       restoring = false;
       return;
     }
+    // An overlay's own entry (the exercise picker) coming and going: no move between screens.
+    if (index === currentIndex) return;
     if (guard) {
       // The browser has already moved: step back to where we were, then ask.
       const delta = index - currentIndex;

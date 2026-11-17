@@ -1,0 +1,56 @@
+{
+  "back": "Back to the editor",
+  "replace": "Replace",
+  "addTo": {
+    "warmup": "Add to the warm-up",
+    "main": "Add to the main work",
+    "finisher": "Add to the finisher"
+  },
+  "search": "Search exercises",
+  "clear": "Clear search",
+  "movement": "Movement",
+  "muscle": "Muscle",
+  "filterOne": "{{group}}: {{value}}",
+  "filterMany": "{{group}} ({{count}})",
+  "suggested": "Suggested",
+  "suggestedLine": "Same movement and muscles, with your equipment. The dose is set for this slot.",
+  "noSuggestion": "No equivalent exercise with your equipment.",
+  "all": "All exercises",
+  "allCount": "{{count}} with your equipment",
+  "results": "Results",
+  "resultsCount": "{{count}} with your equipment",
+  "meta": "{{pattern}}, {{muscles}}",
+  "current": "Current",
+  "inSession": "Already in this session",
+  "away": "{{name}} replaces it in your sessions.",
+  "concern": {
+    "rope-beginner": "Technical",
+    "no-fitting-load": "Check the load"
+  },
+  "ownedNote": "Only exercises your equipment allows are listed. A picked exercise starts with the dose set for its section.",
+  "empty": {
+    "title": "No exercise found",
+    "body": "Try another word, or remove a filter.",
+    "equipment_one": "<b>{{count}} exercise</b> matches but needs equipment you don’t have: {{equipment}}.",
+    "equipment_other": "<b>{{count}} exercises</b> match but need equipment you don’t have: {{equipment}}.",
+    "clearFilters": "Clear filters",
+    "clearSearch": "Clear search"
+  },
+  "filter": {
+    "title": "Filter",
+    "line": "Pick as many as you like. Only what your equipment allows.",
+    "show_one": "Show {{count}} exercise",
+    "show_other": "Show {{count}} exercises",
+    "none": "No exercises",
+    "clearAll": "Clear all"
+  },
+  "bringBack": {
+    "title": "Bring this exercise back?",
+    "body": "<b>{{name}}</b> comes back in all your sessions, with its load and goal. {{replacement}} no longer stands in for it.",
+    "pain": "You set it aside after pain. The load won’t go up until two pain-free sessions.",
+    "hereReplace": "It also goes here, in place of the current exercise.",
+    "hereAdd": "It is also added here.",
+    "confirm": "Bring it back",
+    "cancel": "Cancel"
+  }
+}

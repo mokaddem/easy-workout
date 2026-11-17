@@ -83,7 +83,44 @@
   padding: 6px var(--space-3) 6px var(--space-2);
 }
 .barText {
+  flex: 1;
+  min-width: 0;
   font-size: var(--type-meta-size);
   color: var(--color-text-muted);
   line-height: 1.4;
+}
+.barAction {
+  flex: none;
+}
+.noticeBody > button {
+  justify-self: start;
+  width: auto;
+  min-height: 48px;
+  padding-inline: 0;
+  text-align: start;
+}
+.notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0 var(--layout-gutter);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}
+.notice > svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--color-text-muted);
+}
+.noticeBody {
+  display: grid;
+  flex: 1;
+  gap: var(--space-1);
+  justify-items: start;
+}
+.noticeBody b {
+  font-weight: var(--font-weight-bold);
 }

@@ -364,6 +364,20 @@
   font-weight: var(--font-weight-semibold);
   font-stretch: var(--font-width-label);
 }
+.colMine b {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 1px;
+  place-items: center;
+  border: var(--border-control) dashed var(--color-text);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-18);
+}
+.colMine span {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
 .wk {
   font-size: 14px;
   font-weight: var(--font-weight-bold);
@@ -481,6 +495,10 @@
   height: 48px;
   border-radius: var(--radius-sm);
   background: var(--color-surface-sunken);
+}
+.rowIdMine {
+  border: var(--border-control) dashed var(--color-text);
+  background: transparent;
 }
 .rowId .num {
   font-size: var(--font-size-36);

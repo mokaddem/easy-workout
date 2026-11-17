@@ -16,7 +16,7 @@ import { defaultSettings } from './repo';
 
 export const BACKUP_FORMAT = 'easy-workout-backup';
 /** Raised whenever the stored shape changes; older files are migrated on import. */
-export const BACKUP_SCHEMA_VERSION = 2;
+export const BACKUP_SCHEMA_VERSION = 3;
 
 const ProgrammeRecordSchema = z
   .looseObject({
@@ -45,7 +45,9 @@ const BackupDataSchema = z.strictObject({
   settings: SettingsSchema.nullable(),
   equipment: z.array(EquipmentItemSchema),
   programmes: z.array(ProgrammeRecordSchema),
-  customSessions: z.array(SessionSchema.extend({ updatedAt: DateTimeSchema })),
+  customSessions: z.array(
+    SessionSchema.extend({ updatedAt: DateTimeSchema, base: SessionSchema.optional() }),
+  ),
   sessionLogs: z.array(SessionLogSchema),
   checkIns: z.array(CheckInSchema),
   maxTests: z.array(MaxTestSchema),
@@ -109,6 +111,8 @@ export type ParsedBackup =
 const MIGRATIONS: Record<number, (data: unknown) => unknown> = {
   /** Version 2 keeps the answers to proposals about exercises. */
   1: (data) => (data && typeof data === 'object' ? { answers: [], ...data } : data),
+  /** Version 3 adds edited and replaced programme sessions; earlier files have none. */
+  2: (data) => data,
 };
 
 /** Checks a file read from disk before anything is replaced. */

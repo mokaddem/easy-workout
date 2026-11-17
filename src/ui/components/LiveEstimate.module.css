@@ -1,0 +1,42 @@
+.live {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+}
+.num {
+  color: var(--color-text);
+  font-size: var(--type-numeral-s-size);
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--type-numeral-tracking);
+  line-height: 1;
+}
+.delta {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+  font-size: 13px;
+  font-weight: 700;
+  font-stretch: var(--font-width-label);
+  white-space: nowrap;
+}
+/* The tag rises from press scale each time its text changes. */
+@keyframes delta-pop {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-sm)) scale(var(--motion-scale-press));
+  }
+}
+.delta {
+  animation: delta-pop var(--duration-fast) var(--ease-snap) backwards;
+}

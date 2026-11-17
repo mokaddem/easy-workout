@@ -13,6 +13,7 @@ import { switchBack, useProgressContext, usePreparedSession } from '@/app/progre
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
 import {
+  ensureSlots,
   phaseForWeek,
   prepareSession,
   weekRole,
@@ -20,7 +21,10 @@ import {
   setAdjustments,
   type Proposal,
 } from '@/engine';
+import { repo } from '@/db/repo';
 import {
+  ActionSheet,
+  BarButton,
   Button,
   Dialog,
   Dock,
@@ -29,6 +33,7 @@ import {
   IconButton,
   Sheet,
   Skeleton,
+  useToast,
 } from '@/ui/components';
 import { ProposalCard, Rich, loadText, repsText, secondsText, tokenOf } from '../adapt';
 import { breakNotice, itemGoals, proposalFacts, swapAnswerFor } from './adaptation';
@@ -36,6 +41,7 @@ import { useBegin } from '../play/begin';
 import { startProgrammeSession } from '../play/start';
 import { effortText } from './effort';
 import { exerciseName, sessionIdentity, weekChanges, type WeekChanges } from './format';
+import { hasHistory, placeState } from './edits';
 import { SessionView } from './SessionView';
 import { WeekRuler } from './WeekRuler';
 import styles from './SessionScreen.module.css';
@@ -136,6 +142,10 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const { begin, dialog: beginDialog } = useBegin();
   const [choose, setChoose] = useState<Proposal | null>(null);
   const [back, setBack] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [unplacing, setUnplacing] = useState(false);
+  const [more, setMore] = useState(false);
+  const toast = useToast();
 
   const session = record?.rotation.find((s) => s.id === route.sessionId);
   const position = record ? nextSession(record, logs) : null;
@@ -217,7 +227,12 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
 
   const plan = sessionForWeek(record, session.id, week);
   const previous = week > 1 ? sessionForWeek(record, session.id, week - 1) : null;
-  const identity = sessionIdentity(session, lang, record.rotation);
+  const place = placeState(record, session.id);
+  const placed = place.kind === 'placed';
+  const baseIdentity = sessionIdentity(session, lang, record.rotation);
+  // A session of the user's own keeps its name whole: it has no "Session A — " prefix to drop.
+  const identity = placed ? { ...baseIdentity, title: baseIdentity.fullName } : baseIdentity;
+  const letter = identity.letter ?? '';
   const phase = phaseForWeek(record, week);
   const isCurrentWeek = week === position.week;
   const isNext = session.id === position.sessionId;
@@ -234,6 +249,40 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const brk = prepared ? breakNotice(prepared.notes) : undefined;
   const notices = (
     <>
+      {place.kind === 'edited' ? (
+        <div className={styles.notice}>
+          <Icon name="pencil" size={20} />
+          <div className={styles.noticeBody}>
+            <span>
+              <Trans
+                i18nKey="programme.session.edited"
+                count={place.edits.count}
+                components={{ b: <b /> }}
+              />
+            </span>
+            <Button variant="ghost" onClick={() => setRestoring(true)}>
+              {t('programme.session.restore')}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+      {place.kind === 'placed' ? (
+        <div className={styles.notice}>
+          <Icon name="bookmark" size={20} />
+          <div className={styles.noticeBody}>
+            <span>
+              <Trans
+                i18nKey="programme.session.placed"
+                values={{ letter }}
+                components={{ b: <b /> }}
+              />
+            </span>
+            <Button variant="ghost" onClick={() => setUnplacing(true)}>
+              {t('programme.session.unplace')}
+            </Button>
+          </div>
+        </div>
+      ) : null}
       {brk ? (
         <p className={styles.flag}>
           <Icon name="hourglass" size={20} />
@@ -316,6 +365,19 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
             total: record.weeks,
           })}
         </span>
+        <BarButton
+          className={styles.barAction}
+          icon="pencil"
+          label={t('programme.session.edit')}
+          onClick={() =>
+            navigate(
+              place.kind === 'placed'
+                ? { name: 'edit', target: 'mine', sessionId: place.customId }
+                : { name: 'edit', target: 'programme', sessionId: session.id },
+            )
+          }
+        />
+        <IconButton icon="more" label={t('programme.session.more')} onClick={() => setMore(true)} />
       </div>
       <div className={styles.scroll}>
         <SessionView
@@ -331,7 +393,17 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
                 },
               }
             : {})}
-          notes={record.generation?.notes ?? []}
+          notes={placed ? [] : (record.generation?.notes ?? [])}
+          {...(place.kind === 'edited'
+            ? {
+                editing: {
+                  stored: ensureSlots(session),
+                  edits: place.edits,
+                  history: (id: string) => hasHistory(logs, id),
+                },
+              }
+            : {})}
+          {...(placed ? { kickerLabel: t('programme.session.mine') } : {})}
           mode="programme"
           identity={identity}
           inventory={record.generation?.equipment ?? equipment ?? []}
@@ -374,6 +446,75 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
         </Dock>
       ) : null}
       {beginDialog}
+      <ActionSheet
+        open={more}
+        onClose={() => setMore(false)}
+        title={identity.fullName}
+        closeLabel={t('common.close')}
+        groups={[
+          [
+            {
+              id: 'copy',
+              icon: 'copy',
+              label: t('programme.session.copy'),
+              hint: t('programme.session.copyHint'),
+              onSelect: () => {
+                setMore(false);
+                void copyToMine();
+              },
+            },
+          ],
+        ]}
+      />
+      <Dialog
+        open={restoring}
+        onClose={() => setRestoring(false)}
+        title={t('programme.restore.title')}
+        description={
+          place.kind === 'edited'
+            ? t('programme.restore.body', {
+                count: place.edits.count,
+                letter: letter || identity.title,
+              })
+            : undefined
+        }
+        confirmLabel={t('programme.restore.confirm')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        onConfirm={() => {
+          setRestoring(false);
+          void repo.resetProgrammeSession(record.id, session.id).then(() =>
+            toast.show({
+              message: t('programme.restore.done', { letter: letter || identity.title }),
+            }),
+          );
+        }}
+      />
+      <Dialog
+        open={unplacing}
+        onClose={() => setUnplacing(false)}
+        title={t('programme.unplace.title')}
+        description={
+          place.kind === 'placed'
+            ? t('programme.unplace.body', {
+                name: place.generatedName[lang],
+                letter: letter || identity.title,
+              })
+            : undefined
+        }
+        confirmLabel={t('programme.unplace.confirm')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        onConfirm={() => {
+          setUnplacing(false);
+          const name = place.kind === 'placed' ? place.generatedName[lang] : '';
+          void repo.resetProgrammeSession(record.id, session.id).then(() =>
+            toast.show({
+              message: t('programme.unplace.done', { name, letter: letter || identity.title }),
+            }),
+          );
+        }}
+      />
       <Sheet
         open={choose !== null}
         onClose={() => setChoose(null)}
@@ -413,6 +554,26 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
       />
     </>
   );
+
+  /** A copy of the session as it stands (edits included) among the user's own. */
+  async function copyToMine() {
+    if (!session) return;
+    const { id: _id, ...rest } = session;
+    const copyName = (name: string, l: Language) =>
+      i18n.getFixedT(l)('programme.session.copyName', { name: name.slice(0, 28) });
+    const saved = await repo.saveCustomSession({
+      ...rest,
+      name: { fr: copyName(session.name.fr, 'fr'), en: copyName(session.name.en, 'en') },
+      base: session,
+    });
+    toast.show({
+      message: t('programme.session.copied'),
+      action: {
+        label: t('programme.session.copiedView'),
+        onAction: () => navigate({ name: 'mine', sessionId: saved.id }),
+      },
+    });
+  }
 
   function switchBackText(id: string): string {
     const item = original;

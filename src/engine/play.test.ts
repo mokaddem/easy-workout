@@ -312,6 +312,31 @@ describe('intensity weeks', () => {
     });
   });
 
+  it('never makes a set easier than the item, and an item already that hard backs off nothing', () => {
+    const plan = {
+      session: {
+        warmup: [],
+        main: [
+          straight(
+            item('dumbbell-floor-press', { load: { kind: 'kg' as const, kg: 12 }, rir: 0 }),
+            3,
+            90,
+          ),
+        ],
+        finisher: [],
+      } as unknown as Session,
+      setRir: { first: 1, last: 2 },
+      backOffLoadFactor: 0.9,
+    };
+    const adjustments = setAdjustments(plan, inventory);
+    expect(adjustments?.backOffLoads).toBeUndefined();
+    const steps = playSteps(plan.session, adjustments);
+    expect(steps.map((s) => s.planned.rir)).toEqual([0, 0, 0]);
+    expect(steps.every((s) => s.planned.load?.kind === 'kg' && s.planned.load.kg === 12)).toBe(
+      true,
+    );
+  });
+
   it('changes nothing in other weeks', () => {
     expect(setAdjustments(weeks[0]!, inventory)).toBeUndefined();
   });

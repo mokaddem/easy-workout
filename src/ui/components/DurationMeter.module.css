@@ -1,0 +1,107 @@
+.meter {
+  position: relative;
+  z-index: var(--z-sticky);
+  display: grid;
+  flex: none;
+  grid-template-columns: auto 1fr;
+  column-gap: 18px;
+  align-items: end;
+  padding: 2px var(--layout-gutter) 14px;
+  border-bottom: var(--border-hairline) solid var(--color-line);
+  background: var(--color-bg);
+}
+.number {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.num {
+  font-size: var(--font-size-48);
+  font-weight: var(--type-numeral-weight);
+  font-stretch: var(--type-numeral-width);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--type-numeral-tracking);
+  line-height: 0.8;
+}
+.empty {
+  color: var(--color-text-subtle);
+}
+.number small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-21);
+  font-weight: var(--font-weight-heavy);
+  font-stretch: var(--font-width-numeral);
+}
+.right {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding-bottom: 1px;
+}
+.plain .right {
+  padding-bottom: 3px;
+}
+.track {
+  position: relative;
+  height: 8px;
+  border-radius: var(--radius-xs);
+  background: var(--color-track);
+}
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: var(--radius-xs);
+  background: var(--color-text);
+  transition: width var(--duration-base) var(--ease-move);
+}
+.over {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  background: repeating-linear-gradient(-45deg, var(--color-text) 0 2px, transparent 2px 5px);
+  transition:
+    width var(--duration-base) var(--ease-move),
+    left var(--duration-base) var(--ease-move);
+}
+.tick {
+  position: absolute;
+  top: -6px;
+  width: 3px;
+  height: 20px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--color-text);
+  box-shadow: 0 0 0 2px var(--color-bg);
+  transition: left var(--duration-base) var(--ease-move);
+}
+.line {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.line b {
+  color: var(--color-text);
+}
+.hidden {
+  position: absolute;
+  /* Pinned: left at its place in a long list, it would stretch the page past its scroller. */
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .over,
+  .tick {
+    transition: none;
+  }
+}

@@ -239,6 +239,7 @@
     "switchOnEnd": "Ton programme est terminé.",
     "switchOff": "Cette séance te sera reproposée la prochaine fois.",
     "quickNotice": "Hors programme : ta rotation ne bouge pas.",
+    "customNotice": "Ta séance, hors programme : ta rotation et tes charges ne bougent pas.",
     "backProgramme": "Retour au programme",
     "backQuick": "Retour aux séances rapides",
     "context": "Semaine {{week}} · {{name}}",

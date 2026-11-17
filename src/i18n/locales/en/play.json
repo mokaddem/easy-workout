@@ -239,6 +239,7 @@
     "switchOnEnd": "Your programme is complete.",
     "switchOff": "This session will be offered again next time.",
     "quickNotice": "Outside your programme: your rotation stays where it is.",
+    "customNotice": "Your own session, outside your programme: your rotation and your loads stay where they are.",
     "backProgramme": "Back to programme",
     "backQuick": "Back to quick sessions",
     "context": "Week {{week}} · {{name}}",

@@ -6,6 +6,7 @@ export {
   CrossFade,
   PresenceList,
   ListRowMotion,
+  RowMotion,
   Tick,
   Pulse,
   Flood,

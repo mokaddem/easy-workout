@@ -1,0 +1,12 @@
+.range {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+.word {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+}

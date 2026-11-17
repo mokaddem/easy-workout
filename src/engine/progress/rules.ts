@@ -215,6 +215,11 @@ const withItem = (
   return item;
 };
 
+/** A range left this long while the exercise ran in another one resumes from the newer one. */
+const STALE_KEY_DAYS = 21;
+/** How far back a new range looks for the exercise's strongest evidence. */
+const SEED_WINDOW_DAYS = 42;
+
 const usable = (exposures: readonly Exposure[]) =>
   exposures.filter((e) => e.evidence.length > 0 && e.role !== 'deload');
 
@@ -235,38 +240,55 @@ export function progressItem(input: ItemInput): ItemResult {
 }
 
 /**
- * Seeds a key from the exercise's latest exposure elsewhere (another range or block). Only real
- * logs carry over: untouched one-taps say nothing about another range, so the plan's load stays.
+ * Seeds a key from the exercise's history elsewhere (another range or block, or the same key
+ * after a long while on another): the strongest of its recent training-week exposures, an
+ * untouched one-tap counting as its planned goal at its planned RIR. Never more than one step
+ * heavier than that exposure, never more than one step under `floor` (the key's own last load);
+ * only a heavier load gets the new-weight check.
  */
 function fromHistory(
   input: ItemInput,
   ladder: Ladder,
   lo: number,
   hi: number,
+  floor?: Exposure,
 ): ItemResult | undefined {
-  const other = usable(input.all)[0];
-  if (!other || !other.touched) return undefined;
+  const pool = usable(input.all);
+  const newest = pool[0];
+  if (!newest) return undefined;
   const { base } = input;
   const rir = base.rir ?? 2;
-  let rung = rungOf(ladder, other.item.load);
-  let goal = lo;
-  const fromKg = effectiveKg(ladder, rung);
-  const first = other.evidence[0]!;
-  if (fromKg !== undefined && other.item.target.kind === 'reps') {
-    const cap = capacity(fromKg, first.value, (first.rir ?? other.item.rir ?? 2) + first.feel);
-    // The heaviest load that reaches the range.
-    let best = 0;
-    for (let r = 0; r < rungCount(ladder); r++) {
-      const kg = effectiveKg(ladder, r);
-      if (kg !== undefined && predictReps(cap, kg, rir) >= lo) best = r;
-    }
-    rung = best;
-    goal = Math.min(hi, Math.max(lo, predictReps(cap, effectiveKg(ladder, rung)!, rir)));
+  const since = Date.parse(newest.at) - SEED_WINDOW_DAYS * 86_400_000;
+  // The strongest recent evidence: a light circuit or a low-rep one-tap undersells the lifter.
+  let best: { exposure: Exposure; cap: number } | undefined;
+  for (const e of pool) {
+    if (Date.parse(e.at) < since || e.role !== 'build' || e.item.target.kind !== 'reps') continue;
+    const kg = effectiveKg(ladder, rungOf(ladder, e.item.load));
+    const first = e.evidence[0];
+    if (kg === undefined || !first) continue;
+    const cap = capacity(kg, first.value, (first.rir ?? e.item.rir ?? 2) + first.feel);
+    if (!best || cap > best.cap) best = { exposure: e, cap };
   }
+  const other = best?.exposure ?? newest;
+  const from = rungOf(ladder, other.item.load);
+  let rung = from;
+  let goal = lo;
+  if (best) {
+    // The heaviest load that reaches the range, at most one step up.
+    let top = 0;
+    for (let r = 0; r <= Math.min(from + 1, rungCount(ladder) - 1); r++) {
+      const kg = effectiveKg(ladder, r);
+      if (kg !== undefined && predictReps(best.cap, kg, rir) >= lo) top = r;
+    }
+    rung = top;
+  }
+  if (floor) rung = Math.max(rung, rungOf(ladder, floor.item.load) - 1);
+  const kg = effectiveKg(ladder, rung);
+  if (best && kg !== undefined) goal = Math.min(hi, Math.max(lo, predictReps(best.cap, kg, rir)));
   const load = ladder.kind === 'none' ? base.load : loadAt(ladder, rung);
   return {
     item: withItem(base, load, goal, base.tempo),
-    note: note('from-history', { load: loadToken(load), goal }, !sameLoad(load, other.item.load)),
+    note: note('from-history', { load: loadToken(load), goal }, rung > from),
   };
 }
 
@@ -290,6 +312,19 @@ function progressReps(input: ItemInput): ItemResult {
   const evidence = usable(input.exposures).filter(
     (e) => e.role === 'build' || read(e).outcome === 'hit',
   );
+  // A range not done for weeks while another one moved on starts again from the newer one.
+  const newest = usable(input.all)[0];
+  const sameKey = evidence[0];
+  if (
+    sameKey &&
+    newest &&
+    input.role !== 'deload' &&
+    newest.key !== sameKey.key &&
+    Date.parse(newest.at) - Date.parse(sameKey.at) > STALE_KEY_DAYS * 86_400_000
+  ) {
+    const seeded = fromHistory(input, ladder, lo, hi, sameKey);
+    if (seeded) return breakAdjust(input, seeded, ladder, lo);
+  }
   const atGoal = (e: Exposure) => goalAtTwo(e, loadOnly) + 2 - rir;
   const allowLow = input.level !== 'beginner' && exercise.pattern !== 'hinge';
 

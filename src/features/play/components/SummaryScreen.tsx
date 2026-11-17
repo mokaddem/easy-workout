@@ -200,10 +200,10 @@ function Summary({ log }: { log: SessionLog }) {
                 meta={counts ? onLine : t('play.summary.switchOff')}
               />
             </Card>
-          ) : quick ? (
+          ) : quick || log.source.kind === 'custom' ? (
             <p className={styles.notice}>
               <Icon name="info" size={20} />
-              <span>{t('play.summary.quickNotice')}</span>
+              <span>{t(quick ? 'play.summary.quickNotice' : 'play.summary.customNotice')}</span>
             </p>
           ) : null}
 

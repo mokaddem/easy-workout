@@ -165,3 +165,52 @@ describe('session logs', () => {
     });
   });
 });
+
+describe("sessions of the user's own", () => {
+  it('saves, places, keeps in sync and deletes', async () => {
+    const repo = setup();
+    const stored = await repo.completeSetup(
+      profile,
+      equipment,
+      generateProgramme({ profile, equipment }),
+    );
+    const generated = stored.rotation[0]!;
+    const { id: _, ...draft } = { ...generated, name: { fr: 'Ma séance', en: 'My session' } };
+    const own = await repo.saveCustomSession(draft, new Date('2026-11-16T10:00:00Z'));
+    expect(own.id).toMatch(/^own-/);
+    expect((await repo.listCustomSessions()).map((s) => s.id)).toEqual([own.id]);
+
+    await repo.placeCustomSession(stored.id, generated.id, own.id);
+    let active = (await repo.getActiveProgramme())!;
+    expect(active.placements).toEqual({ [generated.id]: own.id });
+    expect(active.rotation[0]!.name.en).toBe('My session');
+
+    await repo.saveCustomSession({ ...own, name: { fr: 'Poussée', en: 'Push day' } });
+    active = (await repo.getActiveProgramme())!;
+    expect(active.rotation[0]!.name.en).toBe('Push day');
+
+    await repo.deleteCustomSession(own.id);
+    active = (await repo.getActiveProgramme())!;
+    expect(active.placements).toBeUndefined();
+    expect(active.rotation[0]).toEqual(generated);
+    expect(await repo.listCustomSessions()).toEqual([]);
+  });
+
+  it('stores an edit of a programme session and resets it', async () => {
+    const repo = setup();
+    const stored = await repo.completeSetup(
+      profile,
+      equipment,
+      generateProgramme({ profile, equipment }),
+    );
+    const session = stored.rotation[0]!;
+    await repo.saveProgrammeSession(stored.id, { ...session, main: session.main.slice(1) });
+    let active = (await repo.getActiveProgramme())!;
+    expect(active.rotation[0]!.main).toHaveLength(session.main.length - 1);
+    expect(active.generatedRotation?.[0]).toEqual(session);
+    await repo.resetProgrammeSession(stored.id, session.id);
+    active = (await repo.getActiveProgramme())!;
+    expect(active.rotation[0]).toEqual(session);
+    expect(active.generatedRotation).toBeUndefined();
+  });
+});

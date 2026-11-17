@@ -26,7 +26,20 @@
     "sameEveryWeek": "Même séance chaque semaine : le jour cardio ne suit pas les phases.",
     "context": "{{name}}, semaine {{week}} sur {{total}}",
     "previewNote": "Aperçu d’une autre semaine. Ta séance du jour reste celle de la semaine {{week}}.",
-    "backToWeek": "Revenir à la semaine {{week}}"
+    "backToWeek": "Revenir à la semaine {{week}}",
+    "edit": "Modifier",
+    "more": "Plus d’actions",
+    "mine": "Ma séance",
+    "edited_one": "<b>Modifiée par toi</b> : 1 changement, pour tout le cycle.",
+    "edited_other": "<b>Modifiée par toi</b> : {{count}} changements, pour tout le cycle.",
+    "restore": "Rétablir la séance du programme",
+    "copy": "Copier dans mes séances",
+    "copyHint": "Pour en faire ta propre séance",
+    "copyName": "{{name}} (copie)",
+    "copied": "Séance copiée dans Mes séances",
+    "copiedView": "Voir",
+    "placed": "<b>Ta séance, à la place de la séance {{letter}}</b> du programme. Elle progresse et suit les semaines.",
+    "unplace": "Retirer du programme"
   },
   "week": {
     "group": "Semaine du programme",
@@ -183,10 +196,14 @@
       "next": "Semaine {{week}} : prochaine séance",
       "todo": "Semaine {{week}} : à faire",
       "later": "Semaine {{week}} : plus tard"
-    }
+    },
+    "mine": "Perso",
+    "mineSr": "{{letter}}, ma séance"
   },
   "sessions": {
-    "title": "Séances"
+    "title": "Séances",
+    "mineMeta": "Ma séance, ~{{minutes}} min. Remplace : {{name}}",
+    "editedMeta": "~{{minutes}} min, modifiée par toi"
   },
   "meta": {
     "withCardio_one": "{{weeks}} semaines, {{count}} séance (+ {{cardio}} jour cardio) par semaine",
@@ -224,7 +241,58 @@
     "keepCurrentNew": "Garder l’actuel",
     "doneNew": "Nouveau programme en place",
     "doneVariant": "Variante en place",
-    "openSession": "Une séance est ouverte : elle continue sur son propre plan et ne comptera pas pour le nouveau programme."
+    "openSession": "Une séance est ouverte : elle continue sur son propre plan et ne comptera pas pour le nouveau programme.",
+    "edits": {
+      "title": "Tes modifications",
+      "kept_one": "gardée",
+      "kept_other": "gardées",
+      "dropped_one": "ne s’applique plus",
+      "dropped_other": "ne s’appliquent plus",
+      "allKept": "Toutes s’appliquent au nouveau programme.",
+      "where": "Séance {{letter}}, {{session}} : {{what}}",
+      "whereNoLetter": "{{session}} : {{what}}",
+      "what": {
+        "added": "ton ajout",
+        "removed": "retiré par toi",
+        "replaced": "remplacé par toi",
+        "dose": "{{new}} au lieu de {{old}}",
+        "grouped": "superset fait par toi",
+        "placed": "ta séance placée ici",
+        "edited": "modifié par toi"
+      },
+      "why": {
+        "equipment": "Il faut {{equipment}}, plus dans ton matériel.",
+        "unusable": "Cet exercice n’est plus faisable avec ton nouveau profil ou matériel.",
+        "slotGone": "L’exercice quitte la séance : la version du nouveau programme s’applique.",
+        "sessionGone": "La séance {{letter}} n’existe plus avec {{days}} jours par semaine.",
+        "sessionGoneNoLetter": "Cette séance n’existe plus avec {{days}} jours par semaine.",
+        "placementUnusable": "Ta séance contient un exercice plus faisable. Elle reste dans Mes séances."
+      },
+      "equip": {
+        "dumbbell": "des haltères",
+        "kettlebell": "une kettlebell",
+        "band": "un élastique",
+        "mini-band": "une mini-bande",
+        "weight-belt": "une ceinture de lest",
+        "weight-vest": "un gilet lesté",
+        "pull-up-bar": "une barre de traction",
+        "dip-bars": "des barres à dips",
+        "bench": "un banc",
+        "treadmill": "un tapis de course",
+        "stationary-bike": "un vélo d’appartement",
+        "rower": "un rameur",
+        "jump-rope": "une corde à sauter",
+        "ab-wheel": "une roue abdominale",
+        "suspension-trainer": "des sangles de suspension"
+      },
+      "showKept_one": "Voir la gardée",
+      "showKept_other": "Voir les {{count}} gardées",
+      "splitChanged_one": "Le découpage change : ta modification ne s’applique plus.",
+      "splitChanged_other": "Le découpage change : tes {{count}} modifications ne s’appliquent plus.",
+      "showList": "Voir la liste",
+      "checkTitle": "À vérifier",
+      "check": "{{session}} : {{issue}}"
+    }
   },
   "why": {
     "title": "Pourquoi ce programme ?",
@@ -243,5 +311,39 @@
     "cue": "Point clé",
     "close": "Compris"
   },
-  "resumeSession": "Reprendre la séance"
+  "resumeSession": "Reprendre la séance",
+  "restore": {
+    "title": "Rétablir la séance du programme ?",
+    "body_one": "Ta modification de la séance {{letter}} est effacée, pour toutes les semaines. Tes séances déjà faites restent dans ton historique.",
+    "body_other": "Tes {{count}} modifications de la séance {{letter}} sont effacées, pour toutes les semaines. Tes séances déjà faites restent dans ton historique.",
+    "confirm": "Rétablir la séance",
+    "done": "Séance {{letter}} rétablie"
+  },
+  "unplace": {
+    "title": "Retirer du programme ?",
+    "body": "{{name}} reprend sa place en séance {{letter}}, avec ses charges. Ta séance reste dans Mes séances.",
+    "confirm": "Retirer du programme",
+    "done": "{{name}} est de retour en séance {{letter}}"
+  },
+  "edit": {
+    "range": "Modifié par toi : {{new}} au lieu de {{old}}. Même charge, objectif recalé.",
+    "time": "Modifié par toi : {{new}} au lieu de {{old}}.",
+    "minutes": "Modifié par toi : {{new}} au lieu de {{old}}.",
+    "sets": "Modifié par toi : {{new}} au lieu de {{old}}.",
+    "effort": "Modifié par toi : {{new}} au lieu de {{old}}.",
+    "rest": "Modifié par toi : {{new}} au lieu de {{old}}.",
+    "replaced": "Modifié par toi. Avant : {{name}}.",
+    "added": "Ajouté par toi. Charge de départ tirée de ton historique.",
+    "addedNew": "Ajouté par toi. Première fois : charge de départ estimée.",
+    "grouped": "Mis en superset par toi.",
+    "several": "Modifié par toi : {{list}}.",
+    "unit": {
+      "reps": "{{value}} reps",
+      "s": "{{value}} s",
+      "min": "{{value}} min",
+      "sets_one": "{{count}} série",
+      "sets_other": "{{count}} séries",
+      "rest": "repos {{value}} s"
+    }
+  }
 }

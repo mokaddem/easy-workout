@@ -1,5 +1,7 @@
 import type { Block, Phase, Programme, Session, SessionItem } from '../domain';
+import { exerciseById as catalogueById } from '../catalogue';
 import { sessionMinutes, sessionSeconds } from './duration';
+import { isMainLift } from './generate/safety';
 
 /** A session as it runs in a given week of its programme. */
 export interface WeekPlan {
@@ -25,6 +27,17 @@ const isCardioBlock = (block: Block) => block.type === 'straight' && isCardioIte
 
 /** RIR only means something for sets counted in reps. */
 const takesRir = (item: SessionItem) => item.target.kind === 'reps' || item.target.kind === 'max';
+
+/**
+ * A week's RIR applies to sets counted in reps that have an effort target, or have none and
+ * aren't jumps: a jump or a swing is done crisp, never taken near failure.
+ */
+export const takesPhaseRir = (item: SessionItem): boolean => {
+  if (!takesRir(item)) return false;
+  if (item.rir !== undefined) return true;
+  const tags = catalogueById.get(item.exerciseId)?.tags ?? [];
+  return !tags.includes('plyometric') && !tags.includes('ballistic');
+};
 
 const mapItems = (block: Block, fn: (item: SessionItem) => SessionItem): Block =>
   block.type === 'straight'
@@ -79,6 +92,23 @@ const addCardioMinutes = (item: SessionItem, minutes: number): SessionItem => {
   return item;
 };
 
+/**
+ * Main blocks in the order extra sets go to them: blocks led by a lift that can carry a
+ * session first, then the other non-cardio blocks, each group in session order. The
+ * reference's "+1 set on exercises 1 and 2" are its first two lead lifts, wherever the user
+ * moved them.
+ */
+const leadBlocks = (main: readonly Block[]): number[] => {
+  const work = main.flatMap((b, i) => (isCardioBlock(b) ? [] : [i]));
+  const leads = work.filter((i) => {
+    const first = catalogueById.get(
+      (main[i]!.type === 'straight' ? main[i]!.item : main[i]!.items[0]!).exerciseId,
+    );
+    return first !== undefined && isMainLift(first);
+  });
+  return [...leads, ...work.filter((i) => !leads.includes(i))];
+};
+
 export const phaseForWeek = (programme: Programme, week: number): Phase | undefined =>
   programme.phases.find((p) => p.fromWeek <= week && week <= p.toWeek);
 
@@ -101,18 +131,22 @@ export const sessionForWeek = (programme: Programme, sessionId: string, week: nu
   for (const adjustment of phase?.adjustments ?? []) {
     switch (adjustment.kind) {
       case 'rir':
-        if (adjustment.scope === 'all-sets')
-          main = main.map((b) =>
-            isCardioBlock(b)
-              ? b
-              : mapItems(b, (i) => (takesRir(i) ? { ...i, rir: adjustment.value } : i)),
+        if (adjustment.scope === 'all-sets') {
+          // A whole-week RIR (re-adaptation, deload) eases sets; it never makes one harder than
+          // its own. Finisher work only changes when it has an RIR of its own.
+          const ease = (i: SessionItem) =>
+            takesPhaseRir(i) ? { ...i, rir: Math.max(adjustment.value, i.rir ?? 0) } : i;
+          main = main.map((b) => (isCardioBlock(b) ? b : mapItems(b, ease)));
+          finisher = finisher.map((b) =>
+            isCardioBlock(b) ? b : mapItems(b, (i) => (i.rir === undefined ? i : ease(i))),
           );
-        else if (adjustment.scope === 'first-set') setRir.first = adjustment.value;
+        } else if (adjustment.scope === 'first-set') setRir.first = adjustment.value;
         else setRir.last = adjustment.value;
         break;
       case 'extra-sets': {
         const cap = maxSetsFor(programme);
-        for (const index of adjustment.mainBlockIndexes) {
+        const leads = leadBlocks(main);
+        for (const index of adjustment.mainBlockIndexes.map((k) => leads[k] ?? -1)) {
           const b = main[index];
           if (!b || isCardioBlock(b)) continue;
           const grown: Block =

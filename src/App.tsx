@@ -36,6 +36,9 @@ const EquipmentScreen = lazyScreen(
   'EquipmentScreen',
 );
 const PlayScreen = lazyScreen(() => import('@/features/play/PlayScreen'), 'PlayScreen');
+const MineListScreen = lazyScreen(() => import('@/features/mine/MineListScreen'), 'MineListScreen');
+const MineScreen = lazyScreen(() => import('@/features/mine/MineScreen'), 'MineScreen');
+const EditorScreen = lazyScreen(() => import('@/features/editor/EditorScreen'), 'EditorScreen');
 
 function lazyScreen<K extends string, P extends object>(
   load: () => Promise<Record<K, ComponentType<P>>>,
@@ -67,6 +70,12 @@ function Screen({ route }: { route: Route }) {
       return <DataScreen />;
     case 'play':
       return <PlayScreen route={route} />;
+    case 'mine-list':
+      return <MineListScreen />;
+    case 'mine':
+      return <MineScreen route={route} />;
+    case 'edit':
+      return <EditorScreen route={route} />;
     case 'not-found':
       return <PlaceholderScreen title={t('common.notFound')} icon="close" back />;
   }

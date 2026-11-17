@@ -18,7 +18,7 @@ import {
   type Proposal,
   type WeekPlan,
 } from '@/engine';
-import { Icon } from '@/ui/components';
+import { Icon, type IconName } from '@/ui/components';
 import {
   blockDelta,
   EQUIPMENT_ICON,
@@ -32,11 +32,21 @@ import {
   type SessionIdentity,
 } from './format';
 import { notesForItem } from './why';
+import { editLine, editSentence, type SessionEdits } from './edits';
 import { CardioRow, DeltaTag, Prescription, type ItemAdapt, type WhyRequest } from './Blocks';
 import { noteTag, pendingPainFor, swapAnswerFor, type ItemGoals } from './adaptation';
 import { effortText } from './effort';
 import { WhySheet } from './WhySheet';
 import styles from './SessionView.module.css';
+
+/** The user's changes to a programme session, for the edit lines. */
+export interface SessionEditing {
+  /** The stored session (without the week's adjustments), which the edits are measured on. */
+  stored: Session;
+  edits: SessionEdits;
+  /** The user has trained this exercise before. */
+  history: (exerciseId: string) => boolean;
+}
 
 /** What progression did to the session: the why of each exercise, swaps, pain waiting, set goals. */
 export interface SessionAdaptation {
@@ -68,6 +78,12 @@ export interface SessionViewProps {
   ruler?: ReactNode;
   /** Progression applied to `session`; absent for quick sessions. */
   adaptation?: SessionAdaptation;
+  /** Set when the user edited the session: edited rows say so, notes follow their slots. */
+  editing?: SessionEditing;
+  /** Replaces the kicker above the title ("My session"). */
+  kickerLabel?: string;
+  /** Glyph of the hero tile when the session has no letter (the user's own: bookmark). */
+  heroIcon?: IconName;
   /** Changes when the content is replaced in place (another week, a shuffle): the sections fade in. */
   contentKey?: string | number;
 }
@@ -87,6 +103,9 @@ export function SessionView({
   notices,
   ruler,
   adaptation,
+  editing,
+  kickerLabel,
+  heroIcon,
   contentKey = 0,
 }: SessionViewProps) {
   const { t, i18n } = useTranslation();
@@ -104,6 +123,33 @@ export function SessionView({
   const kinds = sessionEquipment(session, inventory);
   const count = exerciseCount(session);
   const sessionId = mode === 'programme' ? session.id : undefined;
+
+  /** Generation notes of one item; by slot once the session was edited. */
+  const notesOf = (
+    section: 'warmup' | 'main' | 'finisher',
+    blockIndex: number,
+    item: SessionItem,
+    itemIndex?: number,
+  ) =>
+    notesForItem(
+      notes,
+      {
+        ...(sessionId ? { sessionId } : {}),
+        section,
+        blockIndex,
+        ...(itemIndex === undefined ? {} : { itemIndex }),
+        ...(item.slot ? { slot: item.slot } : {}),
+      },
+      item.exerciseId,
+      editing?.edits.generated,
+    );
+
+  /** "Edited by you …" for an edited or added item, nothing otherwise. */
+  const editOf = (item: SessionItem): string | undefined => {
+    if (!editing || !item.slot || !editing.edits.items.has(item.slot)) return undefined;
+    const line = editLine(editing.stored, editing.edits.generated, item.slot, editing.history);
+    return line ? editSentence(t, line, (id) => exerciseName(id, lang)) : undefined;
+  };
 
   const adaptFor = (
     section: 'main' | 'finisher',
@@ -145,16 +191,7 @@ export function SessionView({
   ) =>
     setWhy({
       exerciseId: item.exerciseId,
-      notes: notesForItem(
-        notes,
-        {
-          ...(sessionId ? { sessionId } : {}),
-          section,
-          blockIndex,
-          ...(itemIndex === undefined ? {} : { itemIndex }),
-        },
-        item.exerciseId,
-      ),
+      notes: notesOf(section, blockIndex, item, itemIndex),
       first:
         mode === 'programme' &&
         section === 'main' &&
@@ -162,11 +199,13 @@ export function SessionView({
         !isCardioBlock(session.main[0]!),
     });
 
-  const kicker = identity.cardio
-    ? t('programme.session.cardioDay')
-    : mode === 'quick'
-      ? t('programme.session.quick')
-      : null;
+  const kicker =
+    kickerLabel ??
+    (identity.cardio
+      ? t('programme.session.cardioDay')
+      : mode === 'quick'
+        ? t('programme.session.quick')
+        : null);
   const long = identity.title.length > 14;
 
   let number = 0;
@@ -183,11 +222,7 @@ export function SessionView({
       if (block.type === 'straight') {
         const cardio = isCardioBlock(block);
         const label = !cardio && section === 'main' ? String(++number) : '';
-        const itemNotes = notesForItem(
-          notes,
-          { ...(sessionId ? { sessionId } : {}), section, blockIndex },
-          block.item.exerciseId,
-        );
+        const itemNotes = notesOf(section, blockIndex, block.item);
         return cardio ? (
           <CardioRow
             key={blockIndex}
@@ -197,6 +232,7 @@ export function SessionView({
             big={identity.cardio && section === 'main'}
             delta={delta}
             notes={itemNotes}
+            edit={editOf(block.item)}
             {...optional(adaptFor(section, blockIndex, 0, block.item))}
             onWhy={() => ask(section, blockIndex, block.item)}
           />
@@ -210,6 +246,7 @@ export function SessionView({
             restSec={block.restSec}
             delta={delta}
             notes={itemNotes}
+            edit={editOf(block.item)}
             {...(section === 'main' && setRir?.first !== undefined
               ? { firstSetRir: setRir.first }
               : {})}
@@ -255,11 +292,8 @@ export function SessionView({
                 label={letters[itemIndex] ?? ''}
                 first={itemIndex === 0}
                 sets={block.rounds}
-                notes={notesForItem(
-                  notes,
-                  { ...(sessionId ? { sessionId } : {}), section, blockIndex, itemIndex },
-                  item.exerciseId,
-                )}
+                notes={notesOf(section, blockIndex, item, itemIndex)}
+                edit={editOf(item)}
                 {...optional(adaptFor(section, blockIndex, itemIndex, item))}
                 onWhy={() => ask(section, blockIndex, item, itemIndex)}
               />
@@ -279,7 +313,7 @@ export function SessionView({
             </span>
           ) : (
             <span className={styles.letterIcon} aria-hidden="true">
-              <Icon name={identity.cardio ? 'heart' : 'bolt'} size={28} />
+              <Icon name={heroIcon ?? (identity.cardio ? 'heart' : 'bolt')} size={28} />
             </span>
           )}
           <div className={styles.idText}>

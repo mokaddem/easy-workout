@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useOpenSession, useSessionLogs } from '@/app/data';
+import { useAnswers, useCustomSessions, useOpenSession, useSessionLogs } from '@/app/data';
 import { nextSession } from '@/app/programme-state';
 import { repo, type Repo } from '@/db/repo';
 import type { EquipmentInventory, Language, Profile, Programme } from '@/domain';
-import type { SlotChange } from '@/engine';
-import { Button, Icon, Sheet, useToast } from '@/ui/components';
+import { activeSwaps, issueKey, placedItems, type SlotChange } from '@/engine';
+import { exerciseById } from '@/catalogue';
+import { issueText } from '../editor/issueText';
+import { Button, Icon, IssueLine, Sheet, useToast } from '@/ui/components';
+import { EditsLedger } from './EditsLedger';
 import { exerciseName, programmeIdentities } from './format';
+import { ledgerRows } from './ledger';
 import { previewData, type PreviewData, type PreviewMode } from './preview';
 import styles from './Sheets.module.css';
 
@@ -24,9 +28,16 @@ export interface ChangePreviewProps {
 export function ChangePreviewSheet(props: ChangePreviewProps) {
   const { mode, current, profile, equipment, onClose } = props;
   const { t } = useTranslation();
+  const custom = useCustomSessions();
+  const answers = useAnswers();
+  const customIds = useMemo(() => (custom ? new Set(custom.map((s) => s.id)) : null), [custom]);
+  const painful = useMemo(() => (answers ? activeSwaps(answers).painful : null), [answers]);
   const data = useMemo(
-    () => (mode ? previewData(mode, current, profile, equipment) : null),
-    [mode, current, profile, equipment],
+    () =>
+      mode && customIds && painful
+        ? previewData(mode, current, profile, equipment, customIds, painful)
+        : null,
+    [mode, current, profile, equipment, customIds, painful],
   );
   const empty =
     mode === 'variant' && data !== null && data.changes.length === 0 && !data.splitChanged;
@@ -80,6 +91,7 @@ function Preview({
   mode,
   current,
   profile,
+  equipment,
   onClose,
   onEquipment,
   data,
@@ -132,6 +144,39 @@ function Preview({
     bySession.set(change.sessionId, list);
   }
   const week = nextSession(current, logs).week;
+  const slotExercise = (sessionId: string, slot: string | undefined) => {
+    const session = next.rotation.find((x) => x.id === sessionId);
+    if (!session || !slot) return undefined;
+    return [...placedItems(session)].find((p) => p.item.slot === slot)?.item.exerciseId;
+  };
+  // What the sessions carrying the user's changes now warn about.
+  const inventory = next.generation?.equipment ?? equipment;
+  const checks = Object.entries(data.issues).flatMap(([sessionId, issues]) =>
+    issues
+      .filter((issue) => issue.level === 'warn')
+      .map((issue) => ({
+        id: `${sessionId}|${issueKey(issue)}`,
+        text: t('programme.preview.edits.check', {
+          session: sessionTitle(sessionId),
+          issue: issueText(t, issue, {
+            lang,
+            inventory,
+            exercise: exerciseById.get(
+              String(issue.params?.exerciseId ?? slotExercise(sessionId, issue.ref?.slot) ?? ''),
+            ),
+            exercises: exerciseById,
+          }),
+        }),
+      })),
+  );
+  const ledger =
+    data.ledger && data.ledger.kept.length + data.ledger.dropped.length > 0
+      ? ledgerRows(t, lang, current, data.ledger, {
+          rotationIds: next.rotation.map((s) => s.id),
+          days: next.generation?.profile.daysPerWeek ?? profile.daysPerWeek,
+          inventory: next.generation?.equipment ?? equipment,
+        })
+      : null;
 
   return (
     <div className={styles.body}>
@@ -145,6 +190,18 @@ function Preview({
               : t('programme.preview.keptNew')}
         </span>
       </p>
+
+      {ledger ? <EditsLedger ledger={ledger} /> : null}
+      {checks.length > 0 ? (
+        <section className={styles.checks} aria-label={t('programme.preview.edits.checkTitle')}>
+          <h3 className={styles.checksTitle}>{t('programme.preview.edits.checkTitle')}</h3>
+          {checks.map((check) => (
+            <IssueLine key={check.id} level="warn">
+              {check.text}
+            </IssueLine>
+          ))}
+        </section>
+      ) : null}
 
       {splitChanged ? (
         <div className={styles.compare}>

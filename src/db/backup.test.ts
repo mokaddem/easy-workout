@@ -60,6 +60,12 @@ async function populated() {
     },
   ]);
   await repo.finishSession(log.id, { endedEarly: true, countsAsDone: false });
+  // An edited session, and a session of the user's own copied from another one and placed.
+  const [first, second] = programme.rotation;
+  await repo.saveProgrammeSession(programme.id, { ...first!, main: first!.main.slice(1) });
+  const { id: _, ...copy } = second!;
+  const own = await repo.saveCustomSession({ ...copy, base: second! });
+  await repo.placeCustomSession(programme.id, second!.id, own.id);
   return db;
 }
 

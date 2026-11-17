@@ -364,6 +364,68 @@ export const PATHS = {
       <path d="M20 12.5l2-1.5" />
     </>
   ),
+  search: (
+    <>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.5 15.5l5 5" />
+    </>
+  ),
+  more: (
+    <>
+      <path d="M5.5 12h.01M12 12h.01M18.5 12h.01" strokeWidth="3" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13" />
+      <path d="M10 11v5.5M14 11v5.5" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2" />
+      <path d="M15.5 8.5V5.5A1.5 1.5 0 0 0 14 4H5.5A1.5 1.5 0 0 0 4 5.5V14a1.5 1.5 0 0 0 1.5 1.5h3" />
+    </>
+  ),
+  group: (
+    <>
+      <path d="M8 5H5v14h3" />
+      <path d="M11 8.5h9M11 15.5h9" />
+    </>
+  ),
+  ungroup: (
+    <>
+      <path d="M8 5H5v4M5 15v4h3" />
+      <path d="M11 8.5h9M11 15.5h9" />
+    </>
+  ),
+  grip: (
+    <>
+      <path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" strokeWidth="3" />
+    </>
+  ),
+  bookmark: (
+    <>
+      <path d="M7 4h10v16l-5-4-5 4z" />
+    </>
+  ),
+  'bookmark-plus': (
+    <>
+      <path d="M7 4h10v16l-5-4-5 4z" />
+      <path d="M12 7.5v5M9.5 10h5" />
+    </>
+  ),
+  restore: (
+    <>
+      <path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" />
+      <path d="M4.5 4.5v4h4" />
+    </>
+  ),
+  move: (
+    <>
+      <path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

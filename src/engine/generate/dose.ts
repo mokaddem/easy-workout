@@ -171,6 +171,19 @@ export const redose = (
   };
 };
 
+/**
+ * A rep range kept for another exercise, fitted to how that one is loaded and measured (a 6–8
+ * range doesn't land on push-ups). Other targets are left alone.
+ */
+export const fitTarget = (target: Target, exercise: Exercise): Target => {
+  if (target.kind !== 'reps' || exercise.metric !== 'reps') return target;
+  let reps: RepsSpec = [target.min, target.max];
+  reps = repsForLoadType(reps, exercise);
+  reps = repsFloor(reps, exercise);
+  reps = EXERCISE_REPS[exercise.id] ?? reps;
+  return reps === 'max' ? { kind: 'max' } : { kind: 'reps', min: reps[0], max: reps[1] };
+};
+
 /** Sets of a straight block after goal and level. */
 export const straightSets = (sets: number, role: SlotRole, goal: Goal, level: Level): number => {
   if (role === 'warmup' || role === 'conditioning') return sets;

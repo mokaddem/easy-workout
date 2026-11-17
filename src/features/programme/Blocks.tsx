@@ -63,6 +63,8 @@ interface RxProps {
   restSec?: number;
   delta?: BlockDelta | null;
   notes: GenerationNote[];
+  /** What the user changed here: shown in place of the generation lines. */
+  edit?: string | undefined;
   firstSetRir?: number;
   lastSetRir?: number;
   adapt?: ItemAdapt;
@@ -193,6 +195,7 @@ export function Prescription({
   restSec,
   delta,
   notes,
+  edit,
   firstSetRir,
   lastSetRir,
   adapt,
@@ -283,12 +286,15 @@ export function Prescription({
           <p className={styles.facts}>{t('programme.rx.maxHint')}</p>
         ) : null}
         {whyText ? <WhyLine text={whyText} /> : null}
-        {lines.map((line) => (
-          <p key={line} className={styles.whyLine}>
-            <Icon name="why" size={20} />
-            <span>{line}</span>
-          </p>
-        ))}
+        {edit ? <EditLine text={edit} /> : null}
+        {edit
+          ? null
+          : lines.map((line) => (
+              <p key={line} className={styles.whyLine}>
+                <Icon name="why" size={20} />
+                <span>{line}</span>
+              </p>
+            ))}
         {adapt?.pain ? (
           <PendingPainLine
             fromToken={str(adapt.pain.lighter?.params.from)}
@@ -314,6 +320,16 @@ export function Prescription({
   );
 }
 
+/** "Edited by you: …", in place of why the generator chose the exercise. */
+function EditLine({ text }: { text: string }) {
+  return (
+    <p className={styles.whyLine}>
+      <Icon name="pencil" size={20} />
+      <span>{text}</span>
+    </p>
+  );
+}
+
 /** Steady cardio or intervals: no sets, a duration and a pace. */
 export function CardioRow({
   item,
@@ -322,6 +338,7 @@ export function CardioRow({
   big,
   delta,
   notes,
+  edit,
   adapt,
   onWhy,
 }: {
@@ -331,6 +348,7 @@ export function CardioRow({
   big?: boolean;
   delta?: BlockDelta | null;
   notes: GenerationNote[];
+  edit?: string | undefined;
   adapt?: ItemAdapt;
   onWhy: () => void;
 }) {
@@ -401,12 +419,15 @@ export function CardioRow({
           )}
         </div>
         {cardioWhy ? <WhyLine text={cardioWhy} /> : null}
-        {lines.map((line) => (
-          <p key={line} className={styles.whyLine}>
-            <Icon name="why" size={20} />
-            <span>{line}</span>
-          </p>
-        ))}
+        {edit ? <EditLine text={edit} /> : null}
+        {edit
+          ? null
+          : lines.map((line) => (
+              <p key={line} className={styles.whyLine}>
+                <Icon name="why" size={20} />
+                <span>{line}</span>
+              </p>
+            ))}
       </div>
     </article>
   );

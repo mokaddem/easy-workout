@@ -1,5 +1,13 @@
+import { exerciseById } from '@/catalogue';
 import type { EquipmentInventory, Profile, Programme } from '@/domain';
-import { generateProgramme, programmeChanges, type SlotChange } from '@/engine';
+import {
+  carryEdits,
+  generateProgramme,
+  programmeChanges,
+  type CarriedEdit,
+  type Issue,
+  type SlotChange,
+} from '@/engine';
 
 export type PreviewMode = 'variant' | 'new';
 
@@ -21,26 +29,57 @@ export function nextProgramme(
 }
 
 export interface PreviewData {
+  /** What replaces the current programme: the generation with the user's changes carried over. */
   next: Programme;
+  /** Generator changes only: the user's own edits are not counted. */
   changes: SlotChange[];
   splitChanged: boolean;
   sizeChanged: boolean;
   oldSize: number;
+  /** Present when the programme has edits or placements. */
+  ledger: { kept: CarriedEdit[]; dropped: CarriedEdit[] } | null;
+  /** Warnings about the sessions the user's changes were carried into, by session id. */
+  issues: Record<string, Issue[]>;
 }
+
+/** The programme has changes of the user's to carry over. */
+export const hasUserEdits = (programme: Programme): boolean =>
+  Boolean(programme.generatedRotation) || Object.keys(programme.placements ?? {}).length > 0;
 
 export function previewData(
   mode: PreviewMode,
   current: Programme,
   profile: Profile,
   equipment: EquipmentInventory,
+  customIds: ReadonlySet<string> = new Set(),
+  painful: ReadonlySet<string> = new Set(),
 ): PreviewData {
-  const next = nextProgramme(mode, current, profile, equipment);
+  const generated = nextProgramme(mode, current, profile, equipment);
+  // Measured against the generation, not the user's edited rotation.
+  const before: Programme = current.generatedRotation
+    ? { ...current, rotation: current.generatedRotation }
+    : current;
+  const carried = hasUserEdits(current)
+    ? carryEdits(
+        current,
+        generated,
+        {
+          profile: generated.generation?.profile ?? profile,
+          inventory: generated.generation?.equipment ?? equipment,
+          exercises: exerciseById,
+        },
+        customIds,
+        { painful },
+      )
+    : null;
   return {
-    next,
-    changes: programmeChanges(current, next),
+    next: carried?.programme ?? generated,
+    changes: programmeChanges(before, generated),
     splitChanged:
-      current.rotation.map((s) => s.id).join('|') !== next.rotation.map((s) => s.id).join('|'),
-    sizeChanged: current.rotation.length !== next.rotation.length,
+      current.rotation.map((s) => s.id).join('|') !== generated.rotation.map((s) => s.id).join('|'),
+    sizeChanged: current.rotation.length !== generated.rotation.length,
     oldSize: current.rotation.length,
+    ledger: carried ? { kept: carried.kept, dropped: carried.dropped } : null,
+    issues: carried?.issues ?? {},
   };
 }

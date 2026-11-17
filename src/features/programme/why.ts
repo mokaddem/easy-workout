@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import { exerciseById } from '@/catalogue';
-import type { GenerationNote, Language } from '@/domain';
+import type { GenerationNote, Language, Session } from '@/domain';
+import { placedItems } from '@/engine';
 
 /** Notes that name a specific exercise slot of a session. */
 export type ReasonInput = 'schedule' | 'goal' | 'equipment';
@@ -167,19 +168,33 @@ export interface ItemPosition {
   section: 'warmup' | 'main' | 'finisher';
   blockIndex: number;
   itemIndex?: number;
+  /** The item's slot. With `generated`, notes are matched by slot instead of by position. */
+  slot?: string;
 }
 
-/** Notes about one exercise of one block. Ramp-up sets live in the warm-up but belong to the lift. */
+/**
+ * Notes about one exercise of one block. Ramp-up sets live in the warm-up but belong to the lift.
+ * Generation notes are positional, and edits move blocks: given the session as generated, each
+ * note is resolved to the slot that stood at its position, then matched to the item's slot.
+ */
 export function notesForItem(
   notes: readonly GenerationNote[],
   position: ItemPosition,
   exerciseId: string,
+  generated?: Session,
 ): GenerationNote[] {
+  const slots = generated && position.slot ? generatedSlots(generated) : undefined;
   return notes.filter((note) => {
     if (note.params.exerciseId !== exerciseId) return false;
     const ref = note.ref;
     if (position.sessionId && ref?.sessionId && ref.sessionId !== position.sessionId) return false;
     if (note.code === 'ramp-up') return position.section === 'main';
+    if (slots) {
+      if (!ref?.section) return false;
+      return (
+        slots.get(`${ref.section}/${ref.blockIndex ?? 0}/${ref.itemIndex ?? 0}`) === position.slot
+      );
+    }
     return (
       ref?.section === position.section &&
       ref.blockIndex === position.blockIndex &&
@@ -187,6 +202,14 @@ export function notesForItem(
     );
   });
 }
+
+/** Slot of the generated item at each `section/blockIndex/itemIndex`. */
+const generatedSlots = (generated: Session): Map<string, string> => {
+  const map = new Map<string, string>();
+  for (const p of placedItems(generated))
+    if (p.item.slot) map.set(`${p.section}/${p.blockIndex}/${p.itemIndex}`, p.item.slot);
+  return map;
+};
 
 export interface ReasonGroup {
   input: ReasonInput;

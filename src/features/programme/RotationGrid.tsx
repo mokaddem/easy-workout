@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { Language, Phase, Programme } from '@/domain';
 import type { Position } from '@/app/programme-state';
 import { Icon } from '@/ui/components';
+import { rotationMarks } from './edits';
 import { programmeIdentities } from './format';
 import styles from './Overview.module.css';
 
@@ -18,6 +19,7 @@ export function RotationGrid({
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
   const identities = programmeIdentities(programme, lang);
+  const marks = rotationMarks(programme);
   const size = programme.rotation.length;
   const perWeek = programme.sessionsPerWeek;
   const step = (position.week - 1) * perWeek + position.index;
@@ -48,11 +50,24 @@ export function RotationGrid({
       <span />
       {columns.map((column) => {
         const identity = identities[column % size]!;
+        const mine = marks.get(programme.rotation[column % size]!.id) === 'mine';
         return (
-          <span key={column} className={styles.col} role="columnheader" title={identity.fullName}>
+          <span
+            key={column}
+            className={`${styles.col} ${mine ? styles.colMine : ''}`}
+            role="columnheader"
+            title={identity.fullName}
+            {...(mine && identity.letter
+              ? { 'aria-label': t('programme.rotation.mineSr', { letter: identity.letter }) }
+              : {})}
+          >
             {identity.letter ? <b>{identity.letter}</b> : <Icon name="heart" size={20} />}
             <span>
-              {identity.cardio ? t('programme.rotation.cardio') : shortLabel(identity.title)}
+              {mine
+                ? t('programme.rotation.mine')
+                : identity.cardio
+                  ? t('programme.rotation.cardio')
+                  : shortLabel(identity.title)}
             </span>
           </span>
         );

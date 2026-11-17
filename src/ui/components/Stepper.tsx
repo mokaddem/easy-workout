@@ -17,6 +17,14 @@ interface StepperBase {
   size?: 'form' | 'player';
   disabled?: boolean;
   className?: string;
+  /** Stretch to the full width; the value sits centred between the buttons. */
+  wide?: boolean;
+  /** Narrower value cell, for steppers placed side by side. */
+  compact?: boolean;
+  /** Replaces the displayed number with a word (the value is still the number). No unit. */
+  word?: string;
+  /** Shown instead of 0, without the unit. */
+  zeroWord?: string;
 }
 
 export interface StepperValuesProps extends StepperBase {
@@ -70,17 +78,30 @@ export function Stepper(props: StepperProps) {
     unit,
     format,
     size = 'form',
+    wide,
+    compact,
+    word,
+    zeroWord,
   } = props;
   const labelId = useId();
   const down = props.disabled ? undefined : neighbour(props, -1);
   const up = props.disabled ? undefined : neighbour(props, 1);
   const empty = value == null;
+  const shown = empty ? undefined : (word ?? (value === 0 ? zeroWord : undefined));
+
+  const text = empty ? '–' : (shown ?? (format ? format(value) : String(value)));
 
   return (
     <div
       role="group"
       aria-labelledby={labelId}
-      className={cx(styles.stepper, size === 'player' && styles.player, props.className)}
+      className={cx(
+        styles.stepper,
+        size === 'player' && styles.player,
+        wide && styles.wide,
+        compact && styles.compact,
+        props.className,
+      )}
     >
       <span id={labelId} className={styles.hidden}>
         {label}
@@ -99,10 +120,10 @@ export function Stepper(props: StepperProps) {
         aria-live="polite"
         aria-atomic="true"
       >
-        <Roll className={styles.num} value={empty ? '–' : format ? format(value) : String(value)}>
-          {empty ? '–' : format ? format(value) : String(value)}
+        <Roll className={shown !== undefined ? styles.word : styles.num} value={text}>
+          {text}
         </Roll>
-        {unit && !empty ? <span className={styles.unit}>{unit}</span> : null}
+        {unit && !empty && shown === undefined ? <span className={styles.unit}>{unit}</span> : null}
       </span>
       <button
         type="button"

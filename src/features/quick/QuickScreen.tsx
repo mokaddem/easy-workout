@@ -5,13 +5,16 @@ import { useProgressContext } from '@/app/progress';
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
 import { generateQuickSession, prepareSession, QUICK_FOCUSES, type QuickFocus } from '@/engine';
-import { Button, Dock, Icon, IconButton, Skeleton, useToast } from '@/ui/components';
+import { repo } from '@/db/repo';
+import { BarButton, Button, Dock, Icon, IconButton, Skeleton, useToast } from '@/ui/components';
+import { MineSection } from '../mine/MineSection';
 import { useBegin } from '../play/begin';
 import { ResumeBanner } from '../play/components/ResumeBanner';
 import { startQuickSession } from '../play/start';
 import { sessionIdentity } from '../programme/format';
 import { SessionView } from '../programme/SessionView';
 import { RadioChoice } from './RadioTiles';
+import { SaveSheet } from './SaveSheet';
 import {
   changedExercises,
   loadChoices,
@@ -32,6 +35,8 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
   const { begin, dialog: beginDialog } = useBegin();
   const [choices, setChoices] = useState<QuickChoices>(loadChoices);
   const [seed, setSeed] = useState(0);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [savedKey, setSavedKey] = useState<string | null>(null);
   const composed = route.view === 'session';
   const durationId = useId();
   const focusId = useId();
@@ -106,9 +111,14 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
           <div className={styles.launcher}>
             <header className={styles.intro}>
               <h1 className={styles.display}>{t('quick.title')}</h1>
-              <p className={styles.muted}>{t('quick.intro')}</p>
             </header>
             {openSession ? <ResumeBanner log={openSession} flush /> : null}
+            <MineSection />
+            <hr className={styles.rule} />
+            <div className={styles.compose}>
+              <h2 className={styles.fieldTitle}>{t('quick.composeTitle')}</h2>
+              <p className={styles.muted}>{t('quick.intro')}</p>
+            </div>
             <section className={styles.field} aria-labelledby={durationId}>
               <h2 id={durationId} className={styles.fieldTitle}>
                 {t('quick.duration')}
@@ -210,6 +220,26 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
     title: t(`labels.focus.${choices.focus}`),
   };
 
+  const sessionKey = `${choices.minutes}-${choices.focus}-${choices.bodyweightOnly}-${seed}`;
+  const saved = savedKey === sessionKey;
+  const saveAs = async (typed: string) => {
+    const { id: _id, ...rest } = current.session;
+    const record = await repo.saveCustomSession({
+      ...rest,
+      name: { fr: typed, en: typed },
+      base: current.session,
+    });
+    setSavedKey(sessionKey);
+    setSaveOpen(false);
+    toast.show({
+      message: t('quick.savedToast'),
+      action: {
+        label: t('quick.savedView'),
+        onAction: () => navigate({ name: 'mine', sessionId: record.id }),
+      },
+    });
+  };
+
   const shuffle = () => {
     const before = seed;
     const changed = changedExercises(current.session, next.session);
@@ -225,6 +255,14 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
       <div className={styles.bar}>
         <IconButton icon="back" label={t('quick.backToChoices')} onClick={goBack} />
         <span className={styles.barText}>{t('quick.title')}</span>
+        <BarButton
+          className={styles.barSave}
+          icon={saved ? 'check' : 'bookmark-plus'}
+          label={saved ? t('quick.saved') : t('quick.save')}
+          settled={saved}
+          aria-label={saved ? t('quick.saved') : t('quick.saveSr')}
+          onClick={() => setSaveOpen(true)}
+        />
       </div>
       <div key="session" className={`${styles.scroll} ${moved ? styles.enterForward : ''}`}>
         <SessionView
@@ -268,6 +306,15 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
         </div>
       </Dock>
       {beginDialog}
+      <SaveSheet
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        defaultName={t('quick.saveSheet.default', {
+          focus: t(`labels.focus.${choices.focus}`),
+          minutes: choices.minutes,
+        })}
+        onSave={saveAs}
+      />
     </>
   );
 }

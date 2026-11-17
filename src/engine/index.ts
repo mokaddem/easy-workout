@@ -4,3 +4,4 @@ export * from './generate';
 export * from './play';
 export * from './week';
 export * from './progress';
+export * from './edit';

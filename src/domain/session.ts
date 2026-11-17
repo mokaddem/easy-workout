@@ -65,6 +65,12 @@ export type Load = z.infer<typeof LoadSchema>;
 
 /** One exercise inside a block, with its per-set target. */
 export const SessionItemSchema = z.strictObject({
+  /**
+   * Stable id of the item's place in its session, unique within it: the generator's slot for
+   * generated items, a random id for items the user adds. Edits are carried across regenerations
+   * by it.
+   */
+  slot: SlugSchema.optional(),
   exerciseId: SlugSchema,
   target: TargetSchema,
   /** Reps in reserve to stop at. */
@@ -115,5 +121,7 @@ export const SessionSchema = z.strictObject({
   warmup: z.array(BlockSchema),
   main: z.array(BlockSchema).min(1),
   finisher: z.array(BlockSchema),
+  /** Warnings about the user's changes they chose to dismiss (issue keys). */
+  dismissedIssues: z.array(z.string()).optional(),
 });
 export type Session = z.infer<typeof SessionSchema>;

@@ -7,6 +7,9 @@
 }
 .hidden {
   position: absolute;
+  /* Pinned: left at its place in a long list, it would stretch the page past its scroller. */
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -71,4 +74,21 @@
 }
 .player .num {
   font-size: var(--type-numeral-m-size);
+}
+.wide {
+  display: flex;
+  width: 100%;
+}
+.wide .value {
+  flex: 1;
+}
+.compact .value {
+  min-width: 40px;
+}
+.word {
+  font-size: var(--font-size-18);
+  font-weight: var(--font-weight-heavy);
+  font-stretch: var(--font-width-title);
+  line-height: 1;
+  text-align: center;
 }

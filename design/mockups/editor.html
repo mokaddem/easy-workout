@@ -1,0 +1,1812 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Session editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans); font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size); line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+:root[lang="fr"] .en, :root[lang="en"] .fr { display: none !important; }
+button, input { font: inherit; color: inherit; background: none; border: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--xs { width: 14px; height: 14px; stroke-width: 2.5; }
+svg.i--lg { width: 28px; height: 28px; }
+svg.i--fill { fill: currentColor; stroke: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.mock-bar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 12px 24px; background: color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-line); font-size: 14px; }
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; }
+.mock-bar__nav { display: flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.mock-bar__nav a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: var(--radius-pill); color: var(--color-text-muted); font-weight: 600; text-decoration: none; font-stretch: var(--font-width-label); }
+.mock-bar__nav a:hover { background: var(--color-surface-sunken); color: var(--color-text); }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible, .mock-bar__nav a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-sec { flex: 0 0 100%; max-width: 1280px; display: grid; gap: 4px; padding-top: 24px; scroll-margin-top: 72px; }
+.mock-sec h2 { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-title); }
+.mock-sec p { color: var(--color-text-muted); font-size: 15px; max-width: 60ch; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; scroll-margin-top: 80px; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); max-width: 390px; text-align: center; text-wrap: balance; }
+.mock-shot.is-flash .device { box-shadow: 0 0 0 4px var(--color-focus), 0 24px 80px rgb(0 0 0 / 0.28); }
+[data-go] { cursor: pointer; }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device { position: relative; width: 390px; height: 844px; flex: none; display: flex; flex-direction: column; border-radius: 48px; overflow: hidden; isolation: isolate; background: var(--color-bg); color: var(--color-text); box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28); transition: box-shadow var(--duration-base) var(--ease-move); }
+@media (max-width: 440px) { .mock-stage { padding: 16px 0 48px; gap: 32px; } .mock-bar { padding: 10px 16px; } .device { border-radius: 0; box-shadow: none; } }
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; position: relative; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); text-wrap: balance; }
+.t-headline, .section-title { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.muted { color: var(--color-text-muted); }
+
+/* ---------- buttons ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap-comfort); padding: 0 var(--space-6); border-radius: var(--radius-md); border: var(--border-control) solid transparent; font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); text-align: center; }
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); min-height: var(--tap-min); }
+.btn--destructive { background: var(--color-danger); color: var(--color-on-danger); }
+.btn--destructive-outline { border-color: var(--color-danger-text); color: var(--color-danger-text); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.btn--compact { min-height: var(--tap-min); padding: 0 var(--space-4); font-size: var(--type-label-size-sm); }
+.btn[disabled] { background: var(--color-surface-sunken); color: var(--color-text-disabled); border-color: transparent; cursor: default; transform: none; }
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn[disabled] { color: var(--color-text-disabled); cursor: default; }
+
+/* ---------- shell ---------- */
+.ctxbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 8px 4px 4px; background: var(--color-bg); }
+.ctxbar__text { flex: 1; min-width: 0; font-size: var(--type-meta-size); color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctxbar__titles { flex: 1; min-width: 0; display: grid; }
+.ctxbar__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.barbtn { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap-min); padding: 0 12px; border-radius: var(--radius-md); font-weight: 700; font-size: var(--font-size-16); font-stretch: var(--font-width-label); flex: none; }
+.barbtn .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.barbtn:active { background: var(--color-press-overlay); }
+.barbtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.barbtn[aria-disabled="true"] { color: var(--color-text-muted); }
+.dock { flex: none; display: grid; gap: 10px; padding: 12px 16px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-sticky); }
+.dock--home { padding-bottom: 42px; }
+.dock__row { display: flex; gap: 10px; }
+.dock__row .btn { padding: 0 var(--space-4); }
+.dock__row .btn--primary { flex: 1; min-width: 0; }
+.docknote { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text-muted); }
+.docknote .i { width: 20px; height: 20px; margin-top: 0; color: var(--color-text-subtle); }
+.docknote--alert { color: var(--color-text); }
+.docknote--alert .i { color: var(--color-danger-text); }
+.docknote b { font-weight: 700; color: var(--color-text); }
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); }
+.tab { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); text-align: center; line-height: 1.1; }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+
+/* ---------- shared bits ---------- */
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.notice > .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 0; }
+.notice b { font-weight: 700; }
+.notice__body { display: grid; gap: 4px; justify-items: start; flex: 1; }
+.notice__body .btn--ghost { padding: 0; min-height: 44px; font-size: 15px; }
+.inline-note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.inline-note .i { width: 20px; height: 20px; color: var(--color-text-subtle); }
+.well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.toast { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 20px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: var(--elevation-3); font-weight: 600; font-size: 15px; }
+.toast__text { flex: 1; line-height: 1.3; }
+.toast .btn { min-height: var(--tap-min); color: var(--color-on-inverse); border-radius: var(--radius-pill); }
+.toast-slot { position: absolute; left: 16px; right: 16px; z-index: var(--z-toast); }
+.delta { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; }
+
+/* Edited tag: outline, like the change tag (outline = something you did) */
+.tag { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px 0 7px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text); white-space: nowrap; line-height: 1; }
+.tag .i { width: 14px; height: 14px; stroke-width: 2.5; color: var(--color-text-muted); }
+
+/* ---------- stepper ---------- */
+.stepper { display: inline-flex; align-items: center; border-radius: var(--radius-md); background: var(--color-surface-sunken); flex: none; }
+.stepper__btn { width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; border-radius: var(--radius-md); color: var(--color-text); }
+.stepper__btn:active { background: var(--color-press-overlay); }
+.stepper__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.stepper__btn[disabled] { color: var(--color-text-disabled); cursor: default; }
+.stepper__value { min-width: 64px; display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; padding: 0 2px; }
+.stepper__value .num { font-size: var(--type-numeral-s-size); line-height: 1; }
+.stepper__unit { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.stepper--wide { display: flex; width: 100%; }
+.stepper--wide .stepper__value { flex: 1; }
+.stepper__word { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; }
+
+/* ---------- segmented, chips ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: 56px; border-radius: 10px; display: grid; align-content: center; gap: 2px; padding: 4px 8px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); line-height: 1.15; transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt small { font-size: 12px; font-weight: 600; font-stretch: var(--font-width-text); opacity: 0.8; }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); }
+.chip .i { width: 18px; height: 18px; stroke-width: 2.5; }
+.chip[aria-pressed="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-pressed="false"] > .i:first-child { display: none; }
+.chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- tiles (quick launcher) ---------- */
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tile { min-height: 64px; display: grid; place-content: center; justify-items: center; gap: 4px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); }
+.tile .num { font-size: var(--font-size-36); line-height: 0.9; }
+.tile span:last-child { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.tile[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.tile[aria-checked="true"] span:last-child { color: var(--color-on-inverse); }
+
+/* ================================================================== */
+/* 1. Quick session tab: My sessions                                    */
+/* ================================================================== */
+.qs { padding: 4px var(--layout-gutter) 28px; display: grid; gap: 28px; }
+.qs__intro { display: grid; gap: 8px; }
+.qs-field { display: grid; gap: 12px; }
+.qs-sec { display: grid; gap: 12px; }
+.qs-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.qs-sec__meta { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.qs-rule { height: 1px; background: var(--color-line); margin: 0 calc(-1 * var(--layout-gutter)); }
+
+/* My-session row: duration well is the hero */
+.ms-list { display: grid; }
+.ms { display: grid; grid-template-columns: 56px 1fr 24px; column-gap: 14px; align-items: center; min-height: 80px; padding: 12px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.ms:first-child { border-top: 0; }
+.ms:active { background: var(--color-press-overlay); }
+.ms:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.ms__well { width: 56px; height: 56px; display: grid; place-content: center; justify-items: center; gap: 1px; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.ms__well .num { font-size: var(--font-size-24); line-height: 0.9; }
+.ms__well small { font-size: 12px; font-weight: 600; color: var(--color-text-muted); font-stretch: var(--font-width-label); line-height: 1; }
+.ms__text { display: grid; gap: 3px; min-width: 0; }
+.ms__name { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.ms__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; }
+.ms__line { display: flex; align-items: center; gap: 8px; margin-top: 3px; font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); line-height: 1.2; }
+.ms__line .i { width: 18px; height: 18px; color: var(--color-text-muted); }
+.ms > .i { color: var(--color-text-muted); }
+.lettertile { width: 24px; height: 24px; display: inline-grid; place-items: center; border-radius: 6px; border: var(--border-control) solid var(--color-line-strong); font-size: 14px; font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; flex: none; }
+.empty-card { display: grid; gap: 14px; padding: 18px; border-radius: var(--radius-lg); border: var(--border-control) dashed var(--color-line-strong); }
+.empty-card__head { display: flex; gap: 14px; align-items: flex-start; }
+.empty-card__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.empty-card p { font-size: 15px; color: var(--color-text-muted); line-height: 1.4; margin-top: 4px; }
+
+/* ================================================================== */
+/* Session detail (shared with the built screen)                        */
+/* ================================================================== */
+.sd-head { padding: 4px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.sd-id { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: end; }
+.sd-letter { font-size: var(--font-size-144); line-height: 0.74; margin-left: -4px; }
+.sd-tile { width: 96px; height: 106px; display: grid; place-items: center; border-radius: var(--radius-lg); background: var(--color-surface-sunken); }
+.sd-tile .i { width: 48px; height: 48px; stroke-width: 1.6; }
+.sd-id__text { display: grid; gap: 6px; padding-bottom: 2px; }
+.sd-id__text .t-display { font-size: var(--font-size-48); }
+.sd-id__text .t-display.is-long { font-size: var(--font-size-36); }
+.sd-kicker { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.sd-sub { font-size: var(--type-body-size); color: var(--color-text-muted); line-height: 1.35; }
+.sd-stats { display: flex; align-items: flex-end; gap: 24px; }
+.sd-stat { display: grid; gap: 4px; }
+.sd-stat .num { font-size: var(--font-size-36); }
+.sd-stat .num small { font-size: var(--font-size-21); font-weight: 800; color: var(--color-text-muted); margin-left: 2px; letter-spacing: 0; }
+.sd-stat__label { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.sd-sec { padding: 28px var(--layout-gutter) 0; display: grid; gap: 4px; }
+.sd-sec:last-child { padding-bottom: 28px; }
+.sd-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
+.sd-sec__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); font-weight: 600; white-space: nowrap; }
+.rx { display: grid; grid-template-columns: 26px 1fr 48px; column-gap: 8px; padding: 14px 0 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.rx:first-of-type { border-top: 0; }
+.rx__idx { font-size: var(--font-size-21); color: var(--color-text-subtle); padding-top: 5px; line-height: 1; }
+.rx__name { align-self: center; font-size: var(--font-size-21); line-height: 1.12; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; padding: 2px 0; }
+.rx__why { margin: -6px -8px 0 0; color: var(--color-text-muted); }
+.rx__body { grid-column: 2 / 4; display: grid; gap: 10px; padding-top: 8px; }
+.rx__nums { display: flex; align-items: flex-start; gap: 24px; }
+.rx__cell { display: grid; gap: 5px; min-width: 0; }
+.rx__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.rx__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; letter-spacing: 0; }
+.rx__w { font-size: var(--font-size-21); line-height: 1.05; font-weight: 800; font-stretch: var(--font-width-display); padding-top: 4px; color: var(--color-text-muted); }
+.rx__u { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.rx__facts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; font-size: var(--type-meta-size); line-height: 1.3; color: var(--color-text-muted); }
+.rx__facts b { color: var(--color-text); font-weight: 700; }
+.whyline { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text); }
+.whyline .i { width: 20px; height: 20px; flex: none; color: var(--color-text-muted); }
+.gr { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.gr__bars { display: inline-flex; gap: 3px; }
+.gr__bars i { width: 10px; height: 8px; border-radius: 2px; background: var(--color-track); }
+.gr__bars i.on { background: var(--color-text); }
+.grp { display: grid; grid-template-columns: 26px 1fr; column-gap: 8px; padding: 14px 0 6px; border-top: var(--border-hairline) solid var(--color-line); }
+.grp__head { grid-column: 2; display: grid; gap: 2px; padding-bottom: 6px; }
+.grp__title { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.2; }
+.grp__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.grp__items { grid-column: 1 / -1; display: grid; margin-left: 11px; padding-left: 15px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.grp__items .rx { grid-template-columns: 22px 1fr 48px; padding: 10px 0 14px; }
+.grp__items .rx__idx { font-size: var(--font-size-16); padding-top: 6px; font-weight: 800; font-stretch: var(--font-width-title); }
+.grp__items .rx__name { font-size: var(--font-size-18); }
+.grp__items .rx__n { font-size: var(--font-size-24); line-height: 1; }
+.grp__items .rx__n small { font-size: var(--font-size-16); }
+
+/* Placement row on custom-session detail */
+.place { display: grid; grid-template-columns: 48px 1fr 24px; gap: 14px; align-items: center; min-height: 76px; padding: 12px 10px 12px 14px; text-align: left; width: 100%; }
+.place:active { background: var(--color-press-overlay); }
+.place:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.place__title { font-size: var(--font-size-16); font-weight: 700; line-height: 1.3; display: block; }
+.place__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.35; display: block; margin-top: 2px; }
+.place > .i { color: var(--color-text-muted); }
+
+/* Issue line: blocking (danger text, like a field error) or warning (notice + dismiss) */
+.issue { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; }
+.issue > .i { width: 20px; height: 20px; flex: none; }
+.issue__body { display: grid; gap: 8px; justify-items: start; flex: 1; }
+.issue--block { color: var(--color-danger-text); font-weight: 600; }
+.issue--block .btn { color: var(--color-text); font-weight: 700; }
+.issue--warn { padding: 10px 6px 4px 12px; border-radius: var(--radius-md); background: var(--color-surface-sunken); color: var(--color-text); }
+.issue--warn > .i { color: var(--color-text-muted); margin-top: 1px; }
+.issue--warn .btn--ghost { padding: 0; min-height: 44px; font-size: 15px; }
+.issue[hidden] { display: none; }
+.rx .issue { grid-column: 2 / 4; margin-top: 4px; }
+.editline { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text); }
+.editline .i { width: 20px; height: 20px; flex: none; color: var(--color-text-muted); }
+
+/* Week ruler (compact copy) */
+.wk { padding: 24px 0 0; display: grid; gap: 10px; }
+.wk__head { padding: 0 var(--layout-gutter); display: flex; align-items: baseline; justify-content: space-between; }
+.wk__state { font-size: 13px; font-weight: 700; color: var(--color-text-muted); }
+.wkr { display: grid; grid-template-columns: repeat(8, 1fr); border-top: var(--border-hairline) solid var(--color-line); border-bottom: var(--border-hairline) solid var(--color-line); }
+.wkr__cell { position: relative; min-height: 56px; display: grid; place-items: center; font-size: var(--font-size-24); color: var(--color-text-muted); border-left: var(--border-hairline) solid var(--color-line); }
+.wkr__cell:first-child { border-left: 0; }
+.wkr__cell.is-done { color: var(--color-text-subtle); }
+.wkr__cell[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.wkr__cell.is-now::after { content: ''; position: absolute; left: 50%; bottom: 7px; width: 14px; height: 4px; margin-left: -7px; border-radius: var(--radius-xs); background: var(--color-on-inverse); }
+
+/* ================================================================== */
+/* 3. Editor                                                            */
+/* ================================================================== */
+/* Duration meter: the editor's one big number */
+.meter { flex: none; display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: end; padding: 2px var(--layout-gutter) 14px; background: var(--color-bg); border-bottom: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-sticky); }
+.meter__n { display: flex; align-items: baseline; gap: 4px; }
+.meter__n .num { font-size: var(--font-size-48); line-height: 0.8; }
+.meter__n small { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-numeral); color: var(--color-text-muted); }
+.meter__n .num.is-empty { color: var(--color-text-subtle); }
+.meter__right { display: grid; gap: 7px; padding-bottom: 1px; min-width: 0; }
+.meter__track { position: relative; height: 8px; border-radius: var(--radius-xs); background: var(--color-track); }
+.meter__fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-xs); background: var(--color-text); }
+.meter__over { position: absolute; top: 0; bottom: 0; border-radius: 0 var(--radius-xs) var(--radius-xs) 0; background: repeating-linear-gradient(-45deg, var(--color-text) 0 2px, transparent 2px 5px); }
+.meter__tick { position: absolute; top: -6px; width: 3px; height: 20px; margin-left: -1.5px; border-radius: 2px; background: var(--color-text); box-shadow: 0 0 0 2px var(--color-bg); }
+.meter__line { font-size: 13px; font-weight: 600; color: var(--color-text-muted); line-height: 1.25; }
+.meter__line b { color: var(--color-text); }
+.meter--plain .meter__right { padding-bottom: 3px; }
+
+.ed { padding: 0 16px 28px; display: grid; gap: 0; }
+.ed-note { margin: 16px 4px 0; }
+.es { padding-top: 26px; display: grid; gap: 8px; }
+.es__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 4px; min-height: 48px; }
+.es__titles { display: grid; gap: 1px; }
+.es__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); font-weight: 600; }
+.es__head .barbtn { margin-right: -8px; }
+.es__error { display: flex; gap: 10px; align-items: flex-start; padding: 0 4px; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-danger-text); font-weight: 600; }
+.es__error .i { width: 20px; height: 20px; }
+
+/* Edit block (straight) */
+.eb { display: grid; grid-template-columns: 1fr 52px; background: var(--color-surface); border-radius: var(--radius-lg); border: var(--border-hairline) solid var(--color-line); box-shadow: var(--elevation-1); }
+.eb__main { display: grid; grid-template-columns: 24px 1fr; column-gap: 8px; align-content: start; min-height: 76px; padding: 13px 0 14px 14px; text-align: left; border-radius: var(--radius-lg) 0 0 var(--radius-lg); }
+.eb__main:active { background: var(--color-press-overlay); }
+.eb__main:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.eb__idx { font-size: var(--font-size-21); color: var(--color-text-subtle); line-height: 1; padding-top: 1px; }
+.eb__text { display: grid; gap: 5px; min-width: 0; }
+.eb__name { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; text-wrap: balance; }
+.eb__dose { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.eb__dose .num { font-size: var(--font-size-24); line-height: 1; white-space: nowrap; }
+.eb__dose .num small { font-size: var(--font-size-16); color: var(--color-text-muted); margin-left: 2px; letter-spacing: 0; }
+.eb__facts { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; }
+.eb__tags { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 3px; }
+.eb__more { margin: 8px 4px 0 0; color: var(--color-text-muted); }
+.eb__foot { grid-column: 1 / -1; padding: 0 12px 12px 14px; display: grid; gap: 8px; }
+.eb--error { border-color: var(--color-danger-text); box-shadow: inset 0 0 0 1px var(--color-danger-text); }
+.eb--warm .eb__main { min-height: 64px; padding-top: 11px; padding-bottom: 11px; }
+.eb--warm .eb__name { font-size: var(--font-size-16); font-weight: 600; font-stretch: var(--font-width-text); }
+.eb--warm .eb__dose .num { font-size: var(--font-size-21); }
+.swapnote { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.35; color: var(--color-text); padding: 8px 10px; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.swapnote .i { width: 18px; height: 18px; color: var(--color-text-muted); }
+
+/* Edit group (superset, circuit) */
+.eg { background: var(--color-surface); border-radius: var(--radius-lg); border: var(--border-hairline) solid var(--color-line); box-shadow: var(--elevation-1); padding-bottom: 6px; }
+.eg__head { display: grid; grid-template-columns: 1fr 52px; }
+.eg__head .eb__main { min-height: 64px; }
+.eg__title { font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.2; }
+.eg__items { margin: 0 0 0 25px; padding-left: 12px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.eg__item { display: grid; grid-template-columns: 1fr 52px; border-top: var(--border-hairline) solid var(--color-line); }
+.eg__item .eb__main { grid-template-columns: 18px 1fr; min-height: 64px; padding: 10px 0 12px 2px; border-radius: 0; }
+.eg__item .eb__idx { font-size: var(--font-size-16); font-weight: 800; font-stretch: var(--font-width-title); padding-top: 2px; }
+.eg__item .eb__name { font-size: var(--font-size-16); }
+.eg__item .eb__dose .num { font-size: var(--font-size-21); }
+.eg__add { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--tap-min); padding: 0 4px; border-top: var(--border-hairline) solid var(--color-line); font-size: 15px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text); }
+.eg__add .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.eg__add:active { background: var(--color-press-overlay); }
+
+/* Tombstone: a generated item the user removed */
+.gone { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 4px 6px 4px 14px; border-radius: var(--radius-lg); border: var(--border-control) dashed var(--color-line-strong); font-size: 15px; color: var(--color-text-muted); line-height: 1.3; }
+.gone span { flex: 1; }
+.gone b { color: var(--color-text); font-weight: 600; }
+.gone .btn--ghost { font-size: 15px; }
+
+/* Add row */
+.addrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 16px; border-radius: var(--radius-lg); border: var(--border-control) dashed var(--color-line-strong); font-size: var(--font-size-16); font-weight: 700; font-stretch: var(--font-width-label); text-align: left; }
+.addrow .i { color: var(--color-text-muted); }
+.addrow:active { background: var(--color-press-overlay); }
+.addrow:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.addrow--error { border-style: solid; border-color: var(--color-danger-text); box-shadow: inset 0 0 0 1px var(--color-danger-text); }
+
+/* Disclosure (warm-up) */
+.disc { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 8px 4px 8px 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); text-align: left; }
+.disc:active { background: var(--color-press-overlay); }
+.disc__text { flex: 1; display: grid; gap: 2px; }
+.disc__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.disc__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.disc__chev { width: 48px; height: 48px; display: grid; place-items: center; color: var(--color-text-muted); transition: transform var(--duration-base) var(--ease-move); }
+.disc[aria-expanded="true"] .disc__chev { transform: rotate(180deg); }
+
+/* Name field */
+.namefield { display: grid; gap: 8px; padding: 18px 4px 0; }
+.namefield label { font-size: 15px; font-weight: 600; color: var(--color-text-muted); }
+.namefield__box { display: flex; align-items: center; min-height: 64px; padding: 0 16px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); }
+.namefield input { width: 100%; font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-title); outline: none; }
+.namefield input::placeholder { color: var(--color-text-subtle); font-weight: 500; font-stretch: var(--font-width-text); font-size: var(--font-size-18); }
+.namefield__box:focus-within { border-color: var(--color-text); box-shadow: var(--focus-ring); }
+.namefield--error .namefield__box { border: var(--border-strong) solid var(--color-danger-text); }
+.namefield__msg { display: flex; gap: 8px; align-items: flex-start; font-size: 15px; line-height: 1.35; color: var(--color-text-muted); }
+.namefield__msg .i { width: 20px; height: 20px; }
+.namefield--error .namefield__msg { color: var(--color-danger-text); font-weight: 600; }
+
+/* Bottom of the editor: restore the whole session */
+.ed-reset { margin-top: 32px; padding: 20px 4px 0; border-top: var(--border-hairline) solid var(--color-line); display: grid; gap: 10px; }
+.ed-reset p { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+
+/* Reorder mode */
+.ro { padding: 8px 16px 28px; display: grid; gap: 4px; }
+.ro__sec { font-size: var(--type-meta-size); font-weight: 700; color: var(--color-text-muted); padding: 18px 4px 6px; }
+.ro__row { display: grid; grid-template-columns: 24px 1fr 48px 48px; gap: 6px; align-items: center; min-height: 64px; padding: 4px 4px 4px 10px; border-radius: var(--radius-md); background: var(--color-surface); border: var(--border-hairline) solid var(--color-line); }
+.ro__row > .i { color: var(--color-text-subtle); }
+.ro__name { font-size: var(--font-size-16); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.ro__dose { display: block; font-size: 13px; color: var(--color-text-muted); font-weight: 600; margin-top: 2px; }
+.ro__row--grp { align-items: start; padding-top: 8px; }
+.ro__row--grp .icon-btn { margin-top: 0; }
+.ro__subs { display: block; margin-top: 4px; padding-left: 10px; border-left: var(--border-strong) solid var(--color-line-strong); font-size: 13px; color: var(--color-text-muted); line-height: 1.5; }
+.ro__row.is-moved { box-shadow: inset 0 0 0 2px var(--color-text); }
+
+/* ---------- sheets, dialogs, menus ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); max-height: calc(100% - 64px); display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { align-self: center; flex: none; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.sheet__head { flex: none; display: grid; gap: 6px; padding: 8px var(--layout-gutter) 14px; }
+.sheet__eyebrow { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sheet__title { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 var(--layout-gutter) 20px; display: grid; gap: 22px; align-content: start; }
+.sheet__body::-webkit-scrollbar { display: none; }
+.sheet__foot { flex: none; display: grid; gap: 8px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); }
+.dlg-wrap { position: absolute; inset: 0; z-index: calc(var(--z-sheet) + 1); display: grid; place-items: center; padding: 20px; }
+.dialog { width: 100%; max-width: 24rem; display: grid; gap: 20px; padding: 24px 20px 20px; border-radius: var(--radius-xl); background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.dialog__text { display: grid; gap: 10px; }
+.dialog__title { font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; text-wrap: balance; }
+.dialog__text p { color: var(--color-text-muted); font-size: 16px; line-height: 1.45; }
+.dialog__text p b { color: var(--color-text); }
+.dialog__actions { display: grid; gap: 8px; }
+.menu { position: absolute; z-index: calc(var(--z-sheet) + 1); top: 98px; right: 12px; width: 300px; padding: 6px; border-radius: var(--radius-lg); background: var(--color-surface-raised); box-shadow: var(--elevation-3); border: var(--border-hairline) solid var(--color-line); display: grid; }
+.menu-catch { position: absolute; inset: 0; z-index: var(--z-sheet); }
+
+/* Action rows (action sheet and menu) */
+.act { display: grid; grid-template-columns: 24px 1fr; column-gap: 14px; align-items: center; min-height: 56px; padding: 8px 12px; border-radius: var(--radius-md); text-align: left; width: 100%; }
+.act:active { background: var(--color-press-overlay); }
+.act:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.act > .i { color: var(--color-text-muted); }
+.act__label { font-size: var(--font-size-16); font-weight: 600; line-height: 1.3; }
+.act__hint { grid-column: 2; font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.act--danger, .act--danger > .i { color: var(--color-danger-text); }
+.act[disabled] { cursor: default; }
+.act[disabled] .act__label, .act[disabled] > .i { color: var(--color-text-disabled); }
+.acts { display: grid; margin: 0 -12px; }
+.acts__sep { height: 1px; margin: 4px 12px; background: var(--color-line); }
+
+/* Leave-sheet rows */
+.lrows { display: grid; }
+.lrow { display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 14px; min-height: 76px; padding: 10px 4px; text-align: left; border-top: var(--border-hairline) solid var(--color-line); width: 100%; }
+.lrow:first-child { border-top: 0; }
+.lrow:active { background: var(--color-press-overlay); }
+.lrow b { display: block; font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.lrow small { display: block; margin-top: 2px; font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.lrow--danger, .lrow--danger b { color: var(--color-danger-text); }
+.lrow--danger .well { background: var(--color-danger-tint); color: var(--color-danger-text); }
+
+/* ================================================================== */
+/* 4. Dose sheet                                                        */
+/* ================================================================== */
+.live { display: flex; align-items: baseline; gap: 8px; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.live .num { font-size: var(--font-size-24); color: var(--color-text); line-height: 1; }
+.live .delta { align-self: center; }
+.df { display: grid; gap: 10px; }
+.df__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.df__label { display: grid; gap: 2px; }
+.df__label b { font-size: var(--font-size-16); font-weight: 700; line-height: 1.25; }
+.df__label small { font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.range { display: flex; align-items: center; gap: 6px; }
+.range .stepper__value { min-width: 40px; }
+.sheet__body > * { min-width: 0; }
+.range__word { font-size: 15px; font-weight: 600; color: var(--color-text-muted); }
+.df__hint { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.df-fixed { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 6px 10px 14px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line); }
+.df-fixed span { font-size: 15px; line-height: 1.35; }
+.df-fixed .btn--ghost { font-size: 15px; flex: none; }
+.orig { display: grid; gap: 4px; justify-items: start; padding-top: 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.orig p { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.orig b { color: var(--color-text); font-weight: 700; }
+.orig .btn--ghost { padding: 0; font-size: 15px; }
+
+/* ================================================================== */
+/* 5. Exercise picker                                                   */
+/* ================================================================== */
+.pk-top { flex: none; display: grid; gap: 10px; padding: 4px 16px 12px; background: var(--color-bg); border-bottom: var(--border-hairline) solid var(--color-line); }
+.search { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 4px 0 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); }
+.search > .i { color: var(--color-text-muted); }
+.search input { flex: 1; min-width: 0; font-size: 17px; font-weight: 500; outline: none; }
+.search input::placeholder { color: var(--color-text-subtle); }
+.search:focus-within { border-color: var(--color-text); }
+.filters { display: flex; gap: 8px; }
+.fbtn { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 12px 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); white-space: nowrap; }
+.fbtn .i { width: 18px; height: 18px; }
+.fbtn.is-on { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.fbtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.pk { padding: 4px 16px 28px; display: grid; }
+.pk__head { display: grid; gap: 2px; padding: 18px 4px 8px; }
+.pk__head h2 { font-size: var(--font-size-16); font-weight: 800; font-stretch: var(--font-width-title); display: flex; justify-content: space-between; gap: 8px; }
+.pk__head h2 span { font-weight: 600; color: var(--color-text-muted); font-size: 14px; font-stretch: var(--font-width-text); }
+.pk__head p { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.pick { display: grid; grid-template-columns: 56px 1fr auto; column-gap: 14px; align-items: center; min-height: 76px; padding: 10px 4px; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.pk__head + .pick { border-top: 0; }
+.pick:active { background: var(--color-press-overlay); }
+.pick:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); border-radius: var(--radius-sm); }
+.thumb { width: 56px; height: 56px; position: relative; overflow: hidden; border-radius: var(--radius-sm); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); border: var(--border-hairline) solid var(--color-line); color: var(--color-text-subtle); display: grid; place-items: center; }
+.thumb::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: linear-gradient(to top, var(--color-line) 1px, transparent 1px) 0 100% / 100% 33% ; opacity: 0.7; }
+.thumb .i { width: 28px; height: 28px; stroke-width: 1.6; position: relative; z-index: 1; }
+.pick__text { display: grid; gap: 3px; min-width: 0; }
+.pick__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.pick__meta { font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.pick__away { display: flex; gap: 6px; align-items: flex-start; font-size: 13px; color: var(--color-text); line-height: 1.35; margin-top: 2px; }
+.pick__away .i { width: 16px; height: 16px; color: var(--color-text-muted); margin-top: 1px; stroke-width: 2.2; }
+.pick--current { cursor: default; }
+.pick--current .pick__name { color: var(--color-text-muted); }
+.pk-note { padding: 18px 4px 0; }
+.pk-empty { padding: 28px 20px; display: grid; gap: 14px; justify-items: start; }
+.pk-empty__title { font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; }
+.pk-empty p { font-size: 16px; color: var(--color-text-muted); line-height: 1.45; }
+.pk-empty p b { color: var(--color-text); }
+.fgroup { display: grid; gap: 12px; }
+.fgroup h3 { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+
+/* ================================================================== */
+/* 7–8. Save as, place in programme, overview                           */
+/* ================================================================== */
+.choices { display: grid; gap: 8px; }
+.choice { display: grid; grid-template-columns: 28px 40px 1fr; gap: 12px; align-items: center; min-height: 64px; padding: 8px 14px; border-radius: var(--radius-lg); border: var(--border-control) solid var(--color-line-strong); background: var(--color-surface); text-align: left; width: 100%; transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); }
+.choice:active { transform: scale(var(--motion-scale-press)); }
+.choice:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.choice__mark { width: 28px; height: 28px; border-radius: 50%; border: var(--border-strong) solid var(--color-line-strong); display: grid; place-items: center; }
+.choice__mark .i { width: 16px; height: 16px; stroke-width: 3; opacity: 0; }
+.choice__letter { width: 40px; height: 40px; display: grid; place-items: center; border-radius: var(--radius-sm); border: var(--border-control) solid var(--color-line-strong); font-size: var(--font-size-18); font-weight: 800; font-stretch: var(--font-width-title); }
+.choice__text { display: grid; gap: 2px; min-width: 0; }
+.choice__name { font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.choice__meta { font-size: 13px; color: var(--color-text-muted); line-height: 1.3; }
+.choice__meta b { color: inherit; font-weight: 700; }
+.choice[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.choice[aria-checked="true"] .choice__mark { background: var(--color-on-inverse); border-color: var(--color-on-inverse); color: var(--color-surface-inverse); }
+.choice[aria-checked="true"] .choice__mark .i { opacity: 1; }
+.choice[aria-checked="true"] .choice__letter { border-color: var(--color-on-inverse); }
+.choice[aria-checked="true"] .choice__meta { color: var(--color-on-inverse); opacity: 0.78; }
+
+.grid { position: relative; display: grid; grid-template-columns: 24px repeat(6, 36px) 1fr; column-gap: 4px; row-gap: 8px; align-items: center; }
+.grid__col { display: grid; justify-items: center; padding-bottom: 4px; }
+.grid__col b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1.1; }
+.grid__col span { font-size: var(--type-caption-size); color: var(--color-text-muted); font-weight: 600; font-stretch: var(--font-width-label); }
+.grid__col--icon { color: var(--color-text-muted); }
+.grid__col--icon .i { width: 20px; height: 20px; margin: 2px 0 3px; }
+.grid__col--mine b { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; border: var(--border-control) dashed var(--color-text); margin-bottom: 1px; font-size: var(--font-size-18); }
+.grid__col--mine span { color: var(--color-text); font-weight: 700; }
+.grid__wk { font-size: 14px; font-weight: 700; color: var(--color-text-muted); }
+.cell { height: 36px; border-radius: var(--radius-sm); display: grid; place-items: center; font-weight: 800; font-size: 16px; font-stretch: var(--font-width-title); }
+.cell--done { background: var(--color-complete); color: var(--color-on-complete); }
+.cell--done .i { width: 18px; height: 18px; stroke-width: 3; }
+.cell--next { background: var(--color-accent); color: var(--color-on-accent); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-accent-line); }
+.cell--todo { border: var(--border-control) solid var(--color-line-strong); color: var(--color-text-muted); }
+.cell--later { border: var(--border-hairline) solid var(--color-line); }
+.grid__now { grid-column: 1 / -1; height: 48px; margin: 0 -10px; border-radius: var(--radius-md); background: var(--color-accent-tint); z-index: 0; }
+.grid > *:not(.grid__now) { position: relative; z-index: 1; }
+.phase { align-self: stretch; display: flex; align-items: center; padding-left: 8px; border-left: var(--border-strong) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; color: var(--color-text-muted); }
+.phase--now { color: var(--color-text); border-left-color: var(--color-accent-line); }
+.rot { padding: 16px var(--layout-gutter) 8px; display: grid; gap: 14px; }
+.slist { padding: 20px var(--layout-gutter) 28px; display: grid; gap: 8px; }
+.srow { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 8px 0; border-top: var(--border-hairline) solid var(--color-line); text-align: left; width: 100%; }
+.srow:first-child { border-top: 0; }
+.srow__id { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); }
+.srow__id .num { font-size: var(--font-size-36); line-height: 1; }
+.srow__id--mine { background: transparent; border: var(--border-control) dashed var(--color-text); }
+.srow__text { flex: 1; display: grid; gap: 2px; }
+.srow__name { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.srow__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; }
+.srow > .i { color: var(--color-text-muted); }
+
+/* ================================================================== */
+/* 9. Regenerate preview: edits ledger                                  */
+/* ================================================================== */
+.cp-count { display: flex; align-items: flex-end; gap: 12px; }
+.cp-count .num { font-size: var(--font-size-96); line-height: 0.76; }
+.cp-count__label { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 2px; }
+.cp-kept { display: flex; gap: 8px; align-items: flex-start; font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.cp-kept .i { width: 18px; height: 18px; margin-top: 1px; color: var(--color-text); stroke-width: 2.5; }
+.ledger { display: grid; gap: 14px; padding: 16px; border-radius: var(--radius-lg); border: var(--border-control) solid var(--color-line-strong); }
+.ledger__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); display: flex; align-items: center; gap: 8px; }
+.ledger__title .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.ledger__figs { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+.ledger__fig { display: grid; gap: 6px; }
+.ledger__fig .num { font-size: var(--font-size-48); line-height: 0.8; }
+.ledger__fig span:last-child { font-size: 14px; font-weight: 600; color: var(--color-text-muted); line-height: 1.25; }
+.ledger__fig--muted .num { color: var(--color-text-muted); }
+.drop { display: grid; grid-template-columns: 18px 1fr; column-gap: 12px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.drop__dot { position: relative; }
+.drop__dot::before { content: ''; position: absolute; left: 4px; top: 6px; width: 10px; height: 10px; border-radius: 50%; border: var(--border-strong) solid var(--color-text-subtle); }
+.drop__where { font-size: 13px; font-weight: 700; color: var(--color-text-muted); }
+.drop__name { font-size: 16px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.25; }
+.drop__why { font-size: 14px; color: var(--color-text-muted); line-height: 1.35; margin-top: 2px; }
+.ledger .disc { min-height: 48px; padding: 0; border: 0; background: none; }
+.ledger .disc__title { font-size: 15px; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+.cp-sess { display: grid; }
+.cp-sess__name { font-size: var(--type-meta-size); font-weight: 700; color: var(--color-text-muted); padding-bottom: 4px; }
+.swap { display: grid; grid-template-columns: 18px 1fr; column-gap: 12px; padding: 10px 0; border-top: var(--border-hairline) solid var(--color-line); }
+.cp-sess__name + .swap { border-top: 0; padding-top: 4px; }
+.swap__rail { grid-row: 1 / 3; position: relative; }
+.swap__rail::before { content: ''; position: absolute; left: 4px; top: 7px; width: 10px; height: 10px; border-radius: 50%; border: var(--border-strong) solid var(--color-text-subtle); }
+.swap__rail::after { content: ''; position: absolute; left: 8px; top: 18px; bottom: 9px; width: 2px; background: var(--color-line-strong); }
+.swap__rail i { position: absolute; left: 3px; bottom: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-text); }
+.swap__old { font-size: 15px; color: var(--color-text-muted); line-height: 1.35; }
+.swap__new { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.25; padding-top: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .choice, .disc__chev, .seg__opt, .device { transition-duration: 1ms !important; }
+  .btn:active, .choice:active { transform: none; }
+}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-incline" viewBox="0 0 24 24"><path d="M3 19h18L21 8z"/><path d="M16 19v-3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M2.5 7h19M5 4v6M19 4v6"/><path d="M9.5 7v3.5M14.5 7v3.5"/><circle cx="12" cy="15.5" r="2.5"/></symbol>
+  <symbol id="i-dips" viewBox="0 0 24 24"><path d="M3 8.5h6M15 8.5h6M6 8.5v12M18 8.5v12M4 20.5h4M16 20.5h4"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.5"/><path d="M12 16.9h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15.5v3a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 3.5h10M7 20.5h10"/><path d="M8 3.5c0 4.5 4 5.5 4 8.5s-4 4-4 8.5M16 3.5c0 4.5-4 5.5-4 8.5s4 4 4 8.5"/></symbol>
+  <symbol id="i-step-up" viewBox="0 0 24 24"><path d="M3 19.5h5v-5h5v-5h5v-5h3"/></symbol>
+  <symbol id="i-step-down" viewBox="0 0 24 24"><path d="M3 4.5h5v5h5v5h5v5h3"/></symbol>
+  <symbol id="i-equals" viewBox="0 0 24 24"><path d="M6 9.5h12M6 14.5h12"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"/></symbol>
+  <symbol id="i-turtle" viewBox="0 0 24 24"><path d="M4 15.5c0-4 3.6-7 8-7s8 3 8 7z"/><path d="M20 13.5h1.5a1.5 1.5 0 0 0 0-3H19"/><path d="M7 15.5V18M17 15.5V18"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-belt" viewBox="0 0 24 24"><path d="M3 6.5c3 1.3 6 2 9 2s6-.7 9-2"/><path d="M8.5 8.2L12 14l3.5-5.8"/><rect x="8" y="14" width="8" height="6" rx="1.5"/></symbol>
+  <symbol id="i-treadmill" viewBox="0 0 24 24"><path d="M3 17.5h12.5a2.5 2.5 0 0 0 2.4-1.8L20.5 6"/><path d="M18 6h4.5"/><path d="M5 20.5h10"/></symbol>
+  <symbol id="i-bench" viewBox="0 0 24 24"><path d="M3 10.5h18"/><path d="M6 10.5v8M18 10.5v8"/><path d="M4 18.5h4M16 18.5h4"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3.5 7h3c4.5 0 5.5 10 10 10h3.5"/><path d="M3.5 17h3c1.5 0 2.6-1.2 3.4-2.8M13.6 9.8C14.4 8.2 15.5 7 17 7h3"/><path d="M17.5 4.5L20 7l-2.5 2.5M17.5 14.5L20 17l-2.5 2.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.5s-7-4.2-7-9.4A3.9 3.9 0 0 1 12 7.8a3.9 3.9 0 0 1 7 2.3c0 5.2-7 9.4-7 9.4z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a7.5 7.5 0 1 1 15 0"/><path d="M12 17l3.6-4.6"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-person-run" viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="1.8"/><path d="M6 21l3.5-5.5 3 2.5 1-5.5"/><path d="M8 10.5l3.5-3 4 2.5 2.5 3"/><path d="M13.5 13l2.5 2.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5"/><path d="M12 16.4h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-mat" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="1.5"/><path d="M7 9v6M17 9v6"/></symbol>
+  <symbol id="i-kettlebell" viewBox="0 0 24 24"><path d="M9 10.2V8a3 3 0 0 1 6 0v2.2"/><path d="M6.5 15a5.5 5.5 0 1 1 11 0c0 2.1-.7 3.6-1.6 5H8.1c-.9-1.4-1.6-2.9-1.6-5z"/></symbol>
+  <symbol id="i-miniband" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="5"/><ellipse cx="12" cy="12" rx="5" ry="2.3"/></symbol>
+  <symbol id="i-vest" viewBox="0 0 24 24"><path d="M8.5 3.5L5 6v14.5h5.5V16h3v4.5H19V6l-3.5-2.5c-.4 2-1.8 3.5-3.5 3.5s-3.1-1.5-3.5-3.5z"/><path d="M7.5 11h3M13.5 11h3"/></symbol>
+  <symbol id="i-bike" viewBox="0 0 24 24"><path d="M7 20.5h10M12 20.5v-5M8 6h4l1.5 9.5H17l1-5"/><path d="M16.5 10.5H20"/><circle cx="12" cy="15.5" r="0.6"/></symbol>
+  <symbol id="i-rower" viewBox="0 0 24 24"><path d="M2.5 18.5h19M5 18.5l2.5-3.5h6.5"/><path d="M14 15l4-7M16.5 8h4"/><path d="M8 11.5h4"/></symbol>
+  <symbol id="i-rope" viewBox="0 0 24 24"><path d="M5.5 3.5v6M18.5 3.5v6"/><path d="M5.5 9.5c0 7.5 3 11 6.5 11s6.5-3.5 6.5-11"/></symbol>
+  <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6"/><path d="M2.5 12H6M18 12h3.5"/></symbol>
+  <symbol id="i-straps" viewBox="0 0 24 24"><path d="M12 2.5v5M12 7.5L7 17M12 7.5L17 17"/><path d="M5 17h4M15 17h4M7 17v3M17 17v3"/></symbol>
+  <!-- new in this phase -->
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01" stroke-width="3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/><path d="M10 11v5.5M14 11v5.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V5.5A1.5 1.5 0 0 0 14 4H5.5A1.5 1.5 0 0 0 4 5.5V14a1.5 1.5 0 0 0 1.5 1.5h3"/></symbol>
+  <symbol id="i-group" viewBox="0 0 24 24"><path d="M8 5H5v14h3"/><path d="M11 8.5h9M11 15.5h9"/></symbol>
+  <symbol id="i-ungroup" viewBox="0 0 24 24"><path d="M8 5H5v4M5 15v4h3"/><path d="M11 8.5h9M11 15.5h9"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/></symbol>
+  <symbol id="i-bookmark-plus" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/><path d="M12 7.5v5M9.5 10h5"/></symbol>
+  <symbol id="i-restore" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Session editor">Éditeur de séance</span>
+  <nav class="mock-bar__nav" aria-label="Surfaces">
+    <a href="#s1" data-en="1 My sessions">1 Mes séances</a><a href="#s2" data-en="2 Detail">2 Détail</a><a href="#s3" data-en="3 Editor">3 Éditeur</a><a href="#s4" data-en="4 Dose">4 Dose</a><a href="#s5" data-en="5 Picker">5 Choix</a><a href="#s6" data-en="6 Programme">6 Programme</a><a href="#s7" data-en="7 Save as">7 Enregistrer</a><a href="#s8" data-en="8 Place">8 Placer</a><a href="#s9" data-en="9 Regenerate">9 Régénérer</a><a href="#s10" data-en="10 Delete">10 Supprimer</a>
+  </nav>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s1"><h2 data-en="1. Quick session tab: My sessions">1. Onglet Séance rapide&#8239;: Mes séances</h2><p data-en="My sessions sit above the quick-session launcher. The launcher keeps the dock's primary.">Mes séances au-dessus du lanceur de séance rapide. Le lanceur garde le bouton principal du dock.</p></section>
+
+<figure class="mock-shot" id="f1a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="qs">
+          <h1 class="t-display" style="padding-top: 12px" data-en="Quick session">Séance rapide</h1>
+          <section class="qs-sec" aria-labelledby="ms-t1">
+            <div class="qs-sec__head"><h2 class="section-title" id="ms-t1" data-en="My sessions">Mes séances</h2></div>
+            <div class="empty-card">
+              <div class="empty-card__head">
+                <span class="well"><svg class="i"><use href="#i-bookmark"/></svg></span>
+                <div><h3 class="empty-card__title" data-en="No sessions of your own yet">Aucune séance à toi pour l’instant</h3><p data-en="Build one from the exercises you choose, or save a quick session you liked.">Construis-en une avec les exercices de ton choix, ou enregistre une séance rapide qui t’a plu.</p></div>
+              </div>
+              <button class="btn btn--secondary btn--block" type="button" data-go="f3d"><svg class="i"><use href="#i-plus"/></svg><span data-en="New session">Nouvelle séance</span></button>
+            </div>
+          </section>
+          <div class="qs-rule"></div>
+          <section class="qs-sec">
+            <div class="qs__intro"><h2 class="section-title" data-en="Build a quick session">Composer une séance rapide</h2><p class="t-meta muted" data-en="Outside your programme. Nothing is saved until you start it.">Hors programme. Rien n’est enregistré tant que tu ne la commences pas.</p></div>
+            <div class="qs-field"><h3 class="t-meta" style="font-weight:700" data-en="Duration">Durée</h3>
+              <div class="tiles" role="radiogroup" aria-label="Durée" data-en-label="Duration"><button class="tile" type="button" role="radio" aria-checked="false"><span class="num">15</span><span>min</span></button><button class="tile" type="button" role="radio" aria-checked="false"><span class="num">20</span><span>min</span></button><button class="tile" type="button" role="radio" aria-checked="true"><span class="num">30</span><span>min</span></button><button class="tile" type="button" role="radio" aria-checked="false"><span class="num">45</span><span>min</span></button><button class="tile" type="button" role="radio" aria-checked="false"><span class="num">60</span><span>min</span></button></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button" data-en="Build my session">Composer la séance</button></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Empty: one dashed card, New session as a secondary">Vide&#8239;: une carte en pointillés, Nouvelle séance en secondaire</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="qs">
+          <h1 class="t-display" style="padding-top: 12px" data-en="Quick session">Séance rapide</h1>
+          <section class="qs-sec" aria-labelledby="ms-t2">
+            <div class="qs-sec__head"><h2 class="section-title" id="ms-t2" data-en="My sessions">Mes séances</h2><span class="qs-sec__meta">3</span></div>
+            <div class="ms-list">
+              <button class="ms" type="button" data-go="f6b">
+                <span class="ms__well"><span class="num">~32</span><small>min</small></span>
+                <span class="ms__text"><span class="ms__name" data-en="Upper express">Haut express</span><span class="ms__meta" data-en="Upper body, done yesterday">Haut du corps, faite hier</span>
+                  <span class="ms__line"><span class="lettertile" aria-hidden="true">D</span><span class="fr">Dans ton programme<span class="sr-only">, à la place de la séance D</span></span><span class="en">In your programme<span class="sr-only">, as session D</span></span></span></span>
+                <svg class="i"><use href="#i-chev-right"/></svg>
+              </button>
+              <button class="ms" type="button">
+                <span class="ms__well"><span class="num">~20</span><small>min</small></span>
+                <span class="ms__text"><span class="ms__name" data-en="Evening core">Gainage du soir</span><span class="ms__meta" data-en="Core, done 4 days ago">Gainage, faite il y a 4 jours</span></span>
+                <svg class="i"><use href="#i-chev-right"/></svg>
+              </button>
+              <button class="ms" type="button" data-go="f2a">
+                <span class="ms__well"><span class="num">~35</span><small>min</small></span>
+                <span class="ms__text"><span class="ms__name" data-en="Pull-ups and arms">Tractions et bras</span><span class="ms__meta" data-en="Pull, not done yet">Pull, jamais faite</span>
+                  <span class="ms__line"><svg class="i"><use href="#i-alert"/></svg><span data-en="1 exercise no longer possible">1 exercice n’est plus faisable</span></span></span>
+                <svg class="i"><use href="#i-chev-right"/></svg>
+              </button>
+            </div>
+            <button class="btn btn--secondary btn--block" type="button" data-go="f3d"><svg class="i"><use href="#i-plus"/></svg><span data-en="New session">Nouvelle séance</span></button>
+          </section>
+          <div class="qs-rule"></div>
+          <section class="qs-sec">
+            <div class="qs__intro"><h2 class="section-title" data-en="Build a quick session">Composer une séance rapide</h2><p class="t-meta muted" data-en="Outside your programme. Nothing is saved until you start it.">Hors programme. Rien n’est enregistré tant que tu ne la commences pas.</p></div>
+          </section>
+        </div>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button" data-en="Build my session">Composer la séance</button></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Three sessions: one in the programme, one with an exercise no longer possible">Trois séances&#8239;: une dans le programme, une avec un exercice plus faisable</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s2"><h2 data-en="2. Custom session detail">2. Détail d’une séance perso</h2><p data-en="Same layout as session detail. Edit sits in the bar; the rest is in the options menu.">Même mise en page que le détail de séance. Modifier dans la barre, le reste dans le menu d’options.</p></section>
+
+<figure class="mock-shot" id="f2a" data-scroll="210">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar">
+        <button class="icon-btn" type="button" aria-label="Retour à mes séances" data-en-label="Back to my sessions"><svg class="i"><use href="#i-back"/></svg></button>
+        <span class="ctxbar__text" data-en="My sessions">Mes séances</span>
+        <button class="barbtn" type="button" data-go="f3e"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Edit">Modifier</span></button>
+        <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Options de la séance" data-en-label="Session options" data-go="f2b"><svg class="i"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="scroll">
+        <section class="sd-head">
+          <div class="sd-id">
+            <span class="sd-tile" aria-hidden="true"><svg class="i"><use href="#i-bookmark"/></svg></span>
+            <div class="sd-id__text"><span class="sd-kicker" data-en="My session">Ma séance</span><h1 class="t-display is-long" data-en="Pull-ups and arms">Tractions et bras</h1><p class="sd-sub" data-en="Back, biceps, triceps">Dos, biceps, triceps</p></div>
+          </div>
+          <div class="sd-stats">
+            <div class="sd-stat"><span class="num">~35<small>min</small></span><span class="sd-stat__label" data-en="estimated">estimées</span></div>
+            <div class="sd-stat"><span class="num">4</span><span class="sd-stat__label" data-en="exercises">exercices</span></div>
+          </div>
+          <p class="notice"><svg class="i"><use href="#i-info"/></svg><span data-en="Started from here, it uses your latest loads and doesn’t move your progression.">Lancée d’ici, elle part de tes dernières charges et ne fait pas avancer ta progression.</span></p>
+          <button class="card place" type="button" data-go="f8a"><span class="well"><svg class="i"><use href="#i-calendar"/></svg></span><span><span class="place__title" data-en="Put in your programme">Placer dans le programme</span><span class="place__sub" data-en="It replaces one session of your rotation and progresses with it.">Elle remplace une séance de ta rotation et progresse avec elle.</span></span><svg class="i"><use href="#i-chev-right"/></svg></button>
+        </section>
+        <section class="sd-sec">
+          <div class="sd-sec__head"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="sd-sec__meta" data-en="3 blocks">3 blocs</span></div>
+          <article class="rx">
+            <span class="num rx__idx">1</span><h3 class="rx__name" data-en="Pull-up">Traction pronation</h3>
+            <button class="icon-btn rx__why" type="button" aria-label="Pourquoi Traction pronation ?" data-en-label="Why Pull-up?"><svg class="i"><use href="#i-why"/></svg></button>
+            <div class="rx__body">
+              <div class="rx__nums"><div class="rx__cell"><span class="num rx__n">4 × 6–8</span><span class="rx__u" data-en="sets × reps">séries × reps</span></div><div class="rx__cell"><span class="rx__w" data-en="Bodyweight">Poids du corps</span></div></div>
+              <div class="rx__facts"><span class="fr">Repos <b>120&nbsp;s</b></span><span class="en">Rest <b>120 s</b></span><span class="fr"><b>2 reps</b> en réserve</span><span class="en"><b>2 reps</b> in the tank</span></div>
+            </div>
+            <div class="issue issue--block"><svg class="i"><use href="#i-alert"/></svg><div class="issue__body"><span class="fr">Plus faisable&#8239;: la barre de traction n’est plus dans ton matériel.</span><span class="en">No longer possible: the pull-up bar is no longer in your equipment.</span><button class="btn btn--secondary btn--compact" type="button" data-go="f5a"><svg class="i i--sm"><use href="#i-swap"/></svg><span data-en="Replace">Remplacer</span></button></div></div>
+          </article>
+          <article class="rx">
+            <span class="num rx__idx">2</span><h3 class="rx__name" data-en="One-arm row">Rowing unilatéral</h3>
+            <button class="icon-btn rx__why" type="button" aria-label="Pourquoi Rowing unilatéral ?" data-en-label="Why One-arm row?"><svg class="i"><use href="#i-why"/></svg></button>
+            <div class="rx__body">
+              <div class="rx__nums"><div class="rx__cell"><span class="num rx__n">3 × 10–12</span><span class="rx__u" data-en="sets × reps per side">séries × reps par côté</span></div><div class="rx__cell"><span class="num rx__n">16<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div></div>
+              <div class="rx__facts"><span class="fr">Repos <b>90&nbsp;s</b></span><span class="en">Rest <b>90 s</b></span></div>
+            </div>
+          </article>
+        </section>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button" data-go="f2c"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Not placed, with an exercise the equipment no longer allows">Pas placée, avec un exercice que le matériel ne permet plus</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar">
+        <button class="icon-btn" type="button" aria-label="Retour à mes séances" data-en-label="Back to my sessions"><svg class="i"><use href="#i-back"/></svg></button>
+        <span class="ctxbar__text" data-en="My sessions">Mes séances</span>
+        <button class="barbtn" type="button"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Edit">Modifier</span></button>
+        <button class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="true" aria-label="Options de la séance" data-en-label="Session options" style="background: var(--color-press-overlay)"><svg class="i"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="scroll">
+        <section class="sd-head">
+          <div class="sd-id"><span class="sd-tile" aria-hidden="true"><svg class="i"><use href="#i-bookmark"/></svg></span><div class="sd-id__text"><span class="sd-kicker" data-en="My session">Ma séance</span><h1 class="t-display" data-en="Upper express">Haut express</h1><p class="sd-sub" data-en="Chest, back, shoulders">Pectoraux, dos, épaules</p></div></div>
+          <div class="sd-stats"><div class="sd-stat"><span class="num">~32<small>min</small></span><span class="sd-stat__label" data-en="estimated">estimées</span></div><div class="sd-stat"><span class="num">5</span><span class="sd-stat__label" data-en="exercises">exercices</span></div></div>
+        </section>
+      </div>
+      <div class="menu-catch"></div>
+      <div class="menu" role="menu" style="top: 54px">
+        <button class="act" role="menuitem" type="button" data-go="f8a"><svg class="i"><use href="#i-calendar"/></svg><span class="act__label" data-en="Put in your programme">Placer dans le programme</span><span class="act__hint" data-en="Replaces one session of your rotation">Remplace une séance de ta rotation</span></button>
+        <button class="act" role="menuitem" type="button"><svg class="i"><use href="#i-copy"/></svg><span class="act__label" data-en="Duplicate">Dupliquer</span><span class="act__hint" data-en="Makes a copy you can change">Crée une copie à modifier</span></button>
+        <span class="acts__sep"></span>
+        <button class="act act--danger" role="menuitem" type="button" data-go="f10a"><svg class="i"><use href="#i-trash"/></svg><span class="act__label" data-en="Delete">Supprimer</span></button>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Options menu (when placed, the first item reads Remove from programme)">Menu d’options (une fois placée, le premier choix devient Retirer du programme)</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="My sessions">Mes séances</span></div>
+      <div class="scroll">
+        <section class="sd-head"><div class="sd-id"><span class="sd-tile"><svg class="i"><use href="#i-bookmark"/></svg></span><div class="sd-id__text"><span class="sd-kicker" data-en="My session">Ma séance</span><h1 class="t-display is-long" data-en="Pull-ups and arms">Tractions et bras</h1></div></div></section>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+      <div class="scrim"></div>
+      <div class="dlg-wrap">
+        <div class="dialog" role="alertdialog" aria-labelledby="d2c">
+          <div class="dialog__text"><h2 class="dialog__title" id="d2c" data-en="1 exercise is no longer possible">1 exercice n’est plus faisable</h2>
+            <p class="fr">Traction pronation demande une barre de traction. Commence sans lui, ou modifie la séance pour le remplacer.</p><p class="en">Pull-up needs a pull-up bar. Start without it, or edit the session to replace it.</p></div>
+          <div class="dialog__actions">
+            <button class="btn btn--primary btn--block" type="button" data-en="Start without it">Commencer sans lui</button>
+            <button class="btn btn--secondary btn--block" type="button" data-go="f3e" data-en="Edit the session">Modifier la séance</button>
+            <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Start with an exercise no longer possible">Commencer avec un exercice plus faisable</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s3"><h2 data-en="3. Editor">3. Éditeur</h2><p data-en="One editor for programme sessions and custom sessions. Full screen, no tab bar. The duration meter stays pinned under the bar and rolls on every change.">Un seul éditeur pour les séances du programme et les séances perso. Plein écran, sans barre d’onglets. Le compteur de durée reste épinglé sous la barre et roule à chaque changement.</p></section>
+
+<figure class="mock-shot" id="f3a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar">
+        <button class="icon-btn" type="button" aria-label="Fermer l’éditeur" data-en-label="Close editor" data-go="f3g"><svg class="i"><use href="#i-close"/></svg></button>
+        <div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div>
+      </div>
+      <div class="meter" aria-live="polite">
+        <div class="meter__n"><span class="num">~52</span><small>min</small></div>
+        <div class="meter__right">
+          <div class="meter__track" aria-hidden="true"><span class="meter__fill" style="width: 75%"></span><span class="meter__over" style="left: 75%; width: 11.7%"></span><span class="meter__tick" style="left: 75%"></span></div>
+          <span class="meter__line fr"><b>7&nbsp;min de plus</b> que tes 45&nbsp;min</span><span class="meter__line en"><b>7 min over</b> your 45 min</span>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="ed">
+          <p class="inline-note ed-note"><svg class="i"><use href="#i-calendar"/></svg><span data-en="Your changes apply to the whole cycle. Harder weeks and the deload still adjust sets and effort on top.">Tes modifications valent pour tout le cycle. Les semaines plus dures et la décharge ajustent encore les séries et l’effort.</span></p>
+          <section class="es">
+            <button class="disc" type="button" aria-expanded="false"><span class="disc__text"><span class="disc__title" data-en="Warm-up">Échauffement</span><span class="disc__meta" data-en="3 exercises, about 4 min">3 exercices, environ 4&nbsp;min</span></span><span class="disc__chev"><svg class="i"><use href="#i-chev-down"/></svg></span></button>
+          </section>
+          <section class="es">
+            <div class="es__head"><div class="es__titles"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="es__meta" data-en="5 blocks">5 blocs</span></div><button class="barbtn" type="button" data-go="f3f"><svg class="i"><use href="#i-move"/></svg><span data-en="Reorder">Réorganiser</span></button></div>
+            <div class="eb">
+              <button class="eb__main" type="button" data-go="f4a"><span class="num eb__idx">1</span><span class="eb__text"><span class="eb__name" data-en="Floor press">Développé couché au sol</span><span class="eb__dose"><span class="num">4 × 6–10</span><span class="eb__facts fr">2 reps en réserve, repos 90&nbsp;s</span><span class="eb__facts en">2 reps in the tank, rest 90 s</span></span><span class="eb__tags"><span class="tag"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Edited">Modifié</span></span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions : Développé couché au sol" data-en-label="Actions: Floor press"><svg class="i"><use href="#i-more"/></svg></button>
+            </div>
+            <div class="gone"><span class="fr">Retiré&#8239;: <b>Pompes</b></span><span class="en">Removed: <b>Push-up</b></span><button class="btn btn--ghost" type="button" data-en="Put back">Remettre</button></div>
+            <div class="eb">
+              <button class="eb__main" type="button"><span class="num eb__idx">2</span><span class="eb__text"><span class="eb__name" data-en="Standing shoulder press">Développé militaire debout</span><span class="eb__dose"><span class="num">3 × 10–12</span><span class="eb__facts fr">2 reps en réserve, repos 75&nbsp;s</span><span class="eb__facts en">2 reps in the tank, rest 75 s</span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions : Développé militaire debout" data-en-label="Actions: Standing shoulder press" data-go="f3c"><svg class="i"><use href="#i-more"/></svg></button>
+              <div class="eb__foot"><p class="swapnote"><svg class="i"><use href="#i-swap"/></svg><span class="fr">En ce moment, <b>Pompes en V (pike)</b> à la place, après ta douleur. Ce choix reste valable.</span><span class="en">Right now <b>Pike push-up</b> runs instead, after your pain. That choice still applies.</span></p></div>
+            </div>
+            <div class="eb">
+              <button class="eb__main" type="button"><span class="num eb__idx">3</span><span class="eb__text"><span class="eb__name" data-en="Dumbbell lateral raise">Élévations latérales haltères</span><span class="eb__dose"><span class="num">3 × 12–15</span><span class="eb__facts fr">2 reps en réserve, repos 60&nbsp;s</span><span class="eb__facts en">2 reps in the tank, rest 60 s</span></span><span class="eb__tags"><span class="tag"><svg class="i"><use href="#i-plus"/></svg><span data-en="Added">Ajouté</span></span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-check"/></svg><span data-en="Save">Enregistrer</span></button></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Programme session A, edited: range changed, push-up removed, raise added">Séance A du programme, modifiée&#8239;: fourchette changée, pompes retirées, élévations ajoutées</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar">
+        <button class="icon-btn" type="button" aria-label="Fermer l’éditeur" data-en-label="Close editor"><svg class="i"><use href="#i-close"/></svg></button>
+        <div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div>
+      </div>
+      <div class="meter" aria-live="polite">
+        <div class="meter__n"><span class="num">~52</span><small>min</small></div>
+        <div class="meter__right"><div class="meter__track" aria-hidden="true"><span class="meter__fill" style="width: 75%"></span><span class="meter__over" style="left: 75%; width: 11.7%"></span><span class="meter__tick" style="left: 75%"></span></div><span class="meter__line fr"><b>7&nbsp;min de plus</b> que tes 45&nbsp;min</span><span class="meter__line en"><b>7 min over</b> your 45 min</span></div>
+      </div>
+      <div class="scroll">
+        <div class="ed">
+          <section class="es" style="padding-top: 12px">
+            <div class="eg">
+              <div class="eg__head">
+                <button class="eb__main" type="button" data-go="f4b"><span class="num eb__idx">4</span><span class="eb__text"><span class="eg__title" data-en="Superset, 3 rounds">Superset, 3 tours</span><span class="eb__facts" data-en="Chain a and b, then rest 60 s.">Enchaîne a et b, puis 60&nbsp;s de repos.</span></span></button>
+                <button class="icon-btn eb__more" type="button" aria-label="Actions du superset" data-en-label="Superset actions"><svg class="i"><use href="#i-more"/></svg></button>
+              </div>
+              <div class="eg__items">
+                <div class="eg__item"><button class="eb__main" type="button"><span class="eb__idx">a</span><span class="eb__text"><span class="eb__name" data-en="Dumbbell floor triceps extension">Extension triceps au sol haltères</span><span class="eb__dose"><span class="num">10–12</span><span class="eb__facts fr">reps, 2 en réserve</span><span class="eb__facts en">reps, 2 in the tank</span></span></span></button><button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button></div>
+                <div class="eg__item"><button class="eb__main" type="button"><span class="eb__idx">b</span><span class="eb__text"><span class="eb__name" data-en="Dumbbell floor fly">Écartés haltères au sol</span><span class="eb__dose"><span class="num">12–15</span><span class="eb__facts fr">reps, 2 en réserve</span><span class="eb__facts en">reps, 2 in the tank</span></span></span></button><button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button></div>
+                <button class="eg__add" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add to the superset">Ajouter au superset</span></button>
+              </div>
+            </div>
+            <div class="eb">
+              <button class="eb__main" type="button"><span class="num eb__idx">5</span><span class="eb__text"><span class="eb__name" data-en="Plank">Gainage planche</span><span class="eb__dose"><span class="num">3 × 30–45<small>s</small></span><span class="eb__facts fr">repos 45&nbsp;s</span><span class="eb__facts en">rest 45 s</span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button>
+            </div>
+            <button class="addrow" type="button" data-go="f5b"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add an exercise">Ajouter un exercice</span></button>
+          </section>
+          <section class="es">
+            <div class="es__head"><div class="es__titles"><h2 class="section-title" data-en="Finisher">Fin de séance</h2><span class="es__meta" data-en="Cardio">Cardio</span></div></div>
+            <div class="eb">
+              <button class="eb__main" type="button"><span class="num eb__idx"></span><span class="eb__text"><span class="eb__name" data-en="Treadmill incline walk">Marche inclinée sur tapis</span><span class="eb__dose"><span class="num">15<small>min</small></span><span class="eb__facts fr">5,5&nbsp;km/h, 8&#8239;%</span><span class="eb__facts en">5.5 km/h, 8%</span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button>
+            </div>
+            <button class="addrow" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add an exercise">Ajouter un exercice</span></button>
+          </section>
+          <div class="ed-reset">
+            <p data-en="Your 3 changes to this session apply to every week. Restoring brings back the programme’s version.">Tes 3 modifications de cette séance valent pour toutes les semaines. Rétablir remet la version du programme.</p>
+            <button class="btn btn--destructive-outline btn--block" type="button" data-go="f3h"><svg class="i"><use href="#i-restore"/></svg><span data-en="Restore the whole session">Rétablir toute la séance</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-check"/></svg><span data-en="Save">Enregistrer</span></button></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Scrolled: group block, finisher, restore the whole session">Plus bas&#8239;: bloc groupé, fin de séance, rétablir toute la séance</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div></div>
+      <div class="meter"><div class="meter__n"><span class="num">~52</span><small>min</small></div><div class="meter__right"><div class="meter__track"><span class="meter__fill" style="width: 75%"></span><span class="meter__over" style="left: 75%; width: 11.7%"></span><span class="meter__tick" style="left: 75%"></span></div><span class="meter__line fr"><b>7&nbsp;min de plus</b> que tes 45&nbsp;min</span><span class="meter__line en"><b>7 min over</b> your 45 min</span></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t3c">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><span class="sheet__eyebrow" data-en="Main work, exercise 2 of 5">Bloc principal, exercice 2 sur 5</span><h2 class="t-title" id="t3c" data-en="Standing shoulder press">Développé militaire debout</h2></div>
+        <div class="sheet__body" style="gap: 0">
+          <div class="acts">
+            <button class="act" type="button"><svg class="i"><use href="#i-sliders"/></svg><span class="act__label" data-en="Edit sets and reps">Modifier séries et reps</span><span class="act__hint" data-en="3 × 10–12, 2 reps in the tank, rest 75 s">3 × 10–12, 2 reps en réserve, repos 75&nbsp;s</span></button>
+            <button class="act" type="button" data-go="f5a"><svg class="i"><use href="#i-swap"/></svg><span class="act__label" data-en="Replace the exercise">Remplacer l’exercice</span><span class="act__hint" data-en="Suggestions for this slot first">Suggestions pour ce créneau en premier</span></button>
+            <button class="act" type="button"><svg class="i"><use href="#i-group"/></svg><span class="act__label" data-en="Superset with the next one">Superset avec le suivant</span><span class="act__hint" data-en="Next: Dumbbell lateral raise">Suivant&#8239;: Élévations latérales haltères</span></button>
+            <span class="acts__sep"></span>
+            <button class="act" type="button"><svg class="i"><use href="#i-arrow-up"/></svg><span class="act__label" data-en="Move up">Monter</span><span class="act__hint" data-en="Becomes exercise 1">Devient l’exercice 1</span></button>
+            <button class="act" type="button"><svg class="i"><use href="#i-arrow-down"/></svg><span class="act__label" data-en="Move down">Descendre</span><span class="act__hint" data-en="Becomes exercise 3">Devient l’exercice 3</span></button>
+            <button class="act" type="button"><svg class="i"><use href="#i-flag"/></svg><span class="act__label" data-en="Move to the finisher">Passer en fin de séance</span></button>
+            <span class="acts__sep"></span>
+            <button class="act act--danger" type="button"><svg class="i"><use href="#i-trash"/></svg><span class="act__label" data-en="Remove from the session">Retirer de la séance</span><span class="act__hint" data-en="You can put it back until you save">Tu peux le remettre tant que tu n’as pas enregistré</span></button>
+          </div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--secondary btn--block" type="button" data-en="Close">Fermer</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Block actions: the non-drag way to move (an edited item adds Restore the programme’s version)">Actions du bloc&#8239;: déplacer sans glisser (un exercice modifié ajoute Rétablir la version du programme)</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3d">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer l’éditeur" data-en-label="Close editor"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="New session">Nouvelle séance</span><span class="t-meta muted" data-en="My sessions">Mes séances</span></div></div>
+      <div class="meter meter--plain"><div class="meter__n"><span class="num is-empty">–</span><small>min</small></div><div class="meter__right"><span class="meter__line" data-en="Add exercises to see the duration, rest included.">Ajoute des exercices pour voir la durée, repos compris.</span></div></div>
+      <div class="scroll">
+        <div class="ed">
+          <div class="namefield namefield--error"><label for="n3d" data-en="Name">Nom</label><div class="namefield__box"><input id="n3d" type="text" placeholder="Par exemple, Haut express" data-en-placeholder="For example, Upper express" aria-invalid="true"></div><p class="namefield__msg"><svg class="i"><use href="#i-alert"/></svg><span data-en="Give your session a name.">Donne un nom à ta séance.</span></p></div>
+          <section class="es">
+            <div class="es__head"><div class="es__titles"><h2 class="section-title" data-en="Warm-up">Échauffement</h2><span class="es__meta" data-en="Optional">Facultatif</span></div></div>
+            <button class="addrow" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add an exercise">Ajouter un exercice</span></button>
+          </section>
+          <section class="es">
+            <div class="es__head"><div class="es__titles"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="es__meta" data-en="At least one exercise">Au moins un exercice</span></div></div>
+            <p class="es__error"><svg class="i"><use href="#i-alert"/></svg><span data-en="Add at least one exercise to the main work.">Ajoute au moins un exercice au bloc principal.</span></p>
+            <button class="addrow addrow--error" type="button" data-go="f5b"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add an exercise">Ajouter un exercice</span></button>
+          </section>
+          <section class="es">
+            <div class="es__head"><div class="es__titles"><h2 class="section-title" data-en="Finisher">Fin de séance</h2><span class="es__meta" data-en="Optional">Facultatif</span></div></div>
+            <button class="addrow" type="button"><svg class="i"><use href="#i-plus"/></svg><span data-en="Add an exercise">Ajouter un exercice</span></button>
+          </section>
+        </div>
+      </div>
+      <div class="dock dock--home">
+        <p class="docknote docknote--alert" role="status"><svg class="i"><use href="#i-alert"/></svg><span class="fr"><b>2 points à régler</b> avant d’enregistrer.</span><span class="en"><b>2 things to fix</b> before saving.</span></p>
+        <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-check"/></svg><span data-en="Save">Enregistrer</span></button>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="New session, Save tapped while empty: both problems marked">Nouvelle séance, Enregistrer touché à vide&#8239;: les deux problèmes signalés</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3e" data-scroll="96">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer l’éditeur" data-en-label="Close editor"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span><span class="t-meta muted" data-en="My sessions">Mes séances</span></div></div>
+      <div class="meter meter--plain"><div class="meter__n"><span class="num">~38</span><small>min</small></div><div class="meter__right"><span class="meter__line" data-en="Estimate, rest included, as the session runs.">Estimation, repos compris, comme pendant la séance.</span></div></div>
+      <div class="scroll">
+        <div class="ed">
+          <div class="namefield"><label for="n3e" data-en="Name">Nom</label><div class="namefield__box"><input id="n3e" type="text" value="Tractions et bras" data-en-value="Pull-ups and arms"></div></div>
+          <section class="es">
+            <div class="es__head"><div class="es__titles"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="es__meta" data-en="3 blocks">3 blocs</span></div><button class="barbtn" type="button"><svg class="i"><use href="#i-move"/></svg><span data-en="Reorder">Réorganiser</span></button></div>
+            <div class="eb">
+              <button class="eb__main" type="button"><span class="num eb__idx">1</span><span class="eb__text"><span class="eb__name" data-en="Hammer curl">Curl marteau</span><span class="eb__dose"><span class="num">3 × 10–12</span><span class="eb__facts fr">2 reps en réserve, repos 60&nbsp;s</span><span class="eb__facts en">2 reps in the tank, rest 60 s</span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button>
+              <div class="eb__foot"><div class="issue issue--warn"><svg class="i"><use href="#i-info"/></svg><div class="issue__body"><span data-en="You open with an isolation move. A compound move first makes better use of your fresh start.">Tu ouvres avec un exercice d’isolation. Un mouvement global en premier profite mieux de ta fraîcheur.</span><button class="btn btn--ghost" type="button" data-dismiss data-en="Dismiss">Ignorer</button></div></div></div>
+            </div>
+            <div class="eb eb--error">
+              <button class="eb__main" type="button"><span class="num eb__idx">2</span><span class="eb__text"><span class="eb__name" data-en="Pull-up">Traction pronation</span><span class="eb__dose"><span class="num">4 × 6–8</span><span class="eb__facts fr">2 reps en réserve, repos 120&nbsp;s</span><span class="eb__facts en">2 reps in the tank, rest 120 s</span></span></span></button>
+              <button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button>
+              <div class="eb__foot"><div class="issue issue--block"><svg class="i"><use href="#i-alert"/></svg><div class="issue__body"><span data-en="Not possible with your equipment: needs a pull-up bar.">Pas faisable avec ton matériel&#8239;: il faut une barre de traction.</span><button class="btn btn--secondary btn--compact" type="button" data-go="f5a"><svg class="i i--sm"><use href="#i-swap"/></svg><span data-en="Replace">Remplacer</span></button></div></div></div>
+            </div>
+            <div class="eg">
+              <div class="eg__head"><button class="eb__main" type="button"><span class="num eb__idx">3</span><span class="eb__text"><span class="eg__title" data-en="Superset, 3 rounds">Superset, 3 tours</span><span class="eb__facts" data-en="Chain a and b, then rest 60 s.">Enchaîne a et b, puis 60&nbsp;s de repos.</span></span></button><button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button></div>
+              <div class="eg__items">
+                <div class="eg__item"><button class="eb__main" type="button"><span class="eb__idx">a</span><span class="eb__text"><span class="eb__name" data-en="Hammer curl">Curl marteau</span><span class="eb__dose"><span class="num">10–12</span><span class="eb__facts fr">reps, 1 en réserve</span><span class="eb__facts en">reps, 1 in the tank</span></span></span></button><button class="icon-btn eb__more" type="button" aria-label="Actions" data-en-label="Actions"><svg class="i"><use href="#i-more"/></svg></button></div>
+                <div style="padding: 0 12px 10px 2px"><div class="issue issue--warn"><svg class="i"><use href="#i-info"/></svg><div class="issue__body"><span class="fr">Curl marteau est déjà l’exercice 1 de cette séance.</span><span class="en">Hammer curl is already exercise 1 of this session.</span><button class="btn btn--ghost" type="button" data-dismiss data-en="Dismiss">Ignorer</button></div></div></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="dock dock--home">
+        <p class="docknote docknote--alert" role="status"><svg class="i"><use href="#i-alert"/></svg><span class="fr"><b>1 point à régler</b> avant d’enregistrer. Les remarques n’empêchent rien.</span><span class="en"><b>1 thing to fix</b> before saving. Notes don’t stop you.</span></p>
+        <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-check"/></svg><span data-en="Save">Enregistrer</span></button>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Custom session: one blocking problem, two notes you can dismiss">Séance perso&#8239;: un problème bloquant, deux remarques que tu peux ignorer</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3f">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer l’éditeur" data-en-label="Close editor"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Reorder">Réorganiser</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div></div>
+      <div class="scroll">
+        <div class="ro">
+          <p class="inline-note" style="padding: 4px 4px 0"><svg class="i"><use href="#i-info"/></svg><span data-en="Move each block up or down. A group moves as one. To change section, use the block’s actions.">Monte ou descends chaque bloc. Un groupe se déplace en entier. Pour changer de partie, passe par les actions du bloc.</span></p>
+          <h2 class="ro__sec" data-en="Warm-up">Échauffement</h2>
+          <div class="ro__row"><svg class="i"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Arm circles">Cercles de bras</span><span class="ro__dose">30&nbsp;s</span></span><button class="icon-btn" type="button" disabled aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+          <div class="ro__row"><svg class="i"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Band pull-apart">Écarté élastique (pull-apart)</span><span class="ro__dose">2 × 20</span></span><button class="icon-btn" type="button" aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" disabled aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+          <h2 class="ro__sec" data-en="Main work">Bloc principal</h2>
+          <div class="ro__row"><svg class="i"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Floor press">Développé couché au sol</span><span class="ro__dose">4 × 6–10</span></span><button class="icon-btn" type="button" disabled aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+          <div class="ro__row is-moved"><svg class="i"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Dumbbell lateral raise">Élévations latérales haltères</span><span class="ro__dose">3 × 12–15</span></span><button class="icon-btn" type="button" aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+          <div class="ro__row"><svg class="i"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Standing shoulder press">Développé militaire debout</span><span class="ro__dose">3 × 10–12</span></span><button class="icon-btn" type="button" aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+          <div class="ro__row ro__row--grp"><svg class="i" style="margin-top: 12px"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Superset, 3 rounds">Superset, 3 tours</span><span class="ro__subs fr">a Extension triceps au sol haltères<br>b Écartés haltères au sol</span><span class="ro__subs en">a Dumbbell floor triceps extension<br>b Dumbbell floor fly</span></span><button class="icon-btn" type="button" aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+          <div class="ro__row"><svg class="i"><use href="#i-grip"/></svg><span><span class="ro__name" data-en="Plank">Gainage planche</span><span class="ro__dose">3 × 30–45&nbsp;s</span></span><button class="icon-btn" type="button" aria-label="Monter" data-en-label="Move up"><svg class="i"><use href="#i-arrow-up"/></svg></button><button class="icon-btn" type="button" disabled aria-label="Descendre" data-en-label="Move down"><svg class="i"><use href="#i-arrow-down"/></svg></button></div>
+        </div>
+      </div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button" data-go="f3a" data-en="Done">Terminé</button></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Reorder mode: arrows, no drag needed; the block just moved keeps a 2 px outline">Mode réorganiser&#8239;: des flèches, pas besoin de glisser&#8239;; le bloc déplacé garde un contour de 2&nbsp;px</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3g">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div></div>
+      <div class="meter"><div class="meter__n"><span class="num">~52</span><small>min</small></div><div class="meter__right"><div class="meter__track"><span class="meter__fill" style="width: 75%"></span><span class="meter__over" style="left: 75%; width: 11.7%"></span><span class="meter__tick" style="left: 75%"></span></div></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t3g">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><h2 class="t-title" id="t3g" data-en="Leave without saving?">Quitter sans enregistrer&#8239;?</h2><p class="t-meta muted" data-en="3 changes not saved yet.">3 modifications pas encore enregistrées.</p></div>
+        <div class="sheet__body" style="padding-bottom: 8px">
+          <div class="lrows">
+            <button class="lrow" type="button"><span class="well"><svg class="i"><use href="#i-check"/></svg></span><span><b data-en="Save and leave">Enregistrer et quitter</b><small data-en="Your changes apply to the whole cycle">Tes modifications valent pour tout le cycle</small></span></button>
+            <button class="lrow lrow--danger" type="button"><span class="well"><svg class="i"><use href="#i-close"/></svg></span><span><b data-en="Leave without saving">Quitter sans enregistrer</b><small data-en="Your 3 changes are lost">Tes 3 modifications sont perdues</small></span></button>
+          </div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--secondary btn--block btn--player" type="button" data-en="Keep editing">Continuer à modifier</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Leave guard: close, system back or a tab with unsaved changes. With a blocking problem, the first row is disabled and says why.">Garde de sortie&#8239;: fermer, retour système ou changement d’onglet avec des modifications. Avec un problème bloquant, la première ligne est désactivée et dit pourquoi.</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3h">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div></div>
+      <div class="meter"><div class="meter__n"><span class="num">~52</span><small>min</small></div><div class="meter__right"><div class="meter__track"><span class="meter__fill" style="width: 75%"></span><span class="meter__over" style="left: 75%; width: 11.7%"></span><span class="meter__tick" style="left: 75%"></span></div></div></div>
+      <div class="scroll"></div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button"><span data-en="Save">Enregistrer</span></button></div>
+      <div class="scrim"></div>
+      <div class="dlg-wrap">
+        <div class="dialog" role="alertdialog" aria-labelledby="d3h">
+          <div class="dialog__text"><h2 class="dialog__title" id="d3h" data-en="Restore the programme’s session?">Rétablir la séance du programme&#8239;?</h2>
+            <p data-en="Your 3 changes to session A are erased, for every week. Sessions you’ve done stay in your history.">Tes 3 modifications de la séance A sont effacées, pour toutes les semaines. Tes séances déjà faites restent dans ton historique.</p></div>
+          <div class="dialog__actions"><button class="btn btn--destructive btn--block" type="button" data-en="Restore the session">Rétablir la séance</button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Restore the whole session (also from session detail)">Rétablir toute la séance (aussi depuis le détail de séance)</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s4"><h2 data-en="4. Dose sheet">4. Feuille de dose</h2><p data-en="Changes apply live; the session estimate sits at the top of the sheet because the meter is under the scrim. No load, goal or tempo.">Les changements s’appliquent en direct&#8239;; l’estimation est en haut de la feuille, le compteur étant sous le voile. Ni charge, ni objectif, ni tempo.</p></section>
+
+<figure class="mock-shot" id="f4a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t4a" data-dose data-base-sec="2580" data-orig="52">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><span class="sheet__eyebrow" data-en="Main work, exercise 1">Bloc principal, exercice 1</span><h2 class="t-title" id="t4a" data-en="Floor press">Développé couché au sol</h2>
+          <p class="live" aria-live="polite"><span data-en="Session">Séance</span> <span class="num" data-live>~52</span><span>min</span></p></div>
+        <div class="sheet__body">
+          <div class="df"><div class="df__row"><span class="df__label"><b data-en="Sets">Séries</b></span>
+            <div class="stepper" data-min="1" data-max="8" data-step="1" data-role="sets"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Une série de moins" data-en-label="One set fewer"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="4">4</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Une série de plus" data-en-label="One set more"><svg class="i"><use href="#i-plus"/></svg></button></div></div></div>
+          <div class="df"><span class="df__label"><b data-en="Reps per set">Reps par série</b></span>
+            <div class="range"><span class="range__word" data-en="from">de</span>
+              <div class="stepper" data-min="1" data-max="10" data-step="1" data-pair="lo"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Minimum moins" data-en-label="Lower minimum"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="6">6</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Minimum plus" data-en-label="Raise minimum"><svg class="i"><use href="#i-plus"/></svg></button></div>
+              <span class="range__word" data-en="to">à</span>
+              <div class="stepper" data-min="6" data-max="30" data-step="1" data-pair="hi"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Maximum moins" data-en-label="Lower maximum"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="10">10</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Maximum plus" data-en-label="Raise maximum"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            </div></div>
+          <div class="df"><span class="df__label"><b data-en="Effort">Effort</b></span>
+            <div class="stepper stepper--wide" data-min="0" data-max="4" data-step="1" data-role="effort"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins de reps en réserve" data-en-label="Fewer reps in the tank"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="stepper__word" data-effort="2"></span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus de reps en réserve" data-en-label="More reps in the tank"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <p class="df__hint" data-effort-hint></p></div>
+          <div class="df"><div class="df__row"><span class="df__label"><b data-en="Rest after each set">Repos après chaque série</b></span>
+            <div class="stepper" data-min="15" data-max="240" data-step="15" data-role="rest"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins de repos" data-en-label="Less rest"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="90">90</span><span class="stepper__unit">s</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus de repos" data-en-label="More rest"><svg class="i"><use href="#i-plus"/></svg></button></div></div></div>
+          <p class="inline-note"><svg class="i"><use href="#i-info"/></svg><span data-en="Load and rep goal follow your history. During the session you can still adjust any set.">La charge et l’objectif de reps suivent ton historique. Pendant la séance, tu peux toujours ajuster une série.</span></p>
+          <div class="orig"><p class="fr">Version du programme&#8239;: <b>4 × 8–12</b>, 2 reps en réserve, repos 90&nbsp;s.</p><p class="en">Programme’s version: <b>4 × 8–12</b>, 2 reps in the tank, rest 90 s.</p><button class="btn btn--ghost" type="button"><span data-en="Restore the programme’s version">Rétablir la version du programme</span></button></div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-en="Done">Terminé</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Straight exercise, edited (try the steppers: the estimate follows)">Exercice seul, modifié (essaie les boutons&#8239;: l’estimation suit)</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t4b">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><span class="sheet__eyebrow" data-en="Main work, block 4">Bloc principal, bloc 4</span><h2 class="t-title" id="t4b" data-en="Superset, 3 rounds">Superset, 3 tours</h2><p class="live"><span data-en="Session">Séance</span> <span class="num">~52</span><span>min</span></p></div>
+        <div class="sheet__body">
+          <div class="seg" role="radiogroup" aria-label="Type de groupe" data-en-label="Group type"><button class="seg__opt" type="button" role="radio" aria-checked="true"><span>Superset</span><small data-en="Back to back, then rest">À la suite, puis repos</small></button><button class="seg__opt" type="button" role="radio" aria-checked="false"><span>Circuit</span><small data-en="Each round, all moves">Chaque tour, tous les exercices</small></button></div>
+          <div class="df"><div class="df__row"><span class="df__label"><b data-en="Rounds">Tours</b></span><div class="stepper" data-min="1" data-max="8" data-step="1"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="3">3</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button></div></div></div>
+          <div class="df"><div class="df__row"><span class="df__label"><b data-en="Rest between exercises">Repos entre les exercices</b><small data-en="From a to b">De a à b</small></span><div class="stepper" data-min="0" data-max="90" data-step="15" data-zero-word><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less" disabled><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="0" hidden>0</span><span class="stepper__word" data-word-zero data-en="None">Aucun</span><span class="stepper__unit" hidden>s</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button></div></div></div>
+          <div class="df"><div class="df__row"><span class="df__label"><b data-en="Rest after each round">Repos après chaque tour</b></span><div class="stepper" data-min="15" data-max="240" data-step="15"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins" data-en-label="Less"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="60">60</span><span class="stepper__unit">s</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus" data-en-label="More"><svg class="i"><use href="#i-plus"/></svg></button></div></div></div>
+          <div class="df" style="padding-top: 6px; border-top: var(--border-hairline) solid var(--color-line)"><button class="btn btn--secondary btn--block" type="button"><svg class="i"><use href="#i-ungroup"/></svg><span data-en="Ungroup">Dégrouper</span></button><p class="df__hint" data-en="Each exercise becomes its own block, 3 sets each.">Chaque exercice redevient un bloc à part, 3 séries chacun.</p></div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-en="Done">Terminé</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Group block: type, rounds, the two rests, ungroup">Bloc groupé&#8239;: type, tours, les deux repos, dégrouper</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Edit session">Modifier la séance</span></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t4c">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><span class="sheet__eyebrow" data-en="Main work, superset 2, exercise a">Bloc principal, superset 2, exercice a</span><h2 class="t-title" id="t4c" data-en="Bulgarian split squat">Fentes bulgares</h2><p class="live"><span data-en="Session">Séance</span> <span class="num">~47</span><span>min</span></p></div>
+        <div class="sheet__body">
+          <div class="df-fixed"><span class="fr">Tours&#8239;: <b>3</b>, réglés pour tout le superset.</span><span class="en">Rounds: <b>3</b>, set for the whole superset.</span><button class="btn btn--ghost" type="button" data-go="f4b" data-en="Adjust">Régler</button></div>
+          <div class="df"><span class="df__label"><b data-en="Reps per side">Reps par côté</b></span>
+            <div class="range"><span class="range__word" data-en="from">de</span>
+              <div class="stepper" data-min="1" data-max="12" data-step="1" data-pair="lo"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Minimum moins" data-en-label="Lower minimum"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="8">8</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Minimum plus" data-en-label="Raise minimum"><svg class="i"><use href="#i-plus"/></svg></button></div>
+              <span class="range__word" data-en="to">à</span>
+              <div class="stepper" data-min="8" data-max="30" data-step="1" data-pair="hi"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Maximum moins" data-en-label="Lower maximum"><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="num" data-num="12">12</span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Maximum plus" data-en-label="Raise maximum"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            </div></div>
+          <div class="df"><span class="df__label"><b data-en="Effort">Effort</b></span>
+            <div class="stepper stepper--wide" data-min="0" data-max="4" data-step="1" data-role="effort"><button class="stepper__btn" type="button" data-step-dir="-1" aria-label="Moins de reps en réserve" data-en-label="Fewer reps in the tank" disabled><svg class="i"><use href="#i-minus"/></svg></button><span class="stepper__value"><span class="stepper__word" data-effort="0"></span></span><button class="stepper__btn" type="button" data-step-dir="1" aria-label="Plus de reps en réserve" data-en-label="More reps in the tank"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <p class="df__hint" data-effort-hint></p>
+            <div class="issue issue--warn" data-effort-warn><svg class="i"><use href="#i-info"/></svg><div class="issue__body"><span data-en="Going to failure on a loaded lunge is risky. Keep at least 1 rep in the tank.">Aller jusqu’à l’échec sur une fente chargée, c’est risqué. Garde au moins 1 rep en réserve.</span><button class="btn btn--ghost" type="button" data-dismiss data-en="Dismiss">Ignorer</button></div></div>
+          </div>
+          <p class="inline-note"><svg class="i"><use href="#i-info"/></svg><span data-en="Rest sits on the superset. Load and rep goal follow your history.">Le repos se règle sur le superset. La charge et l’objectif suivent ton historique.</span></p>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-en="Done">Terminé</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Exercise inside a group, per side, effort at failure: the note appears">Exercice dans un groupe, par côté, effort à l’échec&#8239;: la remarque apparaît</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s5"><h2 data-en="5. Exercise picker">5. Choix de l’exercice</h2><p data-en="Full screen inside the editor flow, so the keyboard has room. Only exercises the owned equipment allows.">Plein écran dans le parcours de l’éditeur, pour laisser la place au clavier. Seulement les exercices que le matériel permet.</p></section>
+
+<figure class="mock-shot" id="f5a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour à l’éditeur" data-en-label="Back to the editor"><svg class="i"><use href="#i-back"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Replace">Remplacer</span><span class="t-meta muted" data-en="Standing shoulder press">Développé militaire debout</span></div></div>
+      <div class="pk-top">
+        <label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" placeholder="Chercher un exercice" data-en-placeholder="Search exercises" aria-label="Chercher un exercice" data-en-label="Search exercises"></label>
+        <div class="filters"><button class="fbtn" type="button" data-go="f5d"><span data-en="Movement">Mouvement</span><svg class="i"><use href="#i-chev-down"/></svg></button><button class="fbtn" type="button" data-go="f5d"><span data-en="Muscle">Muscle</span><svg class="i"><use href="#i-chev-down"/></svg></button></div>
+      </div>
+      <div class="scroll">
+        <div class="pk">
+          <div class="pk__head"><h2 data-en="Suggested">Suggestions</h2><p data-en="Same movement and muscles, with your equipment. The dose is set for this slot.">Même mouvement et mêmes muscles, avec ton matériel. La dose est réglée pour ce créneau.</p></div>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Seated shoulder press">Développé épaules assis</span><span class="pick__meta" data-en="Vertical push, front delts, triceps">Poussée verticale, épaules (avant), triceps</span></span></button>
+          <button class="pick" type="button" data-go="f5e"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Dumbbell Arnold press">Développé Arnold</span><span class="pick__meta" data-en="Vertical push, front and side delts">Poussée verticale, épaules (avant, côté)</span><span class="pick__away"><svg class="i"><use href="#i-swap"/></svg><span class="fr">Développé épaules à l’élastique le remplace dans tes séances.</span><span class="en">Band overhead press replaces it in your sessions.</span></span></span></button>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-band"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Band overhead press">Développé épaules à l’élastique</span><span class="pick__meta" data-en="Vertical push, front delts, triceps">Poussée verticale, épaules (avant), triceps</span></span></button>
+          <div class="pk__head"><h2><span style="font-size:inherit;font-weight:inherit;color:inherit;font-stretch:inherit" data-en="All exercises">Tous les exercices</span><span data-en="64 with your equipment">64 avec ton matériel</span></h2></div>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-band"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Band chest fly">Écartés à l’élastique</span><span class="pick__meta" data-en="Chest isolation, chest">Isolation pectoraux, pectoraux</span></span></button>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Floor press">Développé couché au sol</span><span class="pick__meta" data-en="Already in this session">Déjà dans cette séance</span></span></button>
+          <button class="pick pick--current" type="button" aria-disabled="true"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Standing shoulder press">Développé militaire debout</span><span class="pick__meta" data-en="Vertical push, front delts">Poussée verticale, épaules (avant)</span></span><span class="tag" data-en="Current">Actuel</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Replace: suggestions first, one of them currently swapped out">Remplacer&#8239;: suggestions en premier, dont une actuellement écartée</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour à l’éditeur" data-en-label="Back to the editor"><svg class="i"><use href="#i-back"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Add to the main work">Ajouter au bloc principal</span><span class="t-meta muted" data-en="Session A, Push">Séance A, Push</span></div></div>
+      <div class="pk-top">
+        <label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" value="rowing" aria-label="Chercher un exercice" data-en-label="Search exercises"><button class="icon-btn" type="button" aria-label="Effacer la recherche" data-en-label="Clear search"><svg class="i"><use href="#i-close"/></svg></button></label>
+        <div class="filters"><button class="fbtn" type="button"><span data-en="Movement">Mouvement</span><svg class="i"><use href="#i-chev-down"/></svg></button><button class="fbtn is-on" type="button"><span class="fr">Muscle&#8239;: Dorsaux</span><span class="en">Muscle: Lats</span><svg class="i"><use href="#i-chev-down"/></svg></button></div>
+      </div>
+      <div class="scroll">
+        <div class="pk">
+          <div class="pk__head"><h2><span style="font-size:inherit;font-weight:inherit;color:inherit;font-stretch:inherit" data-en="Results">Résultats</span><span>4</span></h2></div>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="One-arm row">Rowing unilatéral</span><span class="pick__meta" data-en="Horizontal pull, lats, upper back">Tirage horizontal, dorsaux, haut du dos</span></span></button>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Bent-over row">Rowing buste penché</span><span class="pick__meta" data-en="Horizontal pull, lats, upper back">Tirage horizontal, dorsaux, haut du dos</span></span></button>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Renegade row">Rowing renégat</span><span class="pick__meta" data-en="Horizontal pull, lats, abs">Tirage horizontal, dorsaux, abdos</span></span></button>
+          <button class="pick" type="button"><span class="thumb"><svg class="i"><use href="#i-person-run"/></svg></span><span class="pick__text"><span class="pick__name" data-en="Door towel row">Rowing à la serviette sur porte</span><span class="pick__meta" data-en="Horizontal pull, lats, biceps">Tirage horizontal, dorsaux, biceps</span></span></button>
+          <p class="inline-note pk-note"><svg class="i"><use href="#i-info"/></svg><span data-en="Only exercises your equipment allows are listed. A picked exercise starts with the dose set for its section.">Seuls les exercices que ton matériel permet sont listés. Un exercice choisi part avec la dose prévue pour sa partie.</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Add: search and a muscle filter">Ajouter&#8239;: recherche et filtre muscle</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour à l’éditeur" data-en-label="Back to the editor"><svg class="i"><use href="#i-back"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Add to the main work">Ajouter au bloc principal</span><span class="t-meta muted" data-en="My sessions">Mes séances</span></div></div>
+      <div class="pk-top">
+        <label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" value="traction" data-en-value="pull-up" aria-label="Chercher un exercice" data-en-label="Search exercises"><button class="icon-btn" type="button" aria-label="Effacer la recherche" data-en-label="Clear search"><svg class="i"><use href="#i-close"/></svg></button></label>
+        <div class="filters"><button class="fbtn" type="button"><span data-en="Movement">Mouvement</span><svg class="i"><use href="#i-chev-down"/></svg></button><button class="fbtn" type="button"><span data-en="Muscle">Muscle</span><svg class="i"><use href="#i-chev-down"/></svg></button></div>
+      </div>
+      <div class="scroll">
+        <div class="pk-empty">
+          <span class="well"><svg class="i"><use href="#i-search"/></svg></span>
+          <h2 class="pk-empty__title" data-en="No exercise found">Aucun exercice trouvé</h2>
+          <p class="fr"><b>6 exercices</b> correspondent mais demandent du matériel que tu n’as pas&#8239;: barre de traction.</p><p class="en"><b>6 exercises</b> match but need equipment you don’t have: pull-up bar.</p>
+          <button class="btn btn--secondary" type="button" data-en="Clear search">Effacer la recherche</button>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="No result: says what is missing when the equipment is the reason">Aucun résultat&#8239;: dit ce qui manque quand c’est le matériel</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5d">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Add to the main work">Ajouter au bloc principal</span></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t5d">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><h2 class="t-title" id="t5d" data-en="Filter">Filtrer</h2><p class="t-meta muted" data-en="Pick as many as you like. Only what your equipment allows.">Choisis-en autant que tu veux. Seulement ce que ton matériel permet.</p></div>
+        <div class="sheet__body">
+          <div class="fgroup"><h3 data-en="Movement">Mouvement</h3><div class="chips">
+            <button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Horizontal push">Poussée horizontale</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Vertical push">Poussée verticale</span></button><button class="chip" type="button" aria-pressed="true"><svg class="i"><use href="#i-check"/></svg><span data-en="Horizontal pull">Tirage horizontal</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span>Squat</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Hip hinge">Charnière de hanche</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Lunge">Fente</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span>Biceps</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span>Triceps</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Anti-extension core">Gainage anti-extension</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Conditioning">Conditionnement</span></button>
+          </div></div>
+          <div class="fgroup"><h3 data-en="Muscle">Muscle</h3><div class="chips">
+            <button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Chest">Pectoraux</span></button><button class="chip" type="button" aria-pressed="true"><svg class="i"><use href="#i-check"/></svg><span data-en="Lats">Dorsaux</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Upper back">Haut du dos</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Glutes">Fessiers</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Quads">Quadriceps</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Hamstrings">Ischios</span></button><button class="chip" type="button" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Abs">Abdos</span></button>
+          </div></div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-en="Show 7 exercises">Voir 7 exercices</button><button class="btn btn--ghost" type="button" style="justify-self:center" data-en="Clear all">Tout effacer</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Filter sheet: movement and muscle chips, the count updates live">Feuille de filtres&#8239;: mouvement et muscle, le nombre se met à jour en direct</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f5e">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><div class="ctxbar__titles"><span class="ctxbar__title" data-en="Replace">Remplacer</span><span class="t-meta muted" data-en="Standing shoulder press">Développé militaire debout</span></div></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="dlg-wrap">
+        <div class="dialog" role="alertdialog" aria-labelledby="d5e">
+          <div class="dialog__text"><h2 class="dialog__title" id="d5e" data-en="Bring this exercise back?">Ramener cet exercice&#8239;?</h2>
+            <p class="fr"><b>Développé Arnold</b> revient dans toutes tes séances, avec sa charge et son objectif. Développé épaules à l’élastique ne le remplace plus.</p><p class="en"><b>Dumbbell Arnold press</b> comes back in all your sessions, with its load and goal. Band overhead press no longer stands in for it.</p>
+            <p class="fr">Il est aussi placé ici, à la place de l’exercice actuel.</p><p class="en">It also goes here, in place of the current exercise.</p></div>
+          <div class="dialog__actions"><button class="btn btn--primary btn--block" type="button" data-en="Bring it back">Le ramener</button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Picking an exercise that is swapped out ends the swap everywhere">Choisir un exercice écarté met fin au remplacement partout</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s6"><h2 data-en="6. Programme session detail">6. Détail d’une séance du programme</h2><p data-en="Edit in the bar on every session. Edited sessions say so under the stats; edited rows swap their why for what changed.">Modifier dans la barre sur chaque séance. Une séance modifiée le dit sous les chiffres&#8239;; une ligne modifiée remplace son pourquoi par ce qui a changé.</p></section>
+
+<figure class="mock-shot" id="f6a" data-scroll="250">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour au programme" data-en-label="Back to programme"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="Recomposition, week 3 of 8">Recomposition, semaine 3 sur 8</span><button class="barbtn" type="button" data-go="f3a"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Edit">Modifier</span></button></div>
+      <div class="scroll">
+        <section class="sd-head">
+          <div class="sd-id"><span class="num sd-letter" aria-hidden="true">A</span><div class="sd-id__text"><h1 class="t-display">Push</h1><p class="sd-sub" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p></div></div>
+          <div class="sd-stats"><div class="sd-stat"><span class="num">~55<small>min</small></span><span class="sd-stat__label" data-en="estimated">estimées</span></div><div class="sd-stat"><span class="num">7</span><span class="sd-stat__label" data-en="exercises">exercices</span></div></div>
+          <div class="notice"><svg class="i"><use href="#i-pencil"/></svg><div class="notice__body"><span class="fr"><b>Modifiée par toi</b>&#8239;: 3 changements, pour tout le cycle.</span><span class="en"><b>Edited by you</b>: 3 changes, for the whole cycle.</span><button class="btn btn--ghost" type="button" data-go="f3h" data-en="Restore the programme’s session">Rétablir la séance du programme</button></div></div>
+        </section>
+        <section class="wk">
+          <div class="wk__head"><h2 class="section-title" data-en="Week 3, volume">Semaine 3, volume</h2><span class="wk__state" data-en="Current">En cours</span></div>
+          <div class="wkr" aria-hidden="true"><span class="wkr__cell is-done"><span class="num">1</span></span><span class="wkr__cell is-done"><span class="num">2</span></span><span class="wkr__cell is-now" aria-checked="true"><span class="num">3</span></span><span class="wkr__cell"><span class="num">4</span></span><span class="wkr__cell"><span class="num">5</span></span><span class="wkr__cell"><span class="num">6</span></span><span class="wkr__cell"><span class="num">7</span></span><span class="wkr__cell"><span class="num">8</span></span></div>
+        </section>
+        <section class="sd-sec">
+          <div class="sd-sec__head"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="sd-sec__meta" data-en="5 blocks">5 blocs</span></div>
+          <article class="rx">
+            <span class="num rx__idx">1</span><h3 class="rx__name" data-en="Floor press">Développé couché au sol</h3><button class="icon-btn rx__why" type="button" aria-label="Pourquoi ?" data-en-label="Why?"><svg class="i"><use href="#i-why"/></svg></button>
+            <div class="rx__body">
+              <div class="rx__nums"><div class="rx__cell"><span class="num rx__n">5 × 8</span><span class="rx__u" data-en="sets × target reps">séries × reps visées</span><span class="gr" aria-hidden="true">6<span class="gr__bars"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>10</span></div><div class="rx__cell"><span class="num rx__n">12<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div></div>
+              <div class="rx__facts"><span class="delta" data-en="+1 set">+1 série</span><span class="fr">Repos <b>90&nbsp;s</b></span><span class="en">Rest <b>90 s</b></span><span class="fr"><b>2 reps</b> en réserve</span><span class="en"><b>2 reps</b> in the tank</span></div>
+              <p class="editline"><svg class="i"><use href="#i-pencil"/></svg><span class="fr">Modifié par toi&#8239;: 6–10 reps au lieu de 8–12. Même charge, objectif recalé.</span><span class="en">Edited by you: 6–10 reps instead of 8–12. Same load, goal re-set.</span></p>
+            </div>
+          </article>
+          <article class="rx">
+            <span class="num rx__idx">2</span><h3 class="rx__name" data-en="Dumbbell lateral raise">Élévations latérales haltères</h3><button class="icon-btn rx__why" type="button" aria-label="Pourquoi ?" data-en-label="Why?"><svg class="i"><use href="#i-why"/></svg></button>
+            <div class="rx__body">
+              <div class="rx__nums"><div class="rx__cell"><span class="num rx__n">3 × 12–15</span><span class="rx__u" data-en="sets × reps">séries × reps</span></div><div class="rx__cell"><span class="num rx__n">6<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div></div>
+              <p class="editline"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Added by you. Starting load from your history.">Ajouté par toi. Charge de départ tirée de ton historique.</span></p>
+            </div>
+          </article>
+        </section>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start session">Commencer la séance</span></button></div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Session A, edited: notice with restore, edit lines instead of why lines, the week still adds its set">Séance A, modifiée&#8239;: avis avec rétablir, lignes de modification à la place du pourquoi, la semaine ajoute toujours sa série</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f6b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour au programme" data-en-label="Back to programme"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="Recomposition, week 3 of 8">Recomposition, semaine 3 sur 8</span><button class="barbtn" type="button"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Edit">Modifier</span></button></div>
+      <div class="scroll">
+        <section class="sd-head">
+          <div class="sd-id"><span class="num sd-letter" aria-hidden="true">D</span><div class="sd-id__text"><span class="sd-kicker" data-en="My session">Ma séance</span><h1 class="t-display" data-en="Upper express">Haut express</h1><p class="sd-sub" data-en="Chest, back, shoulders">Pectoraux, dos, épaules</p></div></div>
+          <div class="sd-stats"><div class="sd-stat"><span class="num">~34<small>min</small></span><span class="sd-stat__label" data-en="estimated">estimées</span></div><div class="sd-stat"><span class="num">5</span><span class="sd-stat__label" data-en="exercises">exercices</span></div></div>
+          <div class="notice"><svg class="i"><use href="#i-bookmark"/></svg><div class="notice__body"><span class="fr"><b>Ta séance, à la place de la séance D</b> du programme. Elle progresse et suit les semaines.</span><span class="en"><b>Your session, in place of session D</b> of the programme. It progresses and follows the weeks.</span><button class="btn btn--ghost" type="button" data-en="Remove from programme">Retirer du programme</button></div></div>
+        </section>
+        <section class="sd-sec">
+          <div class="sd-sec__head"><h2 class="section-title" data-en="Main work">Bloc principal</h2><span class="sd-sec__meta" data-en="4 blocks">4 blocs</span></div>
+          <article class="rx">
+            <span class="num rx__idx">1</span><h3 class="rx__name" data-en="Floor press">Développé couché au sol</h3><button class="icon-btn rx__why" type="button" aria-label="Pourquoi ?" data-en-label="Why?"><svg class="i"><use href="#i-why"/></svg></button>
+            <div class="rx__body"><div class="rx__nums"><div class="rx__cell"><span class="num rx__n">4 × 9</span><span class="rx__u" data-en="sets × target reps">séries × reps visées</span></div><div class="rx__cell"><span class="num rx__n">12<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div></div>
+              <div class="rx__facts"><span class="delta" data-en="+1 set">+1 série</span><span class="fr">Repos <b>90&nbsp;s</b></span><span class="en">Rest <b>90 s</b></span></div></div>
+          </article>
+        </section>
+      </div>
+      <div class="dock"><button class="btn btn--primary btn--player btn--block" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start session">Commencer la séance</span></button></div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Session D holding a custom session: same letter, its own name, remove in place">Séance D occupée par une séance perso&#8239;: même lettre, son propre nom, retirer sur place</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s7"><h2 data-en="7. Quick session result: save as my session">7. Résultat de séance rapide&#8239;: enregistrer</h2><p data-en="Save sits in the bar so the dock keeps Shuffle and Start.">Enregistrer dans la barre, pour que le dock garde Mélanger et Commencer.</p></section>
+
+<figure class="mock-shot" id="f7a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour aux choix" data-en-label="Back to choices"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="Quick session">Séance rapide</span><button class="barbtn" type="button" data-go="f7b" aria-label="Enregistrer dans mes séances" data-en-label="Save to my sessions"><svg class="i"><use href="#i-bookmark-plus"/></svg><span data-en="Save">Enregistrer</span></button></div>
+      <div class="scroll">
+        <section class="sd-head">
+          <div class="sd-id"><span class="sd-tile" aria-hidden="true"><svg class="i"><use href="#i-bolt"/></svg></span><div class="sd-id__text"><span class="sd-kicker" data-en="Quick session">Séance express</span><h1 class="t-display">Push</h1><p class="sd-sub" data-en="Chest, shoulders, triceps">Pectoraux, épaules, triceps</p></div></div>
+          <div class="sd-stats"><div class="sd-stat"><span class="num">~30<small>min</small></span><span class="sd-stat__label" data-en="estimated">estimées</span></div><div class="sd-stat"><span class="num">5</span><span class="sd-stat__label" data-en="exercises">exercices</span></div></div>
+          <p class="notice"><svg class="i"><use href="#i-info"/></svg><span data-en="Not saved until you start it, or save it to your sessions.">Pas enregistrée tant que tu ne la commences pas, ou que tu ne l’ajoutes pas à tes séances.</span></p>
+        </section>
+        <section class="sd-sec">
+          <div class="sd-sec__head"><h2 class="section-title" data-en="Main work">Bloc principal</h2></div>
+          <article class="rx"><span class="num rx__idx">1</span><h3 class="rx__name" data-en="Floor press">Développé couché au sol</h3><button class="icon-btn rx__why" type="button" aria-label="Pourquoi ?" data-en-label="Why?"><svg class="i"><use href="#i-why"/></svg></button><div class="rx__body"><div class="rx__nums"><div class="rx__cell"><span class="num rx__n">3 × 8–12</span><span class="rx__u" data-en="sets × reps">séries × reps</span></div><div class="rx__cell"><span class="num rx__n">12<small>kg</small></span><span class="rx__u" data-en="per dumbbell">par haltère</span></div></div></div></article>
+        </section>
+      </div>
+      <div class="dock"><div class="dock__row"><button class="btn btn--secondary btn--player" type="button"><svg class="i"><use href="#i-shuffle"/></svg><span data-en="Shuffle">Mélanger</span></button><button class="btn btn--primary btn--player" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button></div></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Quick result with Save in the bar">Résultat rapide avec Enregistrer dans la barre</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f7b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="Quick session">Séance rapide</span></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t7b">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><h2 class="t-title" id="t7b" data-en="Save to my sessions">Enregistrer dans mes séances</h2><p class="t-meta muted" data-en="You can start it any time, edit it or put it in your programme.">Tu pourras la lancer quand tu veux, la modifier ou la placer dans ton programme.</p></div>
+        <div class="sheet__body">
+          <div class="namefield" style="padding: 0"><label for="n7b" data-en="Name">Nom</label><div class="namefield__box"><input id="n7b" type="text" value="Push, 30 min"></div><p class="namefield__msg"><svg class="i"><use href="#i-info"/></svg><span data-en="Loads come from your history each time you start it.">Les charges viennent de ton historique à chaque lancement.</span></p></div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-go="f7c" data-en="Save">Enregistrer</button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Name prefilled from focus and length (empty: the error of the editor’s name field)">Nom prérempli avec le focus et la durée (vide&#8239;: l’erreur du champ nom de l’éditeur)</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f7c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour aux choix" data-en-label="Back to choices"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="Quick session">Séance rapide</span><span class="barbtn" aria-disabled="true"><svg class="i"><use href="#i-check"/></svg><span data-en="Saved">Enregistrée</span></span></div>
+      <div class="scroll">
+        <section class="sd-head">
+          <div class="sd-id"><span class="sd-tile" aria-hidden="true"><svg class="i"><use href="#i-bolt"/></svg></span><div class="sd-id__text"><span class="sd-kicker" data-en="Quick session">Séance express</span><h1 class="t-display">Push</h1></div></div>
+          <div class="sd-stats"><div class="sd-stat"><span class="num">~30<small>min</small></span><span class="sd-stat__label" data-en="estimated">estimées</span></div><div class="sd-stat"><span class="num">5</span><span class="sd-stat__label" data-en="exercises">exercices</span></div></div>
+        </section>
+      </div>
+      <div class="toast-slot" style="bottom: 196px"><div class="toast"><span class="toast__text" data-en="Saved to my sessions">Enregistrée dans mes séances</span><button class="btn btn--ghost" type="button" data-go="f1b" data-en="View">Voir</button></div></div>
+      <div class="dock"><div class="dock__row"><button class="btn btn--secondary btn--player" type="button"><svg class="i"><use href="#i-shuffle"/></svg><span data-en="Shuffle">Mélanger</span></button><button class="btn btn--primary btn--player" type="button"><svg class="i i--fill"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button></div></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Saved: the bar button settles on a check; Shuffle afterwards offers to save again">Enregistrée&#8239;: le bouton de la barre devient une coche&#8239;; Mélanger ensuite propose d’enregistrer à nouveau</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s8"><h2 data-en="8. Put in your programme">8. Placer dans le programme</h2><p data-en="Pick the session it replaces; the primary names the result. The grid marks the slot with a dashed letter.">Choisir la séance remplacée&#8239;; le bouton principal nomme le résultat. La grille marque la case avec une lettre en pointillés.</p></section>
+
+<figure class="mock-shot" id="f8a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="My sessions">Mes séances</span></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t8a">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><span class="sheet__eyebrow" data-en="Upper express">Haut express</span><h2 class="t-title" id="t8a" data-en="Put in your programme">Placer dans le programme</h2><p class="t-meta muted" data-en="Pick the session it replaces. Your days per week stay the same.">Choisis la séance qu’elle remplace. Tes jours par semaine ne changent pas.</p></div>
+        <div class="sheet__body" style="gap: 16px">
+          <div class="choices" role="radiogroup" aria-labelledby="t8a" data-place>
+            <button class="choice" type="button" role="radio" aria-checked="false" data-letter="A" data-name-fr="Push" data-name-en="Push"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span class="choice__letter">A</span><span class="choice__text"><span class="choice__name">Push</span><span class="choice__meta" data-en="~48 min, next session">~48&nbsp;min, prochaine séance</span></span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false" data-letter="B" data-name-fr="Pull" data-name-en="Pull"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span class="choice__letter">B</span><span class="choice__text"><span class="choice__name">Pull</span><span class="choice__meta">~49&nbsp;min</span></span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false" data-letter="C" data-name-fr="Jambes et gainage" data-name-en="Lower body and core"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span class="choice__letter">C</span><span class="choice__text"><span class="choice__name" data-en="Lower body and core">Jambes et gainage</span><span class="choice__meta">~49&nbsp;min</span></span></button>
+            <button class="choice" type="button" role="radio" aria-checked="true" data-letter="D" data-name-fr="Haut du corps densité" data-name-en="Upper-body density"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span class="choice__letter">D</span><span class="choice__text"><span class="choice__name" data-en="Upper-body density">Haut du corps densité</span><span class="choice__meta" data-en="~42 min, same focus">~42&nbsp;min, même focus</span></span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false" data-letter="E" data-name-fr="Jambes et full body métabolique" data-name-en="Lower body and metabolic full body"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span class="choice__letter">E</span><span class="choice__text"><span class="choice__name" data-en="Lower body and metabolic full body">Jambes et full body métabolique</span><span class="choice__meta">~47&nbsp;min</span></span></button>
+          </div>
+          <p class="inline-note" data-place-note><svg class="i"><use href="#i-info"/></svg><span class="fr">Haut du corps densité revient dès que tu retires ta séance, avec ses charges.</span><span class="en">Upper-body density comes back as soon as you remove yours, with its loads.</span></p>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-place-cta><span class="fr">Remplacer la séance D</span><span class="en">Replace session D</span></button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Choose the session to replace (the cardio day is not offered). Under half the usual length adds a note here.">Choisir la séance à remplacer (le jour cardio n’est pas proposé). Sous la moitié de la durée habituelle, une remarque s’ajoute ici.</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f8b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar" style="padding-left: var(--layout-gutter)"><div class="ctxbar__titles"><span class="ctxbar__title" style="font-size: 21px">Recomposition</span><span class="t-meta muted" data-en="8 weeks, 5 sessions + 1 cardio day a week">8 semaines, 5 séances + 1 jour cardio par semaine</span></div></div>
+      <div class="scroll">
+        <section class="rot">
+          <h2 class="t-headline">Rotation</h2>
+          <div class="grid" role="table" aria-label="Séances par semaine" data-en-label="Sessions by week">
+            <span></span><span class="grid__col"><b>A</b><span>Push</span></span><span class="grid__col"><b>B</b><span>Pull</span></span><span class="grid__col"><b>C</b><span data-en="Legs">Jambes</span></span><span class="grid__col grid__col--icon"><svg class="i"><use href="#i-heart"/></svg><span>Cardio</span></span><span class="grid__col grid__col--mine" aria-label="D, ma séance" data-en-label="D, my session"><b>D</b><span data-en="Mine">Perso</span></span><span class="grid__col"><b>E</b><span>Full</span></span><span></span>
+            <span class="grid__wk" style="grid-area: 2 / 1" data-en="W1">S1</span><span style="grid-area: 2/2" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 2/3" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 2/4" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 2/5" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 2/6" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 2/7" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span class="phase" style="grid-area: 2 / 8 / span 2 / 9" data-en="Re-adaptation">Réadaptation</span>
+            <span class="grid__wk" style="grid-area: 3 / 1" data-en="W2">S2</span><span style="grid-area: 3/2" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 3/3" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 3/4" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 3/5" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 3/6" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span><span style="grid-area: 3/7" class="cell cell--done"><svg class="i"><use href="#i-check"/></svg></span>
+            <span class="grid__now" style="grid-area: 4 / 1 / 5 / -1"></span><span class="grid__wk" style="grid-area: 4 / 1; color: var(--color-text)" data-en="W3">S3</span><span style="grid-area: 4/2" class="cell cell--next">A</span><span style="grid-area: 4/3" class="cell cell--todo">B</span><span style="grid-area: 4/4" class="cell cell--todo">C</span><span style="grid-area: 4/5" class="cell cell--todo"><svg class="i i--sm"><use href="#i-heart"/></svg></span><span style="grid-area: 4/6" class="cell cell--todo">D</span><span style="grid-area: 4/7" class="cell cell--todo">E</span><span class="phase phase--now" style="grid-area: 4 / 8 / span 2 / 9">Volume</span>
+            <span class="grid__wk" style="grid-area: 5 / 1" data-en="W4">S4</span><span style="grid-area: 5/2" class="cell cell--later"></span><span style="grid-area: 5/3" class="cell cell--later"></span><span style="grid-area: 5/4" class="cell cell--later"></span><span style="grid-area: 5/5" class="cell cell--later"></span><span style="grid-area: 5/6" class="cell cell--later"></span><span style="grid-area: 5/7" class="cell cell--later"></span>
+          </div>
+        </section>
+        <section class="slist">
+          <h2 class="t-headline" data-en="Sessions">Séances</h2>
+          <div>
+            <button class="srow" type="button" data-go="f6a"><span class="srow__id"><span class="num">A</span></span><span class="srow__text"><span class="srow__name">Push</span><span class="srow__meta" data-en="~55 min, edited by you">~55&nbsp;min, modifiée par toi</span></span><svg class="i"><use href="#i-chev-right"/></svg></button>
+            <button class="srow" type="button"><span class="srow__id"><span class="num">B</span></span><span class="srow__text"><span class="srow__name">Pull</span><span class="srow__meta">~49&nbsp;min</span></span><svg class="i"><use href="#i-chev-right"/></svg></button>
+            <button class="srow" type="button" data-go="f6b"><span class="srow__id srow__id--mine"><span class="num">D</span></span><span class="srow__text"><span class="srow__name" data-en="Upper express">Haut express</span><span class="srow__meta fr">Ma séance, ~34&nbsp;min. Remplace&#8239;: Haut du corps densité</span><span class="srow__meta en">My session, ~34 min. Replaces: Upper-body density</span></span><svg class="i"><use href="#i-chev-right"/></svg></button>
+          </div>
+        </section>
+      </div>
+      <div class="toast-slot" style="bottom: 116px"><div class="toast"><span class="toast__text" data-en="Upper express is now session D">Haut express est maintenant la séance D</span><button class="btn btn--ghost" type="button" data-en="Undo">Annuler</button></div></div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Programme overview after placing: dashed D, Mine under it, the list says what it replaces">Programme après placement&#8239;: D en pointillés, Perso dessous, la liste dit ce qu’elle remplace</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s9"><h2 data-en="9. Regenerate: what happens to your edits">9. Régénérer&#8239;: ce que deviennent tes modifications</h2><p data-en="The new-programme preview gains one block, right under what stays. Only the edits that no longer apply are listed; the kept ones fold away.">L’aperçu du nouveau programme gagne un bloc, juste sous ce qui reste. Seules les modifications qui ne s’appliquent plus sont listées&#8239;; les autres se replient.</p></section>
+
+<figure class="mock-shot" id="f9a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><span class="ctxbar__text" style="padding-left: 16px">Recomposition</span></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="t9a">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head"><span class="sheet__eyebrow" data-en="New programme">Nouveau programme</span><div class="cp-count" id="t9a"><span class="num">3</span><span class="cp-count__label" data-en="exercises change">exercices changent</span></div></div>
+        <div class="sheet__body" style="gap: 18px">
+          <p class="cp-kept"><svg class="i"><use href="#i-check"/></svg><span data-en="Same split, same durations. Loads and doses follow your current profile.">Même découpage, mêmes durées. Les charges et les doses suivent ton profil actuel.</span></p>
+          <section class="ledger" aria-labelledby="l9a">
+            <h3 class="ledger__title" id="l9a"><svg class="i"><use href="#i-pencil"/></svg><span data-en="Your changes">Tes modifications</span></h3>
+            <div class="ledger__figs">
+              <div class="ledger__fig"><span class="num">5</span><span data-en="kept">gardées</span></div>
+              <div class="ledger__fig ledger__fig--muted"><span class="num">2</span><span data-en="no longer apply">ne s’appliquent plus</span></div>
+            </div>
+            <div>
+              <div class="drop"><span class="drop__dot"></span><span><span class="drop__where" data-en="Session B, Pull: your addition">Séance B, Pull&#8239;: ton ajout</span><span class="drop__name" style="display:block" data-en="Chin-up">Traction supination</span><span class="drop__why" style="display:block" data-en="Needs a pull-up bar, no longer in your equipment.">Il faut une barre de traction, plus dans ton matériel.</span></span></div>
+              <div class="drop"><span class="drop__dot"></span><span><span class="drop__where" data-en="Session B, Pull: 5 sets instead of 4">Séance B, Pull&#8239;: 5 séries au lieu de 4</span><span class="drop__name" style="display:block" data-en="Pull-up">Traction pronation</span><span class="drop__why" style="display:block" data-en="The exercise leaves the session: the new programme’s version applies.">L’exercice quitte la séance&#8239;: la version du nouveau programme s’applique.</span></span></div>
+            </div>
+            <button class="disc" type="button" aria-expanded="false"><span class="disc__text"><span class="disc__title" data-en="See the 5 kept">Voir les 5 gardées</span></span><span class="disc__chev"><svg class="i"><use href="#i-chev-down"/></svg></span></button>
+          </section>
+          <div class="cp-sess"><h3 class="cp-sess__name" data-en="Session B, Pull">Séance B, Pull</h3>
+            <div class="swap"><span class="swap__rail"><i></i></span><span class="swap__old" data-en="Pull-up">Traction pronation</span><span class="swap__new" data-en="Inverted row under a table">Rowing inversé sous une table</span></div>
+          </div>
+        </div>
+        <div class="sheet__foot"><button class="btn btn--primary btn--block btn--player" type="button" data-en="Use this programme">Utiliser ce programme</button><button class="btn btn--secondary btn--block" type="button" data-en="Keep the current one">Garder l’actuel</button></div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Pull-up bar removed: 5 edits kept, 2 listed with the reason. A lost placement is listed the same way.">Barre de traction retirée&#8239;: 5 modifications gardées, 2 listées avec la raison. Un placement perdu est listé de la même façon.</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s10"><h2 data-en="10. Deleting a session that is in the programme">10. Supprimer une séance placée dans le programme</h2><p data-en="The confirmation names what comes back.">La confirmation dit ce qui revient.</p></section>
+
+<figure class="mock-shot" id="f10a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="My sessions">Mes séances</span></div>
+      <div class="scroll"><section class="sd-head"><div class="sd-id"><span class="sd-tile"><svg class="i"><use href="#i-bookmark"/></svg></span><div class="sd-id__text"><span class="sd-kicker" data-en="My session">Ma séance</span><h1 class="t-display" data-en="Upper express">Haut express</h1></div></div></section></div>
+      <nav class="tabbar" data-tab="quick"></nav>
+      <div class="scrim"></div>
+      <div class="dlg-wrap">
+        <div class="dialog" role="alertdialog" aria-labelledby="d10a">
+          <div class="dialog__text"><h2 class="dialog__title" id="d10a" data-en="Delete this session?">Supprimer cette séance&#8239;?</h2>
+            <p class="fr">Elle est dans ton programme en séance D. <b>Haut du corps densité</b> y revient, avec ses charges.</p><p class="en">It is in your programme as session D. <b>Upper-body density</b> comes back there, with its loads.</p>
+            <p data-en="Sessions you’ve done stay in your history.">Tes séances déjà faites restent dans ton historique.</p></div>
+          <div class="dialog__actions"><button class="btn btn--destructive btn--block" type="button" data-en="Delete session">Supprimer la séance</button><button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Delete when placed (not placed: only the history line)">Supprimer une séance placée (non placée&#8239;: seulement la ligne sur l’historique)</figcaption>
+</figure>
+
+</main>
+
+<script>
+(function () {
+  /* Chrome injected once, before the language pass */
+  var SB = '<span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span>';
+  document.querySelectorAll('.statusbar').forEach(function (el) { el.setAttribute('aria-hidden', 'true'); el.innerHTML = SB; });
+  document.querySelectorAll('.homebar').forEach(function (el) { el.setAttribute('aria-hidden', 'true'); });
+  var TABS = [['programme', 'calendar', 'Programme', 'Programme'], ['quick', 'bolt', 'Séance rapide', 'Quick session'], ['progress', 'chart', 'Progrès', 'Progress'], ['settings', 'sliders', 'Réglages', 'Settings']];
+  document.querySelectorAll('nav.tabbar[data-tab]').forEach(function (nav) {
+    nav.setAttribute('aria-label', 'Navigation');
+    nav.innerHTML = TABS.map(function (t) {
+      var cur = t[0] === nav.dataset.tab;
+      return '<a class="tab' + (cur ? ' is-current" aria-current="page' : '') + '"><span class="tab__icon"><svg class="i"><use href="#i-' + t[1] + '"/></svg></span><span data-en="' + t[3] + '">' + t[2] + '</span></a>';
+    }).join('');
+  });
+
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : 'dark';
+  function effectiveTheme() { return theme || (sysDark.matches ? 'dark' : 'light'); }
+  function fmt(v) { return new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { maximumFractionDigits: 1 }).format(v); }
+  var NNBSP = ' ';
+
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === effectiveTheme())); });
+  }
+  function swapAttr(el, attr, enAttr) {
+    var frAttr = 'data-fr-' + attr;
+    if (!el.hasAttribute(frAttr)) el.setAttribute(frAttr, el.getAttribute(attr) || '');
+    el.setAttribute(attr, lang === 'en' ? el.getAttribute(enAttr) : el.getAttribute(frAttr));
+  }
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) { swapAttr(el, 'aria-label', 'data-en-label'); });
+    document.querySelectorAll('[data-en-placeholder]').forEach(function (el) { swapAttr(el, 'placeholder', 'data-en-placeholder'); });
+    document.querySelectorAll('[data-en-value]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr-value')) el.setAttribute('data-fr-value', el.value);
+      el.value = lang === 'en' ? el.getAttribute('data-en-value') : el.getAttribute('data-fr-value');
+    });
+    document.querySelectorAll('[data-num]').forEach(function (el) { el.textContent = fmt(parseFloat(el.dataset.num)); });
+    document.querySelectorAll('.stepper').forEach(renderStepper);
+    sync();
+  }
+  function applyTheme() { root.dataset.theme = theme; sync(); }
+
+  /* Steppers: generic, range pairs, effort word value, zero word, live estimate */
+  function effortText(v) {
+    if (v === 0) return lang === 'fr' ? 'Jusqu’à l’échec' : 'To failure';
+    return lang === 'fr' ? v + ' rep' + (v > 1 ? 's' : '') + ' en réserve' : v + ' rep' + (v > 1 ? 's' : '') + ' in the tank';
+  }
+  function effortHint(v) {
+    if (v === 0) return lang === 'fr' ? 'Chaque série jusqu’à ne plus pouvoir faire une rep propre.' : 'Each set until you can’t do another clean rep.';
+    return lang === 'fr' ? 'Arrête la série quand il te reste ' + v + ' rep' + (v > 1 ? 's' : '') + ' propre' + (v > 1 ? 's' : '') + '.' : 'Stop the set with ' + v + ' clean rep' + (v > 1 ? 's' : '') + ' left.';
+  }
+  function valueOf(st) {
+    var w = st.querySelector('[data-effort]'); if (w) return +w.dataset.effort;
+    return parseFloat(st.querySelector('[data-num]').dataset.num);
+  }
+  function renderStepper(st) {
+    var v = valueOf(st), min = +st.dataset.min, max = +st.dataset.max;
+    var btns = st.querySelectorAll('.stepper__btn');
+    btns[0].disabled = v <= min; btns[1].disabled = v >= max;
+    var w = st.querySelector('[data-effort]');
+    if (w) {
+      w.textContent = effortText(v);
+      var df = st.closest('.df');
+      var hint = df && df.querySelector('[data-effort-hint]'); if (hint) hint.textContent = effortHint(v);
+      var warn = df && df.querySelector('[data-effort-warn]'); if (warn && !warn.dataset.dismissed) warn.hidden = v !== 0;
+    }
+    if (st.hasAttribute('data-zero-word')) {
+      var zero = v === 0;
+      st.querySelector('[data-num]').hidden = zero;
+      st.querySelector('[data-word-zero]').hidden = !zero;
+      var u = st.querySelector('.stepper__unit'); if (u) u.hidden = zero;
+    }
+  }
+  function liveEstimate(sheet) {
+    var sets = valueOf(sheet.querySelector('[data-role="sets"]'));
+    var lo = valueOf(sheet.querySelector('[data-pair="lo"]')), hi = valueOf(sheet.querySelector('[data-pair="hi"]'));
+    var rest = valueOf(sheet.querySelector('[data-role="rest"]'));
+    var reps = (lo + hi) / 2;
+    var sec = +sheet.dataset.baseSec + sets * (reps * 4 + 15) + Math.max(sets - 1, 0) * rest + rest;
+    var min = Math.round(sec / 60);
+    var out = sheet.querySelector('[data-live]');
+    out.textContent = '~' + min;
+    var d = min - +sheet.dataset.orig, tag = sheet.querySelector('.live .delta');
+    if (!tag) { tag = document.createElement('span'); tag.className = 'delta'; out.parentNode.appendChild(tag); }
+    tag.hidden = d === 0;
+    tag.textContent = (d > 0 ? '+' : '−') + Math.abs(d) + (lang === 'fr' ? ' min' : ' min');
+  }
+
+  function flash(id) {
+    var fig = document.getElementById(id); if (!fig) return;
+    fig.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    fig.classList.add('is-flash'); setTimeout(function () { fig.classList.remove('is-flash'); }, 1200);
+  }
+
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]'); if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var t = e.target.closest('[data-set-theme]'); if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var step = e.target.closest('[data-step-dir]');
+    if (step) {
+      var st = step.closest('.stepper'), dir = +step.dataset.stepDir;
+      var v = valueOf(st) + (+st.dataset.step) * dir;
+      v = Math.min(+st.dataset.max, Math.max(+st.dataset.min, v));
+      var w = st.querySelector('[data-effort]');
+      if (w) w.dataset.effort = String(v); else { var n = st.querySelector('[data-num]'); n.dataset.num = String(v); n.textContent = fmt(v); }
+      if (st.dataset.pair) {
+        var range = st.closest('.range');
+        var lo = range.querySelector('[data-pair="lo"]'), hi = range.querySelector('[data-pair="hi"]');
+        lo.dataset.max = String(valueOf(hi)); hi.dataset.min = String(valueOf(lo));
+        renderStepper(lo); renderStepper(hi);
+      }
+      renderStepper(st);
+      var sheet = st.closest('[data-dose]'); if (sheet) liveEstimate(sheet);
+      return;
+    }
+    var dis = e.target.closest('[data-dismiss]');
+    if (dis) { var iss = dis.closest('.issue'); iss.hidden = true; iss.dataset.dismissed = '1'; return; }
+    var opt = e.target.closest('.seg__opt, .tile');
+    if (opt) { opt.parentElement.querySelectorAll('[role="radio"]').forEach(function (o) { o.setAttribute('aria-checked', String(o === opt)); }); return; }
+    var choice = e.target.closest('.choice');
+    if (choice) {
+      var group = choice.closest('[data-place]');
+      group.querySelectorAll('.choice').forEach(function (c) { c.setAttribute('aria-checked', String(c === choice)); });
+      var sh = choice.closest('.sheet');
+      sh.querySelector('[data-place-cta] .fr').textContent = 'Remplacer la séance ' + choice.dataset.letter;
+      sh.querySelector('[data-place-cta] .en').textContent = 'Replace session ' + choice.dataset.letter;
+      sh.querySelector('[data-place-note] .fr').textContent = choice.dataset.nameFr + ' revient dès que tu retires ta séance, avec ses charges.';
+      sh.querySelector('[data-place-note] .en').textContent = choice.dataset.nameEn + ' comes back as soon as you remove yours, with its loads.';
+      return;
+    }
+    var chip = e.target.closest('.chip[aria-pressed]');
+    if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+    var disc = e.target.closest('.disc');
+    if (disc) { disc.setAttribute('aria-expanded', String(disc.getAttribute('aria-expanded') !== 'true')); return; }
+    var go = e.target.closest('[data-go]');
+    if (go) { e.preventDefault(); flash(go.dataset.go); }
+  });
+  sysDark.addEventListener('change', sync);
+  applyTheme();
+  applyLang();
+  document.querySelectorAll('[data-scroll]').forEach(function (f) { var sc = f.querySelector('.scroll'); if (sc) sc.scrollTop = +f.dataset.scroll; });
+})();
+</script>
+</body>
+</html>

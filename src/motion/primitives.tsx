@@ -51,7 +51,10 @@ interface CollapseProps {
 /** Height and content fade over `base`, `move`. Closed content leaves the tree. */
 export function Collapse({ open, id, className, children }: CollapseProps) {
   const t = useMotionTokens();
-  const transition = { duration: t.duration.base, ease: t.ease.move };
+  // Height changes are instant under reduced motion; only the fade remains.
+  const transition = t.reduced
+    ? { height: { duration: 0 }, opacity: { duration: t.duration.fast, ease: t.ease.move } }
+    : { duration: t.duration.base, ease: t.ease.move };
   return (
     <AnimatePresence initial={false}>
       {open ? (
@@ -125,6 +128,57 @@ export function ListRowMotion({
     >
       {children}
     </m.li>
+  );
+}
+
+interface RowMotionProps {
+  as?: 'div' | 'li';
+  className?: string;
+  /** The list's row gap in px: a row that is not there yet gives its gap back too. */
+  gap?: number;
+  /** `dismiss`: the leaving row collapses at 70 % of `base` with `exit` (a dismissed card or note). */
+  leave?: 'move' | 'dismiss';
+  children: ReactNode;
+}
+
+/**
+ * A row, card or note that is added to or removed from a list inside a `PresenceList`: height and
+ * fade over `base`, `move`. Overflow is only clipped while it moves, so shadows and focus rings
+ * survive at rest. Under reduced motion the height changes at once and only the fade remains.
+ */
+export function RowMotion({
+  as = 'div',
+  className,
+  gap = 0,
+  leave = 'move',
+  children,
+}: RowMotionProps) {
+  const t = useMotionTokens();
+  const fade = { duration: t.duration.fast, ease: t.ease.move };
+  const enter = t.reduced
+    ? { height: { duration: 0 }, marginTop: { duration: 0 }, opacity: fade }
+    : { duration: t.duration.base, ease: t.ease.move };
+  const out = t.reduced
+    ? enter
+    : leave === 'dismiss'
+      ? { duration: t.duration.base * EXIT_RATIO, ease: t.ease.exit }
+      : enter;
+  const Tag = as === 'li' ? m.li : m.div;
+  return (
+    <Tag
+      className={className}
+      initial={{ height: 0, opacity: 0, marginTop: -gap, overflow: 'hidden' }}
+      animate={{
+        height: 'auto',
+        opacity: 1,
+        marginTop: 0,
+        transition: enter,
+        transitionEnd: { overflow: 'visible' },
+      }}
+      exit={{ height: 0, opacity: 0, marginTop: -gap, overflow: 'hidden', transition: out }}
+    >
+      {children}
+    </Tag>
   );
 }
 

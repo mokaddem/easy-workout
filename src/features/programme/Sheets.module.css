@@ -341,3 +341,13 @@
   text-underline-offset: 4px;
   cursor: pointer;
 }
+.checks {
+  display: grid;
+  gap: var(--space-2);
+}
+.checksTitle {
+  margin: 0;
+  font-size: var(--type-body-size);
+  font-weight: 700;
+  color: var(--color-text);
+}

@@ -21,10 +21,46 @@
   "noEquipmentHint": "No equipment",
   "compose": "Build my session",
   "backToChoices": "Back to choices",
-  "notSaved": "Not saved until you start it.",
+  "notSaved": "Not saved until you start it, or save it to your sessions.",
   "shuffle": "Shuffle",
   "shuffled_one": "Session shuffled: {{count}} exercise changed",
   "shuffled_other": "Session shuffled: {{count}} exercises changed",
   "noOther": "No other combination with this equipment.",
-  "start": "Start"
+  "start": "Start",
+  "mine": {
+    "title": "My sessions",
+    "new": "New session",
+    "emptyTitle": "No sessions of your own yet",
+    "emptyBody": "Build one from the exercises you choose, or save a quick session you liked.",
+    "meta": "{{focus}}, done {{when}}",
+    "never": "{{focus}}, not done yet",
+    "when": {
+      "today": "today",
+      "yesterday": "yesterday",
+      "days": "{{count}} days ago",
+      "date": "on {{date}}"
+    },
+    "placed": "In your programme",
+    "placedSr": ", as session {{letter}}",
+    "flag_one": "{{count}} exercise no longer possible",
+    "flag_other": "{{count}} exercises no longer possible",
+    "seeAll": "See the {{count}} sessions",
+    "rowSr": "{{name}}, about {{minutes}} minutes"
+  },
+  "composeTitle": "Build a quick session",
+  "save": "Save",
+  "saveSr": "Save to my sessions",
+  "saved": "Saved",
+  "saveSheet": {
+    "title": "Save to my sessions",
+    "line": "You can start it any time, edit it or put it in your programme.",
+    "name": "Name",
+    "default": "{{focus}}, {{minutes}} min",
+    "loads": "Loads come from your history each time you start it.",
+    "confirm": "Save",
+    "cancel": "Cancel",
+    "error": "Name your session."
+  },
+  "savedToast": "Saved to my sessions",
+  "savedView": "View"
 }

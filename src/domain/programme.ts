@@ -64,12 +64,35 @@ export const ProgrammeSchema = z
     progression: ProgressionRuleSchema,
     /** Present on generated programmes. */
     generation: GenerationSchema.optional(),
+    /**
+     * The rotation as generated, kept once the user has edited a session or placed one of their
+     * own: what their changes are measured against when the programme is regenerated.
+     */
+    generatedRotation: z.array(SessionSchema).optional(),
+    /** Rotation sessions replaced by one of the user's own sessions: session id → custom session id. */
+    placements: z.record(IdSchema, IdSchema).optional(),
     createdAt: DateTimeSchema.optional(),
   })
   .superRefine((p, ctx) => {
     const ids = p.rotation.map((s) => s.id);
     if (new Set(ids).size !== ids.length)
       ctx.addIssue({ code: 'custom', message: 'duplicate session ids', path: ['rotation'] });
+    if (p.generatedRotation) {
+      const generated = p.generatedRotation.map((s) => s.id);
+      if (generated.length !== ids.length || generated.some((id, i) => id !== ids[i]))
+        ctx.addIssue({
+          code: 'custom',
+          message: 'generated rotation does not match the rotation',
+          path: ['generatedRotation'],
+        });
+    }
+    for (const id of Object.keys(p.placements ?? {}))
+      if (!ids.includes(id))
+        ctx.addIssue({
+          code: 'custom',
+          message: `placement for unknown session ${id}`,
+          path: ['placements'],
+        });
 
     const covered = new Set<number>();
     for (const phase of p.phases) {

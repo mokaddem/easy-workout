@@ -1,0 +1,24 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 0 9px 0 7px;
+  border: var(--border-control) solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+  font-stretch: var(--font-width-label);
+  line-height: 1;
+  white-space: nowrap;
+}
+.icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  color: var(--color-text-muted);
+}
+.tag:not(:has(svg)) {
+  padding-left: 9px;
+}
