@@ -11,6 +11,9 @@ import type {
   SessionItem,
 } from '@/domain';
 import type { Proposal } from '@/engine';
+import { useEquipment } from '@/app/data';
+import { thumbIcon } from '@/features/editor/picker/thumbIcon';
+import { equipmentInUse, FigureTile } from '@/features/figure';
 import { Icon } from '@/ui/components';
 import { ChangeTag, GoalRuler, noteDetail, Rich, showsWhy, type ChangeTagData } from '../adapt';
 import { PendingPainLine, SwapLine, WhyLine } from './AdaptLines';
@@ -69,6 +72,8 @@ interface RxProps {
   lastSetRir?: number;
   adapt?: ItemAdapt;
   onWhy: () => void;
+  /** Opens the how-to: the picture and the name become one button. */
+  onHowTo?: () => void;
 }
 
 function implementLabel(item: SessionItem, t: TFunction): string | null {
@@ -200,6 +205,7 @@ export function Prescription({
   lastSetRir,
   adapt,
   onWhy,
+  onHowTo,
 }: RxProps) {
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
@@ -225,7 +231,7 @@ export function Prescription({
   return (
     <article className={`${styles.rx} ${first ? styles.rxFirst : ''}`}>
       <span className={`${styles.num} ${styles.rxIdx}`}>{label}</span>
-      <h3 className={styles.rxName}>{name}</h3>
+      <ExerciseHead exerciseId={item.exerciseId} name={name} onHowTo={onHowTo} />
       <button
         type="button"
         className={styles.rxWhy}
@@ -341,6 +347,7 @@ export function CardioRow({
   edit,
   adapt,
   onWhy,
+  onHowTo,
 }: {
   item: SessionItem;
   label?: string;
@@ -351,6 +358,7 @@ export function CardioRow({
   edit?: string | undefined;
   adapt?: ItemAdapt;
   onWhy: () => void;
+  onHowTo?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
@@ -368,7 +376,7 @@ export function CardioRow({
   return (
     <article className={`${styles.rx} ${first ? styles.rxFirst : ''}`}>
       <span className={`${styles.num} ${styles.rxIdx}`}>{label ?? ''}</span>
-      <h3 className={styles.rxName}>{name}</h3>
+      <ExerciseHead exerciseId={item.exerciseId} name={name} onHowTo={onHowTo} />
       <button
         type="button"
         className={styles.rxWhy}
@@ -501,5 +509,42 @@ function Intervals({
         </span>
       </div>
     </div>
+  );
+}
+
+/** The exercise's name, with its still picture as one button that opens the how-to. */
+function ExerciseHead({
+  exerciseId,
+  name,
+  onHowTo,
+}: {
+  exerciseId: string;
+  name: string;
+  onHowTo: (() => void) | undefined;
+}) {
+  const { t } = useTranslation();
+  const inventory = useEquipment();
+  if (!onHowTo) return <h3 className={styles.rxName}>{name}</h3>;
+  const exercise = exerciseById.get(exerciseId);
+  return (
+    <h3 className={styles.rxName}>
+      <button
+        type="button"
+        className={styles.rxOpen}
+        aria-label={t('play.figure.open', { name })}
+        data-howto={exerciseId}
+        onClick={onHowTo}
+      >
+        <span className={styles.rxThumb}>
+          <FigureTile
+            exerciseId={exerciseId}
+            size={56}
+            equipment={equipmentInUse(exercise, inventory)}
+            fallback={exercise ? <Icon name={thumbIcon(exercise)} size={28} /> : null}
+          />
+        </span>
+        <span className={styles.rxOpenName}>{name}</span>
+      </button>
+    </h3>
   );
 }

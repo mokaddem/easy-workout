@@ -139,8 +139,6 @@ export const ExerciseSchema = z
     difficulty: int(1, 5),
     easier: z.array(SlugSchema),
     harder: z.array(SlugSchema),
-    /** Reserved for the looping exercise animation. */
-    animation: z.null(),
   })
   .superRefine((ex, ctx) => {
     const issue = (message: string, path: string) =>

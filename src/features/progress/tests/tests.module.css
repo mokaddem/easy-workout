@@ -276,9 +276,43 @@
 .pickList > li + li {
   border-top: 1px solid var(--color-line);
 }
+.pickWrap {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: stretch;
+}
+.thumbHit {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  min-height: 76px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.thumbHit:active {
+  background: var(--color-press-overlay);
+}
+.thumbHit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+  border-radius: var(--radius-sm);
+}
+.howtoHint {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
 .pickRow {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   column-gap: 14px;
   align-items: center;
   width: 100%;
@@ -303,9 +337,6 @@
 }
 .pickRow[aria-disabled='true'] .choiceName {
   color: var(--color-text-muted);
-}
-.pickRow[aria-disabled='true'] > :first-child {
-  opacity: 0.55;
 }
 .pickRow:focus-visible {
   outline: none;

@@ -25,6 +25,8 @@ import { GoalRuler } from '@/features/adapt/GoalRuler';
 import { Rich } from '@/features/adapt/Rich';
 import { numberText } from '@/features/adapt/format';
 import { thumbIcon } from '@/features/editor/picker/thumbIcon';
+import { equipmentInUse, FigureTile } from '@/features/figure';
+import { HowToSheet } from '@/features/howto';
 import { loadParts } from '@/features/play/format';
 import { Appear } from '@/motion';
 import { EmptyState, Icon, IconButton, SegmentedControl, Skeleton } from '@/ui/components';
@@ -288,6 +290,8 @@ export function ExerciseScreen({ route }: { route: Extract<Route, { name: 'exerc
               </div>
             ) : null}
           </header>
+
+          {exercise ? <HowToRow exercise={exercise} lang={lang} /> : null}
 
           <section
             className={`${styles.now} ${goal === undefined ? styles.nowOne : ''}`}
@@ -614,5 +618,44 @@ function SessionRow({
         <Icon name="chevron" size={20} className={styles.chev} />
       </button>
     </li>
+  );
+}
+
+/** The "How to do it" row under the title: the picture, what it opens, and the sheet itself. */
+function HowToRow({ exercise, lang }: { exercise: Exercise; lang: Language }) {
+  const { t } = useTranslation();
+  const inventory = useEquipment();
+  const [open, setOpen] = useState(false);
+  const equipment = equipmentInUse(exercise, inventory);
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.howto}
+        data-howto={exercise.id}
+        aria-label={`${t('stats.exercise.howto')}, ${exercise.name[lang]}`}
+        onClick={() => setOpen(true)}
+      >
+        <span className={styles.howtoThumb}>
+          <FigureTile
+            exerciseId={exercise.id}
+            size={56}
+            equipment={equipment}
+            fallback={<Icon name={thumbIcon(exercise)} size={28} />}
+          />
+        </span>
+        <span className={styles.howtoText}>
+          <b>{t('stats.exercise.howto')}</b>
+          <span>{t('stats.exercise.howtoMeta', { count: exercise.execution[lang].length })}</span>
+        </span>
+        <Icon name="chevron" size={20} />
+      </button>
+      <HowToSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        exerciseId={exercise.id}
+        equipment={equipment}
+      />
+    </>
   );
 }

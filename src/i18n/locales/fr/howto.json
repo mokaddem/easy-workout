@@ -1,0 +1,16 @@
+{
+  "close": "Fermer",
+  "pause": "Pause",
+  "play": "Lire",
+  "speed": "Vitesse",
+  "normal": "Normal",
+  "slow": "Lent",
+  "paced": "Suit ton tempo <b>{{tempo}}</b>",
+  "playReduced": "Lire l'animation",
+  "stage": "Démonstration animée : {{name}}",
+  "stageStill": "Position clé : {{name}}",
+  "restBand": "Repos",
+  "meta": "{{pattern}}, {{equipment}}",
+  "pickForTest": "Choisir cet exercice",
+  "back": "Retour à la liste"
+}

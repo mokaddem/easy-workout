@@ -197,9 +197,38 @@
 .list > li + li {
   border-top: var(--border-hairline) solid var(--color-line);
 }
+.rowWrap {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: stretch;
+}
+.thumbHit {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  min-height: 76px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.thumbHit:active {
+  background: var(--color-press-overlay);
+}
+.thumbHit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+  border-radius: var(--radius-sm);
+}
+.hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+}
 .row {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   column-gap: 14px;
   align-items: center;
   width: 100%;
@@ -287,7 +316,10 @@
   background: linear-gradient(to top, var(--color-line) 1px, transparent 1px) 0 100% / 100% 33%;
   opacity: 0.7;
 }
-.thumb svg {
+.thumb:has(> span > svg)::after {
+  display: none;
+}
+.thumb > svg {
   position: relative;
   z-index: 1;
   stroke-width: 1.6;

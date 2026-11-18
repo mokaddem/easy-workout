@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import type { Feel, Language, SetActual, Target } from '@/domain';
 import { playerUnit } from '@/features/adapt';
+import { equipmentInUse } from '@/features/figure';
+import type { FigurePacing } from '@/motion/figure';
+import { useSettings } from '@/app/data';
 import { Button, Icon, IconButton, SegmentedControl } from '@/ui/components';
 import {
   exerciseLabel,
@@ -21,10 +24,13 @@ import { setGoal } from '@/engine';
 import { clockSeconds, intervalClock, type PlayerState } from '../machine';
 import styles from '../Play.module.css';
 import { AdjustSheet } from './AdjustSheet';
-import { AnimSlot } from './AnimSlot';
+import { usePlayerHowTo } from '@/features/howto';
+import { FigureSlot } from './FigureSlot';
 import { NextUp, SetHead, TempoStrip } from './parts';
 import type { PlayContext } from './types';
+import { useFigurePacing } from './useFigurePacing';
 import { useWhy } from './why';
+import { useTempoPacer } from '../signals';
 
 const FEELS: Feel[] = ['easy', 'right', 'hard'];
 
@@ -74,17 +80,45 @@ function Name({ ctx }: { ctx: PlayContext }) {
   );
 }
 
-function Slot({ ctx, tag }: { ctx: PlayContext; tag?: string }) {
-  const { t } = useTranslation();
+function Slot({
+  ctx,
+  hold,
+  rest,
+  pacing,
+}: {
+  ctx: PlayContext;
+  hold?: boolean;
+  rest?: boolean;
+  pacing?: FigurePacing | undefined;
+}) {
   const exercise = exerciseById.get(ctx.step.item.exerciseId);
   const why = useWhy(ctx);
+  const equipment = equipmentInUse(exercise, ctx.inventory);
+  const howto = usePlayerHowTo({
+    exerciseId: ctx.step.item.exerciseId,
+    equipment,
+    side: ctx.step.side,
+    pacing,
+    screenKey: `${ctx.step.set}-${ctx.step.itemIndex}-${ctx.step.side ?? ''}-${hold ? 'h' : ''}${rest ? 'r' : ''}`,
+  });
   return (
-    <AnimSlot
-      why={why}
-      glyph={glyphOf(exercise)}
-      tag={tag ?? (exercise ? t(`labels.pattern.${exercise.pattern}`) : '')}
-      cue={exercise?.keyCue[ctx.lang]}
-    />
+    <>
+      <FigureSlot
+        why={why}
+        exerciseId={ctx.step.item.exerciseId}
+        name={exerciseLabel(exercise, ctx.lang, ctx.step.item.exerciseId)}
+        glyph={glyphOf(exercise)}
+        cue={exercise?.keyCue[ctx.lang]}
+        equipment={equipment}
+        side={ctx.step.side}
+        hold={hold}
+        rest={rest}
+        pacing={pacing}
+        covered={howto.isOpen}
+        onOpenHowTo={howto.open}
+      />
+      {howto.sheet}
+    </>
   );
 }
 
@@ -250,6 +284,7 @@ export function HoldScreen(props: TimedProps) {
             </Bar>
             <p className={styles.heldLine}>{t('play.timed.held', { seconds: held })}</p>
           </div>
+          <Slot ctx={props} hold />
         </div>
         <div className={styles.dock}>
           <SegmentedControl
@@ -315,7 +350,7 @@ export function HoldScreen(props: TimedProps) {
           </div>
         </div>
         <NextUp step={step} lang={lang} player={player} />
-        <Slot ctx={props} />
+        <Slot ctx={props} hold />
       </div>
       <div className={styles.dock}>
         <p className={styles.dockHint}>
@@ -466,7 +501,7 @@ export function IntervalScreen(props: TimedProps) {
           <span>{t('play.cardio.nextLabel')}</span>
           <b>{next}</b>
         </p>
-        <Slot ctx={props} tag="" />
+        <Slot ctx={props} hold={!work} rest={!work} />
       </div>
       <div className={styles.dock}>
         <div className={styles.dockRow}>
@@ -570,7 +605,7 @@ export function CardioScreen(props: TimedProps) {
           </Bar>
         </div>
         <SpeedIncline speed={target.speedKmh} incline={target.inclinePct} lang={lang} />
-        <Slot ctx={props} tag="" />
+        <Slot ctx={props} />
       </div>
       <div className={styles.dock}>
         <div className={styles.dockRow}>
@@ -624,6 +659,9 @@ export function WarmupScreen(props: PlayContext) {
   const { t } = useTranslation();
   const { lang, inventory, player, step } = props;
   const { planned } = step;
+  const settings = useSettings();
+  const pacer = useTempoPacer(planned.tempo, settings?.sounds ?? true);
+  const pacing = useFigurePacing(planned.tempo, pacer);
   const exercise = exerciseById.get(step.item.exerciseId);
   const cell = targetCell(t, planned.target);
   const load = loadParts(t, lang, planned.load, exercise, inventory);
@@ -657,8 +695,8 @@ export function WarmupScreen(props: PlayContext) {
           </div>
         </div>
         {note ? <p className={styles.hint}>{note}</p> : null}
-        {planned.tempo ? <TempoStrip tempo={planned.tempo} /> : null}
-        <Slot ctx={props} tag={t('play.warmup.tag')} />
+        {planned.tempo ? <TempoStrip tempo={planned.tempo} pacer={pacer} /> : null}
+        <Slot ctx={props} pacing={pacing} />
       </div>
       <div className={styles.dock}>
         <div className={styles.dockRow}>

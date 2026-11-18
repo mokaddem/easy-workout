@@ -132,7 +132,10 @@
     "resultReps_one": "{{count}} rep",
     "resultReps_other": "{{count}} reps",
     "resultSeconds_one": "{{count}} s",
-    "resultSeconds_other": "{{count}} s"
+    "resultSeconds_other": "{{count}} s",
+    "howto": "How to do it",
+    "howtoMeta_one": "The movement, animated, and {{count}} step",
+    "howtoMeta_other": "The movement, animated, and {{count}} steps"
   },
   "body": {
     "title": "Body",

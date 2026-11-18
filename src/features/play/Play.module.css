@@ -199,10 +199,12 @@
   line-height: var(--line-height-display);
   font-weight: 800;
   font-stretch: var(--font-width-display);
-  hyphens: manual;
-  overflow-wrap: break-word;
+  hyphens: none;
+  overflow-wrap: normal;
 }
 .scoreU {
+  hyphens: none;
+  overflow-wrap: normal;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -364,7 +366,7 @@
   color: var(--color-on-inverse);
 }
 
-/* animation slot placeholder */
+/* figure slot: one button over the figure; the chip, cue and mark reserve their boxes */
 .slot {
   position: relative;
   flex: 1;
@@ -378,51 +380,173 @@
     var(--color-surface) 62%
   );
   color: var(--color-text-subtle);
+  container-type: size;
 }
-.slotFloor {
+.slotHit {
   position: absolute;
-  inset: auto 0 0;
+  inset: 0;
+  z-index: 2;
+  display: block;
   width: 100%;
-  height: 46%;
-  fill: none;
-  stroke: var(--color-line);
-  stroke-width: 1;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--duration-fast) var(--ease-move);
+}
+.slotHit:active {
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+.slotHit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+}
+.slotFigure {
+  position: absolute;
+  pointer-events: none;
+  transition: transform var(--duration-fast) var(--ease-move);
+}
+/* Arrives after its code loaded: fade in over base. Side 2: the mirror fades in over fast. */
+.slotLate {
+  animation: figure-in var(--duration-base) var(--ease-move) both;
+}
+.slotSide2 {
+  animation: figure-in var(--duration-fast) var(--ease-move) both;
+}
+@keyframes figure-in {
+  from {
+    opacity: 0;
+  }
+}
+/* Press: the figure gives a little under the finger. */
+.slot:has(.slotHit:active) .slotFigure {
+  transform: scale(var(--motion-scale-press));
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-snap);
+}
+.slotWait {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.slotWait::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 14%;
+  left: 0;
+  border-top: 1px solid var(--figure-floor);
+}
+.slotWait::after {
+  content: '';
+  position: absolute;
+  bottom: calc(14% - 5px);
+  left: 50%;
+  width: 34%;
+  max-width: 140px;
+  height: 10px;
+  margin-left: min(-17%, -70px);
+  border-radius: 50%;
+  background: var(--figure-shadow);
 }
 .slotGlyph {
   position: absolute;
-  top: 40%;
+  top: 42%;
   left: 50%;
-  width: 76px;
-  height: 76px;
-  margin: -38px 0 0 -38px;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
   color: var(--color-text-subtle);
   opacity: 0.9;
   stroke-width: 1.4;
-}
-.slotTag {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-14);
-  font-weight: var(--font-weight-semibold);
-  font-stretch: var(--font-width-label);
+  pointer-events: none;
 }
 .slotCue {
   position: absolute;
-  right: 16px;
-  bottom: 14px;
+  right: 52px;
+  bottom: 12px;
   left: 16px;
+  display: -webkit-box;
+  overflow: hidden;
   margin: 0;
   color: var(--color-text-muted);
-  font-size: var(--font-size-16);
+  font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.3;
-  text-align: center;
-  text-wrap: balance;
+  pointer-events: none;
+  text-wrap: pretty;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.slotMore {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 1;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.slotMore > svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.2;
+}
+.slotSide {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  font-size: var(--font-size-14);
+  font-stretch: var(--font-width-label);
+  font-weight: 700;
+  pointer-events: none;
+}
+.slotSide > b {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+  font-size: var(--font-size-14);
+  font-weight: 800;
+}
+.slotSide > span {
+  display: inline-block;
+}
+.slotSide > span::first-letter {
+  text-transform: uppercase;
+}
+@container (max-height: 199px) {
+  .slotCue {
+    display: none;
+  }
+}
+@container (max-height: 119px) {
+  .slotGlyph {
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    margin: -24px 0 0 -24px;
+  }
 }
 
 /* why chip: the progression note, at the top of the slot in place of the tag and the cue */
@@ -461,6 +585,20 @@
 }
 .whyPain > span {
   color: var(--color-text);
+}
+@container (max-height: 139px) {
+  .whyChip {
+    top: 8px;
+    right: auto;
+    bottom: 8px;
+    width: calc(100% - 136px);
+    align-items: center;
+    font-size: var(--font-size-14);
+  }
+  .whyChip > span {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
 }
 
 /* ---------- dock ---------- */
@@ -568,12 +706,27 @@
   transition: width 250ms linear;
 }
 .restNext {
+  position: relative;
   display: grid;
   gap: 6px;
   padding: 18px 20px 20px;
   border-radius: var(--radius-lg);
   background: var(--color-rest-surface);
   color: var(--color-on-rest-surface);
+}
+.restNextFig {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: block;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+.restNext:has(.restNextFig) > :not(.restNextFig),
+.ringNext:has(.restNextFig) > :not(.restNextFig) {
+  max-width: calc(100% - 84px);
 }
 .restNextLabel {
   color: var(--palette-graphite-300);
@@ -1057,6 +1210,21 @@ button.tempo:focus-visible {
   line-height: 0.8;
   white-space: nowrap;
 }
+/* Short screens: the clocks give up height so the figure slot keeps its minimum above the dock. */
+@media (max-height: 699px) {
+  .clockBlock {
+    gap: 10px;
+  }
+  .clockN {
+    font-size: min(var(--font-size-288), 18vh);
+  }
+  .clockPhase .clockN {
+    font-size: min(var(--font-size-240), 26vh);
+  }
+  .clockMmss .clockN {
+    font-size: min(var(--font-size-192), calc((100vw - 2 * var(--layout-gutter)) / 1.8), 13vh);
+  }
+}
 .colon {
   display: inline-block;
   margin: 0 -0.04em;
@@ -1221,12 +1389,14 @@ button.tempo:focus-visible {
   border-color: var(--color-rest-track);
   background: transparent;
 }
-.root[data-tone='rest'] .slotFloor {
-  stroke: var(--color-rest-track);
-}
 .root[data-tone='rest'] .slotGlyph,
 .root[data-tone='rest'] .slotCue {
   color: var(--color-on-rest-muted);
+}
+.root[data-tone='rest'] .slotMore {
+  background: none;
+  box-shadow: inset 0 0 0 var(--border-control) var(--color-on-rest);
+  color: var(--color-on-rest);
 }
 .root[data-tone='rest'] .dock {
   background: var(--color-rest-bg);
@@ -1326,6 +1496,7 @@ button.tempo:focus-visible {
   min-height: 16px;
 }
 .ringNext {
+  position: relative;
   display: grid;
   gap: 6px;
   padding: 16px 18px 18px;
@@ -1392,31 +1563,6 @@ button.tempo:focus-visible {
   min-width: 64px;
 }
 
-/* a crushed demonstration slot gives up its caption rather than overlap it */
-.slot {
-  container-type: size;
-}
-@container (max-height: 150px) {
-  .slotCue {
-    display: none;
-  }
-}
-@container (max-height: 190px) {
-  .slotWhy .slotGlyph {
-    top: 68%;
-  }
-}
-@container (max-height: 160px) {
-  .slotWhy .slotGlyph {
-    display: none;
-  }
-}
-@container (max-height: 110px) {
-  .slotGlyph {
-    display: none;
-  }
-}
-
 /* ---------- motion ---------- */
 .segs > i,
 .items > i,
@@ -1478,4 +1624,19 @@ button.tempo:focus-visible {
 /* Goal reached or hold done: the check draws in, the button changes colour. */
 .reached svg {
   animation: check-pop var(--duration-fast) var(--ease-snap) backwards;
+}
+
+/* The next card opens the how-to of the next exercise. */
+.restNextHit {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  cursor: pointer;
+  max-width: none !important;
+}
+.restNextHit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px var(--color-focus);
 }

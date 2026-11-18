@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pulse } from '@/motion';
 import { exerciseById } from '@/catalogue';
+import { equipmentInUse, FigureTile } from '@/features/figure';
+import { usePlayerHowTo } from '@/features/howto';
 import { Button, Icon } from '@/ui/components';
 import { clockSeconds, type PlayerState } from '../machine';
 import { exerciseLabel, itemLetter, repsAt, rxText, targetNumber } from '../format';
@@ -49,12 +51,25 @@ export function RestScreen({
   onVoice,
   ring,
   lang,
+  inventory,
   player,
   step,
 }: RestProps) {
   const { t } = useTranslation();
   const phase = state.phase;
   const nudge = useNudged(phase.kind === 'pause' ? clockSeconds(state, now) : 0);
+  const howto = usePlayerHowTo({
+    exerciseId: step.item.exerciseId,
+    equipment: equipmentInUse(exerciseById.get(step.item.exerciseId), inventory),
+    rest:
+      phase.kind === 'pause'
+        ? {
+            seconds: clockSeconds(state, now),
+            total: Math.max(1, (phase.endsAt - phase.startedAt) / 1000),
+          }
+        : undefined,
+    screenKey: phase.kind === 'pause' ? `rest-${phase.startedAt}` : 'none',
+  });
   if (phase.kind !== 'pause') return null;
   const last = state.last === undefined ? undefined : state.steps[state.last];
   const lastExercise = last && exerciseById.get(last.item.exerciseId);
@@ -141,6 +156,19 @@ export function RestScreen({
       </span>
       <span className={styles.restNextName}>{nextName}</span>
       <span className={styles.restNextRx}>{nextRx}</span>
+      <FigureTile
+        className={styles.restNextFig}
+        exerciseId={step.item.exerciseId}
+        size={72}
+        equipment={equipmentInUse(exercise, inventory)}
+        {...(!ring && { tone: 'ink' as const })}
+      />
+      <button
+        type="button"
+        className={styles.restNextHit}
+        aria-label={t('play.figure.open', { name: nextName })}
+        onClick={howto.open}
+      />
     </div>
   );
 
@@ -191,6 +219,7 @@ export function RestScreen({
           {nextCard}
           {controls}
         </div>
+        {howto.sheet}
       </>
     );
 
@@ -243,6 +272,7 @@ export function RestScreen({
         {nextCard}
         {controls}
       </div>
+      {howto.sheet}
     </>
   );
 }

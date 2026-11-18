@@ -52,5 +52,6 @@
     "hereAdd": "Il est aussi ajouté ici.",
     "confirm": "Le ramener",
     "cancel": "Annuler"
-  }
+  },
+  "howtoHint": "Touche une image pour voir le mouvement."
 }

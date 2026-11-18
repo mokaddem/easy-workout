@@ -169,6 +169,8 @@ export function tempoPosition(tempo: Tempo, elapsed: number): { rep: number; pha
 
 export interface TempoPacer {
   running: boolean;
+  /** Wall-clock start of the pacing (ms), when it runs. */
+  startedAt: number | null;
   rep: number;
   phase: TempoPhase;
   toggle: () => void;
@@ -200,6 +202,7 @@ export function useTempoPacer(tempo: Tempo | undefined, sounds: boolean): TempoP
 
   return {
     running,
+    startedAt: running ? startedAt : null,
     ...position,
     toggle: () => {
       unlockAudio();

@@ -43,6 +43,7 @@
   --palette-signal-500: #ffc81e;
   --palette-signal-600: #f0b400;
   --palette-signal-700: #d99f00;
+  --palette-signal-800: #8a6a10; /* far side of the figure on yellow */
   --palette-signal-900: #6e4c00;
   --palette-signal-ink-muted: #4d3d05;
 
@@ -225,6 +226,20 @@
   --elevation-3: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 16px 48px rgb(0 0 0 / 0.6);
 
   --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+  /* Exercise figure. Contrast ladder on the slot: limb > body > limb-far > far, every step
+     at least 3:1 on surface-raised. The working limb is one step brighter; never yellow. */
+  --figure-body: var(--palette-graphite-300); /* 7.1:1 on surface-raised */
+  --figure-limb: var(--palette-chalk); /* working limb, 14.1:1 */
+  --figure-limb-far: var(--palette-graphite-400); /* working limb on the far side, 5.3:1 */
+  --figure-far: var(--palette-graphite-500); /* far-side limbs, 3.1:1 */
+  --figure-prop: var(--palette-graphite-400); /* dumbbells, towel, handles */
+  --figure-prop-far: var(--palette-graphite-500);
+  --figure-shadow: rgb(17 19 26 / 0.7); /* contact shadow on the floor (decorative) */
+  --figure-floor: var(--color-line); /* floor hairline (decorative) */
+  --figure-door: var(--color-surface-sunken); /* fixed scenery: door, wall */
+  /* gap drawn around each part: set it to the surface behind the figure */
+  --figure-cut: var(--color-surface-raised);
 }
 
 /* ------------------------------------------------------------------ */
@@ -285,6 +300,17 @@
     --elevation-3: 0 16px 40px rgb(18 20 26 / 0.18), 0 2px 6px rgb(18 20 26 / 0.08);
 
     --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+    --figure-body: #5e6474; /* 5.9:1 on white */
+    --figure-limb: var(--palette-graphite-700); /* working limb, one step darker: 11.7:1 */
+    --figure-limb-far: #727888; /* 4.4:1 */
+    --figure-far: #848a99; /* 3.5:1 */
+    --figure-prop: #727888;
+    --figure-prop-far: #848a99;
+    --figure-shadow: var(--palette-graphite-100);
+    --figure-floor: var(--color-line);
+    --figure-door: var(--palette-graphite-100);
+    --figure-cut: var(--color-surface-raised);
   }
 }
 
@@ -345,6 +371,50 @@
   --elevation-3: 0 16px 40px rgb(18 20 26 / 0.18), 0 2px 6px rgb(18 20 26 / 0.08);
 
   --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
+
+  --figure-body: #5e6474; /* 5.9:1 on white */
+  --figure-limb: var(--palette-graphite-700); /* working limb, one step darker: 11.7:1 */
+  --figure-limb-far: #727888; /* 4.4:1 */
+  --figure-far: #848a99; /* 3.5:1 */
+  --figure-prop: #727888;
+  --figure-prop-far: #848a99;
+  --figure-shadow: var(--palette-graphite-100);
+  --figure-floor: var(--color-line);
+  --figure-door: var(--palette-graphite-100);
+  --figure-cut: var(--color-surface-raised);
+}
+
+/* ------------------------------------------------------------------ */
+/* Exercise figure on other grounds (theme-independent)                */
+/* Set data-figure-tone on the element that holds the figure.          */
+/* ------------------------------------------------------------------ */
+
+/* On yellow (interval recovery on the rest takeover): ink ladder, 11.9 / 6.8 / 5.0 / 3.3 :1 */
+[data-figure-tone='rest'] {
+  --figure-body: var(--palette-signal-ink-muted);
+  --figure-limb: var(--palette-ink);
+  --figure-limb-far: var(--palette-signal-900);
+  --figure-far: var(--palette-signal-800);
+  --figure-prop: var(--palette-signal-900);
+  --figure-prop-far: var(--palette-signal-800);
+  --figure-shadow: rgb(18 20 26 / 0.14);
+  --figure-floor: var(--color-rest-track);
+  --figure-door: rgb(18 20 26 / 0.1);
+  --figure-cut: var(--color-rest-bg);
+}
+
+/* On the ink card of the rest takeover (both themes): the dark ladder, in a graphite-850 tile */
+[data-figure-tone='ink'] {
+  --figure-body: var(--palette-graphite-300);
+  --figure-limb: var(--palette-chalk);
+  --figure-limb-far: var(--palette-graphite-400);
+  --figure-far: var(--palette-graphite-500);
+  --figure-prop: var(--palette-graphite-400);
+  --figure-prop-far: var(--palette-graphite-500);
+  --figure-shadow: rgb(0 0 0 / 0.5);
+  --figure-floor: var(--palette-graphite-700);
+  --figure-door: var(--palette-graphite-750);
+  --figure-cut: var(--palette-graphite-850); /* the tile is a graphite-850 well on the ink card */
 }
 
 /* ------------------------------------------------------------------ */

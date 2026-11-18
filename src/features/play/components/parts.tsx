@@ -1,12 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { useSettings } from '@/app/data';
 import { exerciseById } from '@/catalogue';
 import type { SessionItem, Tempo } from '@/domain';
 import type { PlayStep } from '@/engine';
 import { Icon } from '@/ui/components';
 import { exerciseLabel, itemLetter, rxText } from '../format';
 import styles from '../Play.module.css';
-import { useTempoPacer } from '../signals';
+import type { TempoPacer } from '../signals';
 import type { PlayContext } from './types';
 import type { Why } from './why';
 
@@ -130,10 +129,8 @@ export function NextUp({ step, lang, player }: Pick<PlayContext, 'step' | 'lang'
 }
 
 /** Lower / hold / lift segments; a tap paces the reps to the tempo with a soft tone. */
-export function TempoStrip({ tempo }: { tempo: Tempo }) {
+export function TempoStrip({ tempo, pacer }: { tempo: Tempo; pacer: TempoPacer }) {
   const { t } = useTranslation();
-  const settings = useSettings();
-  const pacer = useTempoPacer(tempo, settings?.sounds ?? true);
   const phases = [
     ['down', 'lower'],
     ['pause', 'hold'],
@@ -174,7 +171,7 @@ export function TempoStrip({ tempo }: { tempo: Tempo }) {
 export function WhyChip({ why }: { why: Why }) {
   if (!why.text) return null;
   return (
-    <p className={`${styles.whyChip} ${why.pain ? styles.whyPain : ''}`}>
+    <p data-reserve="chip" className={`${styles.whyChip} ${why.pain ? styles.whyPain : ''}`}>
       <Icon name={why.pain ? 'stop' : 'info'} size={20} />
       <span>{why.text}</span>
     </p>

@@ -11,6 +11,8 @@
   "themeSystem": "System",
   "themeDark": "Dark",
   "themeLight": "Light",
+  "figures": "Animated figures",
+  "figuresMeta": "Exercises move. When off, they stay on their key position.",
   "themeHint": "System follows your phone’s setting.",
   "units": "Units: kilograms",
   "about": "About",

@@ -31,7 +31,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['treadmill-walk'],
     harder: ['treadmill-run'],
-    animation: null,
   },
   {
     id: 'mountain-climber',
@@ -63,7 +62,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['squat-thrust'],
-    animation: null,
   },
   {
     id: 'treadmill-walk',
@@ -104,7 +102,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['treadmill-incline-walk'],
-    animation: null,
   },
   {
     id: 'treadmill-run',
@@ -147,7 +144,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['treadmill-incline-walk'],
     harder: [],
-    animation: null,
   },
   {
     id: 'march-in-place',
@@ -182,7 +178,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['step-jacks', 'high-knees'],
-    animation: null,
   },
   {
     id: 'step-jacks',
@@ -217,7 +212,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['march-in-place'],
     harder: ['jumping-jacks'],
-    animation: null,
   },
   {
     id: 'jumping-jacks',
@@ -252,7 +246,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['step-jacks'],
     harder: ['jump-rope-bounce'],
-    animation: null,
   },
   {
     id: 'high-knees',
@@ -287,7 +280,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['march-in-place'],
     harder: [],
-    animation: null,
   },
   {
     id: 'squat-thrust',
@@ -322,7 +314,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['mountain-climber'],
     harder: ['burpee'],
-    animation: null,
   },
   {
     id: 'burpee',
@@ -357,7 +348,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['squat-thrust'],
     harder: [],
-    animation: null,
   },
   {
     id: 'skater-step',
@@ -392,7 +382,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['skater-jump'],
-    animation: null,
   },
   {
     id: 'skater-jump',
@@ -427,7 +416,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['skater-step'],
     harder: [],
-    animation: null,
   },
   {
     id: 'bear-crawl',
@@ -462,7 +450,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'shadow-boxing',
@@ -497,7 +484,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'dumbbell-thruster',
@@ -536,7 +522,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'stationary-bike-ride',
@@ -554,8 +539,8 @@ export const cardioExercises: readonly Exercise[] = [
       ],
     },
     keyCue: {
-      fr: 'Selle à la bonne hauteur : jambe presque tendue en bas de la pédale.',
-      en: 'Saddle at the right height: leg almost straight at the bottom of the stroke.',
+      fr: 'Selle à la bonne hauteur : genou légèrement fléchi, environ 30°, en bas de la pédale.',
+      en: 'Saddle at the right height: a slight knee bend, about 30°, at the bottom of the stroke.',
     },
     primaryMuscles: ['quads', 'glutes'],
     secondaryMuscles: ['hamstrings', 'calves'],
@@ -568,7 +553,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'rowing-machine',
@@ -602,7 +586,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'jump-rope-bounce',
@@ -636,7 +619,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['jumping-jacks'],
     harder: ['jump-rope-alternate-foot', 'jump-rope-double-under'],
-    animation: null,
   },
   {
     id: 'jump-rope-alternate-foot',
@@ -670,7 +652,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['jump-rope-bounce'],
     harder: ['jump-rope-high-knees'],
-    animation: null,
   },
   {
     id: 'jump-rope-high-knees',
@@ -704,7 +685,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['jump-rope-alternate-foot'],
     harder: [],
-    animation: null,
   },
   {
     id: 'jump-rope-double-under',
@@ -738,7 +718,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['jump-rope-bounce'],
     harder: [],
-    animation: null,
   },
   {
     id: 'kettlebell-high-pull',
@@ -770,7 +749,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'brisk-walk',
@@ -802,6 +780,5 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
 ];

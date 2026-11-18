@@ -46,7 +46,6 @@ export const legsExercises: readonly Exercise[] = [
       'jump-squat',
       'box-pistol-squat',
     ],
-    animation: null,
   },
   {
     id: 'goblet-squat',
@@ -78,7 +77,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['bodyweight-squat'],
     harder: ['dumbbell-front-squat'],
-    animation: null,
   },
   {
     id: 'goblet-sumo-squat',
@@ -110,7 +108,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['bodyweight-squat'],
     harder: [],
-    animation: null,
   },
   {
     id: 'jump-squat',
@@ -142,7 +139,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['bodyweight-squat'],
     harder: [],
-    animation: null,
   },
   {
     id: 'split-squat',
@@ -175,7 +171,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['reverse-lunge', 'dumbbell-step-up'],
-    animation: null,
   },
   {
     id: 'reverse-lunge',
@@ -208,7 +203,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['split-squat'],
     harder: ['walking-lunge'],
-    animation: null,
   },
   {
     id: 'walking-lunge',
@@ -241,7 +235,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['reverse-lunge'],
     harder: ['bulgarian-split-squat'],
-    animation: null,
   },
   {
     id: 'dumbbell-step-up',
@@ -274,7 +267,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['split-squat'],
     harder: ['bulgarian-split-squat'],
-    animation: null,
   },
   {
     id: 'bulgarian-split-squat',
@@ -307,7 +299,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['walking-lunge', 'dumbbell-step-up'],
     harder: ['suspension-split-squat'],
-    animation: null,
   },
   {
     id: 'dumbbell-romanian-deadlift',
@@ -339,7 +330,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['good-morning', 'band-pull-through'],
     harder: ['dumbbell-swing', 'kettlebell-swing', 'single-leg-romanian-deadlift'],
-    animation: null,
   },
   {
     id: 'dumbbell-deadlift',
@@ -371,7 +361,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['good-morning'],
     harder: [],
-    animation: null,
   },
   {
     id: 'dumbbell-swing',
@@ -403,7 +392,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-romanian-deadlift'],
     harder: [],
-    animation: null,
   },
   {
     id: 'glute-bridge',
@@ -440,7 +428,6 @@ export const legsExercises: readonly Exercise[] = [
       'single-leg-glute-bridge',
       'heels-on-chair-bridge',
     ],
-    animation: null,
   },
   {
     id: 'floor-hip-thrust',
@@ -475,7 +462,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['glute-bridge'],
     harder: ['bench-hip-thrust'],
-    animation: null,
   },
   {
     id: 'band-hip-abduction',
@@ -507,7 +493,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['side-lying-leg-raise'],
     harder: [],
-    animation: null,
   },
   {
     id: 'dumbbell-calf-raise',
@@ -539,7 +524,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['calf-raise'],
     harder: ['single-leg-calf-raise'],
-    animation: null,
   },
   {
     id: 'single-leg-calf-raise',
@@ -572,7 +556,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['dumbbell-calf-raise'],
     harder: [],
-    animation: null,
   },
   {
     id: 'chair-squat',
@@ -604,7 +587,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['bodyweight-squat'],
-    animation: null,
   },
   {
     id: 'dumbbell-front-squat',
@@ -636,7 +618,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['goblet-squat'],
     harder: [],
-    animation: null,
   },
   {
     id: 'box-pistol-squat',
@@ -668,7 +649,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['bodyweight-squat'],
     harder: ['pistol-squat'],
-    animation: null,
   },
   {
     id: 'pistol-squat',
@@ -700,7 +680,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['box-pistol-squat', 'suspension-assisted-pistol-squat'],
     harder: [],
-    animation: null,
   },
   {
     id: 'wall-sit',
@@ -732,7 +711,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'good-morning',
@@ -764,7 +742,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['band-pull-through', 'dumbbell-romanian-deadlift', 'dumbbell-deadlift'],
-    animation: null,
   },
   {
     id: 'single-leg-romanian-deadlift',
@@ -797,7 +774,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-romanian-deadlift', 'supported-single-leg-romanian-deadlift'],
     harder: [],
-    animation: null,
   },
   {
     id: 'single-leg-glute-bridge',
@@ -829,7 +805,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['glute-bridge'],
     harder: [],
-    animation: null,
   },
   {
     id: 'bench-hip-thrust',
@@ -864,7 +839,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['floor-hip-thrust'],
     harder: [],
-    animation: null,
   },
   {
     id: 'donkey-kick',
@@ -896,7 +870,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'lateral-lunge',
@@ -928,7 +901,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['cossack-squat'],
-    animation: null,
   },
   {
     id: 'cossack-squat',
@@ -960,7 +932,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['lateral-lunge'],
     harder: [],
-    animation: null,
   },
   {
     id: 'band-leg-curl',
@@ -992,7 +963,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['sliding-leg-curl'],
-    animation: null,
   },
   {
     id: 'sliding-leg-curl',
@@ -1024,7 +994,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['band-leg-curl', 'hamstring-bridge-walkout'],
     harder: ['suspension-hamstring-curl', 'single-leg-sliding-leg-curl'],
-    animation: null,
   },
   {
     id: 'single-leg-sliding-leg-curl',
@@ -1056,7 +1025,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['sliding-leg-curl', 'suspension-hamstring-curl'],
     harder: ['nordic-curl-eccentric'],
-    animation: null,
   },
   {
     id: 'band-pull-through',
@@ -1088,7 +1056,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['good-morning'],
     harder: ['dumbbell-romanian-deadlift'],
-    animation: null,
   },
   {
     id: 'nordic-curl-eccentric',
@@ -1120,7 +1087,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['single-leg-sliding-leg-curl'],
     harder: ['nordic-curl'],
-    animation: null,
   },
   {
     id: 'nordic-curl',
@@ -1152,7 +1118,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['nordic-curl-eccentric'],
     harder: [],
-    animation: null,
   },
   {
     id: 'side-lying-leg-raise',
@@ -1184,7 +1149,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['band-hip-abduction', 'band-lateral-walk'],
-    animation: null,
   },
   {
     id: 'band-lateral-walk',
@@ -1216,7 +1180,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['side-lying-leg-raise'],
     harder: [],
-    animation: null,
   },
   {
     id: 'calf-raise',
@@ -1248,7 +1211,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-calf-raise'],
-    animation: null,
   },
   {
     id: 'seated-dumbbell-calf-raise',
@@ -1283,7 +1245,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'kettlebell-swing',
@@ -1315,7 +1276,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-romanian-deadlift'],
     harder: ['single-arm-kettlebell-swing'],
-    animation: null,
   },
   {
     id: 'single-arm-kettlebell-swing',
@@ -1347,7 +1307,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['kettlebell-swing'],
     harder: ['kettlebell-clean'],
-    animation: null,
   },
   {
     id: 'kettlebell-clean',
@@ -1379,7 +1338,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['single-arm-kettlebell-swing'],
     harder: [],
-    animation: null,
   },
   {
     id: 'banded-glute-bridge',
@@ -1411,7 +1369,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['glute-bridge'],
     harder: [],
-    animation: null,
   },
   {
     id: 'clamshell',
@@ -1443,7 +1400,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'fire-hydrant',
@@ -1475,7 +1431,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'mini-band-squat',
@@ -1507,7 +1462,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['bodyweight-squat'],
     harder: [],
-    animation: null,
   },
   {
     id: 'suspension-assisted-pistol-squat',
@@ -1541,7 +1495,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['bodyweight-squat'],
     harder: ['pistol-squat'],
-    animation: null,
   },
   {
     id: 'suspension-split-squat',
@@ -1575,7 +1528,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['bulgarian-split-squat'],
     harder: [],
-    animation: null,
   },
   {
     id: 'suspension-hamstring-curl',
@@ -1609,7 +1561,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['sliding-leg-curl'],
     harder: ['single-leg-sliding-leg-curl'],
-    animation: null,
   },
   {
     id: 'hamstring-bridge-walkout',
@@ -1641,7 +1592,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['sliding-leg-curl'],
-    animation: null,
   },
   {
     id: 'heels-on-chair-bridge',
@@ -1673,7 +1623,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['glute-bridge'],
     harder: ['single-leg-heels-on-chair-bridge'],
-    animation: null,
   },
   {
     id: 'single-leg-heels-on-chair-bridge',
@@ -1705,7 +1654,6 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['heels-on-chair-bridge'],
     harder: [],
-    animation: null,
   },
   {
     id: 'supported-single-leg-romanian-deadlift',
@@ -1740,6 +1688,5 @@ export const legsExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['single-leg-romanian-deadlift'],
-    animation: null,
   },
 ];

@@ -31,7 +31,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['plank'],
-    animation: null,
   },
   {
     id: 'plank',
@@ -69,7 +68,6 @@ export const coreExercises: readonly Exercise[] = [
       'suspension-fallout',
       'suspension-knee-tuck',
     ],
-    animation: null,
   },
   {
     id: 'side-plank',
@@ -101,7 +99,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['knee-side-plank'],
     harder: ['side-plank-leg-raise', 'copenhagen-side-plank'],
-    animation: null,
   },
   {
     id: 'lying-leg-raise',
@@ -133,7 +130,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['hanging-knee-raise'],
-    animation: null,
   },
   {
     id: 'hanging-knee-raise',
@@ -165,7 +161,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['lying-leg-raise', 'reverse-crunch'],
     harder: ['hanging-leg-raise'],
-    animation: null,
   },
   {
     id: 'hanging-leg-raise',
@@ -197,7 +192,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['hanging-knee-raise'],
     harder: ['toes-to-bar'],
-    animation: null,
   },
   {
     id: 'russian-twist',
@@ -233,7 +227,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'dead-bug',
@@ -265,7 +258,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['hollow-body-hold'],
-    animation: null,
   },
   {
     id: 'bird-dog',
@@ -297,7 +289,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'hollow-body-hold',
@@ -329,7 +320,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dead-bug', 'plank'],
     harder: [],
-    animation: null,
   },
   {
     id: 'knee-side-plank',
@@ -358,7 +348,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['side-plank'],
-    animation: null,
   },
   {
     id: 'side-plank-leg-raise',
@@ -390,7 +379,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['side-plank'],
     harder: [],
-    animation: null,
   },
   {
     id: 'plank-shoulder-tap',
@@ -422,7 +410,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['plank'],
     harder: [],
-    animation: null,
   },
   {
     id: 'band-pallof-press',
@@ -456,7 +443,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'band-woodchop',
@@ -490,7 +476,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'crunch',
@@ -522,7 +507,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['reverse-crunch', 'bicycle-crunch'],
-    animation: null,
   },
   {
     id: 'reverse-crunch',
@@ -554,7 +538,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['crunch'],
     harder: ['v-up', 'hanging-knee-raise', 'dip-bar-knee-raise'],
-    animation: null,
   },
   {
     id: 'bicycle-crunch',
@@ -586,7 +569,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['crunch'],
     harder: [],
-    animation: null,
   },
   {
     id: 'v-up',
@@ -618,7 +600,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['reverse-crunch'],
     harder: [],
-    animation: null,
   },
   {
     id: 'toes-to-bar',
@@ -650,7 +631,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['hanging-leg-raise'],
     harder: [],
-    animation: null,
   },
   {
     id: 'dumbbell-farmer-carry',
@@ -682,7 +662,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['dumbbell-suitcase-carry'],
-    animation: null,
   },
   {
     id: 'dumbbell-suitcase-carry',
@@ -714,7 +693,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-farmer-carry'],
     harder: [],
-    animation: null,
   },
   {
     id: 'dumbbell-side-bend',
@@ -746,7 +724,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'copenhagen-side-plank',
@@ -778,7 +755,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['side-plank'],
     harder: [],
-    animation: null,
   },
   {
     id: 'towel-body-saw',
@@ -810,7 +786,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['plank'],
     harder: ['ab-wheel-kneeling-rollout'],
-    animation: null,
   },
   {
     id: 'prone-back-extension',
@@ -842,7 +817,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['superman'],
-    animation: null,
   },
   {
     id: 'superman',
@@ -874,7 +848,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['prone-back-extension'],
     harder: [],
-    animation: null,
   },
   {
     id: 'suspension-fallout',
@@ -908,7 +881,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['plank'],
     harder: ['ab-wheel-kneeling-rollout'],
-    animation: null,
   },
   {
     id: 'suspension-knee-tuck',
@@ -942,7 +914,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['plank'],
     harder: ['suspension-pike'],
-    animation: null,
   },
   {
     id: 'suspension-pike',
@@ -976,7 +947,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['suspension-knee-tuck'],
     harder: [],
-    animation: null,
   },
   {
     id: 'ab-wheel-kneeling-rollout',
@@ -1010,7 +980,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['suspension-fallout', 'towel-body-saw'],
     harder: ['ab-wheel-standing-rollout'],
-    animation: null,
   },
   {
     id: 'ab-wheel-standing-rollout',
@@ -1044,7 +1013,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['ab-wheel-kneeling-rollout'],
     harder: [],
-    animation: null,
   },
   {
     id: 'dip-bar-knee-raise',
@@ -1078,7 +1046,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['reverse-crunch'],
     harder: ['l-sit'],
-    animation: null,
   },
   {
     id: 'l-sit',
@@ -1112,7 +1079,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['dip-bar-knee-raise'],
     harder: [],
-    animation: null,
   },
   {
     id: 'kettlebell-windmill',
@@ -1146,7 +1112,6 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'kettlebell-turkish-get-up',
@@ -1180,6 +1145,5 @@ export const coreExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: [],
     harder: [],
-    animation: null,
   },
 ];

@@ -3,6 +3,8 @@ import { useState, type ReactNode } from 'react';
 import { Collapse } from '@/motion';
 import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
+import { equipmentInUse } from '@/features/figure';
+import { HowToSheet } from '@/features/howto';
 import type {
   Answer,
   EquipmentInventory,
@@ -116,6 +118,8 @@ export function SessionView({
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
   const [why, setWhy] = useState<WhyRequest | null>(null);
+  const [howTo, setHowTo] = useState<{ id: string; open: boolean } | null>(null);
+  const openHowTo = (id: string) => setHowTo({ id, open: true });
   const [warmupOpen, setWarmupOpen] = useState(false);
   // Replayed only after the first replacement, so opening a session adds nothing to the screen entrance.
   const [seenKey, setSeenKey] = useState(contentKey);
@@ -240,6 +244,7 @@ export function SessionView({
             edit={editOf(block.item)}
             {...optional(adaptFor(section, blockIndex, 0, block.item))}
             onWhy={() => ask(section, blockIndex, block.item)}
+            onHowTo={() => openHowTo(block.item.exerciseId)}
           />
         ) : (
           <Prescription
@@ -260,6 +265,7 @@ export function SessionView({
               : {})}
             {...optional(adaptFor(section, blockIndex, 0, block.item))}
             onWhy={() => ask(section, blockIndex, block.item)}
+            onHowTo={() => openHowTo(block.item.exerciseId)}
           />
         );
       }
@@ -301,6 +307,7 @@ export function SessionView({
                 edit={editOf(item)}
                 {...optional(adaptFor(section, blockIndex, itemIndex, item))}
                 onWhy={() => ask(section, blockIndex, item, itemIndex)}
+                onHowTo={() => openHowTo(item.exerciseId)}
               />
             ))}
           </div>
@@ -396,7 +403,17 @@ export function SessionView({
                   const rest = block.type === 'straight' && sets > 1 ? block.restSec : 0;
                   return (
                     <div key={`${blockIndex}-${itemIndex}`} className={styles.wu}>
-                      <span className={styles.wuName}>{exerciseName(item.exerciseId, lang)}</span>
+                      <button
+                        type="button"
+                        className={`${styles.wuName} ${styles.wuOpen}`}
+                        data-howto={item.exerciseId}
+                        aria-label={t('play.figure.open', {
+                          name: exerciseName(item.exerciseId, lang),
+                        })}
+                        onClick={() => openHowTo(item.exerciseId)}
+                      >
+                        {exerciseName(item.exerciseId, lang)}
+                      </button>
                       <span className={styles.wuRx}>{warmupDose(item, sets, t)}</span>
                       <WarmupMeta item={item} rest={rest} />
                     </div>
@@ -435,6 +452,12 @@ export function SessionView({
       {testAtEnd}
 
       <WhySheet request={why} onClose={() => setWhy(null)} />
+      <HowToSheet
+        open={howTo?.open ?? false}
+        onClose={() => setHowTo((h) => (h ? { ...h, open: false } : h))}
+        exerciseId={howTo?.id ?? ''}
+        equipment={equipmentInUse(exerciseById.get(howTo?.id ?? ''), inventory)}
+      />
     </div>
   );
 }

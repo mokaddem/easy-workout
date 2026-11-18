@@ -26,6 +26,8 @@ export const SettingsSchema = z.strictObject({
   vibration: z.boolean(),
   /** Rest as a full-screen countdown or as a ring timer. */
   restDisplay: z.enum(['takeover', 'ring']),
+  /** Exercise figures move; off shows their still. Absent means on. */
+  figuresAnimated: z.boolean().optional(),
   lastBackupAt: DateTimeSchema.optional(),
   /** "Later" on the backup reminder hides it until then. */
   backupSnoozedUntil: DateTimeSchema.optional(),

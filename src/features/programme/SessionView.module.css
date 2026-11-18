@@ -530,3 +530,61 @@
 .delta {
   animation: tag-pop var(--duration-fast) var(--ease-snap) backwards;
 }
+
+/* The exercise's picture and name: one button that opens the how-to. */
+.rxOpen {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.rxOpen:active {
+  background: var(--color-press-overlay);
+}
+.rxOpen:focus-visible,
+.wuOpen:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+.rxThumb {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-subtle);
+}
+.rxOpenName {
+  min-width: 0;
+}
+.grpItems .rxThumb {
+  width: 48px;
+  height: 48px;
+}
+.wuOpen {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--color-line-strong);
+  text-underline-offset: 3px;
+}

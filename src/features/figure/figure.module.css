@@ -1,0 +1,9 @@
+/* A figure that arrives after its code loaded: fade in over base, move. No rise, no scale. */
+.arrive {
+  animation: figure-arrive var(--duration-base) var(--ease-move) both;
+}
+@keyframes figure-arrive {
+  from {
+    opacity: 0;
+  }
+}

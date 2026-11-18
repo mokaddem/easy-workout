@@ -23,7 +23,6 @@ const exercise = (id: string, equipment: EquipmentRequirement[][]): Exercise => 
   difficulty: 1,
   easier: [],
   harder: [],
-  animation: null,
 });
 
 const available = (ex: Exercise, inventory: EquipmentInventory) =>

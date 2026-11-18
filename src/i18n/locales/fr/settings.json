@@ -11,6 +11,8 @@
   "themeSystem": "Système",
   "themeDark": "Sombre",
   "themeLight": "Clair",
+  "figures": "Figures animées",
+  "figuresMeta": "Les exercices bougent. Désactivé, ils restent en position fixe.",
   "themeHint": "Système suit le réglage de ton téléphone.",
   "units": "Unités : kilogrammes",
   "about": "À propos",

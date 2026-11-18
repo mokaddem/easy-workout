@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSettings } from '@/app/data';
+import { equipmentInUse } from '@/features/figure';
 import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import type { Feel } from '@/domain';
@@ -16,10 +18,13 @@ import {
 } from '../format';
 import styles from '../Play.module.css';
 import { AdjustSheet } from './AdjustSheet';
-import { AnimSlot } from './AnimSlot';
+import { usePlayerHowTo } from '@/features/howto';
+import { FigureSlot } from './FigureSlot';
 import { NextUp, SetHead, TempoStrip } from './parts';
 import type { PlayContext } from './types';
+import { useFigurePacing } from './useFigurePacing';
 import { useWhy } from './why';
+import { useTempoPacer } from '../signals';
 
 const FEELS: Feel[] = ['easy', 'right', 'hard'];
 
@@ -27,8 +32,18 @@ const FEELS: Feel[] = ['easy', 'right', 'hard'];
 export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
   const { t } = useTranslation();
   const why = useWhy({ lang, log, step });
+  const settings = useSettings();
+  const pacer = useTempoPacer(step.planned.tempo, settings?.sounds ?? true);
+  const pacing = useFigurePacing(step.planned.tempo, pacer);
   const exercise = exerciseById.get(step.item.exerciseId);
   const name = exerciseLabel(exercise, lang, step.item.exerciseId);
+  const howto = usePlayerHowTo({
+    exerciseId: step.item.exerciseId,
+    equipment: equipmentInUse(exercise, inventory),
+    side: step.side,
+    pacing,
+    screenKey: `${step.set}-${step.itemIndex}-${step.side ?? ''}`,
+  });
   const { planned } = step;
   const isMax = planned.target.kind === 'max';
   const group = step.block.type === 'group';
@@ -116,16 +131,23 @@ export function SetScreen({ lang, inventory, log, player, step }: PlayContext) {
 
         {hint ? <p className={styles.hint}>{hint}</p> : null}
 
-        {planned.tempo ? <TempoStrip tempo={planned.tempo} /> : null}
+        {planned.tempo ? <TempoStrip tempo={planned.tempo} pacer={pacer} /> : null}
 
         {group ? <NextUp step={step} lang={lang} player={player} /> : null}
 
-        <AnimSlot
+        <FigureSlot
+          exerciseId={step.item.exerciseId}
+          name={name}
           glyph={glyphOf(exercise)}
-          tag={exercise ? t(`labels.pattern.${exercise.pattern}`) : ''}
           cue={exercise?.keyCue[lang]}
           why={why}
+          equipment={equipmentInUse(exercise, inventory)}
+          side={step.side}
+          pacing={pacing}
+          covered={howto.isOpen}
+          onOpenHowTo={howto.open}
         />
+        {howto.sheet}
       </div>
 
       <div className={styles.dock}>

@@ -1,7 +1,8 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CountUp, Pulse, Roll, Tick } from '@/motion';
-import { useMaxTests, useProgrammes, useSessionLogs, useSettings } from '@/app/data';
+import { useEquipment, useMaxTests, useProgrammes, useSessionLogs, useSettings } from '@/app/data';
+import { equipmentInUse } from '@/features/figure';
 import { exerciseById } from '@/catalogue';
 import { repo } from '@/db/repo';
 import type { Language, MaxTest, SessionLog } from '@/domain';
@@ -46,7 +47,8 @@ import {
 } from '../testFlow';
 import { captionDate, shortDate, valueText, verdictKey } from '../testFormat';
 import { closeSessionTest } from '../testStore';
-import { AnimSlot } from './AnimSlot';
+import { usePlayerHowTo } from '@/features/howto';
+import { FigureSlot } from './FigureSlot';
 import { PlayerBar } from './PlayerBar';
 import mine from './Test.module.css';
 
@@ -95,6 +97,7 @@ export function TestRunner(props: TestRunnerProps) {
   const logs = useSessionLogs() ?? [];
   const programmes = useProgrammes() ?? [];
   const settings = useSettings();
+  const inventory = useEquipment();
   const fresh = mode === 'fresh';
   const context: MaxTest['context'] = fresh ? 'fresh' : 'session';
   const exercise = exerciseById.get(exerciseId);
@@ -112,6 +115,11 @@ export function TestRunner(props: TestRunnerProps) {
   const [stopOpen, setStopOpen] = useState(false);
   const stage = flow.stage;
   const hold = kind === 'time';
+  const howto = usePlayerHowTo({
+    exerciseId,
+    equipment: equipmentInUse(exercise, inventory),
+    screenKey: stage.kind,
+  });
 
   const previous = useMemo(
     () => previousTest({ exerciseId, context, at: startedAt }, allTests ?? []),
@@ -590,10 +598,14 @@ export function TestRunner(props: TestRunnerProps) {
             </div>
           </div>
           <p className={styles.hint}>{t('play.test.countHint')}</p>
-          <AnimSlot
+          <FigureSlot
+            exerciseId={exerciseId}
+            name={exerciseLabel(exercise, lang, exerciseId)}
             glyph={glyphOf(exercise)}
-            tag={exercise ? t(`labels.pattern.${exercise.pattern}`) : ''}
             cue={exercise?.keyCue[lang]}
+            equipment={equipmentInUse(exercise, inventory)}
+            covered={howto.isOpen}
+            onOpenHowTo={howto.open}
           />
         </div>
         <div className={`${styles.dock} ${mine.arriveDock}`}>
@@ -772,6 +784,7 @@ export function TestRunner(props: TestRunnerProps) {
       <Fragment key={paused ? 'paused' : saved ? 'saved' : stage.kind}>{body}</Fragment>
       {skipDialog}
       {stopSheet}
+      {howto.sheet}
     </>
   );
 }

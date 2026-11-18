@@ -352,6 +352,11 @@ export const PATHS = {
       <path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5" />
     </>
   ),
+  expand: (
+    <>
+      <path d="M14 4h6v6M20 4l-6 6M10 20H4v-6M4 20l6-6" />
+    </>
+  ),
   'arrow-right': (
     <>
       <path d="M4.5 12h15M13 5.5l6.5 6.5-6.5 6.5" />

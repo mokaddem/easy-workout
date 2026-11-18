@@ -13,6 +13,9 @@
     "finisherIntervals": "Finisher, intervals",
     "finisherCardio": "Finisher, cardio"
   },
+  "figure": {
+    "open": "How to do it: {{name}}"
+  },
   "set": {
     "set": "Set",
     "round": "Round",
@@ -27,7 +30,7 @@
     "seconds": "{{count}} s",
     "perDumbbell": "kg per dumbbell",
     "perKettlebell": "kg per kettlebell",
-    "bodyweight": "Body­weight",
+    "bodyweight": "Bodyweight",
     "added": "kg added",
     "demo": "Movement demo",
     "doneAsPlanned": "Done as planned",
@@ -45,6 +48,7 @@
     "unitSeconds": "seconds"
   },
   "side": {
+    "pill": "{{side}} side",
     "left": "left",
     "right": "right",
     "leftLetter": "L",

@@ -13,6 +13,9 @@
     "finisherIntervals": "Fin de séance, intervalles",
     "finisherCardio": "Fin de séance, cardio"
   },
+  "figure": {
+    "open": "Comment faire : {{name}}"
+  },
   "set": {
     "set": "Série",
     "round": "Tour",
@@ -45,6 +48,7 @@
     "unitSeconds": "secondes"
   },
   "side": {
+    "pill": "Côté {{side}}",
     "left": "gauche",
     "right": "droit",
     "leftLetter": "G",

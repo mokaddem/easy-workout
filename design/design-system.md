@@ -76,6 +76,9 @@ The full scale (graphite 1000–50, signal 100–900, red) is in `tokens.css`.
 | `--color-press-overlay` | white at 8 % | ink at 6 % | Pressed state on neutral controls |
 | `--color-scrim` | graphite 1000 at 72 % | ink at 48 % | Behind sheets and dialogs |
 | `--color-rest-bg`, `on-rest`, `on-rest-muted`, `rest-track`, `rest-surface`, `on-rest-surface` | yellow, ink, dark olive, ink at 18 %, ink, chalk | same | The rest takeover |
+| `--figure-limb` / `-body` / `-limb-far` / `-far` | chalk / graphite 300 / 400 / 500 | graphite 700 / `#5E6474` / `#727888` / `#848A99` | The exercise figure: a contrast ladder (9.12) |
+| `--figure-prop` / `-prop-far` | graphite 400 / 500 | `#727888` / `#848A99` | Dumbbells, towel, handles held by the figure |
+| `--figure-shadow`, `-floor`, `-door`, `-cut` | graphite 900 at 70 %, `line`, `surface-sunken`, `surface-raised` | graphite 100, `line`, graphite 100, `surface-raised` | Contact shadow, floor hairline, fixed scenery, the gap drawn around each part (must equal the surface behind the figure) |
 
 **Why `--color-accent-line` turns to ink in light mode:** yellow on white is 1.4:1, which fails the 3:1 rule for graphics. In light mode the yellow stays as a fill (buttons, next, active tempo phase) and strokes become ink. The light rest ring reads like a stopwatch.
 
@@ -84,6 +87,7 @@ The full scale (graphite 1000–50, signal 100–900, red) is in `tokens.css`.
 - **Accent:** at most one primary button per screen. Selected chips, check boxes, segmented options and the current tab use **inverse**, not yellow.
 - **Done vs next vs later:** done = `complete` fill with a check (recedes); next = accent fill with a 2 px accent-line ring; this week's later items = strong outline; future = hairline outline.
 - **Where yellow appears** (the full list; anything else is a bug): the screen's one primary action (Start, Done, *Reprendre* on the resume banner, the summary's dock button), the next session cell, the current set segment and current item tile ring (`accent-line`), the active tempo phase while pacing, the rest takeover, interval recovery, and the incoming tile of the side-switch pause. Work clocks (hold, interval work, steady cardio) stay on the base colour, so from 2 m the screen colour alone says work or rest. Adaptation surfaces add no yellow: answer rows are outlined, change tags are outlined, the decisions nudge uses an inverse well.
+- **The exercise figure is never yellow**, not even the working limb: emphasis on the figure is contrast only (9.12). On yellow the figure turns to ink.
 - **Red** only for destructive actions and pain: the pain well (danger tint + stop glyph), the word *Douleur / Pain* in a kicker or done line, the stop glyph of the pain chip and the pending-pain line, the Abandon row. A second pain is not escalated to red: the care note is neutral. Warnings that destroy nothing (backup due while storage was refused, storage not granted) use the **firm** treatment (2 px `text` edge, inverse well), never red.
 - **No green.** "Done" is a check on a neutral `complete` fill, so the screen never turns into a traffic light. Up and down are arrows (`arrow-up`, `arrow-down`, `step-up`, `step-down`), never colour.
 - **Feel (easy / right / hard)** has no colour coding. Selection is shown by an inverse fill; "pick one" by an outline (segmented ask state).
@@ -102,6 +106,8 @@ The full scale (graphite 1000–50, signal 100–900, red) is in `tokens.css`.
 | danger-text on bg / surface | 6.6 / 6.2 | 5.8 / 6.5 | AA 4.5 |
 | focus on bg / surface | 12.0 / 11.1 | 16.5 / 18.4 | 3 |
 | on-complete on complete | 10.7 | 12.4 | AA 4.5 |
+| figure limb / body / limb-far / far on the slot (surface-raised) | 14.1 / 7.1 / 5.3 / 3.1 | 11.7 / 5.9 / 4.4 / 3.5 | 3 (graphics), every step |
+| figure on yellow: limb / body / limb-far / far | 11.9 / 6.8 / 5.0 / 3.3 | same | 3 (graphics) |
 
 Timer and current-exercise text sit at 11.9:1 or higher in every state (AAA).
 
@@ -211,7 +217,7 @@ Running text stays under about 60 characters per line on a phone. Text never goe
 | `--radius-xs` | 4 px | Progress bars, tempo segments, ticks |
 | `--radius-sm` | 8 px | Check boxes, icon wells, grid cells, thumbnails |
 | `--radius-md` | 14 px | Buttons, steppers, segmented controls, inputs |
-| `--radius-lg` | 20 px | Cards, animation slot, rest card |
+| `--radius-lg` | 20 px | Cards, figure slot, how-to stage, rest card |
 | `--radius-xl` | 28 px | Sheet top corners, dialogs |
 | `--radius-pill` | 999 px | Chips, badges, toasts, tab indicator |
 
@@ -306,12 +312,18 @@ Exits run at about 70 % of the matching entrance duration.
 | Decisions nudge | The count rolls; at 0 the row collapses (`base` × 0.7, `exit`) and the equipment nudge moves back above the next session (`base`, `move`). |
 | Banners and notices | Resume and backup banners arrive with the screen and leave with the dismissed-card collapse. The import success notice opens with height + fade and rises `distance-sm` over `base`, `snap`. |
 | Why chip | Arrives and leaves with its set screen; the feel ask outline never animates. |
+| Figure arrives | The figure's code loads on demand: the slot shows its floor, then the figure fades in over `base`, `move`. No rise, no scale. |
+| Figure loop | Driven by its own clock at a neutral pace, or by the tempo pacer while pacing is on (the pacer's phase, never the reverse). One figure moves on screen at a time: thumbnails and the "next" tile are stills. |
+| Side 2 | The mirrored figure cross-fades in over `fast` when the side switch pause ends. No flip. |
+| Interval phase change | The figure freezes on its key pose over `fast` (cross-fade) when recovery starts and loops again when work starts. |
+| How-to sheet | The sheet motion; its figure starts at the slot's current moment, so the movement continues rather than restarts. The slot's figure freezes while the sheet is open and resumes in step when it closes. |
+| Rest band (how-to sheet) | Its seconds pulse with the takeover's last 3 seconds. At 0 the sheet leaves at 70 % of `slow`, `exit`, with the end-of-rest beep. |
 
 Punch is for achievements only: never on routine taps or navigation.
 
 ### 7.3 Reduced motion
 
-`prefers-reduced-motion: reduce` overrides the tokens: travel distances and press/punch scales become 0 / 1, overshoot becomes `--ease-move`, durations shrink to cross-fades of 100–160 ms. The takeover and the interval flood become 160 ms colour cross-fades. The timer ring and every clock still run (they carry information) but the last-3-seconds pulse is replaced by a colour change only. The switch knob changes colour in 100 ms without travelling. Adaptation surfaces drop height animation and digit rolls: the confirmed card and the figures appear in place. Components that read the tokens get this for free; anything driven from script must read them too. Script-driven motion runs through one provider that, under reduced motion, drops transforms and keeps opacity and colour changes.
+`prefers-reduced-motion: reduce` overrides the tokens: travel distances and press/punch scales become 0 / 1, overshoot becomes `--ease-move`, durations shrink to cross-fades of 100–160 ms. The takeover and the interval flood become 160 ms colour cross-fades. The timer ring and every clock still run (they carry information) but the last-3-seconds pulse is replaced by a colour change only. The switch knob changes colour in 100 ms without travelling. Adaptation surfaces drop height animation and digit rolls: the confirmed card and the figures appear in place. The exercise figure shows its key pose, still, everywhere (slot, how-to, thumbnails); the how-to offers *Lire l'animation* so motion only ever starts from a tap. Components that read the tokens get this for free; anything driven from script must read them too. Script-driven motion runs through one provider that, under reduced motion, drops transforms and keeps opacity and colour changes.
 
 ---
 
@@ -319,7 +331,7 @@ Punch is for achievements only: never on routine taps or navigation.
 
 - 24 × 24 grid, 2 px stroke, round caps and joins, no fills (except status glyphs). 20 px in chips and facts, 28 px in equipment wells.
 - Drawn in-house as inline SVG symbols.
-  - Actions and navigation: back, close, chevron (right and down), plus, minus, check, play, pause, skip, sound, shuffle, swap, refresh, pencil, sliders, stop, download, upload, arrow-up, arrow-down, arrow-right.
+  - Actions and navigation: back, close, chevron (right and down), plus, minus, check, play, pause, skip, sound, shuffle, swap, refresh, pencil, sliders, stop, download, upload, arrow-up, arrow-down, arrow-right, expand (two corner arrows: open the how-to).
   - Meaning: calendar (schedule), gauge (goal and level), user (profile), bolt (quick session), chart (progress), clock (not now), hourglass (session left open, break notice), list, flag (finish now), heart (cardio day), incline, person running, bag (what to buy), info, alert, why, shield / shield-check (lasting storage), file (backup file), step-up / step-down (harder / easier variant), equals (unchanged, keep as is), turtle (slower tempo).
   - Equipment: dumbbell, kettlebell, band, mini-band, belt, vest, pull-up bar, dip bars, bench, treadmill, bike, rower, jump rope, ab wheel, suspension straps.
 - Paths live in `src/ui/components/iconPaths.tsx`. "Voice off" is not a separate glyph: the sound icon turns `text-muted` and gets a 26 × 2.5 px slash drawn in CSS, cut out by a 2 px ring in the background colour (rest yellow on the takeover).
@@ -339,11 +351,12 @@ States covered for each: **default, pressed, disabled, focus, error, empty, load
 | 9.4 Equipment | Equipment card, weight grid, purchase card, cost badge, computing state |
 | 9.5 Notes and messages | Note (inline, notice, dock note, pending note, care note), banner (incl. firm), resume banner, backup line, why card, why line, nudge row (incl. decisions nudge), toast, empty state |
 | 9.6 Programme and session | Week hero, rotation grid, session row, session hero, week ruler, disclosure card, prescription row, goal ruler, change tag, swap line and pending-pain line, group block, cardio and interval strips, delta tag |
-| 9.7 Overlays | Sheet (with pinned footer), dialog, menu, change list, session compare, reason groups, leave sheet, stop view, decisions sheet, import sheets and comparison table |
+| 9.7 Overlays | Sheet (with pinned footer), how-to sheet, dialog, menu, change list, session compare, reason groups, leave sheet, stop view, decisions sheet, import sheets and comparison table |
 | 9.8 Full-screen states | Generating screen, session summary, pause screen, progress before data |
-| 9.9 Workout player | Top bar and voice toggle, score, item and side tiles, next-up row, side-switch pause, big clocks, interval segments, reps-done stepper, timer ring, tempo strip, animation slot, why chip |
+| 9.9 Workout player | Top bar and voice toggle, score, item and side tiles, next-up row, side-switch pause, big clocks, interval segments, reps-done stepper, timer ring, tempo strip, figure slot, why chip |
 | 9.10 Adaptation | Proposal card (answer row, confirmed state), per-exercise list |
 | 9.11 Settings and data | Rest-screen picker, last-backup block, storage status card, import success notice |
+| 9.12 Exercise figure | Figure, figure tones, thumbnail, "next" tile, framing rules |
 
 Where the build departs from the screen's design notes, the entry says so under **Built differently**.
 
@@ -660,7 +673,19 @@ Inverse pill, 24 px tall, 13 px bold label: the change against the previous week
 
 Bottom sheet: raised surface, top radius xl, grabber 40 × 5 px, elevation 3, scrim behind, max 90 % of the height (the body scrolls). Content: title, one-line purpose, controls, one primary action, optional destructive outline at the bottom with a one-line explanation. Closes on scrim tap, grabber drag or back; focus moves into the sheet and returns to the opener.
 - **Pinned footer** (`footer` prop of `src/ui/components/Sheet.tsx`): the sheet's actions sit outside the scrolling body, on the raised surface with a hairline top edge, flush with the sheet edges and padded for the home indicator. Only the body scrolls. Rule: **every sheet with actions uses the footer**, so the actions never scroll out of reach. Buttons are full width and stacked, primary on top (*Utiliser cette variante* / *Garder l'actuelle*).
-- Sheets in use: why this programme, why this exercise, phase, another variation, new programme, adjust set (with the stop view), leave the session, import preview, import error, decisions, a single decision (from session detail).
+- Sheets in use: how-to (below), why this programme, why this exercise, phase, another variation, new programme, adjust set (with the stop view), leave the session, import preview, import error, decisions, a single decision (from session detail).
+
+#### How-to sheet
+
+How to do an exercise: the figure large and looping, the key cue, the numbered execution steps. Opens from every place an exercise is shown (9.12, entry points). A sheet with a pinned footer, max 90 % of the height.
+- **Order:** grabber → (in the player during a rest: the rest band) → header: name in title 24 (balanced) + 48 px close, then a 14 px / 600 muted line *pattern, equipment* (*Poussée horizontale, poids du corps*) → **stage** → controls → body (scrolls) → footer.
+- **Stage:** 16 px from the sheet edges, 236 px tall (184 px on screens under 700 px), radius lg, `surface` with a hairline edge; `--figure-cut` is set to `surface`. The figure loops at the slot framing. The stage and controls stay put; only the body scrolls, so the figure is in view while reading every step.
+- **Controls** (row under the stage, 48 px): *Pause / Lire* (outline, glyph + word; the loop can always be stopped) on the left; on the right a compact segmented *Normal / Lent* (half speed). In the player while the tempo pacer runs, the segmented gives way to a muted line *Suit ton tempo **2-1-2***: the figure moves with the pacer. Under reduced motion: the key pose and one button *Lire l'animation*.
+- **Body:** the key cue at 18 / 600 behind a 2 px `text` bracket, then the steps as an ordered list: the number in numeral 24 `text-subtle` (28 px column), the step at body 16 / 1.5. Steps are a real sequence, so they are numbered. The longest entry (645 characters over 4 steps) scrolls under the stage at 390 × 844; nothing is truncated.
+- **Footer:** the row's own action when the sheet came from a row that has one, so a tap on the picture by mistake is never a dead end: picker → the picker's verb as primary (*Ajouter au bloc principal*, *Remplacer*) + secondary *Fermer*; everywhere else a single secondary *Fermer* (64 px in the player).
+- **In the player:** nothing pauses. The sheet covers the dock, so logging waits until it closes, but the clocks, voice and beeps keep running. While a rest runs, a **rest band** tops the sheet: yellow, *Repos* 18 / 700 on the left, the seconds in numeral 48 + *s* on the right, a 4 px draining bar along its bottom edge (`rest-track` / `on-rest`); the grabber sits on it. The sheet **closes itself when the screen under it changes**: the rest ends, a hold or interval phase ends, the side switches. Then the screen underneath is what the beep refers to.
+- **Inside another sheet** (Test now): the how-to replaces the sheet's content like the stop view, with a back icon before the name and *Choisir cet exercice* as the footer primary.
+- Accessible: `role="dialog"` with the exercise name; the stage is `role="img"` (*Démonstration animée : Pompes* / *Position clé : Pompes*); the rest band is `role="timer"` and speaks only at its end, as the takeover does.
 
 #### Dialog
 
@@ -783,19 +808,25 @@ Track `--color-track` and progress `--color-accent-line`, 20 px stroke, butt cap
 
 Three segments sized to the tempo (2-1-2 → 2fr 1fr 2fr): phase name (13 px) over seconds (21 px). The strip is a toggle button (`aria-pressed`): a tap starts pacing (a soft tone per phase, the active phase in accent fill, an inverse rep counter tile appears on the right); a second tap, or logging the set, stops it. Static and neutral until tapped, so it adds no yellow by default.
 
-#### Animation slot (placeholder)
+#### Figure slot
 
-Reserved for the future exercise animation. Keep the slot's size and position stable now, so the layout does not change when animations arrive.
-- Container: radius lg, radial gradient from `surface-raised` to `surface`, hairline edge. Aspect free; min 96 px tall on the set screen (the slot takes what is left above the dock), 72 × 72 thumbnail for "next".
-- Content until animations exist: a perspective floor (hairlines converging to a vanishing point), the equipment glyph at 76 px in `text-subtle`, a movement-pattern tag ("Poussée horizontale"), and the exercise's key cue ("Coudes à 45°, omoplates serrées"). So the placeholder is still useful, not decoration. On short screens the glyph and cue drop first.
-- **On yellow** (interval recovery): transparent fill, `rest-track` edge and floor, glyph in `on-rest-muted`.
-- The why chip, when present, takes the place of the tag and the cue.
-- States: placeholder (above), loading (floor and tag only), playing (later), unavailable (placeholder without cue). `role="img"` with a label.
+The exercise figure on the set, timed, test and warm-up screens. Same size and place as before: flexible height, min 96 px, the space left above the dock. The whole slot is **one button** that opens the how-to sheet (*Comment faire : Pompes*).
+- **Container:** radius lg, radial gradient from `surface-raised` to `surface`, hairline edge (unchanged). Pressed: the centre lifts by the press overlay. Focus: inset 2 px ring.
+- **The figure** fills the slot's SVG; the overlays below **reserve space** and the figure is framed in what is left (9.12, framing), so nothing ever sits on it. The floor hairline always runs the full width.
+- **Key cue** (the exercise's key cue): 15 / 600 `text-muted`, left-aligned, max 2 lines, under the floor at the bottom, only when the slot is at least 200 px tall. Below that it lives in the how-to only.
+- **Pattern tag:** gone from the slot; the figure shows the movement. The pattern moves to the how-to header.
+- **Enlarge mark:** a 32 px `surface-sunken` circle at the bottom right (8 px inset) with the `expand` glyph 18 px in `text-muted`. Decorative (the slot itself is the button); under 200 px it keeps a 40 px column on the right free of the figure.
+- **Why chip:** at the top, full width; the figure is framed below it. Under 140 px tall the chip moves to the left (width: slot − 136 px, 14 px text, up to 4 lines) and the figure takes the right 136 px.
+- **Per side:** side 2 is the mirror image. A 28 px sunken pill at the top left repeats the side (*D* in a 22 px inverse disc + *Côté droit*), hidden when the why chip shows. `aria-hidden`: the screen already says the side.
+- **By screen:** reps → loop (neutral pace, or the tempo pacer's phase while pacing); timed hold → the hold pose, still; interval work → loop; **interval recovery → key pose, still** (it is a rest), framed like the loop so nothing jumps at the next phase; steady cardio → loop; max test → loop; player paused → frozen.
+- **On yellow** (interval recovery): transparent fill, `rest-track` edge, `data-figure-tone="rest"` (ink figure), the enlarge mark becomes a 1.5 px ink ring with an ink glyph.
+- **States:** moving; still (reduced motion: the key pose, framed to fill); loading (floor hairline and contact shadow only; the cue shows if there is room; the figure fades in when its code arrives, no spinner); unavailable (the old placeholder: the equipment glyph at 64 px in `text-subtle`, 48 px under 120 px, plus the cue).
+- Accessible name of the button: *Comment faire : {name}* / *How to do it: {name}*. The figure itself is hidden from assistive technology.
 
 #### Why chip
 
 `WhyChip` in `parts.tsx`; text from `useWhy` (`why.ts`) and `noteChip` (`src/features/adapt/format.ts`). The short why of a changed number, on the set screen.
-- Anatomy: absolutely placed at the top of the animation slot (8 px inset), sunken, radius md, 8 × 12 px padding; 20 px glyph (`info` in `text-muted`) + 15 px / 600 text in `text`, at most 2 lines (clamped). It costs no height, so the numerals, tempo strip and dock never move and the slot keeps its 96 px.
+- Anatomy: absolutely placed at the top of the figure slot (8 px inset), sunken, radius md, 8 × 12 px padding; 20 px glyph (`info` in `text-muted`) + 15 px / 600 text in `text`, at most 2 lines (clamped). It costs no height, so the numerals, tempo strip and dock never move and the slot keeps its 96 px. The figure is framed below it; in a slot under 140 px tall the chip sits on the left (up to 4 lines at 14 px) and the figure on the right (Figure slot).
 - When: on set 1 of an exercise whose prescription changed. On **every** set of an exercise's first session at a new load, together with the feel ask state: set 1 *Nouvelle charge, +2 kg : 6 reps pour commencer. Comment c'était ?*, later sets *Nouvelle charge : comment c'était ?*.
 - **Pain variant:** stop glyph in danger text, text stays `text`; it doubles as a safety cue (*8 kg au lieu de 10 kg après ta douleur. Arrête si elle revient.*).
 - Don't: add a row under the score for this (it pushed the slot to 0 at 360 × 780), or colour the chip.
@@ -841,11 +872,61 @@ Wording for every reason lives in the `adapt` namespace of the locales; `noteRea
 - **Storage status card:** card with a 40 px well, title 18 bold (*Stockage durable : accordé*), 14 px meta. Granted: shield-check. Refused or unavailable: firm (2 px `text` edge, inverse well, shield) + a bold hint (*Ajouter l'app à l'écran d'accueil permet souvent de l'obtenir.*). **Built differently:** the states are granted / refused / unavailable (the browser cannot tell); the "not asked yet" state from the design is not there.
 - **Import success notice:** a notice with the check glyph at the top of the screen, bold lead naming the backup, then the file name of the copy downloaded before the import. `role="status"`.
 
+### 9.12 Exercise figure
+
+One stylised figure, drawn flat in SVG from a 3D skeleton, with its props (dumbbells, towel, door). Runtime in `src/motion/figure/`.
+
+#### Figure tones
+
+A **contrast ladder**, not colours: the working limb has the most contrast, then the body, then the far-side working limb, then the far side. In dark the working limb is lighter than the body; in light it is darker. Each step clears 3:1 against the surface behind the figure, so the silhouette and its depth read in both themes. Props sit at the far-working-limb step. The figure never uses yellow.
+
+| Token | Dark | Light | On yellow (`data-figure-tone="rest"`) |
+|---|---|---|---|
+| `--figure-limb` | chalk (14.1) | graphite 700 (11.7) | ink (11.9) |
+| `--figure-body` | graphite 300 (7.1) | `#5E6474` (5.9) | `#4D3D05` (6.8) |
+| `--figure-limb-far` | graphite 400 (5.3) | `#727888` (4.4) | signal 900 (5.0) |
+| `--figure-far` | graphite 500 (3.1) | `#848A99` (3.5) | signal 800 `#8A6A10` (3.3) |
+| `--figure-prop` / `-prop-far` | graphite 400 / 500 | `#727888` / `#848A99` | signal 900 / 800 |
+| `--figure-shadow` | graphite 900 at 70 % | graphite 100 | ink at 14 % |
+| `--figure-floor` | `line` | `line` | `rest-track` |
+| `--figure-door` | `surface-sunken` | graphite 100 | ink at 10 % |
+| `--figure-cut` | `surface-raised` | `surface-raised` | `rest-bg` |
+
+Ratios against `surface-raised` (dark) and white (light). `--figure-cut` is the gap drawn around each part so overlapping limbs stay readable: set it to the surface behind the figure wherever that is not `surface-raised` (the how-to stage sets `surface`). `data-figure-tone="ink"` gives the dark ladder in both themes, for the "next" tile on the ink rest card (a graphite 850 well, which is its cut).
+
+#### Thumbnail
+
+The figure's key pose, still, in a 56 × 56 tile (radius sm, the slot's gradient, hairline edge). Used in the picker, session detail, exercise progress and Test now rows. It replaces the equipment-glyph thumbnail; the glyph stays as the unavailable state.
+
+#### "Next" tile
+
+72 × 72, the key pose still, on the right of the rest takeover's *Ensuite* card (graphite 850 well with a graphite 700 hairline, `data-figure-tone="ink"`) and of the ring-rest next card (normal tones). The card becomes a button that opens the how-to of the next exercise; the rest keeps running (how-to sheet, rest band).
+
+#### Framing
+
+- **Loop framing** (slot, how-to stage, interval recovery): the whole loop fits, both sides for per-side moves, standing on the floor at the bottom padding, centred. The figure never changes size while it moves.
+- **Still framing** (reduced motion, holds): the key pose fits, same padding.
+- **Tile framing** (56 and 72 px stills): the key pose fits; if the pose is **at least twice as wide as tall** (floor moves: push-up, plank, bridge), it is enlarged until it fills the tile's height, but never so much that less than **55 % of its width** stays in view; it is anchored on the head's end and the other end (the feet) leaves the tile. One rule, no per-exercise crop.
+- **Reserved box:** overlays in the slot (why chip, cue band, enlarge column) shrink the box the figure is framed in; padding is proportional to that box.
+
+#### Entry points to the how-to
+
+| Where | Tap target | Footer |
+|---|---|---|
+| Player set, timed, test screens | The whole figure slot | *Fermer* |
+| Rest takeover, ring rest | The *Ensuite* card (with its 72 px tile) | *Fermer* |
+| Session detail | Thumbnail + name, one button in the row head; the why button stays separate on the right | *Fermer* |
+| Exercise picker | The thumbnail, its own 72 × 76 target left of the pick button; a hint line under the search: *Touche une image pour voir le mouvement.* | The picker's verb + *Fermer* |
+| Exercise progress | A *Comment faire* card row under the title (thumbnail, *Le mouvement animé et 3 étapes*, chevron) | *Fermer* |
+| Test now (inside its sheet) | The thumbnail of a row; the how-to replaces the list | *Choisir cet exercice* |
+
+The progress list's thumbnails are pictures only: the row opens the exercise, where the how-to is one tap away.
+
 ---
 
 ## 10. Workout player
 
-Two variants were mocked; **A (scoreboard) is built**, with a setting that swaps the yellow rest takeover for the ring timer (every rest, including interval recovery). B is kept as a reference for when animations arrive. Both use the same top bar and tokens. The states beyond a straight set (groups, per side, holds, intervals, cardio, warm-up, stop, pause, leave) are in `player-states.html` and section 9.9.
+Two variants were mocked; **A (scoreboard) is built**, with a setting that swaps the yellow rest takeover for the ring timer (every rest, including interval recovery). B is kept as a reference; the exercise figure arrived in A's slot (9.9, Figure slot). Both use the same top bar and tokens. The states beyond a straight set (groups, per side, holds, intervals, cardio, warm-up, stop, pause, leave) are in `player-states.html` and section 9.9.
 
 | | A: Scoreboard (`player-a.html`) | B: Instrument (`player-b.html`) |
 |---|---|---|
@@ -877,6 +958,7 @@ Two variants were mocked; **A (scoreboard) is built**, with a setting that swaps
 | `mockups/player-states.html` | Superset item, between-items and after-round rests, per side and the side switch, timed hold (ready, lead-in, running), max reps, intervals (work, recovery), steady cardio (before and at the goal), warm-up, the stop flow (none picked, picked, error), pause, leave sheet, abandon, ring rest. |
 | `mockups/player-summary.html` | Summary (all sets done, exercises stopped, finished early, quick session), resume banners on Programme and Quick (incl. left open over 12 h), "a session is already open" dialogs, abandon from the banner. |
 | `mockups/settings-data.html` | Settings with *Pendant la séance*; Data and backup (storage granted, refused); after export; import preview, confirmation, busy, done; errors; backup reminders (standard, firm). |
+| `mockups/figure.html` | The figure slot on tall and short screens, with the why chip, per side (side 2), timed hold, interval recovery on yellow; slot states at 96 / 160 / 260 px (moving, chip, reduced motion, loading, unavailable); the how-to sheet from the set (pacing on), during a rest (rest band), from the picker (long entry, scrolled), under reduced motion, inside Test now; entry points (session detail, picker, exercise progress, rest *Ensuite* card); thumbnails under the framing rule; figure tokens. Figures are drawn live by the same pose core as the app. Also accepts `?motion=reduced`. |
 | `mockups/adaptation.html` | Summary with decisions (first and second pain, no equipment), answered cards and the per-exercise list; Programme tab with the decisions nudge and sheet; session detail with goal rulers, per-set goals, swaps, pending pain and the switch-back dialog; the player's why chips (new weight, per side + slower tempo, pain, past the range). Also accepts `?w=` / `?h=` to resize every frame. |
 
 Each page has FR/EN and dark/light toggles. Pages also accept `?lang=en` and `?theme=light|dark`; with no theme set they follow the system. Every frame is 390 × 844.

@@ -16,7 +16,9 @@ import {
 import { numberText } from '@/features/adapt/format';
 import { SearchField } from '@/features/editor/picker/SearchField';
 import { Thumb } from '@/features/editor/picker/Thumb';
-import { Button, EmptyState, Icon, Sheet } from '@/ui/components';
+import { HowToBody } from '@/features/howto';
+import { equipmentInUse } from '@/features/figure';
+import { Button, EmptyState, Icon, IconButton, Sheet } from '@/ui/components';
 import { cx } from '@/ui/components/cx';
 import { shortDate } from '../charts/format';
 import { matchesName, testableExercises } from './logic';
@@ -30,7 +32,7 @@ export interface TestNowSheetProps {
 
 /** Take a max test now: the programme's exercise or another testable one, then the player. */
 export function TestNowSheet({ open, onClose }: TestNowSheetProps) {
-  const [view, setView] = useState<'choose' | 'pick'>('choose');
+  const [view, setView] = useState<'choose' | 'pick' | 'howto'>('choose');
   const [other, setOther] = useState<string | undefined>();
   const [choice, setChoice] = useState<'default' | 'other'>('default');
   const [wasOpen, setWasOpen] = useState(open);
@@ -59,8 +61,8 @@ export function TestNowSheet({ open, onClose }: TestNowSheetProps) {
 interface BodyProps {
   open: boolean;
   onClose: () => void;
-  view: 'choose' | 'pick';
-  setView: (v: 'choose' | 'pick') => void;
+  view: 'choose' | 'pick' | 'howto';
+  setView: (v: 'choose' | 'pick' | 'howto') => void;
   other: string | undefined;
   setOther: (id: string | undefined) => void;
   choice: 'default' | 'other';
@@ -82,6 +84,7 @@ function SheetBody({
   const ctx = useTestContext();
   const programme = useActiveProgramme();
   const [query, setQuery] = useState('');
+  const [peek, setPeek] = useState<string | undefined>();
 
   const defaultId = useMemo(
     () =>
@@ -133,6 +136,42 @@ function SheetBody({
     </span>
   );
 
+  if (view === 'howto' && peek) {
+    const peeked = exerciseById.get(peek);
+    return (
+      <Sheet
+        open={open}
+        onClose={onClose}
+        title={
+          <span className={styles.titleRow}>
+            <IconButton icon="back" label={t('howto.back')} onClick={() => setView('pick')} />
+            <span>{nameOf(peek)}</span>
+          </span>
+        }
+        footer={
+          <div className={styles.footer}>
+            <Button
+              size="player"
+              fullWidth
+              disabled={blocked(peek)}
+              onClick={() => {
+                setOther(peek);
+                setChoice('other');
+                setView('choose');
+              }}
+            >
+              {t('howto.pickForTest')}
+            </Button>
+          </div>
+        }
+      >
+        <Appear id={view} onMount className={styles.sheetBody}>
+          <HowToBody exerciseId={peek} equipment={equipmentInUse(peeked, ctx?.inventory)} />
+        </Appear>
+      </Sheet>
+    );
+  }
+
   if (view === 'pick')
     return (
       <Sheet
@@ -149,6 +188,7 @@ function SheetBody({
       >
         <Appear id={view} onMount className={styles.sheetBody}>
           <p className={styles.pickNote}>{t('stats.tests.pickerNote')}</p>
+          <p className={styles.howtoHint}>{t('picker.howtoHint')}</p>
           <div className={styles.searchWrap}>
             <SearchField
               value={query}
@@ -168,7 +208,19 @@ function SheetBody({
               {shown.map((e) => {
                 const hurt = blocked(e.id);
                 return (
-                  <li key={e.id}>
+                  <li key={e.id} className={styles.pickWrap}>
+                    <button
+                      type="button"
+                      className={styles.thumbHit}
+                      aria-label={t('play.figure.open', { name: e.name[lang] })}
+                      data-howto={e.id}
+                      onClick={() => {
+                        setPeek(e.id);
+                        setView('howto');
+                      }}
+                    >
+                      <Thumb exercise={e} />
+                    </button>
                     <button
                       type="button"
                       className={styles.pickRow}
@@ -184,7 +236,6 @@ function SheetBody({
                             }
                       }
                     >
-                      <Thumb exercise={e} />
                       <span className={styles.choiceText}>
                         <span className={styles.choiceName}>{e.name[lang]}</span>
                         {hurt ? (

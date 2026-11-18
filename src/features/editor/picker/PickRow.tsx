@@ -14,13 +14,35 @@ export interface PickRowProps {
   /** "X replaces it in your sessions." */
   away?: string;
   tag?: ReactNode;
+  /** Opens the how-to from the picture. */
+  onHowTo: () => void;
+  howToLabel: string;
   onPick: () => void;
 }
 
 /** One exercise in the list: thumbnail, name, meta, optional trailing tag. */
-export function PickRow({ exercise, name, meta, current, away, tag, onPick }: PickRowProps) {
+export function PickRow({
+  exercise,
+  name,
+  meta,
+  current,
+  away,
+  tag,
+  onHowTo,
+  howToLabel,
+  onPick,
+}: PickRowProps) {
   return (
-    <li>
+    <li className={styles.rowWrap}>
+      <button
+        type="button"
+        className={styles.thumbHit}
+        aria-label={howToLabel}
+        data-howto={exercise.id}
+        onClick={onHowTo}
+      >
+        <Thumb exercise={exercise} />
+      </button>
       <button
         type="button"
         className={styles.row}
@@ -29,7 +51,6 @@ export function PickRow({ exercise, name, meta, current, away, tag, onPick }: Pi
         data-exercise={exercise.id}
         onClick={current ? undefined : onPick}
       >
-        <Thumb exercise={exercise} />
         <span className={styles.rowText}>
           <span className={styles.rowName}>{name}</span>
           <span className={styles.rowMeta}>{meta}</span>

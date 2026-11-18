@@ -156,6 +156,14 @@ export function SettingsScreen() {
           />
           <p className={styles.hint}>{t('settings.themeHint')}</p>
         </div>
+        <Card className={styles.rows}>
+          <SwitchRow
+            checked={settings?.figuresAnimated ?? true}
+            onChange={(figuresAnimated) => void updateSettings({ figuresAnimated })}
+            title={t('settings.figures')}
+            meta={t('settings.figuresMeta')}
+          />
+        </Card>
         <p className={styles.quiet}>{t('settings.units')}</p>
       </section>
 

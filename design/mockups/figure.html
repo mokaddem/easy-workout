@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Exercise figure and how-to sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font-sans); font-stretch: var(--font-width-text); font-size: var(--type-body-size); line-height: var(--type-body-line); color: var(--color-text); background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text)); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+:root[lang="fr"] .en, :root[lang="en"] .fr { display: none !important; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: inherit; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.mock-bar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 12px 24px; background: color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-line); font-size: 14px; }
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; }
+.mock-bar__nav { display: flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.mock-bar__nav a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: var(--radius-pill); color: var(--color-text-muted); font-weight: 600; text-decoration: none; font-stretch: var(--font-width-label); }
+.mock-bar__nav a:hover { background: var(--color-surface-sunken); color: var(--color-text); }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible, .mock-bar__nav a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-sec { flex: 0 0 100%; max-width: 1280px; display: grid; gap: 6px; padding-top: 24px; border-top: 1px solid var(--color-line); scroll-margin-top: 72px; }
+.mock-sec:first-child { border-top: 0; padding-top: 0; }
+.mock-sec h2 { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-display); }
+.mock-sec p { color: var(--color-text-muted); font-size: 15px; max-width: 64ch; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); max-width: 390px; text-align: center; text-wrap: balance; }
+.mock-wide { flex: 0 0 100%; max-width: 1280px; }
+
+/* ---------- phone ---------- */
+.device { position: relative; width: 390px; height: 844px; flex: none; display: flex; flex-direction: column; border-radius: 48px; overflow: hidden; isolation: isolate; background: var(--color-bg); color: var(--color-text); box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28); }
+.device--short { width: 375px; height: 667px; border-radius: 28px; }
+.device--short .statusbar { height: 20px; font-size: 12px; padding: 2px 16px 0; }
+.device--short .dock { padding-bottom: 14px; }
+.device--short .homebar { display: none; }
+@media (max-width: 440px) { .mock-stage { padding: 16px 0 48px; gap: 32px; } .mock-sec { padding-left: 16px; padding-right: 16px; } .device { width: 100vw; border-radius: 0; box-shadow: none; } }
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; }
+.statusbar svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+
+/* ---------- type ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-exercise { font-size: var(--type-exercise-size); line-height: var(--type-exercise-line); font-weight: var(--type-exercise-weight); font-stretch: var(--type-exercise-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); text-wrap: balance; }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.muted { color: var(--color-text-muted); }
+
+/* ---------- controls ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap-comfort); padding: 0 var(--space-6); border-radius: var(--radius-md); border: var(--border-control) solid transparent; font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); text-align: center; }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn--player { width: var(--tap-player); height: var(--tap-player); border: var(--border-control) solid var(--color-line-strong); }
+.icon-btn--outline { border: var(--border-control) solid var(--color-line-strong); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); text-align: center; padding: 0 12px; }
+.seg__opt[aria-checked="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg--ask { background: none; box-shadow: inset 0 0 0 var(--border-control) var(--color-line-strong); }
+.seg--ask .seg__opt { color: var(--color-text); }
+.segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.segs > i { height: 6px; border-radius: var(--radius-xs); background: var(--color-track); }
+.segs > i.done { background: var(--color-text-subtle); }
+.segs > i.cur { background: var(--color-accent-line); }
+
+/* ---------- player ---------- */
+.pbar { flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 8px; min-height: 56px; }
+.pbar__mid { flex: 1; min-width: 0; display: grid; gap: 6px; padding: 0 8px; }
+.pbar__mid .t-meta { font-weight: 600; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pbar__clock { font-size: var(--font-size-21); color: var(--color-text-muted); padding: 0 4px; }
+.pa { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px var(--layout-gutter) 0; gap: 16px; }
+.device--short .pa { gap: 12px; padding-top: 0; }
+.device--short .pbar { min-height: 52px; }
+.pa-set { display: grid; gap: 8px; }
+.pa-set__row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.pa-set__label { display: flex; align-items: baseline; gap: 10px; font-weight: 700; font-stretch: var(--font-width-title); font-size: var(--font-size-24); }
+.pa-set__label .num { font-size: var(--font-size-48); }
+.pa-set__label .of { color: var(--color-text-muted); }
+.pa-set .segs > i { height: 8px; }
+.score { display: grid; grid-template-columns: minmax(min-content, 1.45fr) minmax(min-content, 1fr); gap: 12px 20px; }
+.score__cell { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.score__top { display: flex; align-items: flex-start; gap: 10px; }
+.score__n { font-size: var(--type-numeral-xl-size); white-space: nowrap; }
+.score__w { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); padding-top: 6px; }
+.score__u { font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); line-height: 1.2; }
+.badge { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-size: 14px; font-weight: 700; font-stretch: var(--font-width-label); white-space: nowrap; }
+.tempo { display: grid; gap: 4px; grid-template-columns: 2fr 1fr 2fr; }
+.tempo__seg { display: grid; align-content: center; gap: 2px; min-height: 52px; padding: 0 10px; border-radius: var(--radius-xs); background: var(--color-surface-sunken); color: var(--color-text-muted); font-weight: 700; font-stretch: var(--font-width-label); font-size: 13px; line-height: 1.1; white-space: nowrap; }
+.tempo__seg b { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); line-height: 1; color: var(--color-text); }
+.items { display: flex; gap: 6px; }
+.items > i { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-sm); border: var(--border-control) solid var(--color-line-strong); font-style: normal; font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-title); }
+.items > i.done { background: var(--color-complete); border-color: var(--color-complete); }
+.items > i.cur { border: 3px solid var(--color-accent-line); }
+.sides { display: flex; gap: 6px; }
+.sides > i { display: grid; place-items: center; width: 60px; height: 60px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); font-style: normal; font-size: var(--font-size-48); font-weight: 800; font-stretch: var(--font-width-numeral); line-height: 1; }
+.sides > i.done { background: var(--color-complete); border-color: var(--color-complete); }
+.sides > i.cur { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.nextup { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 6px 12px; padding: 4px 0 4px 14px; border-left: var(--border-strong) solid var(--color-line-strong); }
+.nextup__label { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.nextup__tile { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-sm); border: var(--border-control) solid var(--color-line-strong); font-weight: 800; font-size: 18px; font-stretch: var(--font-width-title); }
+.nextup__body { display: grid; min-width: 0; line-height: 1.25; }
+.nextup__body b { font-size: var(--font-size-18); font-stretch: var(--font-width-title); }
+.nextup__body span { font-size: 14px; color: var(--color-text-muted); }
+.dock { flex: none; display: grid; gap: 10px; padding: 14px 16px 42px; }
+.dock__row { display: flex; gap: 10px; }
+.dock__done { flex: 1; justify-content: flex-start; gap: 14px; padding: 0 20px; text-align: left; }
+.dock__done .i { width: 28px; height: 28px; stroke-width: 3; }
+.dock__done-text { display: grid; gap: 1px; }
+.dock__done-text small { font-size: 14px; font-weight: 600; color: var(--color-on-accent-muted); font-stretch: var(--font-width-text); }
+.dock__second { flex: 1; justify-content: flex-start; padding: 0 20px; text-align: left; }
+.dock__second small { display: block; font-size: 14px; font-weight: 600; color: var(--color-text-muted); font-stretch: var(--font-width-text); }
+.clock { display: flex; align-items: flex-end; gap: 8px; margin-left: -10px; }
+.clock__n { font-size: var(--type-timer-size); line-height: 0.76; }
+.clock__u { font-size: var(--font-size-48); font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 4px; }
+.clock--phase .clock__n { font-size: var(--font-size-240); line-height: 0.78; }
+.tbar { position: relative; height: 10px; border-radius: var(--radius-xs); background: var(--color-track); }
+.tbar > i { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--color-accent-line); }
+.tbar__tick { position: absolute; top: -8px; bottom: -8px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--color-text); }
+.ivh { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.ivh__phase { font-size: var(--font-size-48); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); }
+.ivh__round { display: flex; align-items: baseline; gap: 8px; font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); }
+.ivh__round .num { font-size: var(--font-size-48); }
+.ivsegs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.ivsegs > i { display: grid; grid-template-columns: 2fr 3fr; gap: 2px; }
+.ivsegs > i::before, .ivsegs > i::after { content: ""; height: 8px; border-radius: 2px; background: var(--color-rest-track); }
+.ivsegs > i.done::before, .ivsegs > i.done::after, .ivsegs > i.rec::before { background: var(--color-on-rest-muted); }
+.ivsegs > i.rec::after { background: var(--color-on-rest); }
+.ivnext { font-size: var(--font-size-18); font-weight: 600; color: var(--color-on-rest-muted); }
+.ivnext b { color: var(--color-on-rest); }
+
+/* rest takeover */
+.device--rest { background: var(--color-rest-bg); color: var(--color-on-rest); }
+.device--rest .pbar__mid .t-meta, .device--rest .icon-btn { color: var(--color-on-rest); }
+.device--rest .pbar__clock, .device--rest .muted { color: var(--color-on-rest-muted); }
+.device--rest .segs > i { background: var(--color-rest-track); }
+.device--rest .segs > i.done { background: var(--color-on-rest-muted); }
+.device--rest .segs > i.cur { background: var(--color-on-rest); }
+.device--rest .dock__second { border: var(--border-strong) solid var(--color-on-rest); }
+.device--rest .dock__second small { color: var(--color-on-rest-muted); }
+.ra { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--layout-gutter) 42px; }
+.ra-done { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--color-on-rest-muted); }
+.ra-done .i { width: 20px; height: 20px; stroke-width: 3; color: var(--color-on-rest); }
+.ra-timer { display: flex; align-items: flex-end; gap: 8px; margin: 0 0 0 -12px; }
+.ra-timer .clock__n { font-size: var(--type-timer-size); }
+.ra-bar { margin-top: 22px; height: 10px; border-radius: var(--radius-xs); background: var(--color-rest-track); overflow: hidden; }
+.ra-bar i { display: block; height: 100%; background: var(--color-on-rest); }
+.ra-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 24px; }
+.ra-ctrls { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 10px; margin-top: 12px; }
+.ra-ctrls .btn { min-height: var(--tap-player); padding: 0 8px; font-size: var(--font-size-21); }
+.btn--on-rest { border: var(--border-strong) solid var(--color-on-rest); color: var(--color-on-rest); }
+.btn--on-rest-solid { background: var(--color-rest-surface); color: var(--color-accent); }
+
+.device--rest .sheet .icon-btn { color: var(--color-text); }
+.device--rest .sheet .muted { color: var(--color-text-muted); }
+
+/* ===================================================================== */
+/* The figure                                                             */
+/* ===================================================================== */
+.fg { position: absolute; inset: 0; display: block; }
+.fg-cut { fill: none; stroke: var(--figure-cut); stroke-linejoin: round; }
+.fg-body { fill: var(--figure-body); }
+.fg-limb { fill: var(--figure-limb); }
+.fg-limbfar { fill: var(--figure-limb-far); }
+.fg-far { fill: var(--figure-far); }
+.fg-prop { fill: var(--figure-prop); }
+.fg-propfar { fill: var(--figure-prop-far); }
+.fg-door { fill: var(--figure-door); }
+.fg-shadow { fill: var(--figure-shadow); }
+.fg-floor { fill: none; stroke: var(--figure-floor); stroke-width: 1; }
+.fgm { position: absolute; inset: 0; }
+.fgm .fg { animation: fg-in var(--duration-base) var(--ease-move); }
+@keyframes fg-in { from { opacity: 0; } }
+
+/* The slot: one button, the figure fills it; overlays reserve space so they never sit on the figure. */
+.slot { position: relative; display: block; width: 100%; flex: 1; min-height: 96px; overflow: hidden; border: var(--border-hairline) solid var(--color-line); border-radius: var(--radius-lg); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); container-type: size; text-align: left; }
+.slot:active { background: radial-gradient(120% 90% at 50% 38%, color-mix(in srgb, var(--color-surface-raised) 92%, var(--color-text)) 0%, var(--color-surface) 62%); }
+.slot:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.slot__cue { position: absolute; left: 16px; right: 52px; bottom: 12px; margin: 0; color: var(--color-text-muted); font-size: 15px; font-weight: 600; line-height: 1.3; text-wrap: pretty; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.slot__more { position: absolute; right: 8px; bottom: 8px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); color: var(--color-text-muted); }
+.slot__more .i { width: 18px; height: 18px; stroke-width: 2.2; }
+.slot__side { position: absolute; top: 10px; left: 10px; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 10px 0 4px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); font-size: 14px; font-weight: 700; font-stretch: var(--font-width-label); }
+.slot__side b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); font-size: 14px; font-weight: 800; }
+.why { position: absolute; top: 8px; right: 8px; left: 8px; z-index: 1; display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: 15px; font-weight: 600; line-height: 1.25; }
+.why .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.why span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+@container (max-height: 199px) { .slot__cue { display: none; } }
+@container (max-height: 139px) {
+  .why { top: 8px; bottom: 8px; right: auto; width: calc(100% - 136px); align-items: center; font-size: 14px; }
+  .why span { -webkit-line-clamp: 4; line-clamp: 4; }
+}
+/* loading and unavailable */
+.slot__wait { position: absolute; inset: auto 0 0 0; height: 100%; }
+.slot__wait::before { content: ""; position: absolute; left: 0; right: 0; bottom: var(--floor, 14%); border-top: 1px solid var(--figure-floor); }
+.slot__wait::after { content: ""; position: absolute; left: 50%; bottom: calc(var(--floor, 14%) - 5px); width: 34%; max-width: 140px; height: 10px; margin-left: min(-17%, -70px); border-radius: 50%; background: var(--figure-shadow); }
+svg.slot__glyph { position: absolute; left: 50%; top: 42%; width: 64px; height: 64px; margin: -32px 0 0 -32px; color: var(--color-text-subtle); stroke-width: 1.4; }
+@container (max-height: 120px) { svg.slot__glyph { top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; } }
+/* on yellow */
+.device--rest .slot { background: transparent; border-color: var(--color-rest-track); }
+.device--rest .slot__more { background: none; box-shadow: inset 0 0 0 var(--border-control) var(--color-on-rest); color: var(--color-on-rest); }
+.device--rest .slot__cue { color: var(--color-on-rest-muted); }
+
+/* Thumbnails */
+.thumb { position: relative; flex: none; width: 56px; height: 56px; overflow: hidden; border: var(--border-hairline) solid var(--color-line); border-radius: var(--radius-sm); background: radial-gradient(120% 90% at 50% 38%, var(--color-surface-raised) 0%, var(--color-surface) 62%); }
+.thumb--72 { width: 72px; height: 72px; }
+.thumb--ink { border-color: var(--palette-graphite-700); background: var(--palette-graphite-850); }
+
+/* ---------- sheet ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); display: flex; flex-direction: column; max-height: 90%; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); color: var(--color-text); box-shadow: var(--elevation-3); overflow: hidden; }
+.sheet__grab { flex: none; align-self: center; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.howto__band { flex: none; position: relative; display: flex; align-items: center; gap: 12px; padding: 4px 20px 10px; background: var(--color-rest-bg); color: var(--color-on-rest); }
+.howto__band .sheet__grab { position: absolute; top: 0; left: 50%; margin-left: -20px; background: var(--color-rest-track); }
+.howto__band-label { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); padding-top: 14px; }
+.howto__band-n { margin-left: auto; display: flex; align-items: baseline; gap: 4px; padding-top: 12px; }
+.howto__band-n .num { font-size: var(--font-size-48); }
+.howto__band-n span:last-child { font-size: var(--font-size-21); font-weight: 800; font-stretch: var(--font-width-display); }
+.howto__band-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--color-rest-track); }
+.howto__band-bar i { display: block; height: 100%; background: var(--color-on-rest); }
+.howto__head { flex: none; display: grid; grid-template-columns: 1fr 48px; align-items: start; gap: 2px 8px; padding: 0 12px 0 20px; }
+.howto__head--band { padding-top: 12px; }
+.howto__head--view { grid-template-columns: 48px 1fr; padding: 4px 20px 0 8px; }
+.howto__name { padding-top: 8px; font-size: var(--font-size-24); }
+.howto__meta { grid-column: 1; display: flex; gap: 8px; align-items: center; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); line-height: 1.3; }
+.howto__head--view .howto__meta { grid-column: 2; }
+.howto__meta .i { width: 18px; height: 18px; }
+.howto__stage { flex: none; position: relative; height: clamp(180px, 30vh, 260px); margin: 14px 16px 0; overflow: hidden; border: var(--border-hairline) solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-surface); --figure-cut: var(--color-surface); }
+.device .howto__stage { height: 236px; }
+.device--short .howto__stage { height: 184px; }
+.howto__ctrls { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px 0; }
+.howto__ctrls .seg { margin-left: auto; padding: 3px; }
+.howto__ctrls .seg__opt { min-height: 42px; }
+.howto__pace { margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 48px; font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.howto__pace b { color: var(--color-text); }
+.playbtn { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap-min); padding: 0 16px 0 12px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); }
+.playbtn .i { width: 20px; height: 20px; }
+.howto__body[data-scroll] { border-top: var(--border-hairline) solid var(--color-line); margin-top: 10px; }
+.howto__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 18px 20px 20px; display: grid; gap: 18px; align-content: start; }
+.howto__cue { padding: 2px 0 2px 14px; border-left: var(--border-strong) solid var(--color-text); font-size: var(--font-size-18); font-weight: 600; line-height: 1.4; text-wrap: pretty; }
+.steps { display: grid; gap: 14px; counter-reset: step; }
+.steps li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: var(--type-body-size); line-height: 1.5; text-wrap: pretty; }
+.steps li::before { counter-increment: step; content: counter(step); font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-numeral); font-variant-numeric: tabular-nums; line-height: 1; color: var(--color-text-subtle); padding-top: 1px; }
+.sheet__foot { flex: none; display: grid; gap: 10px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); background: var(--color-surface-raised); }
+.device--short .sheet__foot { padding-bottom: 14px; }
+
+/* ---------- lists and screens behind ---------- */
+.ctxbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 8px 4px 4px; }
+.ctxbar__titles { flex: 1; min-width: 0; display: grid; }
+.ctxbar__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.ctxbar__sub { font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.page { padding: 8px var(--layout-gutter) 24px; display: grid; gap: 16px; align-content: start; }
+.search { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 4px 0 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); color: var(--color-text-subtle); font-size: 17px; font-weight: 500; }
+.hintline { display: flex; gap: 8px; align-items: center; font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.hintline .i { width: 18px; height: 18px; color: var(--color-text-subtle); }
+.plist { display: grid; }
+.plist > li { display: grid; grid-template-columns: 72px 1fr; align-items: stretch; border-top: var(--border-hairline) solid var(--color-line); }
+.plist > li:first-child { border-top: 0; }
+.pthumb { display: grid; place-items: center start; padding: 10px 0 10px 4px; border-radius: var(--radius-sm); }
+.pthumb:focus-visible, .pick:focus-visible, .rxhead:focus-visible, .howrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.pick { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 12px; min-height: 76px; padding: 10px 4px 10px 0; text-align: left; }
+.pick__name { display: block; font-size: 17px; font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.pick__meta { display: block; margin-top: 3px; font-size: 13px; color: var(--color-text-muted); line-height: 1.35; }
+.is-pressed { background: var(--color-press-overlay); }
+.rx { display: grid; grid-template-columns: 26px 1fr 48px; column-gap: 8px; padding: 14px 0 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.rx:first-child { border-top: 0; }
+.rx__idx { font-size: var(--font-size-21); color: var(--color-text-subtle); padding-top: 18px; line-height: 1; }
+.rxhead { display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: 12px; min-height: 56px; border-radius: var(--radius-sm); text-align: left; }
+.rxhead__name { font-size: var(--font-size-21); line-height: 1.12; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; }
+.rx__why { margin: 4px -8px 0 0; color: var(--color-text-muted); }
+.rx__body { grid-column: 2 / 4; display: grid; gap: 8px; padding-top: 10px; }
+.rx__nums { display: flex; gap: 24px; }
+.rx__cell { display: grid; gap: 4px; }
+.rx__n { font-size: var(--type-numeral-m-size); white-space: nowrap; }
+.rx__n small { font-size: var(--font-size-21); color: var(--color-text-muted); margin-left: 3px; }
+.rx__w { font-size: var(--font-size-21); line-height: 1.05; font-weight: 800; font-stretch: var(--font-width-display); padding-top: 4px; }
+.rx__u { font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+.rx__facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--type-meta-size); color: var(--color-text-muted); }
+.rx__facts b { color: var(--color-text); }
+.howrow { display: grid; grid-template-columns: 56px 1fr 24px; align-items: center; gap: 14px; width: 100%; min-height: 80px; padding: 11px 14px 11px 12px; border-radius: var(--radius-lg); border: var(--border-hairline) solid var(--color-line); background: var(--color-surface); box-shadow: var(--elevation-1); text-align: left; }
+.howrow b { display: block; font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.howrow small { display: block; margin-top: 2px; font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.howrow > .i { color: var(--color-text-muted); }
+.xd-kicker { display: flex; gap: 8px; align-items: center; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.xd-kicker .i { width: 18px; height: 18px; }
+.readout { display: flex; align-items: flex-end; gap: 10px; }
+.readout .num { font-size: var(--font-size-60); }
+.readout span:last-child { font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); padding-bottom: 6px; }
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; border-top: var(--border-hairline) solid var(--color-line); }
+.tab { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.sec-title { font-size: var(--type-headline-size); font-weight: 700; font-stretch: var(--font-width-title); }
+/* rest next card with the 72 tile */
+.ra-next { display: grid; grid-template-columns: 1fr 72px; column-gap: 14px; align-items: start; padding: 18px 18px 20px 20px; border-radius: var(--radius-lg); background: var(--color-rest-surface); color: var(--color-on-rest-surface); text-align: left; width: 100%; }
+.ra-next:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-rest-bg), 0 0 0 4px var(--color-on-rest); }
+.ra-next__text { display: grid; gap: 6px; min-width: 0; }
+.ra-next__label { font-size: var(--font-size-16); font-weight: 600; color: var(--palette-graphite-300); }
+.ra-next__name { font-size: var(--font-size-36); line-height: var(--line-height-display); font-weight: 800; font-stretch: var(--font-width-display); text-wrap: balance; }
+.ra-next__rx { font-size: var(--font-size-36); color: var(--color-accent); }
+.ra-next .thumb { grid-column: 2; grid-row: 1; }
+
+/* ---------- specimen boards ---------- */
+.board { display: grid; gap: 14px; }
+.board__row { display: grid; grid-template-columns: 170px repeat(3, 350px); gap: 18px; align-items: end; }
+.board__row > span { font-size: 14px; font-weight: 600; color: var(--color-text-muted); align-self: center; }
+.board__head { font-size: 13px; font-weight: 700; color: var(--color-text-muted); }
+.spec { position: relative; width: 350px; }
+.spec .slot { flex: none; }
+.board--thumbs .board__row { grid-template-columns: 170px repeat(4, 120px); align-items: center; }
+.board--thumbs .cell { display: grid; place-items: center start; }
+.inkwell { display: grid; place-items: center; width: 104px; height: 96px; border-radius: var(--radius-lg); background: var(--color-rest-surface); }
+.tokens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.tokcol { border-radius: var(--radius-lg); padding: 16px; display: grid; gap: 8px; align-content: start; }
+.tokcol h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.tokrow { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; font-size: 13px; }
+.tokrow i { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgb(127 127 127 / 0.35); }
+.tokrow code { font-size: 12.5px; }
+.tokrow b { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.7"/><path d="M12 16.9h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-6 6M10 20H4v-6M4 20l6-6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title"><span class="fr">Figure d’exercice et fiche Comment faire</span><span class="en">Exercise figure and how-to sheet</span></span>
+  <nav class="mock-bar__nav">
+    <a href="#s-slot"><span class="fr">Le créneau</span><span class="en">The slot</span></a>
+    <a href="#s-states"><span class="fr">États</span><span class="en">States</span></a>
+    <a href="#s-howto"><span class="fr">Comment faire</span><span class="en">How-to</span></a>
+    <a href="#s-entries"><span class="fr">Entrées</span><span class="en">Entry points</span></a>
+    <a href="#s-thumbs"><span class="fr">Vignettes</span><span class="en">Thumbnails</span></a>
+    <a href="#s-tokens"><span class="fr">Jetons</span><span class="en">Tokens</span></a>
+  </nav>
+  <div class="mock-toggle" role="group" aria-label="Langue"><button type="button" data-set-lang="fr">FR</button><button type="button" data-set-lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème"><button type="button" data-set-theme="dark"><span class="fr">Sombre</span><span class="en">Dark</span></button><button type="button" data-set-theme="light"><span class="fr">Clair</span><span class="en">Light</span></button></div>
+  <div class="mock-toggle" role="group" aria-label="Mouvement"><button type="button" data-set-motion="full"><span class="fr">Animé</span><span class="en">Moving</span></button><button type="button" data-set-motion="reduced"><span class="fr">Mouvement réduit</span><span class="en">Reduced motion</span></button></div>
+</header>
+
+<main class="mock-stage" id="stage"></main>
+
+<script>
+/* Exercise figure renderer: pose core, framing and flat SVG drawing (minified). */
+var Fig=(function(e){Object.defineProperty(e,Symbol.toStringTag,{value:`Module`});let t=(e,t)=>[{to:e,phase:`eccentric`},{to:e,phase:`pause`},{to:t,phase:`concentric`},{to:t,phase:`hold`}],n=[{id:`push-up`,name:`Push-up`,cue:`Your hips neither sag nor pike: keep your body braced as one line.`,camera:{yaw:0,pitch:8,label:`side`},poses:{top:{root:{lean:72.88},shoulder:{plane:84,elev:66},elbow:{flex:4},hip:{plane:90,elev:0},ankle:{flex:-8}},bottom:{root:{lean:88},neck:{flex:-4},shoulder:{plane:-40,elev:50},elbow:{flex:100},hip:{plane:90,elev:0},ankle:{flex:-2}}},start:`top`,still:`bottom`,loop:t(`bottom`,`top`),pins:[{contact:`toes`,mode:`anchor`,at:[0,0,0]},{contact:`hand.l`,mode:`plant`,pole:{frame:`chest`,dir:[-.55,-.62,.56]}},{contact:`hand.r`,mode:`plant`,pole:{frame:`chest`,dir:[-.55,-.62,.56]}}],props:[],working:[`arm.l`,`arm.r`],perSide:!1},{id:`goblet-squat`,name:`Goblet squat`,cue:`The weight at your chest helps keep your torso upright; heels stay down.`,camera:{yaw:40,pitch:10,label:`¾`},poses:{stand:{root:{pos:[0,.92,0]},hip:{plane:0,elev:6,rot:-15},knee:{flex:3},shoulder:{plane:70,elev:30,rot:25},elbow:{flex:125},wrist:{flex:10,dev:20}},bottom:{root:{pos:[-.2,.42,0],lean:34},spine:{flex:-4},chest:{flex:-4},neck:{flex:-10},hip:{plane:74,elev:100,rot:-15},knee:{flex:120},shoulder:{plane:70,elev:30,rot:25},elbow:{flex:125},wrist:{flex:10,dev:20}}},start:`stand`,still:`bottom`,loop:t(`bottom`,`stand`),pins:[{contact:`foot.l`,mode:`plant`},{contact:`foot.r`,mode:`plant`},{contact:`hand.l`,mode:`grip`,frame:`chest`,at:[.165,.15,-.058]},{contact:`hand.r`,mode:`grip`,frame:`chest`,at:[.165,.15,.058]}],props:[{kind:`dumbbell`,id:`db`,group:`db`,frame:`chest`,at:[.2,.12,0],axis:[0,1,0],size:`goblet`}],working:[`leg.l`,`leg.r`],perSide:!1},{id:`dumbbell-lateral-raise`,name:`Dumbbell lateral raise`,cue:`Go light, very light: do not raise above shoulder height.`,camera:{yaw:80,pitch:6,label:`front`},poses:{top:{root:{pos:[0,.915,0],lean:4},hip:{plane:0,elev:3.5},knee:{flex:6},clav:{elev:4},shoulder:{plane:20,elev:86},elbow:{flex:14}},bottom:{root:{pos:[0,.915,0],lean:4},hip:{plane:0,elev:3.5},knee:{flex:6},shoulder:{plane:20,elev:13},elbow:{flex:14}}},start:`top`,still:`top`,loop:t(`bottom`,`top`),pins:[{contact:`foot.l`,mode:`plant`},{contact:`foot.r`,mode:`plant`}],props:[{kind:`dumbbell`,id:`db.l`,group:`db.l`,frame:`wrist.l`,at:[0,-.045,0],axis:[1,0,0]},{kind:`dumbbell`,id:`db.r`,group:`db.r`,frame:`wrist.r`,at:[0,-.045,0],axis:[1,0,0]}],working:[`arm.l`,`arm.r`],perSide:!1},{id:`lateral-lunge`,name:`Lateral lunge`,cue:`Keep both feet pointing forward, with the stepping heel down.`,camera:{yaw:90,pitch:6,label:`front`},poses:{stand:{root:{pos:[0,.925,0]},hip:{plane:180,elev:1.6},shoulder:{plane:-15,elev:30,rot:80},elbow:{flex:95}},land:{root:{pos:[0,.7,.57]},"hip.r":{plane:8,elev:40},"hip.l":{plane:0,elev:40},"knee.r":{flex:10},shoulder:{plane:-15,elev:30,rot:80},elbow:{flex:95}},bottom:{root:{pos:[-.15,.5,.76],lean:36},neck:{flex:-16},"hip.r":{plane:50,elev:85},"knee.r":{flex:95},"hip.l":{plane:10,elev:60},shoulder:{plane:-15,elev:30,rot:80},elbow:{flex:95}}},start:`stand`,still:`bottom`,loop:[{to:`land`,phase:`eccentric`,share:.4,swing:`foot.r`},{to:`bottom`,phase:`eccentric`,share:.6},{to:`bottom`,phase:`pause`},{to:`land`,phase:`concentric`,share:.55},{to:`stand`,phase:`concentric`,share:.45,swing:`foot.r`},{to:`stand`,phase:`hold`}],pins:[{contact:`foot.l`,mode:`plant`,straight:!0},{contact:`foot.r`,mode:`plant`,lift:.08},{contact:`hand.l`,mode:`grip`,frame:`root`,at:[.01,.07,-.165]},{contact:`hand.r`,mode:`grip`,frame:`root`,at:[.01,.07,.165]}],props:[],working:[`leg.r`],perSide:!0},{id:`door-towel-row`,name:`Door towel row`,cue:`Wedge the door and test with a gentle lean before pulling. The closer your feet, the easier.`,camera:{yaw:0,pitch:8,label:`side`},poses:{top:{root:{lean:-19},hip:{plane:0,elev:.5},clav:{prot:-14},shoulder:{plane:-75,elev:32,rot:-10},elbow:{flex:100}},hang:{root:{lean:-32},hip:{plane:0,elev:.5},clav:{prot:6},shoulder:{plane:88,elev:48},elbow:{flex:2}}},start:`top`,still:`top`,loop:t(`hang`,`top`),pins:[{contact:`feet`,mode:`anchor`,at:[0,0,0]},{contact:`foot.l`,mode:`plant`},{contact:`foot.r`,mode:`plant`},{contact:`hand.l`,mode:`tether`,anchor:[.18,1,-.072],length:.2895},{contact:`hand.r`,mode:`tether`,anchor:[.18,1,.072],length:.2895}],props:[{kind:`box`,id:`door`,group:`door`,min:[.12,0,-.02],max:[.92,2.03,.02]},{kind:`capsule`,id:`handle.l/0`,group:`handle.l`,a:[.175,1,-.02],b:[.175,1,-.068],r:.011},{kind:`capsule`,id:`handle.l/1`,group:`handle.l`,a:[.175,1,-.072],b:[.29,1,-.072],r:.012},{kind:`capsule`,id:`handle.r/0`,group:`handle.r`,a:[.175,1,.02],b:[.175,1,.068],r:.011},{kind:`capsule`,id:`handle.r/1`,group:`handle.r`,a:[.175,1,.072],b:[.29,1,.072],r:.012},{kind:`strap`,id:`towel.l`,group:`towel.l`,hand:`l`,to:[.18,1,-.072],r:.022},{kind:`strap`,id:`towel.r`,group:`towel.r`,hand:`r`,to:[.18,1,.072],r:.022},{kind:`capsule`,id:`towel.l/wrap`,group:`towel.l`,a:[.18,1,-.072],b:[.11,1,-.03],r:.02},{kind:`capsule`,id:`towel.r/wrap`,group:`towel.r`,a:[.18,1,.072],b:[.11,1,.03],r:.02}],working:[`arm.l`,`arm.r`],perSide:!1,frameHints:[[.2,1.15,0],[.35,0,0]]}],r=Math.PI/180,i=(e,t)=>[e[0]+t[0],e[1]+t[1],e[2]+t[2]],a=(e,t)=>[e[0]-t[0],e[1]-t[1],e[2]-t[2]],o=(e,t)=>[e[0]*t,e[1]*t,e[2]*t],s=(e,t)=>e[0]*t[0]+e[1]*t[1]+e[2]*t[2],c=(e,t)=>[e[1]*t[2]-e[2]*t[1],e[2]*t[0]-e[0]*t[2],e[0]*t[1]-e[1]*t[0]],l=e=>Math.hypot(e[0],e[1],e[2]),u=e=>{let t=l(e)||1;return[e[0]/t,e[1]/t,e[2]/t]},d=(e,t,n)=>e+(t-e)*n,f=(e,t,n)=>[d(e[0],t[0],n),d(e[1],t[1],n),d(e[2],t[2],n)],p=(e,t,n)=>Math.min(n,Math.max(t,e)),m=[1,0,0,0,1,0,0,0,1];function h(e,t){let n=Array(9);for(let r=0;r<3;r++)for(let i=0;i<3;i++)n[r*3+i]=e[r*3]*t[i]+e[r*3+1]*t[3+i]+e[r*3+2]*t[6+i];return n}let g=(e,t)=>[e[0]*t[0]+e[1]*t[1]+e[2]*t[2],e[3]*t[0]+e[4]*t[1]+e[5]*t[2],e[6]*t[0]+e[7]*t[1]+e[8]*t[2]],_=e=>[e[0],e[3],e[6],e[1],e[4],e[7],e[2],e[5],e[8]],v=(e,t)=>[e[t],e[3+t],e[6+t]],y=(e,t,n)=>[e[0],t[0],n[0],e[1],t[1],n[1],e[2],t[2],n[2]];function b(e,t){let[n,r,i]=u(e),a=Math.cos(t),o=Math.sin(t),s=1-a;return[s*n*n+a,s*n*r-o*i,s*n*i+o*r,s*n*r+o*i,s*r*r+a,s*r*i-o*n,s*n*i-o*r,s*r*i+o*n,s*i*i+a]}let x=e=>b([1,0,0],e*r),S=e=>b([0,1,0],e*r),C=e=>b([0,0,1],e*r),w=(e,t)=>i(e.o,g(e.m,t)),T={pelvis:.925,hip:[0,-.02,.085],thigh:.42,shin:.41,ankle:.075,spine:.19,chest:.26,neck:.085,clav:[-.005,-.035,.165],upperArm:.28,forearm:.245,hand:.06,wrist:.033,toe:[.145,-.05,0],toeR:.025,grip:[0,-.045,0]},E=[{g:`torso`,f:`root`,a:[.005,-.01,-.06],ra:.094,b:[.005,-.01,.06],rb:.094,gap:`none`},{g:`torso`,f:`spine`,a:[0,0,.055],ra:.093,b:[.01,.19,.052],rb:.088,sided:!0},{g:`torso`,f:`chest`,a:[.01,0,.055],ra:.09,b:[.015,.2,.09],rb:.115,sided:!0},{g:`torso`,f:`spine`,a:[.01,0,0],ra:.09,b:[.015,.19,0],rb:.088},{g:`torso`,f:`chest`,a:[.015,0,0],ra:.088,b:[.025,.19,0],rb:.108},{g:`torso`,f:`neck`,a:[0,0,0],ra:.048,b:[0,.085,0],rb:.044},{g:`torso`,f:`head`,a:[.016,.045,0],ra:.066,b:[0,.11,0],rb:.09},{g:`arm.S`,f:`shoulder.S`,a:[0,0,0],ra:.058,b:[0,0,0],rb:.058,gap:`none`},{g:`arm.S`,f:`shoulder.S`,a:[0,0,0],ra:.048,b:[0,-.28,0],rb:.037,gap:.2},{g:`arm.S`,f:`elbow.S`,a:[0,0,0],ra:.039,b:[0,-.245,0],rb:.026},{g:`hand.S`,f:`wrist.S`,a:[0,0,0],ra:.028,b:[0,-.06,0],rb:.032,gap:.3},{g:`leg.S`,f:`hip.S`,a:[0,0,0],ra:.075,b:[0,-.42,0],rb:.05,gap:.24},{g:`leg.S`,f:`knee.S`,a:[0,0,0],ra:.052,b:[0,-.41,0],rb:.033},{g:`leg.S`,f:`ankle.S`,a:[-.045,-.042,0],ra:.033,b:[.145,-.05,0],rb:.025}],D=[[`r`,1],[`l`,-1]];function O(e,t,n){return n&&e[`${t}.${n}`]||e[t]||{}}function k(e,t,n){let r={},i=/* @__PURE__ */ new Set([...Object.keys(e),...Object.keys(t)]);for(let a of i){let i=a.includes(`.`)?a.split(`.`)[1]:void 0,o=a.includes(`.`)?a.split(`.`)[0]:a,s=e[a]||(i?e[o]:void 0)||{},c=t[a]||(i?t[o]:void 0)||{},l={};for(let e of/* @__PURE__ */ new Set([...Object.keys(s),...Object.keys(c)]))e===`pos`?l.pos=f(s.pos||[0,T.pelvis,0],c.pos||[0,T.pelvis,0],n):l[e]=d(s[e]||0,c[e]||0,n);r[a]=l}return r}function A(e,t,n){if(!t)return m;let i=e*r;return b([-n*Math.cos(i),0,Math.sin(i)],t*r)}function j(e){let t={},n=e.root||{};t.root={o:n.pos?[...n.pos]:[0,T.pelvis,0],m:h(h(S(n.turn||0),C(-(n.lean||0))),x(n.tilt||0))};let r=O(e,`spine`);t.spine={o:t.root.o,m:h(t.root.m,h(h(C(-(r.flex||0)),x(r.bend||0)),S(r.twist||0)))};let a=O(e,`chest`);t.chest={o:w(t.spine,[0,T.spine,0]),m:h(t.spine.m,h(h(C(-(a.flex||0)),x(a.bend||0)),S(a.twist||0)))},t.neck={o:w(t.chest,[0,T.chest,0]),m:h(t.chest.m,C(-(O(e,`neck`).flex||0)))},t.head={o:w(t.neck,[0,T.neck,0]),m:h(t.neck.m,C(-(O(e,`head`).flex||0)))};for(let[n,r]of D){let a=O(e,`clav`,n),o=h(S(r*(a.prot||0)),x(-r*(a.elev||0))),s=T.clav,c=O(e,`shoulder`,n);t[`shoulder.${n}`]={o:i(t.neck.o,g(t.chest.m,g(o,[s[0],s[1],r*s[2]]))),m:h(t.chest.m,h(A(c.plane||0,c.elev||0,r),S(r*(c.rot||0))))};let l=O(e,`elbow`,n);t[`elbow.${n}`]={o:w(t[`shoulder.${n}`],[0,-T.upperArm,0]),m:h(t[`shoulder.${n}`].m,h(C(p(l.flex||0,0,150)),S(r*(l.pron||0))))};let u=O(e,`wrist`,n);t[`wrist.${n}`]={o:w(t[`elbow.${n}`],[0,-T.forearm,0]),m:h(t[`elbow.${n}`].m,h(C(u.dev||0),x(r*(u.flex||0))))};let d=T.hip,f=O(e,`hip`,n);t[`hip.${n}`]={o:w(t.root,[d[0],d[1],r*d[2]]),m:h(t.root.m,h(A(f.plane||0,f.elev||0,r),S(r*(f.rot||0))))},t[`knee.${n}`]={o:w(t[`hip.${n}`],[0,-T.thigh,0]),m:h(t[`hip.${n}`].m,C(-p(O(e,`knee`,n).flex||0,0,150)))},t[`ankle.${n}`]={o:w(t[`knee.${n}`],[0,-T.shin,0]),m:h(t[`knee.${n}`].m,C(O(e,`ankle`,n).flex||0))}}return t}function M(e,t,n,r,d,f){let[m,g,b,x,S,C]=t===`arm`?[`shoulder.${n}`,`elbow.${n}`,`wrist.${n}`,T.upperArm,T.forearm,-1]:[`hip.${n}`,`knee.${n}`,`ankle.${n}`,T.thigh,T.shin,1],w=e[m].o,E=h(_(e[g].m),e[b].m),D=a(r,w),O=l(D),k=o(D,1/O),A=p(O,Math.abs(x-S)+1e-4,(x+S)*.99995),j=t===`arm`&&f?f:o(v(e[m].m,0),C);j=a(j,o(k,s(j,k))),l(j)<1e-6&&(j=a(v(e[m].m,2),o(k,s(v(e[m].m,2),k)))),j=u(j);let M=p((x*x+A*A-S*S)/(2*x*A),-1,1),N=Math.sqrt(1-M*M),P=i(w,i(o(k,x*M),o(j,x*N))),F=i(w,o(k,A)),I=u(a(w,P)),L=o(j,C);L=u(a(L,o(I,s(L,I))));let R=c(L,I);e[m]={o:w,m:y(L,I,R)};let z=u(a(P,F)),B=c(z,R);return e[g]={o:P,m:y(B,z,R)},e[b]={o:F,m:d||h(e[g].m,E)},Math.max(0,O-A)}function N(e,t){for(let n in e)e[n]={o:i(e[n].o,t),m:e[n].m}}function P(e,t,n){let r=e[`hip.${t}`].o,i=(T.thigh+T.shin)*.9995,a=i*i-(r[0]-n[0])**2-(r[2]-n[2])**2;a>0&&N(e,[0,n[1]+Math.sqrt(a)-r[1],0])}let F=e=>e.split(`.`)[1];function I(e,t){if(t===`toes`)return o(i(w(e[`ankle.l`],T.toe),w(e[`ankle.r`],T.toe)),.5);if(t===`feet`)return o(i(e[`ankle.l`].o,e[`ankle.r`].o),.5);if(t.startsWith(`foot.`))return e[`ankle.${F(t)}`].o;if(t.startsWith(`hand.`))return e[`wrist.${F(t)}`].o;throw Error(`unknown contact ${t}`)}let L=e=>e===`toes`?T.toeR:e===`feet`||e.startsWith(`foot.`)?T.ankle:T.wrist;function R(e,t){let n=t.startsWith(`foot.`)?v(e[`ankle.${F(t)}`].m,0):v(e.root.m,0);return!t.startsWith(`foot.`)&&Math.hypot(n[0],n[2])<.5&&(n=v(e.root.m,1)),u([n[0],0,n[2]])}function z(e,t){if(e.startsWith(`foot.`))return y(t,[0,1,0],c(t,[0,1,0]));let n=F(e)===`r`?1:-1,r=o(t,-1),i=[0,n,0];return y(c(r,i),r,i)}function B(e,t){let n=I(e,t.contact),r=t.at?[t.at[0],0,t.at[2]]:n;return{pos:[r[0],L(t.contact),r[2]],h:R(e,t.contact)}}let V={eccentric:1.4,pause:.25,concentric:1.1,hold:.6},ee=e=>-(Math.cos(Math.PI*e)-1)/2;function H(e,t){let n=[],r=0;for(let i=0;i<e.loop.length;){let a=e.loop[i].phase,o=[];for(;i<e.loop.length&&e.loop[i].phase===a;)o.push(i++);let s=o.reduce((t,n)=>t+(e.loop[n].share??1),0),c=0,l=o.map(t=>{let n=(e.loop[t].share??1)/s,r={step:t,u0:c,u1:c+n};return c+=n,r}),u=t[a]??0;n.push({phase:a,t0:r,t1:r+u,parts:l}),r+=u}let i=e.pins.find(e=>e.mode===`anchor`),o=i?B(j(e.poses[e.start]),i).pos:null,s=t=>{let n=j(e.poses[t]);return i&&N(n,a(o,I(n,i.contact))),n},c=e.pins.filter(e=>e.mode===`plant`),l=[],u={},d=s(e.start);for(let e of c)u[e.contact]=B(d,e);for(let t of e.loop)if(l.push({...u}),t.swing){let e=c.find(e=>e.contact===t.swing);u={...u,[t.swing]:B(s(t.to),{...e,at:void 0})}}let f=[],p=e.start;for(let t of e.loop)f.push(p),p=t.to;return{ex:e,segs:n,duration:r,anchorPin:i,anchorTarget:o,plants:c,held:l,fromPose:f}}function te(e,t){let{segs:n,duration:r}=e;if(r<=0)return{step:0,u:0,e:0,phase:n[0].phase};let i=(t%r+r)%r,a=n.find(e=>i<e.t1)||n[n.length-1],o=a.t1>a.t0?(i-a.t0)/(a.t1-a.t0):1,s=a.phase===`eccentric`||a.phase===`concentric`?ee(o):o,c=a.parts.find(e=>s<=e.u1+1e-9)||a.parts[a.parts.length-1],l=p((s-c.u0)/(c.u1-c.u0||1),0,1);return{step:c.step,u:l,phase:a.phase,phaseProgress:o}}function U(e,t){for(let n of e.segs)for(let r of n.parts)if(e.ex.loop[r.step].to===t){if(n.phase===`pause`||n.phase===`hold`)return(n.t0+n.t1)/2;if(r.u1>=1-1e-9)return n.t1-1e-6}return 0}function ne(e,t,n){if(!t.pole)return;let r=t.pole.dir;return g(e[t.pole.frame].m,[r[0],r[1],n===`l`?-r[2]:r[2]])}function W(e,t){let{ex:n}=e,r=te(e,t),s=n.loop[r.step],c=j(k(n.poses[e.fromPose[r.step]],n.poses[s.to],r.u));e.anchorPin&&N(c,a(e.anchorTarget,I(c,e.anchorPin.contact)));let l=e.held[r.step],d=e.plants.find(e=>e.straight);d&&P(c,F(d.contact),l[d.contact].pos);let p=0;for(let t of e.plants){let i=l[t.contact];if(s.swing===t.contact){let a=e.held[(r.step+1)%n.loop.length][t.contact],o=Math.sin(Math.PI*r.u)*(t.lift??.08),s=f(i.pos,a.pos,r.u);s[1]+=o,i={pos:s,h:u(f(i.h,a.h,r.u))}}let a=t.contact.startsWith(`foot.`)?`leg`:`arm`,o=F(t.contact);p=Math.max(p,M(c,a,o,i.pos,z(t.contact,i.h),ne(c,t,o)))}for(let e of n.pins){let t=F(e.contact);if(e.mode===`grip`)p=Math.max(p,M(c,`arm`,t,w(c[e.frame],e.at),void 0,ne(c,e,t)));else if(e.mode===`tether`){let n=0;for(let r=0;r<3;r++){let r=u(a(c[`shoulder.${t}`].o,e.anchor)),s=i(e.anchor,o(r,e.length));n=M(c,`arm`,t,a(s,g(c[`wrist.${t}`].m,T.grip)))}p=Math.max(p,n)}}return c.miss=p,c.phase=r.phase,c}function re(e,t,n,r,a){let[s,c,l]=a===`goblet`?[.15,.05,.058]:[.13,.04,.045],u=s/2;return[{id:`${e}/h`,group:t,a:i(n,o(r,-u)),b:i(n,o(r,u)),ra:.016,rb:.016},{id:`${e}/1`,group:t,a:i(n,o(r,u)),b:i(n,o(r,u+c)),ra:l,rb:l},{id:`${e}/2`,group:t,a:i(n,o(r,-u)),b:i(n,o(r,-u-c)),ra:l,rb:l}]}function G(e,t,{minR:n=0,mirror:r=!1}={}){let i=[];E.forEach(({g:t,f:n,a:r,ra:a,b:o,rb:s,sided:c,gap:l},u)=>{let d=n.includes(`S`)||c;for(let[f,p]of d?D:[[``,1]]){let m=e[n.replace(`S`,f)],h=e=>d?[e[0],e[1],p*e[2]]:e,g=t.replace(`S`,f);i.push({id:c?`${g}/${u}${f}`:`${g}/${u}`,group:g,a:w(m,h(r)),ra:a,b:w(m,h(o)),rb:s,gap:l})}});for(let n of t.props||[])if(n.kind===`dumbbell`){let t=e[n.frame],r=w(t,n.at),a=u(g(t.m,n.axis));i.push(...re(n.id,n.group,r,a,n.size))}else if(n.kind===`box`)i.push({id:n.id,group:n.group,box:{min:n.min,max:n.max}});else if(n.kind===`capsule`)i.push({id:n.id,group:n.group,a:n.a,ra:n.r,b:n.b,rb:n.r});else if(n.kind===`strap`){let t=n.hand,r=w(e[`wrist.${t}`],T.grip);i.push({id:n.id,group:n.group,a:r,ra:n.r,b:n.to,rb:n.r})}for(let e of i)e.box||(e.ra=Math.max(e.ra,n),e.rb=Math.max(e.rb,n));if(r){let e=e=>[e[0],e[1],-e[2]],t=e=>e.replace(/\.(l|r)\b/g,(e,t)=>t===`l`?`.r`:`.l`);for(let n of i)n.id=t(n.id),n.group=t(n.group),n.box?n.box={min:[n.box.min[0],n.box.min[1],-n.box.max[2]],max:[n.box.max[0],n.box.max[1],-n.box.min[2]]}:(n.a=e(n.a),n.b=e(n.b))}return i}let ie=e=>e.replace(/\.(l|r)\b/g,(e,t)=>t===`l`?`.r`:`.l`),K=Math.PI/180;function ae(e){let t=e.camera.yaw*K,n=(e.camera.pitch??0)*K,r=[Math.sin(t)*Math.cos(n),Math.sin(n),Math.cos(t)*Math.cos(n)],i=o(r,-1),a=u(c(i,[0,1,0])),l=c(a,i),d=s([0,0,1],r);return{toCam:r,view:i,right:a,up:l,farSide:d>.35?`l`:d<-.35?`r`:null}}let q=(e,t)=>[s(t,e.right),s(t,e.up),s(t,e.view)];function oe(e,t){let n=u([t.view[0],0,t.view[2]]),r=/* @__PURE__ */ new Map;for(let t of e){let e=t.box?[(t.box.min[0]+t.box.max[0])/2,(t.box.min[1]+t.box.max[1])/2,(t.box.min[2]+t.box.max[2])/2]:[(t.a[0]+t.b[0])/2,(t.a[1]+t.b[1])/2,(t.a[2]+t.b[2])/2],i=s(e,n)+(t.group===`door`?.002:t.group===`torso`?.08:0),a=r.get(t.group)||{sum:0,n:0};a.sum+=i,a.n+=1,r.set(t.group,a)}return[...r.entries()].sort((e,t)=>t[1].sum/t[1].n-e[1].sum/e[1].n).map(([e])=>e)}let J=e=>Math.round(e*10)/10;function Y(e,t,n){return`M${J(e-n)} ${J(t)}A${J(n)} ${J(n)} 0 1 0 ${J(e+n)} ${J(t)}A${J(n)} ${J(n)} 0 1 0 ${J(e-n)} ${J(t)}Z`}function X(e,t,n,r,i,a,o=null){let s=r-e,c=i-t,l=Math.hypot(s,c);if(l+Math.min(n,a)<=Math.max(n,a)+.05)return n>=a?Y(e,t,n):Y(r,i,a);let u=Math.atan2(c,s),d=Math.acos((n-a)/l),f=Math.cos(u+d),p=Math.sin(u+d),m=Math.cos(u-d),h=Math.sin(u-d),g=+(2*d>Math.PI);if(o!==null){let s=o,c=e+n*f+(r+a*f-e-n*f)*s,l=t+n*p+(i+a*p-t-n*p)*s,u=e+n*m+(r+a*m-e-n*m)*s,d=t+n*h+(i+a*h-t-n*h)*s;return`M${J(c)} ${J(l)}L${J(r+a*f)} ${J(i+a*p)}A${J(a)} ${J(a)} 0 ${g} 0 ${J(r+a*m)} ${J(i+a*h)}L${J(u)} ${J(d)}`}return`M${J(e+n*f)} ${J(t+n*p)}L${J(r+a*f)} ${J(i+a*p)}A${J(a)} ${J(a)} 0 ${g} 0 ${J(r+a*m)} ${J(i+a*h)}L${J(e+n*m)} ${J(t+n*h)}A${J(n)} ${J(n)} 0 ${1-g} 0 ${J(e+n*f)} ${J(t+n*p)}Z`}let Z=`http://www.w3.org/2000/svg`,Q=e=>Math.round(e*10)/10,se=n.find(e=>e.id===`goblet-squat`),ce=[{...se,id:`deep-squat-hold`,props:[],still:`bottom`},{...se,id:`bodyweight-squat`,props:[]}],le=new Map([...n,...ce].map(e=>[e.id,e])),ue={"350x96":[9,18,11,18],"350x240":[22,24,28,24],"72x72":[7,6,9,6],"56x56":[5,4,7,4]};function de(e,t){let n=ue[`${e}x${t}`];if(n)return n;let r=Math.max(2,Math.round(Math.min(e*.075,t*.1)));return[Math.round(t*.093),r,Math.round(t*.118),r]}let fe=e=>Math.min(1.8,Math.max(.8,.6+e*.007));function pe(e,t,n,{still:r=!1,mirror:i=!1,tile:a=!1,keep:o=.55,box:s=null,pose:c=null}={}){let[l,u,d,f]=s||[0,0,t,n],p=de(Math.round(d),Math.round(f)),m=ae(e),h=H(e,V),[g,_,v,y]=[1/0,-1/0,1/0,-1/0],b=0,x={x0:1/0,x1:-1/0,z0:1/0,z1:-1/0},S=r?[U(h,c||e.still)]:Array.from({length:48},(e,t)=>h.duration*t/48),C=r?[i]:e.perSide?[!1,!0]:[!1];for(let t of C)for(let n of S){let r=W(h,n);b=q(m,r.head.o)[0]*1;for(let n of G(r,e,{mirror:t}))if(!n.box)for(let[e,t]of[[n.a,n.ra],[n.b,n.rb]]){let[r,i]=q(m,e);g=Math.min(g,r-t),_=Math.max(_,r+t),v=Math.min(v,i-t),y=Math.max(y,i+t),e[1]-t<.06&&!n.group.startsWith(`towel`)&&(x.x0=Math.min(x.x0,e[0]),x.x1=Math.max(x.x1,e[0]),x.z0=Math.min(x.z0,e[2]),x.z1=Math.max(x.z1,e[2]))}}if(!r)for(let t of e.frameHints||[]){let[e,n]=q(m,t);g=Math.min(g,e),_=Math.max(_,e),v=Math.min(v,n),y=Math.max(y,n)}let w=d-p[1]-p[3],T=f-p[0]-p[2],E=_-g,D=y-v,O=Math.min(w/E,T/D),k=O;a&&(k=Math.max(O,Math.min(T/D,w/(E*o))));let A;A=E*k<=w+.5?l+p[3]+(w-E*k)/2-g*k:b-g>_-b?l+d-p[1]-_*k:l+p[3]-g*k;let j=u+f-p[2]+v*k;return{w:t,h:n,scale:k,ox:A,oy:j,cam:m,minR:.85/k,gap:fe(k),footprint:x,toScreen:e=>{let[t,n,r]=q(m,e);return[A+t*k,j-n*k,r]},cropped:E*k>w+.5}}function me(e){let{footprint:t,toScreen:n}=e,r=(t.x0+t.x1)/2,i=(t.z0+t.z1)/2,a=(t.x1-t.x0)/2+.1,o=(t.z1-t.z0)/2+.1,s=[];for(let e=0;e<40;e++){let t=e/40*Math.PI*2,[c,l]=n([r+a*Math.cos(t),0,i+o*Math.sin(t)]);s.push(`${Q(c)},${Q(l)}`)}return{lineY:n([r,0,i])[1],shadow:`M${s.join(`L`)}Z`}}function he(e,t,n,r){let i=/\.(l|r)$/.exec(e)?.[1],a=i!==void 0&&i===r.farSide;if(e===`door`)return`door`;if(/^(db|towel|handle)/.test(e))return a?`propfar`:`prop`;let o=e.replace(/^hand\./,`arm.`);return(n?t.working.map(ie):t.working).includes(o)?a?`limbfar`:`limb`:a?`far`:`body`}function ge(e,t){let n=[];for(let r of[e.min[0],e.max[0]])for(let i of[e.min[1],e.max[1]])for(let a of[e.min[2],e.max[2]])n.push(t([r,i,a]));n.sort((e,t)=>e[0]-t[0]||e[1]-t[1]);let r=(e,t,n)=>(t[0]-e[0])*(n[1]-e[1])-(t[1]-e[1])*(n[0]-e[0]),i=e=>{let t=[];for(let n of e){for(;t.length>=2&&r(t[t.length-2],t[t.length-1],n)<=0;)t.pop();t.push(n)}return t.pop(),t};return`M${[...i(n),...i([...n].reverse())].map(e=>`${Q(e[0])} ${Q(e[1])}`).join(`L`)}Z`}function _e(e,t,n,r,i,a){let o=G(W(r,i),n,{minR:t.minR,mirror:a}),s=oe(o,t.cam),c=/* @__PURE__ */ new Map,l=/* @__PURE__ */ new Map,u=t.scale;for(let e of o){let n,r;if(e.box)n=r=ge(e.box,t.toScreen);else{let i=t.toScreen(e.a),a=t.toScreen(e.b);n=X(i[0],i[1],e.ra*u,a[0],a[1],e.rb*u),r=e.gap===`none`?``:typeof e.gap==`number`?X(i[0],i[1],e.ra*u,a[0],a[1],e.rb*u,e.gap):n}c.set(e.group,(c.get(e.group)||``)+n),l.set(e.group,(l.get(e.group)||``)+r)}let d=``;for(let e of s){let r=he(e,n,a,t.cam),i=l.get(e);i&&(d+=`<path class="fg-cut" stroke-width="${Q(t.gap*2)}" d="${i}"/>`),d+=`<path class="fg-${r}" d="${c.get(e)}"/>`}e.innerHTML=d}let $=/* @__PURE__ */ new Set,ve=0;function ye(e){for(let t of $)t.paused||t.draw((e-t.t0)/1e3*t.speed);ve=$.size?requestAnimationFrame(ye):0}function be(e,t){let n=le.get(t.ex);if(!n)throw Error(`No figure `+t.ex);let r=Math.round(e.clientWidth),i=Math.round(e.clientHeight);if(!r||!i)return null;let a=t.side===2&&n.perSide,o=t.mode===`still`,s=typeof t.box==`function`?t.box(r,i):t.box,c=pe(n,r,i,{still:o&&!t.loopFrame,mirror:a,tile:!!t.tile,keep:t.keep??.55,box:s,pose:t.pose}),l=H(n,V),u=document.createElementNS(Z,`svg`);if(u.setAttribute(`viewBox`,`0 0 ${r} ${i}`),u.setAttribute(`width`,r),u.setAttribute(`height`,i),u.setAttribute(`aria-hidden`,`true`),u.setAttribute(`class`,`fg`),t.floor!==!1){let e=me(c);u.innerHTML=`<path class="fg-shadow" d="${e.shadow}"/><path class="fg-floor" d="M0 ${Q(e.lineY)}H${r}"/>`}let d=document.createElementNS(Z,`g`);u.appendChild(d),e.textContent=``,e.appendChild(u);let f=U(l,t.pose||n.still),p={el:e,t0:performance.now(),speed:t.speed??1,paused:!1,draw:e=>_e(d,c,n,l,e,a),duration:l.duration},m=matchMedia(`(prefers-reduced-motion: reduce)`).matches;return o||m||t.at!==void 0?p.draw(t.at!==void 0&&!o&&!m?t.at:f):(p.draw(0),$.add(p),ve||=requestAnimationFrame(ye)),e._fig=p,p}function xe(e){for(let t of[...$])e.contains(t.el)&&$.delete(t)}return e.framing=pe,e.ids=()=>[...le.keys()],e.mount=be,e.unmountAll=xe,e})({});</script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var lang = q.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = q.get('theme') === 'light' ? 'light' : 'dark';
+  var motion = q.get('motion') === 'reduced' ? 'reduced' : 'full';
+
+  function L(fr, en) { return '<span class="fr">' + fr + '</span><span class="en">' + en + '</span>'; }
+  function ic(n, cls) { return '<svg class="i' + (cls ? ' ' + cls : '') + '"><use href="#i-' + n + '"/></svg>'; }
+  function fig(o) { return '<div class="fgm" data-fig=\'' + JSON.stringify(o) + '\'></div>'; }
+  var NB = '&#8239;'; // narrow no-break space before : ? !
+
+  /* ---------- exercise copy (catalogue text) ---------- */
+  var EX = {
+    'push-up': { fr: 'Pompes', en: 'Push-up', meta: ['Poussée horizontale, poids du corps', 'Horizontal push, bodyweight'],
+      cue: ['Le bassin ne s’affaisse pas et ne monte pas' + NB + ': garde le corps gainé d’un bloc.', 'Your hips neither sag nor pike: keep your body braced as one line.'],
+      steps: [['Mains à largeur d’épaules, corps en planche rigide.', 'Hands shoulder-width apart, body in a rigid plank.'],
+              ['Descends jusqu’à frôler le sol avec la poitrine.', 'Lower until your chest almost touches the floor.'],
+              ['Repousse le sol jusqu’à avoir les bras tendus.', 'Press the floor away until your arms are straight.'],
+              ['Avec une ceinture lestée, raccourcis la chaîne pour que le poids ne touche pas le sol en bas.', 'With a weight belt, shorten the chain so the plate hangs clear of the floor at the bottom.']] },
+    'goblet-squat': { fr: 'Squat goblet', en: 'Goblet squat', meta: ['Squat, haltère', 'Squat, dumbbell'],
+      cue: ['Le poids sur la poitrine t’aide à garder le buste droit, talons au sol.', 'The weight at your chest helps keep your torso upright; heels stay down.'],
+      steps: [['Tiens un haltère à la verticale (ou un kettlebell par les cornes) contre la poitrine, coudes dessous.', 'Hold a dumbbell upright (or a kettlebell by the horns) against your chest, elbows underneath.'],
+              ['Descends en squat, fesses vers l’arrière et le bas.', 'Lower into a squat, hips back and down.'],
+              ['Remonte en poussant dans les talons.', 'Drive up through your heels.']] },
+    'lateral-lunge': { fr: 'Fente latérale', en: 'Lateral lunge', meta: ['Fente, poids du corps', 'Lunge, bodyweight'],
+      cue: ['Les deux pieds restent pointés vers l’avant, talon du pas au sol.', 'Keep both feet pointing forward, with the stepping heel down.'],
+      steps: [['Debout, pieds joints, fais un grand pas sur le côté.', 'Stand with feet together and take a big step to the side.'],
+              ['Fléchis la jambe du pas en poussant les fesses en arrière, l’autre jambe reste tendue.', 'Bend the stepping leg while pushing your hips back, the other leg staying straight.'],
+              ['Pousse dans le pied fléchi pour revenir, puis change de côté.', 'Push off the bent leg to return, then switch sides.']] },
+    'door-towel-row': { fr: 'Rowing à la serviette sur porte', en: 'Door towel row', meta: ['Tirage horizontal, porte et serviette', 'Horizontal pull, door and towel'],
+      cue: ['La porte doit être calée et les poignées bien fixées' + NB + ': teste en t’inclinant doucement avant de tirer. Plus tes pieds sont proches de la porte, plus c’est facile.', 'Wedge the door so it cannot swing and make sure the handles are firmly fixed: test with a gentle lean before pulling. The closer your feet, the easier it is.'],
+      steps: [['Ouvre une porte et cale-la pour qu’elle ne bouge pas (cale sous la porte côté opposé, ou pieds près du bas du bord). Vérifie que les deux poignées sont bien fixées.', 'Open a door and wedge it so it cannot swing (a doorstop under the door on the far side, or feet close to the bottom edge). Check both handles are firmly fixed.'],
+              ['Passe une serviette solide autour des deux poignées (une sur chaque face), place-toi face au bord de la porte, un pied de chaque côté, et saisis un bout de serviette dans chaque main.', 'Loop a sturdy towel around both handles (one on each face of the door), stand facing the door’s edge with one foot on each side, and hold one end of the towel in each hand.'],
+              ['Penche-toi en arrière bras tendus, corps gainé et droit des talons à la tête. Teste d’abord en t’inclinant doucement.', 'Lean back with straight arms, body braced and straight from heels to head. Test first with a gentle lean.'],
+              ['Tire la poitrine vers le bord de la porte en serrant les omoplates, puis redescends lentement.', 'Pull your chest toward the door’s edge, squeezing your shoulder blades, then lower slowly.']] },
+    'dumbbell-lateral-raise': { fr: 'Élévations latérales haltères', en: 'Dumbbell lateral raise', meta: ['Isolation épaules, haltères', 'Shoulder isolation, dumbbells'],
+      cue: ['Choisis léger, très léger' + NB + ': ne monte pas plus haut que les épaules.', 'Go light, very light: do not raise above shoulder height.'] },
+    'deep-squat-hold': { fr: 'Squat profond tenu', en: 'Deep squat hold', cue: ['Talons au sol, poitrine haute' + NB + ': respire dans la position.', 'Heels down, chest up: breathe into the position.'] },
+    'bodyweight-squat': { fr: 'Squat au poids du corps', en: 'Bodyweight squat', cue: ['Talons au sol, genoux dans l’axe des pieds.', 'Keep your heels down and knees in line with your feet.'] }
+  };
+  function nm(id) { return L(EX[id].fr, EX[id].en); }
+  function cue(id) { return L(EX[id].cue[0], EX[id].cue[1]); }
+
+  /* ---------- shell ---------- */
+  function device(inner, o) {
+    o = o || {};
+    var cls = 'device' + (o.short ? ' device--short' : '') + (o.rest ? ' device--rest' : '');
+    return '<div class="' + cls + '"><div class="statusbar"><span>9:41</span><svg viewBox="0 0 64 12"><rect x="0" y="2" width="18" height="8" rx="2"/><rect x="40" y="1" width="22" height="10" rx="3"/></svg></div><div class="screen">' + inner + '</div><div class="homebar"></div></div>';
+  }
+  function shot(id, inner, capFr, capEn, o) { capFr = capFr.replace(/ ([:;?!])/g, NB + '$1'); return '<figure class="mock-shot" id="' + id + '">' + device(inner, o) + '<figcaption>' + L(capFr, capEn) + '</figcaption></figure>'; }
+  function pbar(ctxFr, ctxEn, segs, clock) {
+    var s = ''; for (var i = 0; i < segs.length; i++) s += '<i class="' + segs[i] + '"></i>';
+    return '<div class="pbar"><button class="icon-btn" type="button" aria-label="Pause">' + ic('pause') + '</button><div class="pbar__mid"><span class="t-meta">' + L(ctxFr, ctxEn) + '</span><div class="segs">' + s + '</div></div><span class="num pbar__clock">' + clock + '</span><button class="icon-btn" type="button" aria-label="Annonces vocales">' + ic('sound') + '</button></div>';
+  }
+  function setHead(word, n, of, segs, extra) {
+    var s = ''; for (var i = 0; i < segs.length; i++) s += '<i class="' + segs[i] + '"></i>';
+    return '<div class="pa-set"><div class="pa-set__row"><span class="pa-set__label">' + word + '<span><span class="num">' + n + '</span><span class="num of">/' + of + '</span></span></span>' + (extra || '') + '</div><div class="segs">' + s + '</div></div>';
+  }
+  var SET = L('Série', 'Set'), ROUND = L('Tour', 'Round');
+  function tempo() { return '<div class="tempo" role="button"><span class="tempo__seg">' + L('Descente', 'Lower') + '<b>2&nbsp;s</b></span><span class="tempo__seg">' + L('Pause', 'Hold') + '<b>1&nbsp;s</b></span><span class="tempo__seg">' + L('Montée', 'Lift') + '<b>2&nbsp;s</b></span></div>'; }
+  function feel(ask) {
+    return '<div class="seg' + (ask ? ' seg--ask' : '') + '" role="radiogroup"><button class="seg__opt" role="radio" aria-checked="false">' + L('Facile', 'Easy') + '</button><button class="seg__opt" role="radio" aria-checked="' + (ask ? 'false' : 'true') + '">' + L('Idéal', 'Right') + '</button><button class="seg__opt" role="radio" aria-checked="false">' + L('Dur', 'Hard') + '</button></div>';
+  }
+  function doneDock(topFr, topEn, subFr, subEn, ask) {
+    return '<div class="dock">' + feel(ask) + '<div class="dock__row"><button class="btn btn--primary btn--player dock__done" type="button">' + ic('check') + '<span class="dock__done-text"><span>' + L(topFr, topEn) + '</span><small>' + L(subFr, subEn) + '</small></span></button><button class="icon-btn icon-btn--player" type="button" aria-label="Modifier la série">' + ic('pencil') + '</button></div></div>';
+  }
+
+  /* ---------- the slot ---------- */
+  // o: ex, side, why [fr,en], cue (bool), state ('play'|'still'|'loading'|'none'), sideLabel [fr,en], mode, rest
+  function slot(o) {
+    var name = EX[o.ex];
+    var label = (lang === 'en' ? 'How to do it: ' + name.en : 'Comment faire' + NB + ': ' + name.fr);
+    var inner = '';
+    var st = o.state || 'play';
+    if (st === 'play' || st === 'still') inner += fig({ ex: o.ex, mode: (o.mode || (st === 'still' ? 'still-loop' : 'loop')), side: o.side || 1 });
+    if (st === 'loading') inner += '<div class="slot__wait" aria-hidden="true"></div>';
+    if (st === 'none') inner += ic('dumbbell', 'slot__glyph');
+    if (o.why) inner += '<p class="why" data-reserve="top">' + ic(o.whyIcon || 'info') + '<span>' + L(o.why[0], o.why[1]) + '</span></p>';
+    if (o.sideLabel && !o.why) inner += '<span class="slot__side" aria-hidden="true"><b>' + o.sideLabel[2] + '</b>' + L(o.sideLabel[0], o.sideLabel[1]) + '</span>';
+    if (o.cue !== false) inner += '<p class="slot__cue" data-reserve="bottom">' + cue(o.ex) + '</p>';
+    inner += '<span class="slot__more" data-reserve="right" aria-hidden="true">' + ic('expand') + '</span>';
+    return '<button type="button" class="slot"' + (o.rest ? ' data-figure-tone="rest"' : '') + (o.h ? ' style="flex:none;height:' + o.h + 'px"' : '') + ' aria-label="' + label + '">' + inner + '</button>';
+  }
+
+  /* ---------- the how-to sheet ---------- */
+  // o: ex, band ('rest' secs), view (inside another sheet), foot (html), side, controls ('free'|'paced'|'reduced'), scroll
+  function howto(o) {
+    var x = EX[o.ex];
+    var h = '';
+    if (o.band) {
+      h += '<div class="howto__band" role="timer"><span class="sheet__grab"></span><span class="howto__band-label">' + L('Repos', 'Rest') + '</span><span class="howto__band-n"><span class="num">' + o.band + '</span><span>s</span></span><span class="howto__band-bar"><i style="width:' + (o.bandPct || 50) + '%"></i></span></div>';
+    } else h += '<span class="sheet__grab"></span>';
+    if (o.view) {
+      h += '<div class="howto__head howto__head--view"><button class="icon-btn" type="button" aria-label="Retour">' + ic('back') + '</button><h2 class="t-title howto__name">' + nm(o.ex) + '</h2><span class="howto__meta">' + L(x.meta[0], x.meta[1]) + '</span></div>';
+    } else {
+      h += '<div class="howto__head' + (o.band ? ' howto__head--band' : '') + '"><h2 class="t-title howto__name">' + nm(o.ex) + '</h2><button class="icon-btn" type="button" aria-label="Fermer" style="margin-top:2px">' + ic('close') + '</button><span class="howto__meta">' + L(x.meta[0], x.meta[1]) + '</span></div>';
+    }
+    h += '<div class="howto__stage" role="img" aria-label="' + (lang === 'en' ? 'Animated demonstration' : 'Démonstration animée') + '">' + fig({ ex: o.ex, mode: o.controls === 'reduced' ? 'still-loop' : 'loop', side: o.side || 1, force: o.controls === 'reduced' }) + '</div>';
+    var c = o.controls || 'free';
+    if (c === 'free') h += '<div class="howto__ctrls"><button class="playbtn" type="button">' + ic('pause') + L('Pause', 'Pause') + '</button><div class="seg" role="radiogroup" aria-label="Vitesse"><button class="seg__opt" role="radio" aria-checked="true">' + L('Normal', 'Normal') + '</button><button class="seg__opt" role="radio" aria-checked="false">' + L('Lent', 'Slow') + '</button></div></div>';
+    if (c === 'paced') h += '<div class="howto__ctrls"><button class="playbtn" type="button">' + ic('pause') + L('Pause', 'Pause') + '</button><span class="howto__pace">' + L('Suit ton tempo <b>2-1-2</b>', 'Follows your tempo <b>2-1-2</b>') + '</span></div>';
+    if (c === 'reduced') h += '<div class="howto__ctrls"><button class="playbtn" type="button">' + ic('play') + L('Lire l’animation', 'Play the animation') + '</button></div>';
+    h += '<div class="howto__body"' + (o.scroll ? ' data-scroll="' + o.scroll + '"' : '') + '><p class="howto__cue">' + cue(o.ex) + '</p><ol class="steps">';
+    for (var i = 0; i < x.steps.length; i++) h += '<li>' + L(x.steps[i][0], x.steps[i][1]) + '</li>';
+    h += '</ol></div>';
+    h += '<div class="sheet__foot">' + (o.foot || '<button class="btn btn--secondary btn--block btn--player" type="button">' + L('Fermer', 'Close') + '</button>') + '</div>';
+    return '<div class="scrim"></div><section class="sheet" role="dialog" aria-modal="true">' + h + '</section>';
+  }
+
+  /* ---------- screens ---------- */
+  function pushUpSet(withSheet) {
+    return pbar('Exercice 2 sur 6', 'Exercise 2 of 6', ['done', 'cur', '', '', '', ''], '12:48') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('push-up') + '</h1>' + setHead(SET, 2, 4, ['done', 'cur', '', '']) +
+      '<div class="score"><div class="score__cell"><div class="score__top"><span class="num score__n">12</span><span class="badge">RIR 2</span></div><span class="score__u">' + L('reps (10–15)', 'reps (10–15)') + '</span></div><div class="score__cell"><span class="score__w">' + L('Poids du corps', 'Bodyweight') + '</span></div></div>' +
+      tempo() + slot({ ex: 'push-up' }) + '</div>' + doneDock('Fait comme prévu', 'Done as planned', '12 reps', '12 reps') + (withSheet || '');
+  }
+  function gobletSet(o) {
+    o = o || {};
+    return pbar('Exercice 1 sur 6', 'Exercise 1 of 6', ['cur', '', '', '', '', ''], '04:10') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('goblet-squat') + '</h1>' + setHead(SET, 1, 4, ['cur', '', '', '']) +
+      '<div class="score"><div class="score__cell"><div class="score__top"><span class="num score__n">8</span><span class="badge">RIR 2</span></div><span class="score__u">reps (8–12)</span></div><div class="score__cell"><span class="num score__n">16</span><span class="score__u">kg</span></div></div>' +
+      (o.tempo ? tempo() : '') +
+      slot({ ex: 'goblet-squat', why: ['Nouvelle charge, +2&nbsp;kg' + NB + ': 8 reps pour commencer. Comment c’était' + NB + '?', 'New weight, +2&nbsp;kg: 8 reps to start. How did it feel?'] }) + '</div>' +
+      doneDock('Fait comme prévu', 'Done as planned', '8 reps à 16&nbsp;kg', '8 reps at 16&nbsp;kg', true);
+  }
+  function raiseShort() {
+    return pbar('Exercices 3–4 sur 6', 'Exercises 3–4 of 6', ['done', 'done', 'cur', 'cur', '', ''], '21:05') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('push-up') + '</h1>' + setHead(ROUND, 2, 3, ['done', 'cur', ''], '<span class="items"><i class="cur">a</i><i>b</i></span>') +
+      '<div class="score"><div class="score__cell"><span class="num score__n">12</span><span class="score__u">reps</span></div><div class="score__cell"><span class="score__w">' + L('Poids du corps', 'Bodyweight') + '</span></div></div>' +
+      '<div class="nextup"><span class="nextup__label">' + L('Puis', 'Then') + '</span><span class="nextup__tile">b</span><span class="nextup__body"><b>' + nm('goblet-squat') + '</b><span>' + L('10 reps à 16&nbsp;kg, sans repos', '10 reps at 16&nbsp;kg, no rest') + '</span></span></div>' +
+      slot({ ex: 'push-up' }) + '</div>' + doneDock('Fait comme prévu', 'Done as planned', '12 reps', '12 reps');
+  }
+  function gobletShort() {
+    return pbar('Exercice 1 sur 6', 'Exercise 1 of 6', ['cur', '', '', '', '', ''], '04:10') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('goblet-squat') + '</h1>' + setHead(SET, 1, 4, ['cur', '', '', '']) +
+      '<div class="score"><div class="score__cell"><div class="score__top"><span class="num score__n">8</span><span class="badge">RIR 2</span></div><span class="score__u">reps (8–12)</span></div><div class="score__cell"><span class="num score__n">16</span><span class="score__u">kg</span></div></div>' +
+      tempo() + slot({ ex: 'goblet-squat', why: ['Nouvelle charge, +2&nbsp;kg' + NB + ': 8 reps pour commencer. Comment c’était' + NB + '?', 'New weight, +2&nbsp;kg: 8 reps to start. How did it feel?'] }) + '</div>' +
+      doneDock('Fait comme prévu', 'Done as planned', '8 reps à 16&nbsp;kg', '8 reps at 16&nbsp;kg', true);
+  }
+  function lungeSide2() {
+    return pbar('Exercice 4 sur 6', 'Exercise 4 of 6', ['done', 'done', 'done', 'cur', '', ''], '27:31') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('lateral-lunge') + '</h1>' + setHead(SET, 2, 3, ['done', 'cur', ''], '<span class="sides"><i class="done">' + L('G', 'L') + '</i><i class="cur">' + L('D', 'R') + '</i></span>') +
+      '<div class="score"><div class="score__cell"><span class="num score__n">10</span><span class="score__u">' + L('reps, côté droit (8–12)', 'reps, right side (8–12)') + '</span></div><div class="score__cell"><span class="score__w">' + L('Poids du corps', 'Bodyweight') + '</span></div></div>' +
+      slot({ ex: 'lateral-lunge', side: 2, sideLabel: ['Côté droit', 'Right side', L('D', 'R')] }) + '</div>' + doneDock('Côté droit fait', 'Right side done', '10 reps', '10 reps');
+  }
+  function holdRunning() {
+    return pbar('Exercice 5 sur 6', 'Exercise 5 of 6', ['done', 'done', 'done', 'done', 'cur', ''], '33:02') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('deep-squat-hold') + '</h1>' + setHead(SET, 2, 3, ['done', 'cur', '']) +
+      '<div class="clock" role="timer"><span class="num clock__n">34</span><span class="clock__u">s</span></div>' +
+      '<div class="tbar"><i style="width:43%"></i><span class="tbar__tick" style="left:50%"></span></div>' +
+      slot({ ex: 'deep-squat-hold', state: 'still', mode: 'still' }) + '</div>' +
+      '<div class="dock">' + feel(false) + '<div class="dock__row"><button class="btn btn--secondary btn--player dock__second" type="button"><span>' + L('Arrêter le chrono', 'Stop the timer') + '<small>' + L('Note 26&nbsp;s', 'Logs 26&nbsp;s') + '</small></span></button></div></div>';
+  }
+  function intervalRecovery() {
+    var segs = ''; for (var i = 0; i < 8; i++) segs += '<i class="' + (i < 2 ? 'done' : i === 2 ? 'rec' : '') + '"></i>';
+    return pbar('Fin de séance, intervalles', 'Finisher, intervals', ['done', 'done', 'done', 'done', 'done', 'cur'], '41:16') +
+      '<div class="pa"><h1 class="t-exercise">' + nm('bodyweight-squat') + '</h1>' +
+      '<div class="ivh"><span class="ivh__phase">' + L('Récup', 'Recovery') + '</span><span class="ivh__round">' + ROUND + '<span><span class="num">3</span><span class="num muted">/8</span></span></span></div>' +
+      '<div class="clock clock--phase" role="timer"><span class="num clock__n">7</span><span class="clock__u">s</span></div>' +
+      '<div class="ivsegs">' + segs + '</div>' +
+      '<p class="ivnext">' + L('Ensuite' + NB + ': <b>tour 4, effort 20&nbsp;s</b>', 'Next: <b>round 4, work 20&nbsp;s</b>') + '</p>' +
+      slot({ ex: 'bodyweight-squat', state: 'still', cue: false, rest: true }) + '</div>' +
+      '<div class="dock"><div class="dock__row"><button class="btn btn--player dock__second" type="button" style="border:2px solid var(--color-on-rest)"><span>' + L('Phase suivante', 'Next phase') + '</span></button></div></div>';
+  }
+  function restScreen(withSheet) {
+    return pbar('Repos', 'Rest', ['done', 'cur', '', '', '', ''], '14:02') +
+      '<div class="ra"><p class="ra-done">' + ic('check') + L('Série 4 sur 4 notée', 'Set 4 of 4 logged') + '</p>' +
+      '<div class="ra-timer" role="timer"><span class="num clock__n">38</span><span class="clock__u">s</span></div><div class="ra-bar"><i style="width:42%"></i></div>' +
+      '<div class="ra-center"><button type="button" class="ra-next" aria-label="' + (lang === 'en' ? 'Next up, how to do it: Goblet squat' : 'Ensuite, comment faire' + NB + ': Squat goblet') + '"><span class="ra-next__text"><span class="ra-next__label">' + L('Ensuite', 'Next up') + '</span><span class="ra-next__name">' + nm('goblet-squat') + '</span><span class="num ra-next__rx">4 × 8–12</span></span><span class="thumb thumb--72 thumb--ink" data-figure-tone="ink">' + fig({ ex: 'goblet-squat', mode: 'still', tile: true }) + '</span></button>' +
+      '<div class="ra-ctrls"><button class="btn btn--on-rest" type="button">−15&nbsp;s</button><button class="btn btn--on-rest" type="button">+15&nbsp;s</button><button class="btn btn--on-rest-solid" type="button">' + L('Passer', 'Skip') + ic('skip') + '</button></div></div></div>' + (withSheet || '');
+  }
+  function tabbar(cur) {
+    var t = [['calendar', 'Programme', 'Programme'], ['bolt', 'Séance rapide', 'Quick session'], ['chart', 'Progrès', 'Progress'], ['sliders', 'Réglages', 'Settings']];
+    var h = '<nav class="tabbar">'; for (var i = 0; i < 4; i++) h += '<span class="tab' + (i === cur ? ' is-current' : '') + '"><span class="tab__icon">' + ic(t[i][0]) + '</span>' + L(t[i][1], t[i][2]) + '</span>'; return h + '</nav>';
+  }
+  function pickRow(id, metaFr, metaEn, pressed) {
+    var x = EX[id];
+    return '<li><button type="button" class="pthumb' + (pressed ? ' is-pressed' : '') + '" aria-label="' + (lang === 'en' ? 'How to do it: ' + x.en : 'Comment faire' + NB + ': ' + x.fr) + '"><span class="thumb">' + fig({ ex: id, mode: 'still', tile: true }) + '</span></button><button type="button" class="pick"><span><span class="pick__name">' + nm(id) + '</span><span class="pick__meta">' + L(metaFr, metaEn) + '</span></span></button></li>';
+  }
+  function picker(withSheet) {
+    return '<div class="ctxbar"><button class="icon-btn" type="button" aria-label="Fermer">' + ic('close') + '</button><div class="ctxbar__titles"><span class="ctxbar__title">' + L('Ajouter un exercice', 'Add an exercise') + '</span><span class="ctxbar__sub">' + L('Ma séance du mardi', 'My Tuesday session') + '</span></div></div>' +
+      '<div class="scroll"><div class="page"><div class="search">' + ic('search') + L('Chercher un exercice', 'Search exercises') + '</div>' +
+      '<p class="hintline">' + ic('info') + L('Touche une image pour voir le mouvement.', 'Tap a picture to see the movement.') + '</p>' +
+      '<ul class="plist">' +
+      pickRow('door-towel-row', 'Tirage horizontal, dorsaux, biceps', 'Horizontal pull, lats, biceps', !!withSheet) +
+      pickRow('goblet-squat', 'Squat, quadriceps, fessiers', 'Squat, quads, glutes') +
+      pickRow('push-up', 'Poussée horizontale, pectoraux, triceps', 'Horizontal push, chest, triceps') +
+      pickRow('lateral-lunge', 'Fente, fessiers, adducteurs', 'Lunge, glutes, adductors') +
+      pickRow('dumbbell-lateral-raise', 'Isolation épaules, épaules (côté)', 'Shoulder isolation, side delts') +
+      pickRow('bodyweight-squat', 'Squat, quadriceps, fessiers', 'Squat, quads, glutes') +
+      '</ul></div></div>' + (withSheet || '');
+  }
+  function rxRow(idx, id, nums, facts) {
+    var x = EX[id];
+    return '<article class="rx"><span class="num rx__idx">' + idx + '</span><button type="button" class="rxhead" aria-label="' + (lang === 'en' ? 'How to do it: ' + x.en : 'Comment faire' + NB + ': ' + x.fr) + '"><span class="thumb">' + fig({ ex: id, mode: 'still', tile: true }) + '</span><span class="rxhead__name">' + nm(id) + '</span></button><button class="icon-btn rx__why" type="button" aria-label="Pourquoi">' + ic('why') + '</button><div class="rx__body"><div class="rx__nums">' + nums + '</div><p class="rx__facts">' + facts + '</p></div></article>';
+  }
+  function session() {
+    var cell = function (n, u, labFr, labEn) { return '<span class="rx__cell"><span class="num rx__n">' + n + (u ? '<small>' + u + '</small>' : '') + '</span><span class="rx__u">' + L(labFr, labEn) + '</span></span>'; };
+    var word = function (fr, en, labFr, labEn) { return '<span class="rx__cell"><span class="rx__w">' + L(fr, en) + '</span><span class="rx__u">' + L(labFr, labEn) + '</span></span>'; };
+    return '<div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour">' + ic('back') + '</button><div class="ctxbar__titles"><span class="ctxbar__title">' + L('Séance A — Full body', 'Session A — Full body') + '</span><span class="ctxbar__sub">' + L('Semaine 3, Volume', 'Week 3, Volume') + '</span></div></div>' +
+      '<div class="scroll"><div class="page">' +
+      rxRow(1, 'goblet-squat', cell('4 × 9', '', 'séries × reps visées', 'sets × goal reps') + cell('16', 'kg', 'charge', 'load'), L('Repos <b>90&nbsp;s</b>', 'Rest <b>90&nbsp;s</b>') + '<span><b>' + L('2 reps en réserve', '2 reps in the tank') + '</b></span>') +
+      rxRow(2, 'push-up', cell('4 × 12', '', 'séries × reps visées', 'sets × goal reps') + word('Poids du corps', 'Bodyweight', 'charge', 'load'), L('Repos <b>75&nbsp;s</b>', 'Rest <b>75&nbsp;s</b>') + L('Tempo <b>2-1-2</b>', 'Tempo <b>2-1-2</b>')) +
+      rxRow(3, 'door-towel-row', cell('3 × 12', '', 'séries × reps visées', 'sets × goal reps') + word('Poids du corps', 'Bodyweight', 'charge', 'load'), L('Repos <b>75&nbsp;s</b>', 'Rest <b>75&nbsp;s</b>')) +
+      rxRow(4, 'lateral-lunge', cell('3 × 10', '', 'séries × reps par côté', 'sets × reps per side') + word('Poids du corps', 'Bodyweight', 'charge', 'load'), L('Repos <b>60&nbsp;s</b>', 'Rest <b>60&nbsp;s</b>')) +
+      '</div></div>' + tabbar(0);
+  }
+  function exerciseProgress() {
+    return '<div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour">' + ic('back') + '</button><div class="ctxbar__titles"><span class="ctxbar__title">' + L('Exercices', 'Exercises') + '</span></div></div>' +
+      '<div class="scroll"><div class="page" style="gap:20px"><header style="display:grid;gap:8px"><span class="xd-kicker">' + ic('dumbbell') + L('Squat, haltère', 'Squat, dumbbell') + '</span><h1 class="t-display">' + nm('goblet-squat') + '</h1></header>' +
+      '<button type="button" class="howrow"><span class="thumb">' + fig({ ex: 'goblet-squat', mode: 'still', tile: true }) + '</span><span><b>' + L('Comment faire', 'How to do it') + '</b><small>' + L('Le mouvement animé et 3 étapes', 'The movement, animated, and 3 steps') + '</small></span>' + ic('chevron') + '</button>' +
+      '<div style="display:grid;gap:6px;padding-top:6px"><h2 class="sec-title">' + L('Où tu en es', 'Where you stand') + '</h2><div class="readout"><span class="num">16&nbsp;kg</span><span>' + L('× 10 reps, le 14 novembre', '× 10 reps, 14 November') + '</span></div></div>' +
+      '</div></div>' + tabbar(2);
+  }
+  function testsScreen() {
+    return '<div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour">' + ic('back') + '</button><div class="ctxbar__titles"><span class="ctxbar__title">' + L('Tests max', 'Max tests') + '</span></div></div><div class="scroll"><div class="page"><h1 class="t-display">' + L('Tests max', 'Max tests') + '</h1></div></div>' + tabbar(2);
+  }
+
+  /* ---------- sections ---------- */
+  function build() {
+  var html = '';
+  html += '<section class="mock-sec" id="s-slot"><h2>' + L('Le créneau avec la figure', 'The slot with a figure') + '</h2><p>' + L('Le créneau garde sa place et sa taille. Il devient un seul bouton qui ouvre Comment faire. La figure se cadre dans ce qui reste une fois la puce pourquoi et la consigne placées, jamais dessous.', 'The slot keeps its place and size. It becomes one button that opens the how-to. The figure is framed in what is left once the why chip and the cue are placed, never under them.') + '</p></section>';
+  html += shot('f1', pushUpSet(), 'Grand écran : la figure, la consigne sous le sol, la marque d’agrandissement', 'Tall screen: the figure, the cue under the floor, the enlarge mark');
+  html += shot('f2', gobletSet(), 'Puce pourquoi en haut : la figure se cadre dessous, la consigne reste', 'Why chip at the top: the figure is framed below it, the cue stays');
+  html += shot('f3', raiseShort(), 'Petit écran, superset : le créneau à 96 px garde la figure seule', 'Short screen, superset: the slot at 96 px keeps the figure alone', { short: true });
+  html += shot('f4', gobletShort(), 'Petit écran avec la puce : la puce à gauche, la figure à droite', 'Short screen with the chip: chip on the left, figure on the right', { short: true });
+  html += shot('f5', lungeSide2(), 'Côté droit : la figure en miroir et le côté rappelé dans le créneau', 'Right side: the figure mirrored and the side repeated in the slot');
+  html += shot('f6', holdRunning(), 'Gainage en cours : une position tenue, donc une image fixe', 'Hold running: a held position, so a still image');
+  html += shot('f7', intervalRecovery(), 'Récup d’intervalle sur jaune : figure à l’encre, immobile pendant la récup', 'Interval recovery on yellow: ink figure, still during recovery', { rest: true });
+
+  // states board
+  var H = [96, 160, 260];
+  function boardRow(labelFr, labelEn, o) {
+    var r = '<div class="board__row"><span>' + L(labelFr, labelEn) + '</span>';
+    for (var i = 0; i < H.length; i++) { var oo = Object.assign({ h: H[i] }, o); r += '<div class="spec">' + slot(oo) + '</div>'; }
+    return r + '</div>';
+  }
+  html += '<section class="mock-sec" id="s-states"><h2>' + L('États du créneau', 'Slot states') + '</h2><p>' + L('À 96, 160 et 260 px de haut, la largeur d’un téléphone de 390 px. Sous 200 px la consigne s’efface (elle reste dans Comment faire)&#8239;; sous 140 px la puce pourquoi passe à gauche.', 'At 96, 160 and 260 px tall, the width of a 390 px phone. Under 200 px the cue drops (it stays in the how-to); under 140 px the why chip moves to the left.') + '</p></section>';
+  html += '<div class="mock-wide board"><div class="board__row"><span></span><span class="board__head">96 px</span><span class="board__head">160 px</span><span class="board__head">260 px</span></div>' +
+    boardRow('En mouvement', 'Moving', { ex: 'push-up' }) +
+    boardRow('Avec la puce pourquoi', 'With the why chip', { ex: 'goblet-squat', why: ['Nouvelle charge' + NB + ': comment c’était' + NB + '?', 'New weight: how did it feel?'] }) +
+    boardRow('Mouvement réduit (pose clé)', 'Reduced motion (key pose)', { ex: 'goblet-squat', state: 'still', mode: 'still' }) +
+    boardRow('Chargement', 'Loading', { ex: 'goblet-squat', state: 'loading' }) +
+    boardRow('Figure indisponible', 'Figure unavailable', { ex: 'goblet-squat', state: 'none' }) +
+    '</div>';
+
+  html += '<section class="mock-sec" id="s-howto"><h2>' + L('Comment faire', 'How-to sheet') + '</h2><p>' + L('Grande figure en boucle, la consigne clé, les étapes numérotées. Le chrono continue dessous&#8239;; pendant un repos, une bande jaune en haut de la fiche garde le compte à rebours et la fiche se ferme seule à la fin du repos.', 'Large looping figure, the key cue, numbered steps. The clock keeps running underneath; during a rest, a yellow band at the top of the sheet keeps the countdown, and the sheet closes itself when the rest ends.') + '</p></section>';
+  html += shot('f8', pushUpSet(howto({ ex: 'push-up', controls: 'paced' })), 'Depuis la série, tempo lancé : la figure suit le tempo, la série attend', 'From the set, pacing on: the figure follows the tempo, the set waits');
+  html += shot('f9', restScreen(howto({ ex: 'goblet-squat', band: 38, bandPct: 42 })), 'Pendant le repos, ouverte depuis Ensuite : la bande garde le compte à rebours', 'During the rest, opened from Next up: the band keeps the countdown', { rest: true });
+  html += shot('f10', picker(howto({ ex: 'door-towel-row', scroll: 1, foot: '<button class="btn btn--primary btn--block btn--player" type="button">' + L('Ajouter au bloc principal', 'Add to the main work') + '</button><button class="btn btn--secondary btn--block" type="button">' + L('Fermer', 'Close') + '</button>' })), 'Depuis le sélecteur, une longue entrée : les étapes défilent, la figure reste, le pied reprend l’action du sélecteur', 'From the picker, a long entry: the steps scroll, the figure stays, the footer repeats the picker’s action');
+  html += shot('f11', session() + howto({ ex: 'lateral-lunge', controls: 'reduced' }), 'Mouvement réduit : la pose clé, et l’animation seulement si tu la lances', 'Reduced motion: the key pose, and the animation only if you start it');
+
+  html += '<section class="mock-sec" id="s-entries"><h2>' + L('Où Comment faire s’ouvre', 'Where the how-to opens') + '</h2><p>' + L('Partout où une ligne a déjà son action, Comment faire s’ouvre depuis l’image&#8239;: une cible séparée, et la fiche reprend l’action de la ligne dans son pied.', 'Wherever a row already has its own action, the how-to opens from the picture: a separate target, and the sheet repeats the row’s action in its footer.') + '</p></section>';
+  html += shot('f12', session(), 'Détail de séance : image et nom ouvrent Comment faire, le ? reste le pourquoi', 'Session detail: picture and name open the how-to, the ? stays the why');
+  html += shot('f13', picker(), 'Sélecteur : l’image ouvre Comment faire, le reste de la ligne choisit', 'Picker: the picture opens the how-to, the rest of the row picks');
+  html += shot('f14', exerciseProgress(), 'Progrès d’un exercice : une ligne Comment faire sous le titre', 'Exercise progress: a How to do it row under the title');
+  html += shot('f15', restScreen(), 'Repos : la carte Ensuite montre la pose clé et ouvre Comment faire', 'Rest: the Next up card shows the key pose and opens the how-to', { rest: true });
+  html += shot('f16', testsScreen() + howto({ ex: 'push-up', view: true, foot: '<button class="btn btn--primary btn--block btn--player" type="button">' + L('Choisir cet exercice', 'Pick this exercise') + '</button>' }), 'Tester maintenant : Comment faire remplace la liste dans la même fiche, Choisir revient au choix', 'Test now: the how-to replaces the list inside the same sheet; Pick returns to the choice');
+
+  // thumbs board
+  html += '<section class="mock-sec" id="s-thumbs"><h2>' + L('Vignettes', 'Thumbnails') + '</h2><p>' + L('Toujours la pose clé, immobile. Règle de cadrage&#8239;: une pose au moins deux fois plus large que haute (mouvements au sol) est agrandie jusqu’à remplir la hauteur, en gardant au moins 55&#8239;% de sa largeur&#8239;; le bout opposé à la tête sort du cadre.', 'Always the key pose, still. Framing rule: a pose at least twice as wide as tall (floor moves) is enlarged to fill the height, keeping at least 55% of its width; the end away from the head leaves the frame.') + '</p></section>';
+  var tids = ['push-up', 'goblet-squat', 'dumbbell-lateral-raise', 'lateral-lunge', 'door-towel-row', 'deep-squat-hold'];
+  var tb = '<div class="mock-wide board board--thumbs"><div class="board__row"><span></span><span class="board__head">' + L('56, cadrage du test', '56, test framing') + '</span><span class="board__head">' + L('56, règle', '56, rule') + '</span><span class="board__head">' + L('72, règle', '72, rule') + '</span><span class="board__head">' + L('72 sur la carte encre', '72 on the ink card') + '</span></div>';
+  for (var k = 0; k < tids.length; k++) {
+    var id = tids[k];
+    tb += '<div class="board__row"><span>' + nm(id) + '</span>' +
+      '<span class="cell"><span class="thumb">' + fig({ ex: id, mode: 'still' }) + '</span></span>' +
+      '<span class="cell"><span class="thumb">' + fig({ ex: id, mode: 'still', tile: true }) + '</span></span>' +
+      '<span class="cell"><span class="thumb thumb--72">' + fig({ ex: id, mode: 'still', tile: true }) + '</span></span>' +
+      '<span class="cell"><span class="inkwell" data-figure-tone="ink"><span class="thumb thumb--72 thumb--ink">' + fig({ ex: id, mode: 'still', tile: true }) + '</span></span></span></div>';
+  }
+  html += tb + '</div>';
+
+  // tokens
+  function tok(rows, bg, fg, titleFr, titleEn) {
+    var h = '<div class="tokcol" style="background:' + bg + ';color:' + fg + '"><h3>' + L(titleFr, titleEn) + '</h3>';
+    for (var i = 0; i < rows.length; i++) h += '<div class="tokrow"><i style="background:' + rows[i][1] + '"></i><code>' + rows[i][0] + '</code><b>' + rows[i][2] + '</b></div>';
+    return h + '</div>';
+  }
+  html += '<section class="mock-sec" id="s-tokens"><h2>' + L('Jetons de la figure', 'Figure tokens') + '</h2><p>' + L('Une échelle de contraste&#8239;: membre qui travaille, corps, membre qui travaille côté loin, côté loin. Chaque marche est à 3:1 au moins sur le fond du créneau. Jamais de jaune sur la figure.', 'One contrast ladder: working limb, body, far-side working limb, far side. Every step is at least 3:1 on the slot. Never yellow on the figure.') + '</p></section>';
+  html += '<div class="mock-wide tokens">' +
+    tok([['--figure-limb', '#f3f4f6', '14.1'], ['--figure-body', '#aab0bd', '7.1'], ['--figure-limb-far', '#9197a6', '5.3'], ['--figure-far', '#6a7080', '3.1'], ['--figure-prop', '#9197a6', '5.3'], ['--figure-prop-far', '#6a7080', '3.1'], ['--figure-cut', '#20242e', '—']], '#20242e', '#f3f4f6', 'Sombre, sur surface-raised', 'Dark, on surface-raised') +
+    tok([['--figure-limb', '#333845', '11.7'], ['--figure-body', '#5e6474', '5.9'], ['--figure-limb-far', '#727888', '4.4'], ['--figure-far', '#848a99', '3.5'], ['--figure-prop', '#727888', '4.4'], ['--figure-prop-far', '#848a99', '3.5'], ['--figure-cut', '#ffffff', '—']], '#ffffff', '#12141a', 'Clair, sur blanc', 'Light, on white') +
+    tok([['--figure-limb', '#12141a', '11.9'], ['--figure-body', '#4d3d05', '6.8'], ['--figure-limb-far', '#6e4c00', '5.0'], ['--figure-far', '#8a6a10', '3.3'], ['--figure-prop', '#6e4c00', '5.0'], ['--figure-prop-far', '#8a6a10', '3.3'], ['--figure-cut', '#ffc81e', '—']], '#ffc81e', '#12141a', 'Sur jaune (data-figure-tone="rest")', 'On yellow (data-figure-tone="rest")') +
+    '</div>';
+
+  document.getElementById('stage').innerHTML = html;
+  }
+
+  /* ---------- figures ---------- */
+  function mountAll() {
+    Fig.unmountAll(document.body);
+    document.querySelectorAll('.fgm').forEach(function (el) {
+      var o = JSON.parse(el.dataset.fig);
+      var reduced = motion === 'reduced';
+      var still = o.mode === 'still' || o.mode === 'still-loop' || reduced || !!o.force;
+      // A figure that never moves fills its frame; one that alternates with motion keeps the loop's framing.
+      var loopFrame = o.mode === 'still-loop' && !o.tile;
+      var slotEl = el.closest('.slot');
+      var box = null;
+      if (slotEl) {
+        var W = slotEl.clientWidth, Hh = slotEl.clientHeight, top = 0, bottom = 0, left = 0, right = 0;
+        slotEl.querySelectorAll('[data-reserve]').forEach(function (r) {
+          if (getComputedStyle(r).display === 'none') return;
+          var side = r.dataset.reserve;
+          if (r.classList.contains('why') && Hh < 140) side = 'left';
+          if (side === 'top') top = Math.max(top, r.offsetTop + r.offsetHeight);
+          if (side === 'bottom') bottom = Math.max(bottom, Hh - r.offsetTop + 2);
+          if (side === 'left') left = Math.max(left, r.offsetLeft + r.offsetWidth);
+          if (side === 'right' && Hh < 200) right = Math.max(right, W - r.offsetLeft);
+        });
+        box = [left, top, W - left - right, Hh - top - bottom];
+      }
+      Fig.mount(el, {
+        ex: o.ex, side: o.side,
+        mode: still ? 'still' : 'loop',
+        tile: !!o.tile,
+        box: box,
+        floor: true,
+        loopFrame: loopFrame
+      });
+    });
+  }
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+  }
+  function applyTheme() {
+    document.documentElement.dataset.theme = theme;
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)); });
+  }
+  function applyMotion() {
+    document.querySelectorAll('[data-set-motion]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setMotion === motion)); });
+  }
+  function scrollSet() { document.querySelectorAll('[data-scroll]').forEach(function (s) { s.scrollTop = +s.dataset.scroll ? s.scrollHeight : 0; }); }
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]'); if (l) { lang = l.dataset.setLang; applyLang(); build(); requestAnimationFrame(function () { mountAll(); scrollSet(); }); return; }
+    var t = e.target.closest('[data-set-theme]'); if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var m = e.target.closest('[data-set-motion]'); if (m) { motion = m.dataset.setMotion; applyMotion(); mountAll(); return; }
+  });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) motion = 'reduced';
+  applyTheme(); applyLang(); applyMotion(); build();
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () { requestAnimationFrame(function () { mountAll(); scrollSet(); }); });
+})();
+</script>
+</body>
+</html>

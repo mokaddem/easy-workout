@@ -39,7 +39,6 @@ const gobletSquat: Exercise = {
   difficulty: 2,
   easier: ['bodyweight-squat'],
   harder: ['bulgarian-split-squat'],
-  animation: null,
 };
 
 describe('exercise schema', () => {

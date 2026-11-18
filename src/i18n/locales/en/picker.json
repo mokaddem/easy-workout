@@ -52,5 +52,6 @@
     "hereAdd": "It is also added here.",
     "confirm": "Bring it back",
     "cancel": "Cancel"
-  }
+  },
+  "howtoHint": "Tap a picture to see the movement."
 }

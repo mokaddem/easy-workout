@@ -16,3 +16,4 @@ export {
   Reposition,
   type RepositionAnchor,
 } from './primitives';
+export { useFigure, type LoadedFigure, type FigureProps, type FigurePacing } from './figure';

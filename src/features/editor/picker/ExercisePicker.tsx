@@ -6,7 +6,8 @@ import { switchBack } from '@/app/progress';
 import type { Exercise, Language, Section } from '@/domain';
 import { activeSwaps, substitutesFor } from '@/engine';
 import { Roll } from '@/motion';
-import { Dialog, EmptyState, IconButton } from '@/ui/components';
+import { HowToSheet } from '@/features/howto';
+import { Button, Dialog, EmptyState, IconButton } from '@/ui/components';
 import { useModalDialog } from '@/ui/components/useModalDialog';
 import { FilterButton } from './FilterButton';
 import { FilterSheet } from './FilterSheet';
@@ -65,6 +66,7 @@ function PickerBody({ mode, section, replacing, inSession, onPick, onClose }: Ex
   const [filterOpen, setFilterOpen] = useState(false);
   const [bringBack, setBringBack] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [howTo, setHowTo] = useState<{ id: string; open: boolean } | null>(null);
 
   const swaps = useMemo(() => activeSwaps(answers ?? []), [answers]);
 
@@ -119,6 +121,11 @@ function PickerBody({ mode, section, replacing, inSession, onPick, onClose }: Ex
   const muscleList = (e: Exercise) =>
     e.primaryMuscles.map((m) => t(`labels.muscle.${m}`).toLocaleLowerCase(lang)).join(', ');
 
+  const pick = (id: string) => {
+    if (swaps.to.get(id)) setBringBack(id);
+    else onPick(id);
+  };
+
   const row = (entry: Entry): ReactNode => {
     const { exercise } = entry;
     const replacement = swaps.to.get(exercise.id);
@@ -145,7 +152,9 @@ function PickerBody({ mode, section, replacing, inSession, onPick, onClose }: Ex
               ? t(`picker.concern.${entry.concern}`, { defaultValue: '' }) || null
               : undefined
         }
-        onPick={() => (away ? setBringBack(exercise.id) : onPick(exercise.id))}
+        onHowTo={() => setHowTo({ id: exercise.id, open: true })}
+        howToLabel={t('play.figure.open', { name: exercise.name[lang] })}
+        onPick={() => pick(exercise.id)}
       />
     );
   };
@@ -200,6 +209,7 @@ function PickerBody({ mode, section, replacing, inSession, onPick, onClose }: Ex
           label={t('picker.search')}
           clearLabel={t('picker.clear')}
         />
+        <p className={styles.hint}>{t('picker.howtoHint')}</p>
         <div className={styles.filters}>
           <FilterButton
             label={filterLabel('movement', [...filters.patterns])}
@@ -273,6 +283,26 @@ function PickerBody({ mode, section, replacing, inSession, onPick, onClose }: Ex
           </>
         )}
       </div>
+
+      <HowToSheet
+        open={howTo?.open ?? false}
+        onClose={() => setHowTo((h) => (h ? { ...h, open: false } : h))}
+        exerciseId={howTo?.id ?? ''}
+        action={
+          howTo && howTo.id !== replacing ? (
+            <Button
+              fullWidth
+              onClick={() => {
+                const id = howTo.id;
+                setHowTo({ id, open: false });
+                pick(id);
+              }}
+            >
+              {title}
+            </Button>
+          ) : undefined
+        }
+      />
 
       <FilterSheet
         open={filterOpen}

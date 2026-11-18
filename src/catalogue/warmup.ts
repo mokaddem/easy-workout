@@ -31,7 +31,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'dead-hang',
@@ -65,7 +64,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'wrist-circles',
@@ -100,7 +98,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'cross-body-arm-swing',
@@ -135,7 +132,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'band-dislocate',
@@ -176,7 +172,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'wall-slide',
@@ -217,7 +212,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'thoracic-rotation',
@@ -252,7 +246,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'cat-cow',
@@ -287,7 +280,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'scapular-push-up',
@@ -322,7 +314,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'band-external-rotation',
@@ -363,7 +354,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'leg-swing-front-back',
@@ -404,7 +394,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'leg-swing-lateral',
@@ -445,7 +434,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'hip-circles',
@@ -480,7 +468,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'worlds-greatest-stretch',
@@ -515,7 +502,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'hip-90-90-switch',
@@ -550,7 +536,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'ankle-rocks',
@@ -585,7 +570,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'deep-squat-hold',
@@ -620,7 +604,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'inchworm',
@@ -655,7 +638,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'torso-rotation',
@@ -690,7 +672,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
   {
     id: 'walking-knee-hug',
@@ -725,6 +706,5 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
-    animation: null,
   },
 ];

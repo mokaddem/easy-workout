@@ -1,0 +1,153 @@
+.sheet {
+  scroll-padding-top: 0;
+}
+.meta {
+  margin: calc(-1 * var(--space-2)) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+  font-weight: 600;
+}
+.pinned {
+  position: sticky;
+  top: calc(-1 * var(--space-3));
+  z-index: 2;
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 calc(-1 * var(--space-1));
+  padding: var(--space-1) var(--space-1) var(--space-3);
+  background: var(--color-surface-raised);
+  --figure-cut: var(--color-surface);
+}
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: var(--border-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.stage svg {
+  max-width: 100%;
+}
+.stage[data-arrive] > svg,
+.controls[data-arrive] {
+  animation: arrive var(--duration-base) var(--ease-move) both;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+  }
+}
+.wait {
+  position: absolute;
+  right: 0;
+  bottom: 22%;
+  left: 0;
+  height: 1px;
+  background: var(--color-line);
+}
+.glyph {
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-subtle);
+}
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 48px;
+}
+.paced {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+  font-weight: 600;
+  text-align: right;
+}
+.paced strong {
+  color: var(--color-text);
+}
+.body {
+  display: grid;
+  gap: var(--space-4);
+}
+.cue {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-text);
+  font-size: var(--font-size-18);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.steps {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.steps li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: var(--space-2);
+  font-size: var(--font-size-16);
+  line-height: 1.5;
+}
+.n {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-24);
+  font-weight: 800;
+  font-stretch: var(--font-width-title);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.band {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5) var(--space-3);
+  background: var(--color-rest-bg);
+  color: var(--color-on-rest);
+}
+.bandLabel {
+  font-size: var(--font-size-18);
+  font-weight: 700;
+}
+.bandN {
+  font-size: var(--font-size-48);
+  font-weight: 800;
+  font-stretch: var(--font-width-display);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.bandN small {
+  margin-left: 2px;
+  font-size: var(--font-size-18);
+  font-weight: 700;
+}
+.bandBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--color-on-rest);
+  opacity: 0.35;
+  transition: width 1s linear;
+}
+
+/* On a short screen the footer keeps only the row's action: the close button in the title row stays. */
+@media (max-height: 699px) {
+  .closeBeside {
+    display: none;
+  }
+  .band {
+    padding-block: var(--space-2);
+  }
+  .bandN {
+    font-size: var(--font-size-36);
+  }
+}
