@@ -122,7 +122,7 @@ const JUMP_ARMS = {
 /** Weights racked on the shoulders, elbows forward. */
 const RACK: AnimationPose = { elbow: { flex: 140 } };
 const RACK_PINS: AnimationPin[] = (['l', 'r'] as const).map((S) =>
-  handOn(S, 'chest', [0.13, 0.17, S === 'l' ? -0.17 : 0.17], [1, 0, 0.35]),
+  handOn(S, 'chest', [0.13, 0.3, S === 'l' ? -0.16 : 0.16], [1, 0.15, 0.2]),
 );
 
 const WALL_ARMS: AnimationPose = { shoulder: { plane: 90, elev: 12, rot: 0 }, elbow: { flex: 30 } };
@@ -467,6 +467,9 @@ const CLAM_LEGS = (rot: number): AnimationPose => ({
   hip: { plane: 90, elev: 45 },
   'hip.l': { plane: 90, elev: 45, rot },
   knee: { flex: 95 },
+  // The lower arm reaches out under the head along the floor, the upper hand rests in front.
+  'shoulder.r': { plane: 60, elev: 168, rot: 0 },
+  'shoulder.l': { plane: 70, elev: 32, rot: 0 },
 });
 
 /** A point `u` (0 to 1) of the way from standing to the bottom of a squat, feet flat. */
@@ -487,6 +490,53 @@ const TOP: P = [0, 0.904];
 /** The top with the feet shoulder-width apart: a little lower, the legs slanting out. */
 const TOP_WIDE: P = [0, 0.894];
 
+/**
+ * Quarter, half and three-quarter keys on the way down: the hips and the lean in proportion, the
+ * knees turned out by `rots` (hip turn, degrees; negative turns the knee out). With the feet
+ * planted wider than the hips, keys at the ends alone would let the knees drift in toward the
+ * midline on the way; these hold the knee line steady from top to bottom.
+ */
+const squatKeys = (
+  hip: P,
+  lean: number,
+  feetOf: () => Partial<Record<Side, Foot>>,
+  extra: (lean: number) => AnimationPose,
+  rots: [number, number, number],
+): Record<'q1' | 'q2' | 'q3', AnimationPose> => {
+  const key = (n: number, rot: number) =>
+    body(
+      [rnd3(hip[0] * (n / 4)), rnd3(TOP_WIDE[1] + (hip[1] - TOP_WIDE[1]) * (n / 4))],
+      rnd(lean * (n / 4)),
+      feetOf(),
+      pose(extra(lean * (n / 4)), { 'hip.l': { rot }, 'hip.r': { rot } }),
+    );
+  return { q1: key(1, rots[0]), q2: key(2, rots[1]), q3: key(3, rots[2]) };
+};
+const SQUAT_LOOP: LoopStep[] = [
+  { to: 'q1', phase: 'eccentric', share: 0.25 },
+  { to: 'q2', phase: 'eccentric', share: 0.25 },
+  { to: 'q3', phase: 'eccentric', share: 0.25 },
+  { to: 'bottom', phase: 'eccentric', share: 0.25 },
+  { to: 'bottom', phase: 'pause' },
+  { to: 'q3', phase: 'concentric', share: 0.25 },
+  { to: 'q2', phase: 'concentric', share: 0.25 },
+  { to: 'q1', phase: 'concentric', share: 0.25 },
+  { to: 'top', phase: 'concentric', share: 0.25 },
+  { to: 'top', phase: 'hold' },
+];
+const GOBLET_ARMS_POSE: AnimationPose = {
+  shoulder: { plane: 70, elev: 30, rot: 25 },
+  elbow: { flex: 125 },
+  wrist: { flex: 10, dev: 20 },
+};
+const SQUAT_ROTS = {
+  bodyweight: [-9, -1, 1] as [number, number, number],
+  goblet: [-9, -1, 1] as [number, number, number],
+  chair: [-10, -2, -1] as [number, number, number],
+  front: [-9, -1, 1] as [number, number, number],
+  mini: [-14, -5, -5] as [number, number, number],
+};
+
 const legsRaw = {
   /* Squat ladder: one camera, hips back and down, heels down, knees over the toes. */
 
@@ -494,11 +544,18 @@ const legsRaw = {
     camera: SQUAT_CAMERA,
     poses: {
       top: body(TOP_WIDE, 0, flat(), pose(armsForward(0, 0), SHOULDER_WIDE)),
+      ...squatKeys(
+        [-0.27, 0.45],
+        35,
+        flat,
+        (l) => pose(upright(l), armsForward(l)),
+        SQUAT_ROTS.bodyweight,
+      ),
       bottom: body([-0.27, 0.45], 35, flat(), pose(upright(35), armsForward(35), OUT_75)),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: SQUAT_LOOP,
     pins: feet(),
     props: [],
     working: ['leg.l', 'leg.r'],
@@ -506,7 +563,7 @@ const legsRaw = {
   },
 
   'goblet-squat': {
-    camera: SQUAT_CAMERA,
+    camera: { yaw: 46, pitch: 8 },
     poses: {
       top: body(TOP_WIDE, 0, flat(), {
         ...SHOULDER_WIDE,
@@ -521,10 +578,17 @@ const legsRaw = {
         elbow: { flex: 125 },
         wrist: { flex: 10, dev: 20 },
       }),
+      ...squatKeys(
+        [-0.27, 0.45],
+        35,
+        flat,
+        (l) => pose(upright(l), GOBLET_ARMS_POSE),
+        SQUAT_ROTS.goblet,
+      ),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: SQUAT_LOOP,
     pins: [
       ...feet(),
       { contact: 'hand.l', mode: 'grip', frame: 'chest', at: [0.165, 0.15, -0.058] },
@@ -546,7 +610,7 @@ const legsRaw = {
   },
 
   'goblet-sumo-squat': {
-    camera: { yaw: 68, pitch: 8 },
+    camera: { yaw: 50, pitch: 8 },
     poses: {
       top: pose(
         {
@@ -653,11 +717,18 @@ const legsRaw = {
     camera: SQUAT_CAMERA,
     poses: {
       top: body(TOP_WIDE, 0, flat(), pose(armsForward(0, 0), SHOULDER_WIDE)),
+      ...squatKeys(
+        [-0.2, 0.53],
+        28,
+        flat,
+        (l) => pose(upright(l), armsForward(l)),
+        SQUAT_ROTS.chair,
+      ),
       bottom: body([-0.2, 0.53], 28, flat(), pose(upright(28), armsForward(28), OUT_CHAIR)),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: SQUAT_LOOP,
     pins: feet(),
     props: [support('chair', [-0.28, 0.45, 0], 0)],
     working: ['leg.l', 'leg.r'],
@@ -668,11 +739,12 @@ const legsRaw = {
     camera: { yaw: 42, pitch: 8 },
     poses: {
       top: body(TOP_WIDE, 0, flat(), pose(RACK, SHOULDER_WIDE)),
+      ...squatKeys([-0.25, 0.45], 26, flat, (l) => pose(upright(l, 4, 4), RACK), SQUAT_ROTS.front),
       bottom: body([-0.25, 0.45], 26, flat(), pose(upright(26, 4, 4), RACK, OUT_75)),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: SQUAT_LOOP,
     pins: [...feet(), ...RACK_PINS],
     props: weights({ bell: 'back' }),
     working: ['leg.l', 'leg.r'],
@@ -684,19 +756,26 @@ const legsRaw = {
     camera: { yaw: 56, pitch: 8 },
     poses: {
       top: body(TOP_WIDE, 0, wide(), pose(armsForward(0, 0), SHOULDER_WIDE)),
+      ...squatKeys(
+        [-0.26, 0.45],
+        32,
+        wide,
+        (l) => pose(upright(l), armsForward(l)),
+        SQUAT_ROTS.mini,
+      ),
       bottom: body([-0.26, 0.45], 32, wide(), pose(upright(32), armsForward(32), MINI_OUT)),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: SQUAT_LOOP,
     pins: feet(),
     props: [
       {
         kind: 'mini-band',
         id: 'band',
         group: 'band',
-        from: { frame: 'hip.l', at: [0.05, -0.3, 0] },
-        to: { frame: 'hip.r', at: [0.05, -0.3, 0] },
+        from: { frame: 'hip.l', at: [0.0, -0.3, 0] },
+        to: { frame: 'hip.r', at: [0.0, -0.3, 0] },
       },
     ],
     working: ['leg.l', 'leg.r'],
@@ -1675,8 +1754,8 @@ const legsRaw = {
         kind: 'mini-band',
         id: 'band',
         group: 'band',
-        from: { frame: 'hip.l', at: [0.0, -0.3, 0] },
-        to: { frame: 'hip.r', at: [0.0, -0.3, 0] },
+        from: { frame: 'hip.l', at: [-0.05, -0.3, 0] },
+        to: { frame: 'hip.r', at: [-0.05, -0.3, 0] },
       },
     ],
     working: ['leg.l'],

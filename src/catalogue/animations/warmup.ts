@@ -89,7 +89,7 @@ const swingCross = (top: 'l' | 'r'): AnimationPose => {
   return pose(STAND, {
     clav: { prot: 12 },
     [`shoulder.${top}`]: { plane: 122, elev: 100 },
-    [`shoulder.${under}`]: { plane: 152, elev: 84 },
+    [`shoulder.${under}`]: { plane: 130, elev: 84 },
     elbow: { flex: 18 },
   });
 };
@@ -161,7 +161,7 @@ const externalRotation = (rot: number): AnimationPose =>
   pose(STAND, {
     shoulder: { plane: 90, elev: 6 },
     'shoulder.r': { rot },
-    'shoulder.l': { rot: 32 },
+    'shoulder.l': { rot: 0 },
     elbow: { flex: 90 },
     wrist: { flex: 0 },
   });
@@ -728,7 +728,7 @@ export const warmupAnimations = {
   },
 
   'band-external-rotation': {
-    camera: { yaw: 52, pitch: 28 },
+    camera: { yaw: 60, pitch: 35 },
     poses: { in: externalRotation(18), out: externalRotation(-58) },
     start: 'out',
     still: 'out',
@@ -809,7 +809,7 @@ export const warmupAnimations = {
   },
 
   'thoracic-rotation': {
-    camera: { yaw: 76, pitch: 12 },
+    camera: { yaw: 38, pitch: 30 },
     poses: {
       // The support arm stays straight; the working elbow turns up. The turn is the upper back's
       // (chest 48°, lower back 5°).
@@ -835,7 +835,7 @@ export const warmupAnimations = {
     pins: [
       { contact: 'knees', mode: 'anchor', at: [0, 0, 0] },
       palms({ x: 0.44, width: 0.26, elbows: [0, 0.2, 1] })[0]!,
-      handOn('r', 'head', [-0.07, 0.05, 0], [0, 0.4, 1]),
+      handOn('r', 'head', [-0.1, 0.05, 0.09], [0, 0.4, 1]),
     ],
     props: [],
     working: ['torso', 'arm.r'],

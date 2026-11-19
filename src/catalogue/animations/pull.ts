@@ -230,7 +230,7 @@ export const pullAnimations = {
 
   // The band hangs straight down from the bar to the foot under it; the other leg trails behind.
   'band-assisted-pull-up': {
-    camera: BAR_CAMERA,
+    camera: { yaw: 18, pitch: 6 },
     poses: {
       hang: pose(hung([-0.03, 1.415], 0, { clav: { elev: 10 }, ...BAND_LEG }), ARMS_STRAIGHT),
       set: pose(hung([-0.03, 1.47], 0, { clav: { elev: -8 }, ...BAND_LEG }), ARMS_STRAIGHT),
@@ -249,7 +249,7 @@ export const pullAnimations = {
   // with the legs: the arms only follow. The bar is a little lower for the chair moves: the chin
   // clears it standing on the seat.
   'negative-pull-up': {
-    camera: BAR_CAMERA,
+    camera: { yaw: 70, pitch: 6 },
     poses: {
       // Standing on the seat, feet flat on its top, the chin over the bar.
       chair: NEG_CHAIR,
@@ -1079,7 +1079,7 @@ export const pullAnimations = {
   'dumbbell-hammer-curl': {
     camera: { yaw: 45, pitch: 8 },
     poses: {
-      down: curlPose(4, 0),
+      down: curlPose(4, 0, { shoulder: { plane: 60, elev: 10 } }),
       top: curlPose(142, 0, { shoulder: { elev: 10 } }),
     },
     start: 'top',

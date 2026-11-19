@@ -1102,13 +1102,13 @@ function bearCrawl(): Cycle {
       const [dx, lift] = crawlPath(phi, 0.11, -0.11, 0.1);
       return {
         p: [sh[0] + dx, 0.033 + lift, S === 'r' ? 0.2 : -0.2],
-        flat: 1,
+        flat: 1 - Math.min(0.5, Math.max(0, lift - 0.03) * 7),
         pole: [-0.4, 0, S === 'r' ? 1 : -1],
       };
     };
     const footAt = (S: Side, phi: number): Reach => {
       const [dx, lift] = crawlPath(phi, -0.2, -0.44, 0.14);
-      return { p: [dx, 0.18 + lift, S === 'r' ? 0.11 : -0.11], pitch: -70 + lift * 120 };
+      return { p: [dx, 0.18 + lift, S === 'r' ? 0.15 : -0.15], pitch: -70 + lift * 120 };
     };
     // A right hand goes with the left foot, and the other pair half a stride later.
     return figure(

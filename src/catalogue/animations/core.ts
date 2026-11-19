@@ -19,6 +19,7 @@ import {
   feet,
   handOn,
   hangFrom,
+  hung,
   hipBetween,
   hold,
   leg,
@@ -249,23 +250,71 @@ const hangingBody = (
   });
 
 /**
- * Toes to the bar: the shoulders a little behind the bar and the trunk leaning back, the straight
- * legs reaching up to it.
+ * Strict toes to the bar: from a dead hang the shoulders are pulled down and set, then the legs
+ * rise straight in front of the body (the hips flexing, no swing), the trunk leaning back and the
+ * back curling a little as they go, until the toes touch the bar. Each stage gives the legs and
+ * the trunk together so the legs stay in front of the body all the way up and down. The top thigh
+ * angle is written past vertical (the ankle sits just behind the hip's line) as a plain number
+ * so the hip never has to turn the long way round between stages.
  */
-function toesToBar(): AnimationPose {
-  const lean = -34;
-  const t = hangFrom([-0.06, 1.465], lean, 8, 8);
-  const [rx, ry] = t.root!.pos!;
-  const hip: PlanePoint = [rx - 0.02 * Math.sin(rad(lean)), ry - 0.02 * Math.cos(rad(lean))];
-  const ankle: PlanePoint = [0.06, 1.9];
+const T2B_STAGES = [
+  // Thigh from hanging (degrees, forward positive), trunk lean, back curl, knee bend, foot pitch.
+  { thigh: 6, lean: 0, curl: 0, knee: 4, foot: -10 },
+  { thigh: 50, lean: -10, curl: 5, knee: 4, foot: -10 },
+  { thigh: 100, lean: -20, curl: 10, knee: 6, foot: 0 },
+  { thigh: 135, lean: -30, curl: 15, knee: 8, foot: 30 },
+  // The top: the thigh follows from the ankle's spot below.
+  { thigh: 0, lean: -40, curl: 20, knee: 12, foot: 60 },
+];
+const t2bStage = (i: number): AnimationPose => {
+  const s = T2B_STAGES[i]!;
+  const top = i === T2B_STAGES.length - 1;
+  // The shoulders drift back a little as the legs rise; the arms stay straight, so their height
+  // follows from the arm's reach in the vertical plane (0.4975 m, a little more as the shoulders move back) below the hands (1.955 m).
+  const x = -0.03 - 0.27 * (i / (T2B_STAGES.length - 1));
+  const reach = 0.4975 + 0.02 * (i / (T2B_STAGES.length - 1));
+  const y = 1.955 - Math.sqrt(reach ** 2 - (0.033 - x) ** 2);
+  const trunkPose = pose(hangFrom([rnd3(x), rnd3(y)], s.lean, s.curl, s.curl), {
+    clav: { elev: -8 },
+  });
+  if (!top)
+    return pose(
+      trunkPose,
+      legAbs('l', s.thigh, s.knee, s.foot, s.lean),
+      legAbs('r', s.thigh, s.knee, s.foot, s.lean),
+      { straight: ['arm.l', 'arm.r', 'leg.l', 'leg.r'] },
+    );
+  // At the top the knees stay a little bent: the ankles sit where the toes just meet the bar,
+  // a leg's length (with that bend) from the hip. A thigh pointing past vertical is written as an
+  // angle above 180 so the hip never turns the long way round between stages.
+  const [rx, ry] = trunkPose.root!.pos!;
+  const hip: PlanePoint = [rx - 0.02 * Math.sin(rad(s.lean)), ry - 0.02 * Math.cos(rad(s.lean))];
+  const to: PlanePoint = [0.12 - hip[0], 1.92 - hip[1]];
+  const reachLeg = 0.8254 / Math.hypot(...to);
+  const ankle: PlanePoint = [hip[0] + to[0] * reachLeg, hip[1] + to[1] * reachLeg];
+  const long = (pose: AnimationPose): AnimationPose => {
+    const out: Record<string, Record<string, number>> = {};
+    for (const [k, v] of Object.entries(pose) as [string, Record<string, number>][]) {
+      out[k] = { ...v };
+      if (k.startsWith('hip') && v.elev! < 0) out[k]!.elev = rnd3(v.elev! + 360);
+      if (k.startsWith('ankle') && v.flex! > 90) out[k]!.flex = rnd3(v.flex! - 360);
+    }
+    return out as AnimationPose;
+  };
   return pose(
-    t,
-    { clav: { elev: -8 } },
-    leg('l', hip, ankle, lean, { foot: 60 }),
-    leg('r', hip, ankle, lean, { foot: 60 }),
-    { straight: ['arm.l', 'arm.r', 'leg.l', 'leg.r'] },
+    trunkPose,
+    long(leg('l', hip, ankle, s.lean, { foot: s.foot })),
+    long(leg('r', hip, ankle, s.lean, { foot: s.foot })),
+    { straight: ['arm.l', 'arm.r'] },
   );
-}
+};
+/** A passive hang: the shoulders up by the ears, the arms and legs straight and still. */
+const T2B_DEAD: AnimationPose = pose(
+  hung([-0.03, 1.415], 0, { clav: { elev: 10 } }),
+  legAbs('l', 6, 4, -10, 0),
+  legAbs('r', 6, 4, -10, 0),
+  { straight: ['arm.l', 'arm.r', 'leg.l', 'leg.r'] },
+);
 
 /** Dips and supports: from the side and a touch in front, so both bars and the elbows show. */
 const DIP_CAMERA = { yaw: 18, pitch: 8 };
@@ -512,28 +561,28 @@ function twistPose(turn: number): AnimationPose {
 /** Woodchop: a wide stance, the torso turning from the door (high) to the far hip (low). */
 const CHOP_STAND: AnimationPose = pose(STAND, { hip: { plane: 82, elev: 6 } });
 const CHOP_HIGH_BODY: AnimationPose = {
-  root: { pos: [0, 0.905, 0], turn: -22 },
-  spine: { twist: -3 },
-  chest: { twist: -10 },
+  root: { pos: [0, 0.905, 0], turn: 22 },
+  spine: { twist: 3 },
+  chest: { twist: 10 },
   knee: { flex: 6 },
 };
 const CHOP_LOW_BODY: AnimationPose = {
-  root: { pos: [0, 0.9, 0], turn: 22 },
-  spine: { twist: 3, flex: 3 },
-  chest: { twist: 10 },
+  root: { pos: [0, 0.9, 0], turn: -22 },
+  spine: { twist: -3, flex: 3 },
+  chest: { twist: -10 },
   knee: { flex: 20 },
 };
 const CHOP_HIGH_ARMS: AnimationPose = {
-  'shoulder.l': { plane: 133.2, elev: 100.2, rot: -4.5 },
-  'elbow.l': { flex: 142.2 },
-  'shoulder.r': { plane: 115.4, elev: 87.3, rot: 83.7 },
-  'elbow.r': { flex: 101.9 },
+  'shoulder.l': { plane: 78.1, elev: 137.8, rot: 38.8 },
+  'elbow.l': { flex: 25 },
+  'shoulder.r': { plane: 132.3, elev: 124.4, rot: 47.7 },
+  'elbow.r': { flex: 30 },
 };
 const CHOP_LOW_ARMS: AnimationPose = {
-  'shoulder.l': { plane: 151.3, elev: 44.8, rot: -59 },
-  'elbow.l': { flex: 1.1 },
-  'shoulder.r': { plane: 29.6, elev: 39.6, rot: 73.7 },
-  'elbow.r': { flex: 46 },
+  'shoulder.l': { plane: 128.7, elev: 43, rot: -58.9 },
+  'elbow.l': { flex: 8 },
+  'shoulder.r': { plane: 77.4, elev: 38.2, rot: 74 },
+  'elbow.r': { flex: 25 },
 };
 
 /** Windmill: feet wide, the hip pushed out toward the weight and the trunk bending away from it. */
@@ -774,8 +823,8 @@ const TAP_BODY: AnimationPose = plank(72.8, {
   straight: ['arm.l'],
 });
 const tapSpot = (S: 'l' | 'r'): [number, number, number] => [1.187, 0, S === 'l' ? -0.215 : 0.215];
-/** In the chest's axes: just in front of the opposite shoulder. */
-const tapAt = (S: 'l' | 'r'): [number, number, number] => [0.06, 0.24, S === 'l' ? 0.12 : -0.12];
+/** In the chest's axes: in front of the opposite shoulder, a hand's width below the chest. */
+const tapAt = (S: 'l' | 'r'): [number, number, number] => [0.17, 0.24, S === 'l' ? 0.12 : -0.12];
 const tapGrip = (S: 'l' | 'r', steps: number[]): AnimationPin => ({
   contact: `hand.${S}`,
   mode: 'grip',
@@ -1147,12 +1196,29 @@ export const coreAnimations = {
   'toes-to-bar': {
     camera: HANG_CAMERA,
     poses: {
-      hang: hangingBody(0, 0, 0, legAbs('l', 6, 4, -10, 0), legAbs('r', 6, 4, -10, 0), true),
-      top: toesToBar(),
+      dead: T2B_DEAD,
+      set: t2bStage(0),
+      up1: t2bStage(1),
+      up2: t2bStage(2),
+      up3: t2bStage(3),
+      top: t2bStage(4),
     },
     start: 'top',
     still: 'top',
-    loop: rep('hang', 'top'),
+    loop: [
+      { to: 'up3', phase: 'eccentric', share: 0.25 },
+      { to: 'up2', phase: 'eccentric', share: 0.25 },
+      { to: 'up1', phase: 'eccentric', share: 0.2 },
+      { to: 'set', phase: 'eccentric', share: 0.15 },
+      { to: 'dead', phase: 'eccentric', share: 0.15 },
+      { to: 'dead', phase: 'pause' },
+      { to: 'set', phase: 'concentric', share: 0.15 },
+      { to: 'up1', phase: 'concentric', share: 0.2 },
+      { to: 'up2', phase: 'concentric', share: 0.25 },
+      { to: 'up3', phase: 'concentric', share: 0.2 },
+      { to: 'top', phase: 'concentric', share: 0.2 },
+      { to: 'top', phase: 'hold' },
+    ],
     pins: onBar(0.52),
     props: doorwayBar(),
     working: ['leg.l', 'leg.r', 'torso'],

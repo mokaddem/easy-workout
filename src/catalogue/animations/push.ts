@@ -213,6 +213,32 @@ const TRICEPS_CAMERA = { yaw: -50, pitch: 8 };
 const OVERHEAD_EXTENSION: AnimationPose = {
   shoulder: { plane: -40, elev: 194, rot: 130 },
 };
+/**
+ * The forearms swing behind the head about a shoulder that turns a little as they go, so the two
+ * hands stay the same distance apart on either side of the weight the whole way. Each key gives
+ * the elbow's bend and the shoulder plane that keeps the wrists about 5 cm off the midline.
+ */
+const EXTENSION_KEYS = [
+  { name: 'mid1', flex: 30, plane: -26.5 },
+  { name: 'mid2', flex: 70, plane: -29.5 },
+  { name: 'mid3', flex: 110, plane: -34.5 },
+] as const;
+const extensionMid = (key: (typeof EXTENSION_KEYS)[number]): AnimationPose => ({
+  shoulder: { plane: key.plane },
+  elbow: { flex: key.flex },
+});
+const EXTENSION_LOOP: LoopStep[] = [
+  { to: 'mid1', phase: 'eccentric', share: 0.18 },
+  { to: 'mid2', phase: 'eccentric', share: 0.32 },
+  { to: 'mid3', phase: 'eccentric', share: 0.32 },
+  { to: 'bottom', phase: 'eccentric', share: 0.18 },
+  { to: 'bottom', phase: 'pause' },
+  { to: 'mid3', phase: 'concentric', share: 0.18 },
+  { to: 'mid2', phase: 'concentric', share: 0.32 },
+  { to: 'mid1', phase: 'concentric', share: 0.32 },
+  { to: 'top', phase: 'concentric', share: 0.18 },
+  { to: 'top', phase: 'hold' },
+];
 /** Elbows tucked at the sides, torso leaning a little over the hands. */
 const PUSHDOWN: AnimationPose = {
   spine: { flex: 6 },
@@ -222,7 +248,7 @@ const PUSHDOWN: AnimationPose = {
 };
 
 /** Band presses: from the front-right, the band running back to its anchor. */
-const BAND_CAMERA = { yaw: 34, pitch: 8 };
+const BAND_CAMERA = { yaw: 34, pitch: 0 };
 
 export const pushAnimations = {
   /* Push-up ladder: one plank; the hands' height, width and the feet change. */
@@ -501,13 +527,15 @@ export const pushAnimations = {
     },
     start: 'vee',
     still: 'arch',
+    // The way back from the arch to the start is unhurried, slower than the swoop.
+    neutral: { concentric: 1.6 },
     loop: [
       { to: 'dive', phase: 'eccentric' },
       { to: 'dive', phase: 'pause' },
-      { to: 'skim', phase: 'concentric', share: 0.3 },
-      { to: 'arch', phase: 'concentric', share: 0.3 },
-      { to: 'push', phase: 'concentric', share: 0.1 },
-      { to: 'rise', phase: 'concentric', share: 0.1 },
+      { to: 'skim', phase: 'concentric', share: 0.2 },
+      { to: 'arch', phase: 'concentric', share: 0.2 },
+      { to: 'push', phase: 'concentric', share: 0.2 },
+      { to: 'rise', phase: 'concentric', share: 0.2 },
       { to: 'vee', phase: 'concentric', share: 0.2 },
       { to: 'vee', phase: 'hold' },
     ],
@@ -775,11 +803,14 @@ export const pushAnimations = {
     camera: TRICEPS_CAMERA,
     poses: {
       top: pose(STAND, OVERHEAD_EXTENSION, { elbow: { flex: 8 } }, ARMS_STRAIGHT),
+      mid1: pose(STAND, OVERHEAD_EXTENSION, extensionMid(EXTENSION_KEYS[0])),
+      mid2: pose(STAND, OVERHEAD_EXTENSION, extensionMid(EXTENSION_KEYS[1])),
+      mid3: pose(STAND, OVERHEAD_EXTENSION, extensionMid(EXTENSION_KEYS[2])),
       bottom: pose(STAND, OVERHEAD_EXTENSION, { elbow: { flex: 132 } }),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: EXTENSION_LOOP,
     pins: feet(),
     props: [
       {
@@ -801,11 +832,14 @@ export const pushAnimations = {
     camera: TRICEPS_CAMERA,
     poses: {
       top: pose(SPLIT_STANCE, OVERHEAD_EXTENSION, { elbow: { flex: 8 } }, ARMS_STRAIGHT),
+      mid1: pose(SPLIT_STANCE, OVERHEAD_EXTENSION, extensionMid(EXTENSION_KEYS[0])),
+      mid2: pose(SPLIT_STANCE, OVERHEAD_EXTENSION, extensionMid(EXTENSION_KEYS[1])),
+      mid3: pose(SPLIT_STANCE, OVERHEAD_EXTENSION, extensionMid(EXTENSION_KEYS[2])),
       bottom: pose(SPLIT_STANCE, OVERHEAD_EXTENSION, { elbow: { flex: 132 } }),
     },
     start: 'top',
     still: 'bottom',
-    loop: rep('bottom', 'top'),
+    loop: EXTENSION_LOOP,
     pins: feet(),
     props: [
       {
@@ -891,7 +925,7 @@ export const pushAnimations = {
 
   /* Standing chest work against a band or straps: the press and fly arms of the lying moves. */
 
-  // The band runs back to a door anchor behind, at chest height.
+  // The band runs back to an anchor at the edge of the door behind, at chest height.
   'band-chest-press': {
     camera: BAND_CAMERA,
     poses: {
@@ -908,7 +942,7 @@ export const pushAnimations = {
     still: 'bottom',
     loop: rep('bottom', 'top'),
     pins: feet(),
-    props: [doorEdgeOn(-0.72, -1), ...bandTo([-0.72, 1.3, 0])],
+    props: [doorEdgeOn(-0.72, -1), ...bandTo([-0.72, 1.3, 0.38])],
     working: ['arm.l', 'arm.r'],
     perSide: false,
   },
@@ -1018,14 +1052,22 @@ export const pushAnimations = {
   'band-overhead-press': {
     camera: PRESS_CAMERA,
     poses: {
-      bottom: pose(STAND, OVERHEAD_BOTTOM, { hip: { plane: 0, elev: 5 } }),
+      // Hands at the shoulders, elbows below them and a little forward.
+      bottom: pose(STAND, OVERHEAD_BOTTOM, {
+        hip: { plane: 0, elev: 5 },
+        shoulder: { plane: 60, elev: 35, rot: -20 },
+        elbow: { flex: 130 },
+      }),
       top: pose(STAND, OVERHEAD_TOP, { hip: { plane: 0, elev: 5 } }, ARMS_STRAIGHT),
     },
     start: 'top',
     still: 'bottom',
     loop: rep('bottom', 'top'),
     pins: feet(),
-    props: bandTo([underFoot('l'), underFoot('r')]),
+    props: bandTo([
+      { frame: 'ankle.l', at: [0.05, -0.06, -0.04] },
+      { frame: 'ankle.r', at: [0.05, -0.06, 0.04] },
+    ]),
     working: ['arm.l', 'arm.r'],
     perSide: false,
   },
