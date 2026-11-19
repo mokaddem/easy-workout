@@ -2,7 +2,7 @@
  * The look: camera, framing, tones, draw order and the floor. Pure TypeScript.
  */
 import type { EquipmentKind, ExerciseAnimation } from '@/domain';
-import { buildParts, isBodyGroup, mirrorGroup, variantFor, type Part } from './parts';
+import { buildParts, isBodyGroup, mirrorGroup, variantFor } from './parts';
 import { cross, dot, evaluate, neutralPace, norm, prepare, scale, timeOf, type Vec3 } from './pose';
 
 const DEG = Math.PI / 180;
@@ -281,35 +281,4 @@ export function toneOf(
 /* Draw order                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
- * Groups sorted far to near by the mean depth of their parts (painter's order). Depth is
- * measured horizontally, so the camera's slight downward look does not make high parts
- * (the torso) count as nearer than low ones (the legs). Walls and doors are painted first and
- * furniture under the figure; sided props (bars, straps) take their place by depth.
- */
-export function groupOrder(parts: Part[], cam: Camera): string[] {
-  const flat = norm([cam.view[0], 0, cam.view[2]]);
-  const acc = new Map<string, { sum: number; n: number }>();
-  for (const p of parts) {
-    const pts = p.hull ?? [p.a, p.b];
-    const c = scale(
-      pts.reduce<Vec3>((m, q) => [m[0] + q[0], m[1] + q[1], m[2] + q[2]], [0, 0, 0]),
-      1 / pts.length,
-    );
-    // Limbs grow out of the torso: at equal depth they draw over it, so the torso sits a little back.
-    const bias =
-      p.group === 'door' || p.group === 'wall'
-        ? 10
-        : p.group === 'support'
-          ? 0.5
-          : p.group === 'torso'
-            ? 0.08
-            : 0;
-    const d = dot(c, flat) + bias;
-    const g = acc.get(p.group) || { sum: 0, n: 0 };
-    g.sum += d;
-    g.n += 1;
-    acc.set(p.group, g);
-  }
-  return [...acc.entries()].sort((a, b) => b[1].sum / b[1].n - a[1].sum / a[1].n).map(([g]) => g);
-}
+export { groupOrder } from './order';
