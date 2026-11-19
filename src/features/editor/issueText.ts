@@ -10,6 +10,7 @@ const KEYS: Record<IssueCode, string> = {
   'no-equipment': 'equipment',
   'doorway-bar': 'doorwayBar',
   'selector-swing': 'selectorSwing',
+  'rolling-dumbbells': 'rollingDumbbells',
   'cardio-in-group': 'cardioInGroup',
   'rope-beginner': 'ropeBeginner',
   'no-fitting-load': 'noFittingLoad',
@@ -84,6 +85,7 @@ export function actionFor(issue: Issue): IssueAction {
     case 'no-equipment':
     case 'doorway-bar':
     case 'selector-swing':
+    case 'rolling-dumbbells':
     case 'unknown-exercise':
       return 'replace';
     default:

@@ -132,6 +132,7 @@ export const UNUSABLE_CODES: ReadonlySet<Issue['code']> = new Set([
   'no-equipment',
   'doorway-bar',
   'selector-swing',
+  'rolling-dumbbells',
   'unknown-exercise',
 ]);
 

@@ -12,7 +12,7 @@ import { SHORT_SESSION_MINUTES, splitFor, template } from './templates';
 import { NoteLog, type Context, type GenerateInput, type TemplateKey } from './types';
 
 /** Bumped whenever the rules change what the same inputs produce. */
-export const GENERATOR_VERSION = 3;
+export const GENERATOR_VERSION = 4;
 
 const PROGRAMME_NAME: Record<Goal, LocalizedText> = {
   muscle: { fr: 'Prise de muscle 8 semaines', en: '8-week muscle gain' },
@@ -29,6 +29,7 @@ const FULL_BODY: readonly TemplateKey[] = ['full-a', 'full-b', 'full-c'];
 export const makeContext = (
   input: GenerateInput,
   exercises: readonly Exercise[] = defaultCatalogue,
+  kept: Readonly<Record<string, string>> | undefined = input.lastCycle,
 ): Context => ({
   level: input.profile.level,
   profile: input.profile,
@@ -36,7 +37,9 @@ export const makeContext = (
   catalogue: new Map(exercises.map((e) => [e.id, e])),
   seed: input.seed ?? 0,
   cycle: input.cycle ?? 1,
-  lastCycle: new Map(Object.entries(input.lastCycle ?? {})),
+  lastCycle: new Map(Object.entries(kept ?? {})),
+  lastPicks: new Map(Object.entries(input.lastCycle ?? {})),
+  logged: new Set(input.loggedExercises ?? []),
   upgrades: new Map(Object.entries(input.upgrades ?? {})),
   log: new NoteLog(),
 });
@@ -266,7 +269,7 @@ export const generateProgramme = (
   exercises: readonly Exercise[] = defaultCatalogue,
 ): Programme => {
   const lastCycle = keptPicks(input, exercises);
-  const ctx = makeContext({ ...input, ...(lastCycle && { lastCycle }) }, exercises);
+  const ctx = makeContext(input, exercises, lastCycle);
   const { profile } = input;
   const split = splitFor(profile.daysPerWeek, profile.sessionMinutes);
   ctx.log.add('split', {

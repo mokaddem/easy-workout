@@ -25,6 +25,7 @@ export type IssueCode =
   | 'no-equipment'
   | 'doorway-bar'
   | 'selector-swing'
+  | 'rolling-dumbbells'
   | 'cardio-in-group'
   // Warnings
   | 'rope-beginner'

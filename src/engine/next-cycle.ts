@@ -1,9 +1,10 @@
 import { exerciseById } from '../catalogue';
-import type { EquipmentInventory, Profile, Programme } from '../domain';
+import type { EquipmentInventory, Profile, Programme, SessionLog } from '../domain';
 import { carryEdits, type CarriedEdit } from './edit/merge';
 import type { Issue } from './edit/check';
 import { programmeChanges, type SlotChange } from './generate/diff';
 import { generateProgramme, slotPicks } from './generate/programme';
+import { withinStep } from './generate/select';
 import { testBlockedByPain } from './maxtest';
 import { exposuresOf, weekRole } from './progress/exposures';
 import { pendingProposals } from './progress/index';
@@ -51,6 +52,42 @@ export function upgradesFor(previous: Programme, ctx: ProgressContext): Upgrade[
       continue;
     if (!out.some((u) => u.from === p.exerciseId))
       out.push({ from: p.exerciseId, to: p.substituteId });
+  }
+  return withoutOutgrown(out);
+}
+
+/** The exercises among `ids` that the user has logged sets of, each once. */
+export const loggedLifts = (
+  ids: Iterable<string>,
+  logs: readonly SessionLog[],
+  programmes: readonly Programme[] = [],
+): string[] =>
+  [...new Set(ids)].filter(
+    (id) => exposuresOf(id, logs, programmes, { anySource: true }).length > 0,
+  );
+
+/**
+ * An upgrade onto a lift that is itself being upgraded would bring back what the user outgrew:
+ * it takes that lift's own upgrade instead when it stays within one step of where it started,
+ * and otherwise the lift holds.
+ */
+function withoutOutgrown(upgrades: Upgrade[]): Upgrade[] {
+  const next = new Map(upgrades.map((u) => [u.from, u.to]));
+  const out: Upgrade[] = [];
+  for (const u of upgrades) {
+    let to = u.to;
+    for (const seen = new Set([u.from]); next.has(to) && !seen.has(to);) {
+      seen.add(to);
+      to = next.get(to)!;
+    }
+    if (to === u.from || next.has(to)) continue;
+    if (to === u.to) {
+      out.push(u);
+      continue;
+    }
+    const from = exerciseById.get(u.from);
+    const target = exerciseById.get(to);
+    if (from && target && withinStep(target, from)) out.push({ from: u.from, to });
   }
   return out;
 }
@@ -100,6 +137,12 @@ export function nextCycle(input: NextCycleInput): NextCycle {
     [...activeSwaps(input.progress.answers).to].map(([from, to]) => [to, from]),
   );
   const slotOf = (u: Upgrade) => original.get(u.from) ?? u.from;
+  // Lifts last cycle's slots hold that the user has sets logged of: their loads come from there.
+  const logged = loggedLifts(
+    Object.values(slotPicks(previous)),
+    input.progress.logs,
+    input.progress.programmes,
+  );
   const generate = (upgrades: readonly Upgrade[]) =>
     generateProgramme({
       profile,
@@ -108,6 +151,7 @@ export function nextCycle(input: NextCycleInput): NextCycle {
       ...(cycle > 1 && { cycle }),
       ...(!newGoal && {
         lastCycle: slotPicks(previous),
+        ...(logged.length > 0 && { loggedExercises: logged }),
         ...(was && { lastCycleEquipment: was.equipment }),
       }),
       ...(upgrades.length > 0 && {

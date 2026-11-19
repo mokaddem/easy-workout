@@ -93,7 +93,19 @@ const REP_CEILING: Readonly<Record<string, number>> = {
   'hamstring-bridge-walkout': 8,
 };
 
+/** Moves held to a fixed rep window: balance and the plank give out before the muscles do. */
+const REP_WINDOW: Readonly<Record<string, readonly [number, number]>> = {
+  'renegade-row': [6, 10],
+};
+
+/** Moves where stopping close to failure breaks form: their effort target never goes below this. */
+const RIR_FLOOR: Readonly<Record<string, number>> = {
+  'renegade-row': 2,
+};
+
 const repsCeiling = (reps: RepsSpec, exercise: Exercise): RepsSpec => {
+  const bounds = REP_WINDOW[exercise.id];
+  if (bounds) return bounds;
   const ceiling = REP_CEILING[exercise.id];
   if (reps === 'max' || ceiling === undefined || reps[1] <= ceiling) return reps;
   return [Math.min(reps[0], ceiling - 2), ceiling];
@@ -133,6 +145,7 @@ export const itemDose = (
     rir = slot.rir ?? (target.kind === 'max' ? 1 : DEFAULT_RIR);
     if (goal === 'general-fitness') rir = Math.max(rir, 2);
     if (level === 'beginner' || level === 'returning') rir = Math.min(4, rir + 1);
+    rir = Math.max(rir, RIR_FLOOR[exercise.id] ?? 0);
   }
 
   const ballistic = exercise.tags.includes('ballistic') || exercise.tags.includes('plyometric');

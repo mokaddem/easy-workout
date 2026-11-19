@@ -135,7 +135,7 @@ const buildBlock = (
 ): BuiltBlock | null => {
   const priority = tpl.priority ?? 1;
   if (tpl.type === 'cardio') {
-    const choice = resolveCardio(tpl.cardio, place, ctx);
+    const choice = resolveCardio(tpl.cardio, place, ctx, state.sessionId);
     if (!choice) {
       dropped.push({ code: 'cardio-unavailable', params: {} });
       return null;
@@ -192,7 +192,7 @@ const buildBlock = (
 
   const picks: { slot: SlotSpec; sel: Selection }[] = [];
   for (const slot of tpl.slots) {
-    const sel = selectExercise(slot, ctx, state);
+    const sel = selectExercise({ ...slot, grouped: true }, ctx, state);
     if (sel) picks.push({ slot, sel });
     else
       dropped.push({

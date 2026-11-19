@@ -522,7 +522,7 @@ export const legsExercises: readonly Exercise[] = [
     metric: 'reps',
     unilateral: false,
     difficulty: 1,
-    easier: ['calf-raise'],
+    easier: ['calf-raise', 'seated-dumbbell-calf-raise'],
     harder: ['single-leg-calf-raise'],
   },
   {
@@ -1244,7 +1244,7 @@ export const legsExercises: readonly Exercise[] = [
     unilateral: false,
     difficulty: 1,
     easier: [],
-    harder: [],
+    harder: ['dumbbell-calf-raise'],
   },
   {
     id: 'kettlebell-swing',

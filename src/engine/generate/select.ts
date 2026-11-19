@@ -15,6 +15,7 @@ import { tieBreak } from './hash';
 import {
   NOT_MAIN_LIFT,
   NOT_ON_DOORWAY_BAR,
+  STRAIGHT_ACCESSORY_ONLY,
   onlyDoorwayBars,
   setupConcern,
   WARMUP_ONLY,
@@ -129,6 +130,10 @@ export interface Selection {
   instead?: { id: string; missing: string[] };
 }
 
+/** A straight accessory slot whose own patterns (not a stand-in's) include the exercise's. */
+const straightAccessoryRow = (exercise: Exercise, slot: SlotSpec): boolean =>
+  slot.role === 'accessory' && !slot.grouped && slot.patterns.includes(exercise.pattern);
+
 /** Hard filters: what a slot may never receive. */
 const eligible = (
   exercise: Exercise,
@@ -137,8 +142,11 @@ const eligible = (
   ctx: Context,
   capabilities: EquipmentCapabilities,
   state: SelectionState,
+  loadKnown = false,
 ): EquipmentRequirement[] | null => {
   if (!patterns.includes(exercise.pattern)) return null;
+  if (STRAIGHT_ACCESSORY_ONLY.includes(exercise.id) && !straightAccessoryRow(exercise, slot))
+    return null;
   if (slot.role !== 'warmup' && exercise.pattern === 'mobility') return null;
   if (slot.role !== 'warmup' && WARMUP_ONLY.includes(exercise.id)) return null;
   if (slot.role === 'main' && !exercise.tags.includes('compound')) return null;
@@ -161,7 +169,7 @@ const eligible = (
     ...(ctx.profile.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
   };
   const setups = usableSetups(exercise, capabilities).filter(
-    (setup) => !setupConcern(exercise, setup, loadCtx, slot.role === 'warmup'),
+    (setup) => !setupConcern(exercise, setup, loadCtx, slot.role === 'warmup', loadKnown),
   );
   return setups[0] ?? null;
 };
@@ -260,22 +268,26 @@ const harderStep = (
   ctx: Context,
   capabilities: EquipmentCapabilities,
   state: SelectionState,
+  was?: Exercise,
 ): Selection => {
   if (ctx.level !== 'advanced' || slot.role === 'warmup') return picked;
   if (picked.exercise.loadType !== 'bodyweight') return picked;
   for (const id of picked.exercise.harder) {
     const candidate = ctx.catalogue.get(id);
-    if (!candidate) continue;
+    if (!candidate || (was && !withinStep(candidate, was))) continue;
     const setup = eligible(candidate, slot, slot.patterns, ctx, capabilities, state);
     if (setup) return { ...picked, exercise: candidate, setup, harderFrom: picked.exercise.id };
   }
   return picked;
 };
 
+/** How far down the `easier` links the search for a milder variant goes. */
+const EASIER_DEPTH = 4;
+
 const jumps = (e: Exercise) => e.tags.includes('plyometric') || e.tags.includes('ballistic');
 
 /** No more than one difficulty step above last cycle's exercise, and no jumps where there were none. */
-const withinStep = (next: Exercise, was: Exercise): boolean =>
+export const withinStep = (next: Exercise, was: Exercise): boolean =>
   next.difficulty <= was.difficulty + 1 && (!jumps(next) || jumps(was));
 
 /** A lift that ended its ladder last cycle moves to its harder variant, if the slot takes it. */
@@ -310,19 +322,26 @@ export const selectExercise = (
   capabilities: EquipmentCapabilities = equipmentCapabilities(ctx.equipment),
 ): Selection | null => {
   let picked: Selection | null = null;
-  const last = state.sessionId ? ctx.lastCycle.get(`${state.sessionId}/${slot.id}`) : undefined;
+  const slotKey = state.sessionId ? `${state.sessionId}/${slot.id}` : undefined;
+  const last = slotKey ? ctx.lastCycle.get(slotKey) : undefined;
+  // Last cycle's pick in this slot, kept or released: the reference for the one-step limit.
+  const wasId = slotKey ? ctx.lastPicks.get(slotKey) : undefined;
+  const was = wasId ? ctx.catalogue.get(wasId) : undefined;
 
-  // A new cycle keeps its lifts: the previous pick stays while it still fits the slot.
+  // A new cycle keeps its lifts: the previous pick stays while it still fits the slot. A lift
+  // the user has logged keeps its place even when no owned weight is near the starting estimate.
   if (last && !VARIABLE_ROLES.includes(slot.role) && slot.role !== 'warmup') {
     const exercise = ctx.catalogue.get(last);
-    const setup = exercise && eligible(exercise, slot, slot.patterns, ctx, capabilities, state);
+    const known = ctx.logged.has(last);
+    const setup =
+      exercise && eligible(exercise, slot, slot.patterns, ctx, capabilities, state, known);
     if (exercise && setup)
       return place({ exercise, setup, method: 'kept' }, slot, ctx, capabilities, state);
     // Last cycle's stand-in from a neighbouring pattern stays too, dosed as one.
     const fallback =
       exercise &&
       slot.fallbackPatterns &&
-      eligible(exercise, slot, slot.fallbackPatterns, ctx, capabilities, state);
+      eligible(exercise, slot, slot.fallbackPatterns, ctx, capabilities, state, known);
     if (exercise && fallback)
       return place(
         { exercise, setup: fallback, method: 'kept', fallback: true },
@@ -367,19 +386,11 @@ export const selectExercise = (
     const pool = fresh.length > 0 ? fresh : peers;
     picked = pool[tieBreak(ctx.seed, slot.id) % pool.length] ?? picked;
   }
-  // A new cycle (a new level too) moves an accessory one step at most from last cycle's.
-  const was = last ? ctx.catalogue.get(last) : undefined;
-  if (picked && was && VARIABLE_ROLES.includes(slot.role) && !withinStep(picked.exercise, was)) {
-    const near = preferred.filter(
-      (p) => withinStep(p.exercise, was) && !ctx.upgrades.has(p.exercise.id),
-    );
-    const other = near.filter((p) => p.exercise.id !== was.id);
-    const pool = other.length > 0 ? other : near;
-    const setup = eligible(was, slot, slot.patterns, ctx, capabilities, state);
-    picked =
-      pool[tieBreak(ctx.seed, slot.id) % Math.max(1, pool.length)] ??
-      (setup ? { exercise: was, setup, method: 'kept' } : picked);
-  }
+  // A new cycle (a new level or new equipment too) moves a lift one step at most from last
+  // cycle's, in every slot: a peer within the step, else a regression of the pick within it,
+  // else last cycle's exercise itself.
+  if (picked && was && slot.role !== 'warmup' && !withinStep(picked.exercise, was))
+    picked = nearStep(picked, was, preferred, slot, ctx, capabilities, state);
   picked ??= easierVariant(slot, ctx, capabilities, state);
   if (!picked) {
     const best = rank(slot, slot.patterns, ctx, capabilities, state);
@@ -391,7 +402,70 @@ export const selectExercise = (
   }
   if (!picked) return null;
 
-  return place(harderStep(picked, slot, ctx, capabilities, state), slot, ctx, capabilities, state);
+  return place(
+    harderStep(picked, slot, ctx, capabilities, state, was),
+    slot,
+    ctx,
+    capabilities,
+    state,
+  );
+};
+
+/** The pick brought back within one step of last cycle's exercise `was`. */
+const nearStep = (
+  picked: Selection,
+  was: Exercise,
+  preferred: readonly Selection[],
+  slot: SlotSpec,
+  ctx: Context,
+  capabilities: EquipmentCapabilities,
+  state: SelectionState,
+): Selection => {
+  const near = preferred.filter(
+    (p) => withinStep(p.exercise, was) && !ctx.upgrades.has(p.exercise.id),
+  );
+  // Slots that rotate move on from last cycle's exercise when another one does the job.
+  const other = VARIABLE_ROLES.includes(slot.role)
+    ? near.filter((p) => p.exercise.id !== was.id)
+    : [];
+  const pool = other.length > 0 ? other : near;
+  const peer = pool[tieBreak(ctx.seed, slot.id) % Math.max(1, pool.length)];
+  if (peer) return peer;
+
+  // Walk down the pick's own regressions to the first one that fits the slot within the step.
+  const fromFallback = picked.method === 'fallback-pattern' && slot.fallbackPatterns;
+  const patterns = fromFallback ? slot.fallbackPatterns! : slot.patterns;
+  const seen = new Set([picked.exercise.id]);
+  let frontier = [picked.exercise];
+  for (let depth = 0; depth < EASIER_DEPTH && frontier.length > 0; depth++) {
+    const next: Exercise[] = [];
+    for (const ex of frontier)
+      for (const id of ex.easier) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const candidate = ctx.catalogue.get(id);
+        if (!candidate) continue;
+        const setup = eligible(candidate, slot, patterns, ctx, capabilities, state);
+        if (setup && withinStep(candidate, was))
+          return {
+            exercise: candidate,
+            setup,
+            method: fromFallback ? 'fallback-pattern' : 'easier-variant',
+            from: picked.exercise.id,
+          };
+        next.push(candidate);
+      }
+    frontier = next;
+  }
+
+  const known = ctx.logged.has(was.id);
+  const setup = eligible(was, slot, slot.patterns, ctx, capabilities, state, known);
+  if (setup) return { exercise: was, setup, method: 'kept' };
+  const fallbackSetup =
+    slot.fallbackPatterns &&
+    eligible(was, slot, slot.fallbackPatterns, ctx, capabilities, state, known);
+  if (fallbackSetup) return { exercise: was, setup: fallbackSetup, method: 'kept', fallback: true };
+  return picked;
 };
 
 /** Applies a pending upgrade to the pick and marks it used. */

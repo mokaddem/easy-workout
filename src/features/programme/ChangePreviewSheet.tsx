@@ -32,12 +32,13 @@ export function ChangePreviewSheet(props: ChangePreviewProps) {
   const answers = useAnswers();
   const customIds = useMemo(() => (custom ? new Set(custom.map((s) => s.id)) : null), [custom]);
   const painful = useMemo(() => (answers ? activeSwaps(answers).painful : null), [answers]);
+  const logs = useSessionLogs();
   const data = useMemo(
     () =>
-      mode && customIds && painful
-        ? previewData(mode, current, profile, equipment, customIds, painful)
+      mode && customIds && painful && logs
+        ? previewData(mode, current, profile, equipment, customIds, painful, logs)
         : null,
-    [mode, current, profile, equipment, customIds, painful],
+    [mode, current, profile, equipment, customIds, painful, logs],
   );
   const empty =
     mode === 'variant' && data !== null && data.changes.length === 0 && !data.splitChanged;

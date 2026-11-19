@@ -1,9 +1,10 @@
 import { exerciseById } from '@/catalogue';
-import type { EquipmentInventory, Profile, Programme } from '@/domain';
+import type { EquipmentInventory, Profile, Programme, SessionLog } from '@/domain';
 import {
   carryEdits,
   cycleInputs,
   generateProgramme,
+  loggedLifts,
   programmeChanges,
   type CarriedEdit,
   type Issue,
@@ -18,18 +19,23 @@ export function nextProgramme(
   current: Programme,
   profile: Profile,
   equipment: EquipmentInventory,
+  logs: readonly SessionLog[] = [],
 ): Programme {
   const generation = current.generation;
-  // A later cycle stays that cycle: same number, same rotation away from the previous one.
+  // A later cycle stays that cycle: same number, same rotation away from the previous one. Lifts
+  // it keeps that the user has logged start from what was lifted, not from an estimate.
   const cycle = cycleInputs(generation);
+  const logged = cycle.lastCycle ? loggedLifts(Object.values(cycle.lastCycle), logs) : [];
+  const known = logged.length > 0 ? { loggedExercises: logged } : {};
   return mode === 'variant' && generation
     ? generateProgramme({
         profile: generation.profile,
         equipment: generation.equipment,
         seed: generation.seed + 1,
         ...cycle,
+        ...known,
       })
-    : generateProgramme({ profile, equipment, seed: 0, ...cycle });
+    : generateProgramme({ profile, equipment, seed: 0, ...cycle, ...known });
 }
 
 export interface PreviewData {
@@ -57,8 +63,9 @@ export function previewData(
   equipment: EquipmentInventory,
   customIds: ReadonlySet<string> = new Set(),
   painful: ReadonlySet<string> = new Set(),
+  logs: readonly SessionLog[] = [],
 ): PreviewData {
-  const generated = nextProgramme(mode, current, profile, equipment);
+  const generated = nextProgramme(mode, current, profile, equipment, logs);
   // Measured against the generation, not the user's edited rotation.
   const before: Programme = current.generatedRotation
     ? { ...current, rotation: current.generatedRotation }

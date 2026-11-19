@@ -214,6 +214,7 @@
     "equipmentGeneric": "Not possible with your equipment.",
     "doorwayBar": "This move can’t be done on a doorway pull-up bar. Replace it or change your bar.",
     "selectorSwing": "Swinging moves aren’t safe with selector dumbbells. Replace it.",
+    "rollingDumbbells": "This move needs fixed dumbbells that won’t roll under your hands. Replace it.",
     "groupTooSmall": "A group needs at least two exercises.",
     "rangeInvalid": "The minimum is above the maximum.",
     "unknownExercise": "This exercise is no longer in the catalogue. Replace it.",

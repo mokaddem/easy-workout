@@ -214,6 +214,7 @@
     "equipmentGeneric": "Pas faisable avec ton matériel.",
     "doorwayBar": "Cet exercice ne se fait pas sur une barre de porte. Remplace-le ou change de barre.",
     "selectorSwing": "Les mouvements balancés ne sont pas sûrs avec des haltères à sélecteur. Remplace-le.",
+    "rollingDumbbells": "Cet exercice demande des haltères fixes qui ne roulent pas sous tes mains. Remplace-le.",
     "groupTooSmall": "Un groupe demande au moins deux exercices.",
     "rangeInvalid": "Le minimum dépasse le maximum.",
     "unknownExercise": "Cet exercice n’est plus au catalogue. Remplace-le.",

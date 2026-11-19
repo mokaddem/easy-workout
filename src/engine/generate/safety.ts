@@ -6,6 +6,12 @@ import { externalLoad, type LoadContext } from './loads';
 export const NOT_MAIN_LIFT: readonly string[] = ['renegade-row'];
 
 /**
+ * Lifts that only suit a straight accessory slot in their own pattern: not inside a superset or
+ * circuit, where fatigue and the pace ruin the position, and not as a stand-in for another pattern.
+ */
+export const STRAIGHT_ACCESSORY_ONLY: readonly string[] = ['renegade-row'];
+
+/**
  * A lift that can lead a session: a compound, not limited by something else, not a carry,
  * not a jump or a swing.
  */
@@ -22,6 +28,12 @@ export const isMainLift = (exercise: Exercise): boolean =>
  */
 export const WARMUP_ONLY: readonly string[] = ['good-morning'];
 
+/**
+ * Moves that put the hands on the dumbbells while they bear weight: the handles must not roll,
+ * which only fixed (hexagonal or flat-sided) dumbbells guarantee.
+ */
+export const NEEDS_FIXED_DUMBBELLS: readonly string[] = ['renegade-row'];
+
 /** Kipping-prone bar work that a door frame should not take. */
 export const NOT_ON_DOORWAY_BAR: readonly string[] = ['toes-to-bar'];
 
@@ -30,17 +42,24 @@ export const NOT_ON_DOORWAY_BAR: readonly string[] = ['toes-to-bar'];
  * - `no-equipment`: nothing owned allows it.
  * - `doorway-bar`: kipping-prone bar work and the only bar is a doorway one.
  * - `selector-swing`: a swung move and the only dumbbells are selector ones (plates can come loose).
+ * - `rolling-dumbbells`: a move that rests on the dumbbells and none owned are fixed ones.
  * - `rope-beginner`: jump rope for a beginner.
  * - `no-fitting-load`: no owned weight is a sensible starting load.
  */
 export type Concern =
-  'no-equipment' | 'doorway-bar' | 'selector-swing' | 'rope-beginner' | 'no-fitting-load';
+  | 'no-equipment'
+  | 'doorway-bar'
+  | 'selector-swing'
+  | 'rolling-dumbbells'
+  | 'rope-beginner'
+  | 'no-fitting-load';
 
 /** Concerns that make an exercise impossible or unsafe: never placed, never accepted. */
 export const BLOCKING_CONCERNS: ReadonlySet<Concern> = new Set([
   'no-equipment',
   'doorway-bar',
   'selector-swing',
+  'rolling-dumbbells',
 ]);
 
 const needsJumpRope = (setup: readonly EquipmentRequirement[]) =>
@@ -65,21 +84,36 @@ const needsSelectorDumbbells = (
       (item) => item.kind === 'dumbbell' && 'mechanism' in item && item.mechanism === 'selector',
     );
 
+/** The setup uses dumbbells to lean on and none owned are fixed ones. */
+const needsFixedDumbbells = (
+  exercise: Exercise,
+  setup: readonly EquipmentRequirement[],
+  inventory: EquipmentInventory,
+) =>
+  NEEDS_FIXED_DUMBBELLS.includes(exercise.id) &&
+  setup.some((req) => req.kind === 'dumbbell') &&
+  !inventory.some((item) => item.kind === 'dumbbell' && item.mode === 'fixed');
+
 /** Some owned weight is a sensible starting load for this person. */
 const loadFits = (exercise: Exercise, setup: readonly EquipmentRequirement[], ctx: LoadContext) =>
   externalLoad(exercise, setup, ctx) !== undefined;
 
-/** What is wrong with doing the exercise with this setup, if anything. Warm-up drills skip the load check. */
+/**
+ * What is wrong with doing the exercise with this setup, if anything. Warm-up drills skip the
+ * load check, and so do lifts whose load is already known from what the user lifted.
+ */
 export function setupConcern(
   exercise: Exercise,
   setup: readonly EquipmentRequirement[],
   ctx: LoadContext,
   warmup = false,
+  loadKnown = false,
 ): Concern | undefined {
   if (exercise.tags.includes('ballistic') && needsSelectorDumbbells(setup, ctx.inventory))
     return 'selector-swing';
+  if (needsFixedDumbbells(exercise, setup, ctx.inventory)) return 'rolling-dumbbells';
   if (ctx.level === 'beginner' && needsJumpRope(setup)) return 'rope-beginner';
-  if (!warmup && exercise.loadType === 'external' && !loadFits(exercise, setup, ctx))
+  if (!warmup && !loadKnown && exercise.loadType === 'external' && !loadFits(exercise, setup, ctx))
     return 'no-fitting-load';
   return undefined;
 }

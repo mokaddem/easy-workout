@@ -25,7 +25,7 @@ Main:
   6. 2 × Dip · max · RIR 1 · bodyweight  (rest 60s)
   7. 3 × Dumbbell reverse fly · 15-20 · RIR 2 · 4 kg  (rest 45s)
 
-## Session B — Pull  [b-pull, ~51 min]
+## Session B — Pull  [b-pull, ~50 min]
 Warm-up:
   1. 2 × Quadruped thoracic rotation · 10/side  (rest 30s)
   2. 2 × Prone Y raise · 20  (rest 30s)
@@ -33,7 +33,7 @@ Main:
   1. 4 × Bent-over row · 6-12 · RIR 2 · 8 kg  (rest 90s)
   2. 4 × One-arm row · 10/side · RIR 2 · 12 kg  (rest 105s)
   3. 3 × Inverted row under a table · 12-15 · RIR 2  (rest 75s)
-  4. 3 × Renegade row · 12/side · RIR 2 · 8 kg  (rest 75s)
+  4. 3 × Renegade row · 6-10/side · RIR 2 · 8 kg  (rest 75s)
   5. superset × 3 rounds (rest 60s after each round)
        - Dumbbell biceps curl · 10-12 · RIR 2 · 8 kg
        - Hammer curl · 12 · RIR 2 · 8 kg
@@ -67,7 +67,7 @@ Main:
        - Bent-over row · 12 · RIR 2 · 8 kg
        - Seated shoulder press · 12 · RIR 2 · 8 kg
   2. circuit × 4 rounds (rest 75s after each round)
-       - Renegade row · 8-12/side · RIR 1 · 8 kg
+       - One-arm row · 8-12/side · RIR 1 · 12 kg
        - Close-grip push-up · 10-12 · RIR 2
        - Dumbbell lateral raise · 20 · RIR 2 · 4 kg
   3. circuit × 3 rounds (rest 75s after each round)
@@ -123,15 +123,15 @@ Why (choices other than the first preference):
 - [c-lower-core/main/6] load-unloaded-start {"exerciseId":"russian-twist"}
 - [d-upper-density/main/0/1] load-start {"exerciseId":"bent-over-dumbbell-row","kg":8,"targetKg":10.5,"bodyweightKg":75,"bodyweightAssumed":false}
 - [d-upper-density/main/0/2] load-start {"exerciseId":"seated-dumbbell-shoulder-press","kg":8,"targetKg":9.75,"bodyweightKg":75,"bodyweightAssumed":false}
-- [d-upper-density/main/1/0] exercise-fallback-pattern {"exerciseId":"renegade-row","slot":"chin-circuit","pattern":"pull-horizontal","wanted":"pull-vertical"}
-- [d-upper-density/main/1/0] load-start {"exerciseId":"renegade-row","kg":8,"targetKg":7.5,"bodyweightKg":75,"bodyweightAssumed":false}
+- [d-upper-density/main/1/0] exercise-fallback-pattern {"exerciseId":"one-arm-dumbbell-row","slot":"chin-circuit","pattern":"pull-horizontal","wanted":"pull-vertical"}
+- [d-upper-density/main/1/0] load-start {"exerciseId":"one-arm-dumbbell-row","kg":12,"targetKg":15,"bodyweightKg":75,"bodyweightAssumed":false}
 - [d-upper-density/main/1/2] load-start {"exerciseId":"dumbbell-lateral-raise","kg":4,"targetKg":4.5,"bodyweightKg":75,"bodyweightAssumed":false}
 - [d-upper-density/main/2/0] load-start {"exerciseId":"dumbbell-21s","kg":8,"targetKg":9,"bodyweightKg":75,"bodyweightAssumed":false}
 - [d-upper-density/main/2/1] load-start {"exerciseId":"dumbbell-triceps-kickback","kg":4,"targetKg":4.5,"bodyweightKg":75,"bodyweightAssumed":false}
 - [d-upper-density/main/2/2] load-start {"exerciseId":"dumbbell-reverse-fly","kg":4,"targetKg":4.5,"bodyweightKg":75,"bodyweightAssumed":false}
 - [d-upper-density] finisher-skipped-goal {"goal":"muscle"}
 - [d-upper-density] time-fit {"action":"round-added","exerciseIds":"wide-push-up,bent-over-dumbbell-row,seated-dumbbell-shoulder-press","budget":60}
-- [d-upper-density] time-fit {"action":"round-added","exerciseIds":"renegade-row,close-grip-push-up,dumbbell-lateral-raise","budget":60}
+- [d-upper-density] time-fit {"action":"round-added","exerciseIds":"one-arm-dumbbell-row,close-grip-push-up,dumbbell-lateral-raise","budget":60}
 - [e-lower-metabolic/warmup/3] ramp-up {"exerciseId":"dumbbell-deadlift","kg":4,"workingKg":12}
 - [e-lower-metabolic/warmup/4] ramp-up {"exerciseId":"dumbbell-deadlift","kg":8,"workingKg":12}
 - [e-lower-metabolic/main/0] load-start {"exerciseId":"dumbbell-deadlift","kg":12,"targetKg":18,"bodyweightKg":75,"bodyweightAssumed":false}

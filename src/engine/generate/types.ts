@@ -34,6 +34,8 @@ export interface SlotSpec {
   muscles?: readonly Muscle[];
   /** Hand-picked exercises, best first. */
   prefer?: readonly string[];
+  /** Set by the builder for a slot inside a superset or circuit. */
+  grouped?: boolean;
   /** Dose for rep-based exercises; an exercise counted in reps needs it. */
   reps?: RepsSpec;
   /** Dose for timed exercises, in seconds; a timed exercise needs it. */
@@ -120,6 +122,11 @@ export interface GenerateInput {
   lastCycleEquipment?: EquipmentInventory;
   /** Exercise → the harder variant that replaces it wherever it would be picked. */
   upgrades?: Readonly<Record<string, string>>;
+  /**
+   * Exercises the user has logged sets of. Their working load comes from what was lifted, so a
+   * kept lift needs no owned weight near the starting-load estimate.
+   */
+  loggedExercises?: readonly string[];
   /** Defaults to a name derived from the inputs. */
   id?: string;
 }
@@ -140,7 +147,12 @@ export interface Context {
   catalogue: ReadonlyMap<string, Exercise>;
   seed: number;
   cycle: number;
+  /** Last cycle's picks that stay (the slots equipment changes did not release). */
   lastCycle: ReadonlyMap<string, string>;
+  /** Every one of last cycle's picks, kept or not: the reference for the one-step limit. */
+  lastPicks: ReadonlyMap<string, string>;
+  /** Exercises with logged history. */
+  logged: ReadonlySet<string>;
   upgrades: ReadonlyMap<string, string>;
   log: NoteLog;
 }
