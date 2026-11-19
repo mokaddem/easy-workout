@@ -36,6 +36,16 @@ const EMBED = 0.01;
  */
 const MIN_EVIDENCE = 0.001;
 const MIN_SHARE = 0.65;
+/**
+ * With the previous frame's order known, a pair changes sides only when the evidence for the other
+ * side has this share of the votes and some sample shows a depth gap of at least FLIP_GAP (m): a
+ * visible mistake. Smaller disagreements keep the order the viewer already saw, so the outline
+ * cut does not jump between two groups from frame to frame.
+ */
+const FLIP_SHARE = 0.9;
+const FLIP_GAP = 0.03;
+/** A depth gap this large (m) flips a held pair on any clear majority. */
+const FLIP_BIG = 0.08;
 /** Samples along each capsule's axis. */
 const SAMPLES = 3;
 /** Grid of samples across a solid with no axis (a box, a wheel). */
@@ -481,7 +491,7 @@ function groupInfo(name: string): GroupInfo {
  * downward look does not make high parts count as nearer than low ones; the torso sits a little
  * back, as limbs grow out of it).
  */
-export function groupOrder(parts: Part[], cam: Camera): string[] {
+export function groupOrder(parts: Part[], cam: Camera, previous?: readonly string[]): string[] {
   const fx = cam.view[0];
   const fz = cam.view[2];
   const fl = Math.hypot(fx, fz) || 1;
@@ -515,8 +525,24 @@ export function groupOrder(parts: Part[], cam: Camera): string[] {
   const base = names.map((_, i) => i).sort((a, b) => sum[b]! / count[b]! - sum[a]! / count[a]!);
   if (n < 3) return base.map((i) => names[i]!);
   const rank = new Array<number>(n);
-  base.forEach((g, r) => (rank[g] = r));
-  return sortByRules(n, rank, nearerRules(parts, cam, names, index)).map((i) => names[i]!);
+  let prevPos: number[] | null = null;
+  if (previous && previous.length) {
+    // Groups seen before keep their previous place; new ones slot in by mean depth.
+    const list = previous.filter((g) => index.has(g)).map((g) => index.get(g)!);
+    const seen = new Set(list);
+    for (const g of base)
+      if (!seen.has(g)) list.splice(Math.min(base.indexOf(g), list.length), 0, g);
+    prevPos = new Array<number>(n).fill(-1);
+    for (const g of previous) {
+      const i = index.get(g);
+      if (i !== undefined) prevPos[i] = previous.indexOf(g);
+    }
+    list.forEach((g, r) => (rank[g] = r));
+  } else {
+    base.forEach((g, r) => (rank[g] = r));
+  }
+  const rules = nearerRules(parts, cam, names, index, prevPos);
+  return sortByRules(n, rank, rules, prevPos).map((i) => names[i]!);
 }
 
 /**
@@ -528,6 +554,7 @@ function nearerRules(
   cam: Camera,
   names: string[],
   index: Map<string, number>,
+  prevPos: number[] | null,
 ): Float64Array {
   const n = names.length;
   const solids: Solid[] = [];
@@ -544,6 +571,8 @@ function nearerRules(
   const info = names.map(groupInfo);
   // Evidence that i is nearer than j at i·n + j.
   const votes = new Float64Array(n * n);
+  // The largest depth gap (m) that voted for i nearer than j, at i·n + j.
+  const widest = new Float64Array(n * n);
   let joints: Joints | null = null;
   const held = new Int8Array(n * 2).fill(-1);
   const isHeld = (prop: number, side: number): boolean => {
@@ -679,6 +708,7 @@ function nearerRules(
         if (inside) continue;
         const gp = size < MAX_GAP ? size : MAX_GAP;
         votes[nearG * n + farG]! += w * gp * gp * VOTE_SCALE;
+        if (size > widest[nearG * n + farG]!) widest[nearG * n + farG] = size;
       }
     for (let x = 0; x < cover; x++) frontHit[covering[x]!] = -1;
   };
@@ -731,8 +761,28 @@ function nearerRules(
       const ji = votes[j * n + i]!;
       const total = ij + ji;
       if (total < MIN_EVIDENCE) continue;
-      if (ij >= MIN_SHARE * total) rules[i * n + j] = ij;
-      else if (ji >= MIN_SHARE * total) rules[j * n + i] = ji;
+      const pi = prevPos ? prevPos[i]! : -1;
+      const pj = prevPos ? prevPos[j]! : -1;
+      const known = pi >= 0 && pj >= 0;
+      // i nearer than j means j was painted first.
+      const keep = known && (pj < pi ? 1 : -1);
+      if (ij >= MIN_SHARE * total) {
+        if (
+          !known ||
+          keep === 1 ||
+          (ij >= FLIP_SHARE * total && widest[i * n + j]! >= FLIP_GAP) ||
+          widest[i * n + j]! >= FLIP_BIG
+        )
+          rules[i * n + j] = ij;
+      } else if (ji >= MIN_SHARE * total) {
+        if (
+          !known ||
+          keep === -1 ||
+          (ji >= FLIP_SHARE * total && widest[j * n + i]! >= FLIP_GAP) ||
+          widest[j * n + i]! >= FLIP_BIG
+        )
+          rules[j * n + i] = ji;
+      }
     }
   // Where the overlaps say nothing, a limb on the side turned away from the camera is behind the
   // torso and one on the near side in front of it; the same in every frame, so it cannot flicker.
@@ -854,7 +904,12 @@ function lens(A: Solid, s: number, B: Solid, t: number, into: number[]) {
  * nothing left to wait for, the one the mean depth puts farthest goes next. When rules form a
  * cycle, the weakest rule among those left is dropped.
  */
-function sortByRules(n: number, rank: number[], rules: Float64Array): number[] {
+function sortByRules(
+  n: number,
+  rank: number[],
+  rules: Float64Array,
+  prevPos: number[] | null,
+): number[] {
   // rules[i·n + j]: i is nearer than j, so j goes before i.
   const before = Uint8Array.from({ length: n * n }, (_, k) => (rules[k]! > 0 ? 1 : 0));
   const done = new Uint8Array(n);
@@ -872,10 +927,22 @@ function sortByRules(n: number, rank: number[], rules: Float64Array): number[] {
       order.push(pick);
       continue;
     }
+    // Weakest rule first, but one that contradicts the previous order goes before any that agrees.
+    const against = (k: number): number => {
+      if (!prevPos) return 0;
+      const a = prevPos[Math.floor(k / n)]!;
+      const b = prevPos[k % n]!;
+      return a >= 0 && b >= 0 && a < b ? 1 : 0;
+    };
     let weakest = -1;
     for (let k = 0; k < n * n; k++)
       if (before[k] && !done[Math.floor(k / n)] && !done[k % n])
-        if (weakest < 0 || rules[k]! < rules[weakest]!) weakest = k;
+        if (
+          weakest < 0 ||
+          against(k) > against(weakest) ||
+          (against(k) === against(weakest) && rules[k]! < rules[weakest]!)
+        )
+          weakest = k;
     before[weakest] = 0;
   }
   return order;

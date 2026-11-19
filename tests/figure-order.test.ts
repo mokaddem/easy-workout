@@ -26,6 +26,63 @@ describe('paint order of the figure', () => {
     }
   });
 
+  it('does not flip a touching pair back within 100 ms when the previous order is fed', () => {
+    const anim = animationFor('overhead-dumbbell-triceps-extension')!;
+    const prep = prepare(anim, neutralPace(anim));
+    const fr = frame(anim, 350, 240);
+    const N = Math.round(prep.duration * 60);
+    const orders: string[][] = [];
+    const rects: Map<string, [number, number, number, number]>[] = [];
+    let prev: string[] | undefined;
+    for (let i = 0; i < 2 * N; i++) {
+      const { frames, loop } = evaluate(prep, ((i % N) * prep.duration) / N);
+      const parts = buildParts(frames, anim, { minR: fr.minR, loop });
+      prev = groupOrder(parts, fr.cam, prev);
+      if (i < N) continue;
+      orders.push(prev);
+      const box = new Map<string, [number, number, number, number]>();
+      for (const p of parts) {
+        const pts = p.hull ? p.hull : [p.a, p.b];
+        const r = p.hull ? 0 : Math.max(p.ra, p.rb);
+        const b = box.get(p.group) ?? [Infinity, -Infinity, Infinity, -Infinity];
+        for (const q of pts) {
+          const u = q[0] * fr.cam.right[0] + q[1] * fr.cam.right[1] + q[2] * fr.cam.right[2];
+          const v = q[0] * fr.cam.up[0] + q[1] * fr.cam.up[1] + q[2] * fr.cam.up[2];
+          b[0] = Math.min(b[0], u - r);
+          b[1] = Math.max(b[1], u + r);
+          b[2] = Math.min(b[2], v - r);
+          b[3] = Math.max(b[3], v + r);
+        }
+        box.set(p.group, b);
+      }
+      rects.push(box);
+    }
+    const meet = (i: number, a: string, b: string) => {
+      const x = rects[i]!.get(a);
+      const y = rects[i]!.get(b);
+      return !!x && !!y && x[0] < y[1] && y[0] < x[1] && x[2] < y[3] && y[2] < x[3];
+    };
+    const before = (i: number, a: string, b: string) =>
+      orders[i]!.indexOf(a) < orders[i]!.indexOf(b);
+    let chatter = 0;
+    const groups = orders[0]!.filter((g) => !['wall', 'door', 'support'].includes(g));
+    for (const a of groups)
+      for (const b of groups) {
+        if (a >= b) continue;
+        for (let i = 0; i < N; i++) {
+          const j = (i + 1) % N;
+          const was = before(i, a, b);
+          if (was === before(j, a, b) || !meet(j, a, b)) continue;
+          for (let k = 2; k <= 6; k++)
+            if (before((i + k) % N, a, b) === was) {
+              chatter++;
+              break;
+            }
+        }
+      }
+    expect(chatter).toBeLessThanOrEqual(5);
+  });
+
   it('keeps the order steady through a loop where nothing changes sides', () => {
     const anim = animationFor('close-grip-push-up')!;
     const prep = prepare(anim, neutralPace(anim));

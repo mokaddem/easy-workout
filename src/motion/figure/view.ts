@@ -21,6 +21,7 @@ export function createFigureView(
 ): FigureView {
   const groups = new Map<string, { gap: SVGPathElement; fill: SVGPathElement }>();
   let lastOrder = '';
+  let drawn: string[] = [];
 
   const make = (group: string) => {
     const gap = document.createElementNS(NS, 'path');
@@ -38,7 +39,7 @@ export function createFigureView(
   return {
     draw(parts) {
       const paths = groupPaths(parts, fr);
-      const order = groupOrder(parts, fr.cam);
+      const order = groupOrder(parts, fr.cam, drawn);
       for (const g of order) {
         const el = groups.get(g) ?? make(g);
         const p = paths.get(g);
@@ -58,10 +59,13 @@ export function createFigureView(
         }
         lastOrder = key;
       }
+      drawn = order;
     },
     destroy() {
       host.replaceChildren();
       groups.clear();
+      drawn = [];
+      lastOrder = '';
     },
   };
 }
