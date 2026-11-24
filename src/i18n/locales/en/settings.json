@@ -17,6 +17,8 @@
   "units": "Units: kilograms",
   "about": "About",
   "aboutLocal": "Your data stays on this phone. No account, no server.",
+  "aboutHealth": "Easy Workout gives general training guidance, not medical advice. Check with a doctor before you start if you have a health condition or an injury, are pregnant, or haven’t trained in a long time. Stop if you feel pain, dizziness or unusual breathlessness. You train at your own risk.",
+  "aboutLicense": "Open source, MIT license.",
   "goalShort": {
     "muscle": "Muscle gain",
     "recomposition": "Recomposition",

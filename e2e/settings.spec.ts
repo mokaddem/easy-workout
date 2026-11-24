@@ -48,3 +48,10 @@ test('New programme asks for confirmation first', async ({ page }) => {
   await expect(page).toHaveURL(/\/programme$/);
   await expect(page.getByRole('dialog')).toContainText('New programme');
 });
+
+test('About carries the health disclaimer and the license', async ({ page }) => {
+  await seedSetup(page, reference);
+  await page.goto('/settings');
+  await expect(page.getByText(/not medical advice\. Check with a doctor/)).toBeVisible();
+  await expect(page.getByText('Open source, MIT license.')).toBeVisible();
+});

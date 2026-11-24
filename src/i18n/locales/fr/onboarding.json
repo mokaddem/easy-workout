@@ -90,6 +90,7 @@
     "phases": "Phases sur les 8 semaines",
     "error": "La génération n’a pas abouti. Réessaie."
   },
+  "health": "Des repères d’entraînement, pas un avis médical. En cas de doute, demande d’abord à un médecin.",
   "restore": {
     "lead": "Tu changes de téléphone ?",
     "button": "Restaurer une sauvegarde",

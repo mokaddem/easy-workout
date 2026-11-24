@@ -90,6 +90,7 @@
     "phases": "Phases across the 8 weeks",
     "error": "Generation failed. Try again."
   },
+  "health": "General training guidance, not medical advice. If in doubt, ask a doctor first.",
   "restore": {
     "lead": "New phone?",
     "button": "Restore a backup",

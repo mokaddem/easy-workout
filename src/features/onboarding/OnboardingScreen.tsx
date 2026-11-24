@@ -265,6 +265,7 @@ function GoalStep({ draft, update, error, headingRef }: StepProps & { error: boo
         <p className={styles.restoreLead}>{t('onboarding.restore.lead')}</p>
         <RestoreBackup onRestored={clearDraft} />
       </div>
+      <p className={styles.health}>{t('onboarding.health')}</p>
     </>
   );
 }

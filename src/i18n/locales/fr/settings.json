@@ -17,6 +17,8 @@
   "units": "Unités : kilogrammes",
   "about": "À propos",
   "aboutLocal": "Tes données restent sur ce téléphone. Pas de compte, pas de serveur.",
+  "aboutHealth": "Easy Workout donne des repères d’entraînement généraux, pas un avis médical. Demande l’avis d’un médecin avant de commencer si tu as un problème de santé ou une blessure, si tu es enceinte ou si tu n’as pas fait de sport depuis longtemps. Arrête-toi en cas de douleur, de vertige ou d’essoufflement inhabituel. Tu t’entraînes sous ta propre responsabilité.",
+  "aboutLicense": "Logiciel libre, licence MIT.",
   "goalShort": {
     "muscle": "Prise de muscle",
     "recomposition": "Recomposition",

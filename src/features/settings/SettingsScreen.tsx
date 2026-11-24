@@ -219,6 +219,8 @@ export function SettingsScreen() {
         <h2 className={styles.heading}>{t('settings.about')}</h2>
         <p className={styles.aboutName}>{t('app.title')}</p>
         <p className={styles.hint}>{t('settings.aboutLocal')}</p>
+        <p className={`${styles.hint} ${styles.aboutMore}`}>{t('settings.aboutHealth')}</p>
+        <p className={`${styles.hint} ${styles.aboutMore}`}>{t('settings.aboutLicense')}</p>
       </section>
 
       {profile ? (

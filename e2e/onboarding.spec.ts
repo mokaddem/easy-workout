@@ -70,3 +70,8 @@ test('a bodyweight typo is caught and a comma decimal is accepted', async ({ pag
   await field.fill('74,5');
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
+
+test('the first screen says the app is not medical advice', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('General training guidance, not medical advice.')).toBeVisible();
+});
