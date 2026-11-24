@@ -19,6 +19,7 @@ import {
 } from '@/engine';
 import type { IconName } from '@/ui/components';
 import type { PlayerState } from './machine';
+import { warmupCounter } from './ramp';
 
 export const numberText = (value: number, lang: Language): string =>
   new Intl.NumberFormat(lang, { maximumFractionDigits: 2 }).format(value);
@@ -80,8 +81,8 @@ export function loadShort(
 ): string | undefined {
   if (!load || load.kind === 'bodyweight') return undefined;
   if (load.kind === 'band') return t(`labels.bandLoad.${load.level}`);
-  const kg = `${load.kind === 'added-kg' ? '+' : ''}${numberText(load.kg, lang)} ${t('labels.unit.kg')}`;
-  return kg;
+  // A non-breaking space keeps the unit with its number.
+  return `${load.kind === 'added-kg' ? '+' : ''}${numberText(load.kg, lang)}\u00A0${t('labels.unit.kg')}`;
 }
 
 /** "10 reps at 14 kg" — what a tap on Done records. */
@@ -141,8 +142,8 @@ export function progressOf(steps: readonly PlayStep[], step: PlayStep): StepProg
   const warmup = steps.filter((s) => s.section === 'warmup');
   const warmupCount = warmup.length > 0 ? warmup[warmup.length - 1]!.exercise + 1 : 0;
   const last = steps[steps.length - 1]?.exercise ?? 0;
-  if (step.section === 'warmup')
-    return { section: 'warmup', current: step.exercise + 1, total: warmupCount };
+  // The ramp-up sets of one lift count as one warm-up item.
+  if (step.section === 'warmup') return { section: 'warmup', ...warmupCounter(steps, step) };
   return {
     section: step.section,
     current: step.exercise - warmupCount + 1,
@@ -205,7 +206,7 @@ export function rxText(
     const reps =
       target.kind === 'max'
         ? t('play.set.max')
-        : `${targetNumber(t, target)} ${t('play.set.reps')}`;
+        : `${targetNumber(t, target)}\u00A0${t('play.set.reps')}`;
     const loadText = loadShort(t, lang, load);
     return loadText ? `${reps}, ${loadText}` : reps;
   }

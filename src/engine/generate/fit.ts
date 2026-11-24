@@ -1,4 +1,4 @@
-import type { Block, EquipmentRequirement, GenerationNote, Goal } from '../../domain';
+import type { Block, EquipmentRequirement, GenerationNote, Goal, JointRegion } from '../../domain';
 import { sessionSeconds } from '../duration';
 import { SHORT_SESSION_MINUTES } from './templates';
 import type { Priority, SlotRole } from './types';
@@ -23,6 +23,8 @@ export interface BuiltBlock {
   setup?: EquipmentRequirement[];
   /** Primary muscles of each item, in item order. */
   muscles: string[][];
+  /** Limited joints the block's exercises are graded on: growth goes elsewhere when one slot was left out for them. */
+  touches?: JointRegion[];
   /** A ramp-up set before the first heavy lift: never cut on its own, only collapsed with its siblings. */
   ramp?: boolean;
   /** On the first ramp-up set: the single set that stands in for all of them when time is short. */
@@ -380,7 +382,8 @@ export const fitToBudget = (
   {
     goal = 'recomposition',
     keepConditioning = false,
-  }: { goal?: Goal; keepConditioning?: boolean } = {},
+    spare = [],
+  }: { goal?: Goal; keepConditioning?: boolean; spare?: readonly JointRegion[] } = {},
 ): GenerationNote['params'][] => {
   const changes: GenerationNote['params'][] = [];
   const upper = budgetMinutes * (1 + OVER_TOLERANCE);
@@ -392,6 +395,7 @@ export const fitToBudget = (
   while (grew && minutes(built) < budgetMinutes * EXPAND_BELOW) {
     grew = false;
     for (const { target, apply } of expansions(built, maxSets)) {
+      if (target.touches?.some((r) => spare.includes(r))) continue;
       if (minutes(built) >= budgetMinutes * EXPAND_BELOW) break;
       const previous = target.block;
       const change = apply();

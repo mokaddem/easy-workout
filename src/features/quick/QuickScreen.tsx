@@ -1,10 +1,16 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useEquipment, useOpenSession, useProfile } from '@/app/data';
+import { useEquipment, useOpenSession, useProfile, useSettings } from '@/app/data';
 import { useProgressContext } from '@/app/progress';
 import { goBack, navigate, type Route } from '@/app/router';
 import type { Language } from '@/domain';
-import { generateQuickSession, prepareSession, QUICK_FOCUSES, type QuickFocus } from '@/engine';
+import {
+  activeTravelKit,
+  generateQuickSession,
+  prepareSession,
+  QUICK_FOCUSES,
+  type QuickFocus,
+} from '@/engine';
 import { repo } from '@/db/repo';
 import { BarButton, Button, Dock, Icon, IconButton, Skeleton, useToast } from '@/ui/components';
 import { MineSection } from '../mine/MineSection';
@@ -44,9 +50,15 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
 
   useEffect(() => saveChoices(choices), [choices]);
 
+  // With a travel kit in force, "equipment today" starts on the kit; the home equipment is one tap away.
+  const settings = useSettings();
+  const [today] = useState(() => new Date());
+  const kit = settings ? activeTravelKit(settings, today) : undefined;
+  const [home, setHome] = useState(false);
+  const equipmentToday = choices.bodyweightOnly ? 'none' : kit && !home ? 'kit' : 'all';
   const inventory = useMemo(
-    () => (choices.bodyweightOnly ? [] : (equipment ?? [])),
-    [choices.bodyweightOnly, equipment],
+    () => (choices.bodyweightOnly ? [] : kit && !home ? kit : (equipment ?? [])),
+    [choices.bodyweightOnly, kit, home, equipment],
   );
 
   const current = useMemo(
@@ -172,11 +184,27 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
               <RadioChoice
                 variant="seg"
                 labelledBy={equipmentId}
-                value={choices.bodyweightOnly ? 'none' : 'all'}
-                onChange={(v) => update({ bodyweightOnly: v === 'none' })}
+                value={equipmentToday}
+                onChange={(v) => {
+                  setHome(v === 'all');
+                  update({ bodyweightOnly: v === 'none' });
+                }}
                 options={[
+                  ...(kit
+                    ? [
+                        {
+                          value: 'kit' as const,
+                          content: (
+                            <>
+                              <span>{t('quick.travelKit')}</span>
+                              <small>{t('quick.travelKitHint')}</small>
+                            </>
+                          ),
+                        },
+                      ]
+                    : []),
                   {
-                    value: 'all',
+                    value: 'all' as const,
                     content: (
                       <>
                         <span>{t('quick.allEquipment')}</span>
@@ -185,7 +213,7 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
                     ),
                   },
                   {
-                    value: 'none',
+                    value: 'none' as const,
                     content: (
                       <>
                         <span>{t('labels.bodyweight')}</span>
@@ -195,6 +223,17 @@ export function QuickScreen({ route }: { route: Extract<Route, { name: 'quick' }
                   },
                 ]}
               />
+              {profile?.quiet || profile?.smallSpace ? (
+                <p className={styles.hint}>
+                  {t(
+                    profile.quiet && profile.smallSpace
+                      ? 'quick.constraintsBoth'
+                      : profile.quiet
+                        ? 'quick.constraintsQuiet'
+                        : 'quick.constraintsSpace',
+                  )}
+                </p>
+              ) : null}
             </section>
           </div>
         </div>

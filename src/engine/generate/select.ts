@@ -1,9 +1,11 @@
 import type {
   EquipmentRequirement,
   Exercise,
+  JointRegion,
   Level,
   LoadType,
   MovementPattern,
+  Muscle,
 } from '../../domain';
 import {
   equipmentCapabilities,
@@ -11,6 +13,7 @@ import {
   usableSetups,
   type EquipmentCapabilities,
 } from '../equipment';
+import { fitFor, fitRank, isConstrained, moderateRegions, type Fit } from './constraints';
 import { tieBreak } from './hash';
 import {
   NOT_MAIN_LIFT,
@@ -99,13 +102,59 @@ export interface SelectionState {
   programme: Set<string>;
   /** The session being built. */
   sessionId?: string;
+  /** Exercises sparing each limited joint in main and finisher of the session being built. */
+  moderate: Map<JointRegion, number>;
+  /** The same for the warm-up, which has a budget of its own. */
+  warmupModerate: Map<JointRegion, number>;
+  /** Worst fit the search may take right now; the stages of a constrained search raise it. */
+  limit: Fit;
 }
 
 export const newSelectionState = (): SelectionState => ({
   session: new Set(),
   warmup: new Set(),
   programme: new Set(),
+  moderate: new Map(),
+  warmupModerate: new Map(),
+  limit: 'moderate',
 });
+
+/** Exercises sparing one limited joint a session may hold (kept user choices count). */
+export const MODERATE_PER_REGION = 1;
+
+/** The budget of exercises sparing a limited joint, as the slot's section keeps it. */
+const budgetOf = (slot: SlotSpec, state: SelectionState) =>
+  slot.role === 'warmup' ? state.warmupModerate : state.moderate;
+
+/** Every other pattern worth trying, per pattern, when a limitation leaves a slot nothing to pick. */
+const NEIGHBOURS: Partial<Record<MovementPattern, readonly MovementPattern[]>> = {
+  squat: ['hip-extension', 'hinge', 'knee-flexion'],
+  lunge: ['hip-extension', 'hinge', 'knee-flexion'],
+  hinge: ['hip-extension', 'knee-flexion'],
+  'push-vertical': ['shoulder-isolation', 'push-horizontal'],
+  'core-flexion': ['core-anti-extension', 'core-anti-lateral'],
+  'core-rotation': ['core-anti-extension', 'core-anti-lateral'],
+  'spinal-extension': ['core-anti-extension', 'core-anti-lateral'],
+};
+
+/** Patterns of the neighbours of a slot's own ones, not already listed. */
+const neighboursOf = (slot: SlotSpec): MovementPattern[] => {
+  const known = new Set([...slot.patterns, ...(slot.fallbackPatterns ?? [])]);
+  const out: MovementPattern[] = [];
+  for (const pattern of slot.patterns)
+    for (const next of NEIGHBOURS[pattern] ?? [])
+      if (!known.has(next) && !out.includes(next)) out.push(next);
+  return out;
+};
+
+/** Primary muscles the slot's own patterns train: a neighbouring pattern must share one. */
+const slotMuscles = (slot: SlotSpec, ctx: Context): Muscle[] => {
+  if (slot.muscles) return [...slot.muscles];
+  const muscles = new Set<Muscle>();
+  for (const e of ctx.catalogue.values())
+    if (slot.patterns.includes(e.pattern)) for (const m of e.primaryMuscles) muscles.add(m);
+  return [...muscles];
+};
 
 /** Slots a regeneration seed may vary. Main and secondary lifts stay put. */
 const VARIABLE_ROLES: readonly SlotRole[] = ['accessory', 'isolation', 'core', 'conditioning'];
@@ -149,6 +198,8 @@ const eligible = (
     return null;
   if (slot.role !== 'warmup' && exercise.pattern === 'mobility') return null;
   if (slot.role !== 'warmup' && WARMUP_ONLY.includes(exercise.id)) return null;
+  // Static stretches end a session; they never warm one up or fill a slot.
+  if (exercise.tags.includes('stretch')) return null;
   if (slot.role === 'main' && !exercise.tags.includes('compound')) return null;
   if (slot.role === 'main' && NOT_MAIN_LIFT.includes(exercise.id)) return null;
   if (slot.tag && !exercise.tags.includes(slot.tag)) return null;
@@ -163,6 +214,18 @@ const eligible = (
   if (NOT_ON_DOORWAY_BAR.includes(exercise.id) && onlyDoorwayBars(ctx.equipment)) return null;
   const used = slot.role === 'warmup' ? state.warmup : state.session;
   if (used.has(exercise.id)) return null;
+  const fit = fitFor(exercise, ctx.constraints);
+  if (fit !== 'ok') {
+    if (fit === 'out' || slot.plain || fitRank(fit) > fitRank(state.limit)) return null;
+    const budget = budgetOf(slot, state);
+    if (
+      moderateRegions(exercise, ctx.constraints).some(
+        (r) => (budget.get(r) ?? 0) >= MODERATE_PER_REGION,
+      )
+    )
+      return null;
+  }
+  if (slot.plain && exercise.loadType !== 'bodyweight') return null;
   const loadCtx = {
     inventory: ctx.equipment,
     level: ctx.level,
@@ -171,6 +234,7 @@ const eligible = (
   const setups = usableSetups(exercise, capabilities).filter(
     (setup) => !setupConcern(exercise, setup, loadCtx, slot.role === 'warmup', loadKnown),
   );
+  if (slot.plain) return setups.find((setup) => setup.length === 0) ?? null;
   return setups[0] ?? null;
 };
 
@@ -275,11 +339,16 @@ const harderStep = (
   for (const id of picked.exercise.harder) {
     const candidate = ctx.catalogue.get(id);
     if (!candidate || (was && !withinStep(candidate, was))) continue;
+    if (spares(candidate, picked.exercise, ctx)) continue;
     const setup = eligible(candidate, slot, slot.patterns, ctx, capabilities, state);
     if (setup) return { ...picked, exercise: candidate, setup, harderFrom: picked.exercise.id };
   }
   return picked;
 };
+
+/** The candidate is harder on a limited joint than the exercise it would replace. */
+const spares = (candidate: Exercise, than: Exercise, ctx: Context): boolean =>
+  fitRank(fitFor(candidate, ctx.constraints)) > fitRank(fitFor(than, ctx.constraints));
 
 /** How far down the `easier` links the search for a milder variant goes. */
 const EASIER_DEPTH = 4;
@@ -301,7 +370,7 @@ const upgraded = (
   if (slot.role === 'warmup') return picked;
   const id = ctx.upgrades.get(picked.exercise.id);
   const candidate = id ? ctx.catalogue.get(id) : undefined;
-  if (!candidate) return picked;
+  if (!candidate || spares(candidate, picked.exercise, ctx)) return picked;
   // The variant does the same job as the pick, which may have come from a fallback pattern.
   const patterns = [...slot.patterns, ...(slot.fallbackPatterns ?? [])];
   const setup = eligible(candidate, slot, patterns, ctx, capabilities, state);
@@ -309,6 +378,24 @@ const upgraded = (
     ? { ...picked, exercise: candidate, setup, upgradedFrom: picked.exercise.id }
     : picked;
 };
+
+/** Which parts of the search a pass runs: the slot's own patterns, and the neighbouring ones. */
+interface Parts {
+  own: boolean;
+  fallback: boolean;
+}
+
+/**
+ * Without constraints, one pass over everything. With them, the worst fit allowed grows with each
+ * pass: the slot's own patterns with nothing sparing a limited joint, then with one that does
+ * (within the budget), then the neighbouring patterns the same way.
+ */
+const STAGES: readonly (readonly [Fit, Parts])[] = [
+  ['ok', { own: true, fallback: false }],
+  ['moderate', { own: true, fallback: false }],
+  ['ok', { own: false, fallback: true }],
+  ['moderate', { own: false, fallback: true }],
+];
 
 /**
  * Picks the exercise for a slot: the first preferred exercise that fits, else an easier
@@ -320,6 +407,28 @@ export const selectExercise = (
   ctx: Context,
   state: SelectionState,
   capabilities: EquipmentCapabilities = equipmentCapabilities(ctx.equipment),
+): Selection | null => {
+  if (!isConstrained(ctx.constraints))
+    return pick(slot, ctx, state, capabilities, { own: true, fallback: true });
+  const was = state.limit;
+  try {
+    for (const [limit, parts] of STAGES) {
+      state.limit = limit;
+      const picked = pick(slot, ctx, state, capabilities, parts);
+      if (picked) return picked;
+    }
+    return null;
+  } finally {
+    state.limit = was;
+  }
+};
+
+const pick = (
+  slot: SlotSpec,
+  ctx: Context,
+  state: SelectionState,
+  capabilities: EquipmentCapabilities,
+  parts: Parts,
 ): Selection | null => {
   let picked: Selection | null = null;
   const slotKey = state.sessionId ? `${state.sessionId}/${slot.id}` : undefined;
@@ -334,11 +443,14 @@ export const selectExercise = (
     const exercise = ctx.catalogue.get(last);
     const known = ctx.logged.has(last);
     const setup =
-      exercise && eligible(exercise, slot, slot.patterns, ctx, capabilities, state, known);
+      parts.own &&
+      exercise &&
+      eligible(exercise, slot, slot.patterns, ctx, capabilities, state, known);
     if (exercise && setup)
       return place({ exercise, setup, method: 'kept' }, slot, ctx, capabilities, state);
     // Last cycle's stand-in from a neighbouring pattern stays too, dosed as one.
     const fallback =
+      parts.fallback &&
       exercise &&
       slot.fallbackPatterns &&
       eligible(exercise, slot, slot.fallbackPatterns, ctx, capabilities, state, known);
@@ -352,53 +464,64 @@ export const selectExercise = (
       );
   }
 
-  const preferred: Selection[] = [];
-  for (const id of slot.prefer ?? []) {
-    const exercise = ctx.catalogue.get(id);
-    if (!exercise) continue;
-    const setup = eligible(exercise, slot, slot.patterns, ctx, capabilities, state);
-    if (setup) preferred.push({ exercise, setup, method: 'preferred' });
+  if (parts.own) {
+    const preferred: Selection[] = [];
+    for (const id of slot.prefer ?? []) {
+      const exercise = ctx.catalogue.get(id);
+      if (!exercise) continue;
+      const setup = eligible(exercise, slot, slot.patterns, ctx, capabilities, state);
+      if (setup) preferred.push({ exercise, setup, method: 'preferred' });
+    }
+    picked = preferred[0] ?? null;
+    const firstChoice = slot.prefer?.[0] ? ctx.catalogue.get(slot.prefer[0]) : undefined;
+    if (picked && firstChoice && picked.exercise.id !== firstChoice.id) {
+      const missing = missingKinds(firstChoice, capabilities);
+      if (missing.length > 0) picked = { ...picked, instead: { id: firstChoice.id, missing } };
+    }
+    // A seed varies only the slots where another preferred exercise does the job as well:
+    // no lighter kind of load and not a regression of the first choice. A new cycle also moves
+    // away from last cycle's exercise there, when such a peer exists.
+    const avoided = last;
+    if (picked && (ctx.seed !== 0 || avoided) && VARIABLE_ROLES.includes(slot.role)) {
+      const loadRank = loadRankFor(slot.role);
+      const first = picked.exercise;
+      const regressions = easierClosure(first, ctx);
+      const peers = preferred.filter(
+        (p) =>
+          p === picked ||
+          (loadRank[p.exercise.loadType] <= loadRank[first.loadType] &&
+            !regressions.has(p.exercise.id)),
+      );
+      // Neither last cycle's exercise nor one the user just outgrew comes back.
+      const fresh = peers.filter(
+        (p) => p.exercise.id !== avoided && !ctx.upgrades.has(p.exercise.id),
+      );
+      const pool = fresh.length > 0 ? fresh : peers;
+      picked = pool[tieBreak(ctx.seed, slot.id) % pool.length] ?? picked;
+    }
+    // A new cycle (a new level or new equipment too) moves a lift one step at most from last
+    // cycle's, in every slot: a peer within the step, else a regression of the pick within it,
+    // else last cycle's exercise itself.
+    if (picked && was && slot.role !== 'warmup' && !withinStep(picked.exercise, was))
+      picked = nearStep(picked, was, preferred, slot, ctx, capabilities, state);
+    picked ??= easierVariant(slot, ctx, capabilities, state);
+    if (!picked) {
+      const best = rank(slot, slot.patterns, ctx, capabilities, state);
+      if (best) picked = { exercise: best.exercise, setup: best.setup, method: 'ranked' };
+    }
   }
-  picked = preferred[0] ?? null;
-  const firstChoice = slot.prefer?.[0] ? ctx.catalogue.get(slot.prefer[0]) : undefined;
-  if (picked && firstChoice && picked.exercise.id !== firstChoice.id) {
-    const missing = missingKinds(firstChoice, capabilities);
-    if (missing.length > 0) picked = { ...picked, instead: { id: firstChoice.id, missing } };
-  }
-  // A seed varies only the slots where another preferred exercise does the job as well:
-  // no lighter kind of load and not a regression of the first choice. A new cycle also moves
-  // away from last cycle's exercise there, when such a peer exists.
-  const avoided = last;
-  if (picked && (ctx.seed !== 0 || avoided) && VARIABLE_ROLES.includes(slot.role)) {
-    const loadRank = loadRankFor(slot.role);
-    const first = picked.exercise;
-    const regressions = easierClosure(first, ctx);
-    const peers = preferred.filter(
-      (p) =>
-        p === picked ||
-        (loadRank[p.exercise.loadType] <= loadRank[first.loadType] &&
-          !regressions.has(p.exercise.id)),
-    );
-    // Neither last cycle's exercise nor one the user just outgrew comes back.
-    const fresh = peers.filter(
-      (p) => p.exercise.id !== avoided && !ctx.upgrades.has(p.exercise.id),
-    );
-    const pool = fresh.length > 0 ? fresh : peers;
-    picked = pool[tieBreak(ctx.seed, slot.id) % pool.length] ?? picked;
-  }
-  // A new cycle (a new level or new equipment too) moves a lift one step at most from last
-  // cycle's, in every slot: a peer within the step, else a regression of the pick within it,
-  // else last cycle's exercise itself.
-  if (picked && was && slot.role !== 'warmup' && !withinStep(picked.exercise, was))
-    picked = nearStep(picked, was, preferred, slot, ctx, capabilities, state);
-  picked ??= easierVariant(slot, ctx, capabilities, state);
-  if (!picked) {
-    const best = rank(slot, slot.patterns, ctx, capabilities, state);
-    if (best) picked = { exercise: best.exercise, setup: best.setup, method: 'ranked' };
-  }
-  if (!picked && slot.fallbackPatterns) {
+  if (!picked && parts.fallback && slot.fallbackPatterns) {
     const best = rank(slot, slot.fallbackPatterns, ctx, capabilities, state);
     if (best) picked = { exercise: best.exercise, setup: best.setup, method: 'fallback-pattern' };
+  }
+  // Only under constraints: the neighbouring patterns that share a muscle with the slot's own.
+  if (!picked && parts.fallback && !parts.own && slot.role !== 'warmup') {
+    const neighbours = neighboursOf(slot);
+    if (neighbours.length > 0) {
+      const shared = { ...slot, muscles: slotMuscles(slot, ctx) };
+      const best = rank(shared, neighbours, ctx, capabilities, state);
+      if (best) picked = { exercise: best.exercise, setup: best.setup, method: 'fallback-pattern' };
+    }
   }
   if (!picked) return null;
 
@@ -480,5 +603,8 @@ const place = (
   const used = slot.role === 'warmup' ? state.warmup : state.session;
   used.add(picked.exercise.id);
   if (slot.role !== 'warmup') state.programme.add(picked.exercise.id);
+  const budget = budgetOf(slot, state);
+  for (const region of moderateRegions(picked.exercise, ctx.constraints))
+    budget.set(region, (budget.get(region) ?? 0) + 1);
   return picked;
 };

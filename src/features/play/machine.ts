@@ -18,6 +18,7 @@ import {
   type Pause,
   type PlayStep,
 } from '@/engine';
+import { rampOf } from './ramp';
 
 /** Countdown before a timed set started by a tap. */
 export const LEAD_IN_SEC = 3;
@@ -385,6 +386,18 @@ export function skipStep(state: PlayerState, now: number): Transition {
   if (!step || step.section !== 'warmup' || state.pausedAt) return unchanged(state);
   const set: SetLog = { ...setLogBase(step), flag: 'skipped', at: iso(now) };
   return advance(state, [set], now, { performed: false });
+}
+
+/** Skips this ramp-up set and every one still to come for the lift: logged as skipped, straight on to the work. */
+export function skipRamp(state: PlayerState, now: number): Transition {
+  const step = currentStep(state);
+  const ramp = rampOf(state.steps, step);
+  if (!step || !ramp || state.pausedAt) return unchanged(state);
+  const sets = state.steps
+    .slice(state.index, ramp.to + 1)
+    .filter((s) => !state.logged.has(setLogKey(s)))
+    .map((s): SetLog => ({ ...setLogBase(s), flag: 'skipped', at: iso(now) }));
+  return advance(state, sets, now, { performed: false });
 }
 
 /** Resumes where it stopped: running clocks are shifted by the time spent paused. */

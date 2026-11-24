@@ -31,7 +31,10 @@
       "noneBody": "Aucun test max n’a eu lieu ce cycle. En faire un maintenant donne un repère au cycle {{next}}.",
       "skippedBody": "Le test de la semaine {{week}} a été passé. En faire un maintenant donne un repère au cycle {{next}}.",
       "blockedBody": "Le test de la semaine {{week}} n’a pas eu lieu, après une douleur. Tu pourras en faire un depuis Progrès.",
-      "action": "Faire un test"
+      "action": "Faire un test",
+      "heldBody_one": "Le test de la semaine {{weeks}} n’a pas eu lieu : cette séance était loin de chez toi ou allégée. En faire un maintenant donne un point de départ au cycle {{next}}.",
+      "heldBody_other": "Les tests des semaines {{weeks}} n’ont pas eu lieu : ces séances étaient loin de chez toi ou allégées. En faire un maintenant donne un point de départ au cycle {{next}}.",
+      "now": "Tester maintenant"
     },
     "muscles": {
       "chest": "des pectoraux",
@@ -64,7 +67,7 @@
       "nudge_one": "{{count}} exercice au max de ton matériel",
       "nudge_other": "{{count}} exercices au max de ton matériel",
       "nudgeSub": "{{names}} : voir ce qu’il vaut la peine d’acheter",
-      "nudgeSubMore": "{{names}} et {{count}} de plus\u202f: voir ce qu’il vaut la peine d’acheter",
+      "nudgeSubMore": "{{names}} et {{count}} de plus : voir ce qu’il vaut la peine d’acheter",
       "lineLoad": "{{value}} à <b>{{load}}</b>, {{effort}}",
       "lineBare": "<b>{{value}}</b>, {{effort}}",
       "lineLoadNoEffort": "{{value}} à <b>{{load}}</b>",

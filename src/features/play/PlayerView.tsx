@@ -3,11 +3,11 @@ import { AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Flood } from '@/motion';
 import { exerciseById } from '@/catalogue';
-import { updateSettings, useEquipment, useSettings } from '@/app/data';
+import { updateSettings, useEquipment, useSessionLog, useSettings } from '@/app/data';
 import { navigate, useLeaveGuard } from '@/app/router';
 import { useVoiceAvailable } from '@/features/settings/voices';
 import { useToast } from '@/ui/components';
-import { setLogKey, type Language, type SessionLog } from '@/domain';
+import { isCooldownLog, setLogKey, type Language, type SessionLog } from '@/domain';
 import { activeSeconds, sessionMinutes } from '@/engine';
 import { PlayerBar } from './components/PlayerBar';
 import { RestScreen, SwitchScreen } from './components/RestScreen';
@@ -72,6 +72,12 @@ export function PlayerView({
     return () => clearInterval(id);
   }, [sessionOver]);
 
+  // Where leaving goes: a cooldown goes back to where the session before it began.
+  const sessionBefore = useSessionLog(
+    log.source.kind === 'cooldown' ? log.source.afterLogId : undefined,
+  );
+  const home = sessionBefore?.source.kind === 'quick' ? 'quick' : 'programme';
+
   // Set once this screen ends the session itself: its closing is expected, not a surprise.
   const leaving = useRef(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
@@ -111,8 +117,8 @@ export function PlayerView({
   useEffect(() => {
     if (!closed || sessionOver || leaving.current) return;
     leaving.current = true;
-    navigate({ name: 'programme' }, { replace: true });
-  }, [closed, sessionOver]);
+    navigate({ name: home }, { replace: true });
+  }, [closed, sessionOver, home]);
 
   if (sessionOver) return <div className={styles.root} />;
 
@@ -120,14 +126,14 @@ export function PlayerView({
     pause: () => {
       leaving.current = true;
       if (state.pausedAt === undefined) player.pause();
-      navigate({ name: 'programme' }, { replace: true });
+      navigate({ name: home }, { replace: true });
     },
     finish: async () => {
       leaving.current = true;
       // Nothing logged: there is no summary to show, it is the same as abandoning.
       if (log.sets.length === 0) {
         await player.abandon();
-        navigate({ name: 'programme' }, { replace: true });
+        navigate({ name: home }, { replace: true });
         return;
       }
       await finish({ endedEarly: true });
@@ -136,13 +142,15 @@ export function PlayerView({
     abandon: async () => {
       leaving.current = true;
       await player.abandon();
-      navigate({ name: 'programme' }, { replace: true });
+      navigate({ name: home }, { replace: true });
     },
   };
 
   const clock = clockText(activeSeconds(log, new Date(Math.max(tick, now))));
   const voiceOn = settings?.voice ?? true;
-  const ring = settings?.restDisplay === 'ring';
+  // A cooldown stays calm: the ring between stretches whatever the setting says.
+  const calm = isCooldownLog(log);
+  const ring = calm || settings?.restDisplay === 'ring';
   const onVoice = () => {
     void updateSettings({ voice: !voiceOn });
     toast.show({
@@ -243,6 +251,7 @@ export function PlayerView({
     body = (
       <>
         <PlayerBar
+          kit={log.adjustments?.travel !== undefined}
           context={context}
           segments={segments}
           clock={clock}
@@ -259,11 +268,12 @@ export function PlayerView({
       <SwitchScreen {...ctx} {...{ state, now, clock, voiceOn, onVoice, context, segments }} />
     );
   } else if (resting) {
-    body = <RestScreen {...ctx} {...{ state, now, clock, voiceOn, onVoice, ring }} />;
+    body = <RestScreen {...ctx} {...{ state, now, clock, voiceOn, onVoice, ring, calm }} />;
   } else {
     body = (
       <>
         <PlayerBar
+          kit={log.adjustments?.travel !== undefined}
           context={context}
           segments={segments}
           clock={clock}
@@ -307,6 +317,7 @@ export function PlayerView({
     // Any tap may be the first since the app reopened: it lets sound play again.
     <div
       className={styles.root}
+      data-calm={calm ? '' : undefined}
       data-tone={yellow ? 'rest' : undefined}
       data-flooding={yellow && !flooded ? '' : undefined}
       onPointerDown={unlockAudio}

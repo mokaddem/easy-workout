@@ -237,3 +237,31 @@
     display: none;
   }
 }
+
+/* The cooldown offer: a quiet row under the session's results, never the main action */
+.cooldown {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: var(--border-hairline) solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+.cooldownText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.cooldownTitle {
+  margin: 0;
+  font-size: var(--font-size-16);
+  font-weight: 700;
+}
+.cooldownLine {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}
+.calm {
+  font-size: var(--font-size-16);
+}

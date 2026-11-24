@@ -1,4 +1,4 @@
-import type { SessionLog } from '@/domain';
+import { isCooldownLog, type SessionLog } from '@/domain';
 import { activeSeconds, localDate, mondayOf } from '@/engine';
 import { mainSetCounts } from '../../play/format';
 
@@ -26,7 +26,8 @@ export function historyGroups(logs: readonly SessionLog[]): HistoryGroup[] {
       groups.set(weekStart, group);
     }
     group.logs.push(log);
-    if (log.status === 'completed') {
+    // A cooldown is listed, but it is not a training session.
+    if (log.status === 'completed' && !isCooldownLog(log)) {
       group.sessions++;
       group.activeSec += activeSeconds(log);
     }

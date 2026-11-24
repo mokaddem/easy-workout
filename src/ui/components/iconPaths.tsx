@@ -452,6 +452,18 @@ export const PATHS = {
       <path d="M12 12.5v5" />
     </>
   ),
+  joint: (
+    <>
+      <path d="M6 4.5l5.2 7.6M12.8 12.8L18 19.5" />
+      <circle cx="12" cy="12.5" r="3.5" />
+    </>
+  ),
+  suitcase: (
+    <>
+      <rect x="4" y="8" width="16" height="11" rx="2.5" />
+      <path d="M9 8V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8M12 8v11" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

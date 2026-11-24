@@ -7,7 +7,7 @@ import { cx } from '@/ui/components/cx';
 import { Rich } from '../../adapt';
 import { exerciseName } from '../../adapt/format';
 import { dayShort, langOf } from '../format';
-import { logIdentity } from './identity';
+import { afterName, logIdentity } from './identity';
 import { painStop, performedSets, rowStatus } from './groups';
 import type { ProgrammeRecord } from '@/db';
 import styles from './History.module.css';
@@ -16,9 +16,12 @@ import styles from './History.module.css';
 export function HistoryRow({
   log,
   programmes,
+  logs = [],
 }: {
   log: SessionLog;
   programmes: readonly ProgrammeRecord[];
+  /** Every log, to name the session a cooldown followed. */
+  logs?: readonly SessionLog[];
 }) {
   const { t, i18n } = useTranslation();
   const lang = langOf(i18n.language);
@@ -27,14 +30,26 @@ export function HistoryRow({
   const pain = log.status === 'completed' ? painStop(log) : undefined;
   const href = routeHref({ name: 'log', logId: log.id });
   const sets = performedSets(log);
-  const meta = t(sets > 0 ? 'progress.sessions.rowMeta' : 'progress.sessions.rowMetaNoSets', {
-    day: dayShort(log.startedAt, lang),
-    minutes: Math.round(activeSeconds(log) / 60),
-    count: sets,
-  });
+  const cooldown = identity.kind === 'cooldown';
+  const after = cooldown ? afterName(t, identity, logs, programmes, lang) : undefined;
+  const day = dayShort(log.startedAt, lang);
+  const minutes = Math.round(activeSeconds(log) / 60);
+  const meta = cooldown
+    ? after
+      ? t('progress.sessions.cooldownAfter', { day, minutes, name: after })
+      : t('progress.sessions.cooldownMeta', { day, minutes })
+    : t(sets > 0 ? 'progress.sessions.rowMeta' : 'progress.sessions.rowMetaNoSets', {
+        day,
+        minutes,
+        count: sets,
+      });
 
   let flag: { icon: IconName; text: string; pain?: boolean } | undefined;
-  if (pain)
+  if (cooldown) {
+    // Stopping a cooldown is fine: it is only said, never marked as a miss.
+    if (status.kind === 'abandoned' || log.endedEarly)
+      flag = { icon: 'flag', text: t('progress.sessions.cooldownStopped') };
+  } else if (pain)
     flag = {
       icon: 'stop',
       pain: true,
@@ -47,7 +62,7 @@ export function HistoryRow({
       icon: 'flag',
       text: t(
         status.counts ? 'progress.sessions.endedEarly' : 'progress.sessions.endedEarlyNoCount',
-        { done: status.done, total: status.total },
+        { count: status.done, done: status.done, total: status.total },
       ),
     };
   else if (status.kind === 'own-alone')
@@ -56,20 +71,23 @@ export function HistoryRow({
   const wellIcon: IconName | undefined =
     identity.letter && identity.kind === 'programme'
       ? undefined
-      : identity.kind === 'quick'
-        ? 'bolt'
-        : identity.kind === 'custom'
-          ? 'bookmark'
-          : identity.cardio
-            ? 'heart'
-            : 'list';
+      : cooldown
+        ? 'hourglass'
+        : identity.kind === 'quick'
+          ? 'bolt'
+          : identity.kind === 'custom'
+            ? 'bookmark'
+            : identity.cardio
+              ? 'heart'
+              : 'list';
 
   return (
     <a
       className={cx(
         styles.row,
-        status.kind === 'abandoned' && styles.gone,
-        status.kind === 'early' && styles.early,
+        !cooldown && status.kind === 'abandoned' && styles.gone,
+        !cooldown && status.kind === 'early' && styles.early,
+        cooldown && styles.cool,
       )}
       href={href}
       onClick={(e) => handleLinkClick(e, href)}

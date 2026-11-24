@@ -58,7 +58,9 @@
   color: var(--color-text-subtle);
 }
 .checkInRow {
-  margin: var(--space-4) var(--space-4) 0;
+  /* padding, not margin: the row's entrance animation owns its top margin */
+  margin: 0 var(--space-4);
+  padding-top: var(--space-4);
 }
 .cardBody {
   display: grid;
@@ -110,4 +112,27 @@
 }
 .actions > :last-child {
   flex: 1 1 auto;
+}
+.reasons {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reasons li {
+  position: relative;
+  padding-left: 18px;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}
+.reasons li::before {
+  content: '';
+  position: absolute;
+  top: 0.55em;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-xs);
+  background: var(--color-text-subtle);
 }

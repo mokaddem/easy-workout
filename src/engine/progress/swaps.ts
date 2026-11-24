@@ -9,10 +9,11 @@ import type {
 } from '../../domain';
 import { exerciseById as catalogueById, catalogue } from '../../catalogue';
 import { equipmentCapabilities, isExerciseAvailable, usableSetups } from '../equipment';
+import { fitFor, fitRank, type Constraints } from '../generate/constraints';
 import { redose } from '../generate/dose';
 import { startingLoad, type LoadContext } from '../generate/loads';
 import { isExerciseSafe, isMainLift } from '../generate/safety';
-import { levelCap } from '../generate/select';
+import { levelCap, withinStep } from '../generate/select';
 import { itemKey } from '../play';
 
 export interface Swaps {
@@ -60,18 +61,44 @@ const implementKinds = (exercise: Exercise, inventory: EquipmentInventory) =>
     ),
   );
 
+/** The person a substitute is for: what the generator checks a pick against. */
+export interface SubstituteContext {
+  level: LoadContext['level'];
+  bodyweightKg?: number;
+  constraints?: Constraints;
+}
+
 /**
  * Other exercises for the same job, best first: same pattern, a primary muscle in common, same
  * compound / isolation tag, doable with what is owned, not a warm-up drill, not swapped away for
  * pain. Closest difficulty first; after pain, an easier one or one done with another implement.
+ * With a `context`, also what the generator would accept for that person: within their level and
+ * one step of the exercise, safe with what is owned, and not ruled out by a limitation, quiet or
+ * small space (one that spares a limited joint comes after those that don't).
  */
 export function substitutesFor(
   exercise: Exercise,
   inventory: EquipmentInventory,
-  options: { pain?: boolean; avoid?: ReadonlySet<string>; exercises?: readonly Exercise[] } = {},
+  options: {
+    pain?: boolean;
+    avoid?: ReadonlySet<string>;
+    exercises?: readonly Exercise[];
+    context?: SubstituteContext;
+  } = {},
 ): Exercise[] {
   const capabilities = equipmentCapabilities(inventory);
   const own = implementKinds(exercise, inventory);
+  const { context } = options;
+  const accepted = (c: Exercise): boolean => {
+    if (!context) return true;
+    if (fitFor(c, context.constraints) === 'out') return false;
+    if (c.difficulty > levelCap(context.level, c) || !withinStep(c, exercise)) return false;
+    return isExerciseSafe(c, {
+      inventory,
+      level: context.level,
+      ...(context.bodyweightKg !== undefined && { bodyweightKg: context.bodyweightKg }),
+    });
+  };
   const pool = (options.exercises ?? catalogue).filter(
     (c) =>
       c.id !== exercise.id &&
@@ -82,15 +109,17 @@ export function substitutesFor(
       !c.tags.includes('warmup') &&
       !c.tags.includes('mobility') &&
       !options.avoid?.has(c.id) &&
-      isExerciseAvailable(c, capabilities),
+      isExerciseAvailable(c, capabilities) &&
+      accepted(c),
   );
   const rank = (c: Exercise): number[] => {
     const harder = c.difficulty > exercise.difficulty ? 1 : 0;
     const kinds = implementKinds(c, inventory);
     const sameImplement = [...kinds].some((k) => own.has(k)) ? 1 : 0;
-    return options.pain
+    const base = options.pain
       ? [harder, sameImplement, Math.abs(c.difficulty - exercise.difficulty)]
       : [Math.abs(c.difficulty - exercise.difficulty)];
+    return context?.constraints ? [fitRank(fitFor(c, context.constraints)), ...base] : base;
   };
   return pool
     .map((c, order) => ({ c, key: [...rank(c), order] }))
@@ -106,7 +135,7 @@ export function substitutesFor(
 export function substituteFor(
   exercise: Exercise,
   inventory: EquipmentInventory,
-  options: { pain?: boolean; avoid?: ReadonlySet<string>; exercises?: readonly Exercise[] } = {},
+  options: Parameters<typeof substitutesFor>[2] = {},
 ): Exercise | undefined {
   return substitutesFor(exercise, inventory, options)[0];
 }
@@ -150,7 +179,9 @@ export function fitsAsHarder(
 /** The harder variant that may take an exercise's place, first in its links, safe with what is owned. */
 export function harderVariantFor(
   exercise: Exercise,
-  ctx: { inventory: EquipmentInventory } & Partial<Pick<LoadContext, 'level' | 'bodyweightKg'>>,
+  ctx: { inventory: EquipmentInventory; constraints?: Constraints } & Partial<
+    Pick<LoadContext, 'level' | 'bodyweightKg'>
+  >,
   exercises: ReadonlyMap<string, Exercise> = catalogueById,
   options: { leads?: boolean } = {},
 ): Exercise | undefined {
@@ -160,8 +191,14 @@ export function harderVariantFor(
     ctx.inventory,
     exercises,
     (c) =>
+      fitFor(c, ctx.constraints) !== 'out' &&
       fitsAsHarder(c, exercise, ctx.level, options) &&
-      (!ctx.level || isExerciseSafe(c, { ...ctx, level: ctx.level })),
+      (!ctx.level ||
+        isExerciseSafe(c, {
+          inventory: ctx.inventory,
+          level: ctx.level,
+          ...(ctx.bodyweightKg !== undefined && { bodyweightKg: ctx.bodyweightKg }),
+        })),
   );
 }
 
@@ -171,7 +208,9 @@ export function harderVariantFor(
  */
 export function harderNeedsEquipment(
   exercise: Exercise,
-  ctx: { inventory: EquipmentInventory } & Partial<Pick<LoadContext, 'level'>>,
+  ctx: { inventory: EquipmentInventory; constraints?: Constraints } & Partial<
+    Pick<LoadContext, 'level'>
+  >,
   exercises: ReadonlyMap<string, Exercise> = catalogueById,
 ): boolean {
   const capabilities = equipmentCapabilities(ctx.inventory);
@@ -180,6 +219,7 @@ export function harderNeedsEquipment(
     .some(
       (c) =>
         c !== undefined &&
+        fitFor(c, ctx.constraints) !== 'out' &&
         fitsAsHarder(c, exercise, ctx.level) &&
         !isExerciseAvailable(c, capabilities),
     );
@@ -215,17 +255,25 @@ export function replacementItem(
 /**
  * The session with swapped exercises in place. A replacement is re-dosed for the slot and
  * starts from the usual estimate; progression later brings its own history in. A replacement
- * that can't be done with today's equipment leaves the original in place.
+ * that can't be done with today's equipment leaves the original in place; so does one that a
+ * limitation, quiet or small space now rules out, and the swap is reported in `blocked` (item
+ * key → the exercise the swap pointed to).
  */
 export function applySwaps(
   session: Session,
   swaps: Swaps,
-  ctx: { inventory: EquipmentInventory; level: LoadContext['level']; bodyweightKg?: number },
+  ctx: {
+    inventory: EquipmentInventory;
+    level: LoadContext['level'];
+    bodyweightKg?: number;
+    constraints?: Constraints;
+  },
   exercises: ReadonlyMap<string, Exercise> = catalogueById,
-): { session: Session; replaces: Record<string, string> } {
-  if (swaps.to.size === 0) return { session, replaces: {} };
+): { session: Session; replaces: Record<string, string>; blocked: Record<string, string> } {
+  if (swaps.to.size === 0) return { session, replaces: {}, blocked: {} };
   const capabilities = equipmentCapabilities(ctx.inventory);
   const replaces: Record<string, string> = {};
+  const blocked: Record<string, string> = {};
   const swapped = new Map<string, Exercise>();
   const replacementFor = (id: string): Exercise | undefined => {
     const to = swaps.to.get(id);
@@ -241,6 +289,10 @@ export function applySwaps(
           const previous = exercises.get(item.exerciseId);
           const next = replacementFor(item.exerciseId);
           if (!previous || !next) return item;
+          if (fitFor(next, ctx.constraints) === 'out') {
+            blocked[itemKey(section, blockIndex, itemIndex)] = next.id;
+            return item;
+          }
           replaces[itemKey(section, blockIndex, itemIndex)] = item.exerciseId;
           swapped.set(item.exerciseId, next);
           return replacementItem(item, previous, next, section === 'main' && blockIndex === 0, ctx);
@@ -260,5 +312,5 @@ export function applySwaps(
       ? [withItems(block, [{ ...ramp, exerciseId: next.id }])]
       : [];
   });
-  return { session: { ...session, warmup, main, finisher }, replaces };
+  return { session: { ...session, warmup, main, finisher }, replaces, blocked };
 }

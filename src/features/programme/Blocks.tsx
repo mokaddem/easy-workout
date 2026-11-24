@@ -5,6 +5,7 @@ import { Fragment } from 'react';
 import type {
   Answer,
   GenerationNote,
+  JointRegion,
   Language,
   Load,
   ProgressionNote,
@@ -14,9 +15,9 @@ import type { Proposal } from '@/engine';
 import { useEquipment } from '@/app/data';
 import { thumbIcon } from '@/features/editor/picker/thumbIcon';
 import { equipmentInUse, FigureTile } from '@/features/figure';
-import { Icon } from '@/ui/components';
+import { Icon, IssueLine } from '@/ui/components';
 import { ChangeTag, GoalRuler, noteDetail, Rich, showsWhy, type ChangeTagData } from '../adapt';
-import { PendingPainLine, SwapLine, WhyLine } from './AdaptLines';
+import { PendingPainLine, SwapLine, TravelSwapLine, WhyLine } from './AdaptLines';
 import type { ItemGoals } from './adaptation';
 import { cardioMinutes, exerciseName, formatNumber, range, type BlockDelta } from './format';
 import { effortText } from './effort';
@@ -53,6 +54,12 @@ export interface ItemAdapt {
   replaces?: { id: string; answer?: Answer | undefined };
   /** Pain waiting for an answer. */
   pain?: Proposal;
+  /** The travel kit stands this exercise in for another one. */
+  travelFrom?: string;
+  /** Sparing a limited joint: never under 2 reps in reserve. */
+  capped?: boolean;
+  /** The limited joint notes about sparing it speak of. */
+  joint?: JointRegion;
   onSwitchBack?: (originalId: string) => void;
   onChoose?: (proposal: Proposal) => void;
 }
@@ -68,6 +75,8 @@ interface RxProps {
   notes: GenerationNote[];
   /** What the user changed here: shown in place of the generation lines. */
   edit?: string | undefined;
+  /** A pick of the user's own that what they avoid now advises against: it stays, with a warning. */
+  keptOut?: string | undefined;
   firstSetRir?: number;
   lastSetRir?: number;
   adapt?: ItemAdapt;
@@ -201,6 +210,7 @@ export function Prescription({
   delta,
   notes,
   edit,
+  keptOut,
   firstSetRir,
   lastSetRir,
   adapt,
@@ -226,6 +236,14 @@ export function Prescription({
           exerciseId: item.exerciseId,
           ...(target.kind === 'reps' && { min: target.min, max: target.max }),
           ...(target.kind === 'time' && { min: target.minSec, max: target.maxSec, time: true }),
+          ...(adapt?.joint && { joint: adapt.joint }),
+        })
+      : undefined;
+  // Sparing a joint says so on its own unless a note already does.
+  const cappedText =
+    adapt?.capped && !whyText
+      ? t('why.constraint.capped', {
+          joint: adapt.joint ? t(`labels.joint.${adapt.joint}.your`) : t('why.constraint.joint'),
         })
       : undefined;
   return (
@@ -292,7 +310,9 @@ export function Prescription({
           <p className={styles.facts}>{t('programme.rx.maxHint')}</p>
         ) : null}
         {whyText ? <WhyLine text={whyText} /> : null}
+        {cappedText ? <WhyLine text={cappedText} /> : null}
         {edit ? <EditLine text={edit} /> : null}
+        {keptOut ? <IssueLine level="warn">{keptOut}</IssueLine> : null}
         {edit
           ? null
           : lines.map((line) => (
@@ -301,6 +321,7 @@ export function Prescription({
                 <span>{line}</span>
               </p>
             ))}
+        {adapt?.travelFrom ? <TravelSwapLine originalId={adapt.travelFrom} /> : null}
         {adapt?.pain ? (
           <PendingPainLine
             fromToken={str(adapt.pain.lighter?.params.from)}
@@ -345,6 +366,7 @@ export function CardioRow({
   delta,
   notes,
   edit,
+  keptOut,
   adapt,
   onWhy,
   onHowTo,
@@ -356,6 +378,8 @@ export function CardioRow({
   delta?: BlockDelta | null;
   notes: GenerationNote[];
   edit?: string | undefined;
+  /** A pick of the user's own that what they avoid now advises against: it stays, with a warning. */
+  keptOut?: string | undefined;
   adapt?: ItemAdapt;
   onWhy: () => void;
   onHowTo?: () => void;
@@ -367,7 +391,10 @@ export function CardioRow({
   const cardioNote = adapt?.note;
   const cardioWhy =
     cardioNote && showsWhy(cardioNote)
-      ? noteDetail(t, lang, cardioNote, { exerciseId: item.exerciseId })
+      ? noteDetail(t, lang, cardioNote, {
+          exerciseId: item.exerciseId,
+          ...(adapt?.joint && { joint: adapt.joint }),
+        })
       : undefined;
   const lines = notes
     .filter(isInlineNote)
@@ -427,7 +454,18 @@ export function CardioRow({
           )}
         </div>
         {cardioWhy ? <WhyLine text={cardioWhy} /> : null}
+        {adapt?.capped && !cardioWhy ? (
+          <WhyLine
+            text={t('why.constraint.capped', {
+              joint: adapt.joint
+                ? t(`labels.joint.${adapt.joint}.your`)
+                : t('why.constraint.joint'),
+            })}
+          />
+        ) : null}
+        {adapt?.travelFrom ? <TravelSwapLine originalId={adapt.travelFrom} /> : null}
         {edit ? <EditLine text={edit} /> : null}
+        {keptOut ? <IssueLine level="warn">{keptOut}</IssueLine> : null}
         {edit
           ? null
           : lines.map((line) => (

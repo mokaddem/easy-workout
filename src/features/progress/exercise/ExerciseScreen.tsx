@@ -6,6 +6,7 @@ import {
   useAnswers,
   useEquipment,
   useMaxTests,
+  useProfile,
   useProgrammes,
   useSessionLogs,
 } from '@/app/data';
@@ -18,7 +19,9 @@ import {
   exerciseHistory,
   maxTestHistory,
   nextTime,
+  recordPoints,
   type ExercisePoint,
+  type ExerciseRecord,
 } from '@/engine';
 import { ChangeTag } from '@/features/adapt/ChangeTag';
 import { GoalRuler } from '@/features/adapt/GoalRuler';
@@ -55,12 +58,22 @@ export function ExerciseScreen({ route }: { route: Extract<Route, { name: 'exerc
   const inventory = useEquipment();
   const active = useActiveProgramme();
   const ctx = useProgressContext();
+  const bodyweightKg = useProfile()?.bodyweightKg;
 
   const points = useMemo(
     () => (logs && programmes ? exerciseHistory(id, logs, programmes) : undefined),
     [id, logs, programmes],
   );
   const timeline = useMemo(() => (logs ? changeTimeline(id, logs) : []), [id, logs]);
+  const records = useMemo(
+    () =>
+      logs && programmes && tests
+        ? recordPoints(id, logs, programmes, tests, {
+            ...(bodyweightKg !== undefined && { bodyweightKg }),
+          })
+        : [],
+    [id, logs, programmes, tests, bodyweightKg],
+  );
 
   const cyclePoints = useMemo(() => {
     if (!points || !active) return [];
@@ -483,11 +496,12 @@ export function ExerciseScreen({ route }: { route: Extract<Route, { name: 'exerc
             </section>
           ) : null}
 
-          {programmeSeen && timeline.length > 0 ? (
+          {programmeSeen && (timeline.length > 0 || records.length > 0) ? (
             <ChangedSection
               exercise={exercise}
               id={id}
               timeline={timeline}
+              records={records}
               points={points}
               logs={logs}
               programmes={programmes}
@@ -538,6 +552,7 @@ function ChangedSection({
   exercise,
   id,
   timeline,
+  records,
   points,
   logs,
   programmes,
@@ -545,6 +560,7 @@ function ChangedSection({
   exercise: Exercise | undefined;
   id: string;
   timeline: ReturnType<typeof changeTimeline>;
+  records: readonly ExerciseRecord[];
   points: readonly ExercisePoint[];
   logs: Parameters<typeof Timeline>[0]['logs'];
   programmes: Parameters<typeof Timeline>[0]['programmes'];
@@ -559,6 +575,7 @@ function ChangedSection({
       </div>
       <Timeline
         entries={timeline}
+        records={records}
         points={points}
         logs={logs}
         programmes={programmes}

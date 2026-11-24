@@ -268,9 +268,29 @@
       "keepSubPlain": "{{name}} garde sa charge. Pas de hausse avant 2 séances sans douleur.",
       "oneOffSub": "{{name}} reste dans tes séances. Rien ne change.",
       "notNowHarder": "{{name}} reste à {{goal}}. On te reposera la question après deux autres séances au maximum.",
-      "notNowOther": "{{name}} reste comme avant. Si ça coince encore dans quelques séances, on te reposera la question."
+      "notNowOther": "{{name}} reste comme avant. Si ça coince encore dans quelques séances, on te reposera la question.",
+      "limitTitle": "On ménage {{joint}}",
+      "limitSwap_one": "{{name}} remplace cet exercice, et {{count}} autre change. À revoir dans Réglages quand tu veux.",
+      "limitSwap_other": "{{name}} remplace cet exercice, et {{count}} autres changent. À revoir dans Réglages quand tu veux.",
+      "limitRemoved_one": "Cet exercice quitte ton programme, et {{count}} autre change.",
+      "limitRemoved_other": "Cet exercice quitte ton programme, et {{count}} autres changent.",
+      "limitStays_one": "Cet exercice reste, avec 2 reps en réserve au moins. {{count}} autre change.",
+      "limitStays_other": "Cet exercice reste, avec 2 reps en réserve au moins. {{count}} autres changent."
     },
-    "undo": "Annuler"
+    "undo": "Annuler",
+    "limit": {
+      "title": "Ménager {{joint}}",
+      "titlePick": "Ménager une articulation",
+      "suggested": "Conseillé après une deuxième douleur.",
+      "removesSub": "Il quitte ton programme avec les exercices durs pour {{joint}}. {{name}} à la place.",
+      "removesNone": "Il quitte ton programme avec les exercices durs pour {{joint}}. Rien ne le remplace : sa place est retirée.",
+      "stays": "Il reste, avec 2 reps en réserve au moins. Les exercices durs pour {{joint}} quittent ton programme.",
+      "pickSub": "Choisis laquelle, puis vois ce qui change.",
+      "pickTitle": "Quelle articulation ?",
+      "pickError": "Choisis une articulation.",
+      "pickConfirm": "Voir ce qui change",
+      "pickCancel": "Annuler"
+    }
   },
   "programme": {
     "nudge": {

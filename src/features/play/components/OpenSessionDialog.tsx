@@ -35,6 +35,7 @@ export function OpenSessionDialog({ open, log, stale, next, onClose, onResume, o
   const params = {
     open: log?.plan.name[lang] ?? '',
     next,
+    count: counts.done,
     done: counts.done,
     total: counts.total,
   };

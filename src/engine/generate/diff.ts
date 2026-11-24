@@ -40,7 +40,7 @@ const slotChoices = (p: Programme): Map<string, string> => {
     if (!session) continue;
     if (n.code.startsWith('exercise-') && n.code !== 'exercise-harder-variant')
       map.set(`${session}|${slotAt(n, session)}`, String(n.params.exerciseId));
-    if (n.code === 'slot-dropped') {
+    if (n.code === 'slot-dropped' || n.code === 'slot-limited') {
       let used = taken.get(session);
       if (!used) taken.set(session, (used = placed(session)));
       const wanted = String(n.params.slot);

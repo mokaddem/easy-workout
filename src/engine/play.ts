@@ -29,6 +29,7 @@ import {
 import { equipmentCapabilities, usableSetups, type EquipmentCapabilities } from './equipment';
 import { FIXED_REP_EXERCISES } from './generate/dose';
 import { DEFAULT_BODYWEIGHT_KG, ownedWeights, snapDown } from './generate/loads';
+import { DOSE_CAP_RIR } from './progress/dose-cap';
 import { bodyShare, capacity, predictReps } from './progress/ladder';
 import { takesPhaseRir, type WeekPlan } from './week';
 
@@ -50,6 +51,8 @@ export interface PlayStep {
   block: Block;
   /** Position of this exercise among all the exercises of the session, 0-based. */
   exercise: number;
+  /** Time to move into this block when the session sets its own. */
+  transitionSec?: number;
 }
 
 /**
@@ -102,8 +105,18 @@ function prescription(
     // A week's first- or last-set RIR makes a set harder, never easier than the item's own, and
     // at most two reps closer to failure. Jumps keep none.
     const own = item.rir;
+    // An exercise sparing a limited joint never goes under its reserve of 2, whatever the week says.
+    // So does a session that comes back after a long break: no set closer than 2 reps in reserve.
+    const floor =
+      adjustments.reentry !== undefined ||
+      adjustments.doseCapped?.includes(itemKey(section, blockIndex, itemIndex))
+        ? DOSE_CAP_RIR
+        : 0;
     const harder = (phase: number) =>
-      own === undefined ? phase : Math.max(Math.min(phase, own), own - MAX_SET_RIR_STEP);
+      Math.max(
+        floor,
+        own === undefined ? phase : Math.max(Math.min(phase, own), own - MAX_SET_RIR_STEP),
+      );
     if (set === 1 && adjustments.firstSetRir !== undefined) rir = harder(adjustments.firstSetRir);
     else if (set === sets && adjustments.lastSetRir !== undefined)
       rir = harder(adjustments.lastSetRir);
@@ -159,7 +172,7 @@ function prescription(
 
 /** The session as the player runs it: warm-up, main, finisher, round by round, side by side. */
 export function playSteps(
-  session: Pick<Session, Section>,
+  session: Pick<Session, Section> & Pick<Partial<Session>, 'transitionSec'>,
   adjustments?: SetAdjustments,
 ): PlayStep[] {
   const steps: PlayStep[] = [];
@@ -192,6 +205,7 @@ export function playSteps(
               planned,
               block,
               exercise: exercise + itemIndex,
+              ...(session.transitionSec !== undefined && { transitionSec: session.transitionSec }),
             });
         });
       exercise += items.length;
@@ -245,10 +259,17 @@ export function setAdjustments(
   plan: Pick<WeekPlan, 'session' | 'setRir' | 'backOffLoadFactor'>,
   inventory: EquipmentInventory,
   exerciseById: ReadonlyMap<string, Exercise> = catalogueById,
+  /** Exercises sparing a limited joint (item keys), from the prepared session. */
+  doseCapped: readonly string[] = [],
+  /** What else shaped the session (the prepared session has them): a break, a travel kit. */
+  stamps: Pick<SetAdjustments, 'reentry' | 'travel'> = {},
 ): SetAdjustments | undefined {
   const adjustments: SetAdjustments = {
     ...(plan.setRir.first !== undefined && { firstSetRir: plan.setRir.first }),
     ...(plan.setRir.last !== undefined && { lastSetRir: plan.setRir.last }),
+    ...(doseCapped.length > 0 && { doseCapped: [...doseCapped] }),
+    ...(stamps.travel && { travel: stamps.travel }),
+    ...(stamps.reentry !== undefined && { reentry: stamps.reentry }),
   };
   const factor = plan.backOffLoadFactor;
   if (factor !== undefined) {
@@ -258,7 +279,13 @@ export function setAdjustments(
       itemsOf(block).forEach((item, itemIndex) => {
         if (!takesSetRir('main', item.target) || item.load?.kind !== 'kg') return;
         // Back-off sets follow a top set harder than the rest; an item already that hard has none.
-        const first = plan.setRir.first;
+        const key = itemKey('main', blockIndex, itemIndex);
+        const first =
+          plan.setRir.first === undefined
+            ? undefined
+            : doseCapped.includes(key) || stamps.reentry !== undefined
+              ? Math.max(plan.setRir.first, DOSE_CAP_RIR)
+              : plan.setRir.first;
         if (first !== undefined && item.rir !== undefined && item.rir <= first) return;
         const exercise = exerciseById.get(item.exerciseId);
         const implement = exercise && implementOf(exercise, capabilities);
@@ -267,7 +294,7 @@ export function setAdjustments(
         const kg = snapDown(weights, item.load.kg * factor);
         // A jump down too far (coarse fixed weights) is no back-off: keep the load, let reps fall.
         if (kg !== undefined && kg < item.load.kg && kg >= item.load.kg * MIN_BACK_OFF_SHARE)
-          loads[itemKey('main', blockIndex, itemIndex)] = { kind: 'kg', kg };
+          loads[key] = { kind: 'kg', kg };
       }),
     );
     if (Object.keys(loads).length > 0) adjustments.backOffLoads = loads;
@@ -301,7 +328,10 @@ export function pauseBetween(done: PlayStep, next: PlayStep | undefined): Pause 
     }
     return { kind: 'rest', seconds: roundRestOf(done.block) };
   }
-  return { kind: 'block', seconds: blockTransitionSec(done.block, transitionInto(next.section)) };
+  return {
+    kind: 'block',
+    seconds: blockTransitionSec(done.block, next.transitionSec ?? transitionInto(next.section)),
+  };
 }
 
 /** Index of the first step with no set logged; `steps.length` when everything is logged. */

@@ -233,6 +233,18 @@
   font-size: var(--font-size-16);
   font-weight: 600;
 }
+/* Ramp-up sets: a tag above the name says this is a warm-up set, not one of the work. */
+.warmHead {
+  align-self: flex-start;
+  margin: 0;
+  padding: 4px 12px;
+  border: var(--border-strong) solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-16);
+  font-weight: 800;
+  font-stretch: var(--font-width-title);
+}
 .summary {
   margin: 0;
   color: var(--color-text-muted);
@@ -661,6 +673,72 @@
 .restDone svg {
   color: var(--color-on-rest);
 }
+/* A record set: a one-line ink plate in place of the "set logged" line, so the countdown keeps its room. */
+.restRecord {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0;
+  padding: 6px 16px 6px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-rest-surface);
+  color: var(--color-on-rest-surface);
+}
+.restRecord > svg {
+  flex: none;
+}
+/* The cue lands after the logged line: the plate pops in from the press scale past the punch scale, the medal follows. Transform and opacity only, so the countdown never moves. */
+.restRecord {
+  transform-origin: left center;
+  animation: record-in var(--duration-slow) var(--ease-snap) 120ms backwards;
+}
+.restRecord > svg {
+  animation: check-pop var(--duration-celebrate) var(--ease-punch) 200ms backwards;
+}
+@keyframes record-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--motion-scale-press));
+  }
+  55% {
+    opacity: 1;
+    transform: scale(var(--motion-scale-punch));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .restRecord {
+    animation: stage-fade var(--duration-fast) var(--ease-move) backwards;
+  }
+  .restRecord > svg {
+    animation: none;
+  }
+}
+.restRecordText {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 10px;
+  min-width: 0;
+}
+.restRecordTitle {
+  font-size: var(--font-size-24);
+  font-weight: 800;
+  font-stretch: var(--font-width-display);
+  line-height: 1.05;
+}
+.restRecordSet {
+  font-size: var(--font-size-21);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  opacity: 0.85;
+}
+.restBody:has(.ring) .restRecord {
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+}
 .restCenter {
   display: flex;
   flex: 1;
@@ -744,6 +822,7 @@
   color: var(--color-accent);
   font-size: var(--font-size-21);
   font-weight: 700;
+  line-height: 1.2;
   font-stretch: var(--font-width-title);
 }
 .restCtrls {
@@ -751,6 +830,9 @@
   grid-template-columns: 1fr 1fr 1.25fr;
   gap: 10px;
   margin-top: 12px;
+}
+.restCtrlsCalm {
+  grid-template-columns: 1fr;
 }
 .restBtn {
   display: inline-flex;
@@ -833,6 +915,12 @@
   border-color: var(--color-accent);
   background: var(--color-accent);
   color: var(--color-on-accent);
+}
+/* A cooldown is not training: its tile and bars are ink, not yellow. */
+.switchTile.next.calmTile {
+  border-color: var(--color-surface-inverse);
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
 }
 .switchCount {
   display: grid;
@@ -1212,6 +1300,13 @@ button.tempo:focus-visible {
 }
 /* Short screens: the clocks give up height so the figure slot keeps its minimum above the dock. */
 @media (max-height: 699px) {
+  /* The record plate takes a line of its own: the ring gives that height back, so the buttons stay on screen. */
+  .restBody:has(.restRecord) .ring {
+    margin-top: 6px;
+  }
+  .restBody:has(.restRecord) .ringGap {
+    min-height: 8px;
+  }
   .clockBlock {
     gap: 10px;
   }
@@ -1451,11 +1546,18 @@ button.tempo:focus-visible {
 }
 
 /* ---------- ring rest ---------- */
+/* The ring takes the height the screen has left after the name, the buttons and the next-up card, up to 340 px. */
 .ring {
   position: relative;
-  width: min(340px, 100%);
+  flex: 1 1 0;
+  align-self: center;
+  min-height: 132px;
+  max-height: 340px;
+  max-width: 100%;
   aspect-ratio: 1;
-  margin: 12px auto 0;
+  /* Spare height above and below the capped ring is shared, so it sits centred between the title line and the card. */
+  margin: auto auto 0;
+  container-type: size;
 }
 .ring svg {
   width: 100%;
@@ -1474,6 +1576,10 @@ button.tempo:focus-visible {
   stroke-linecap: butt;
   transition: stroke-dasharray 250ms linear;
 }
+/* A cooldown is not training: its arc is ink, not yellow. */
+.ringProgress.ringCalm {
+  stroke: var(--color-text);
+}
 .ringCenter {
   position: absolute;
   inset: 0;
@@ -1484,7 +1590,7 @@ button.tempo:focus-visible {
   padding-top: 18px;
 }
 .ringN {
-  font-size: var(--type-timer-compact-size);
+  font-size: min(var(--type-timer-compact-size), 56cqmin);
 }
 .ringU {
   color: var(--color-text-muted);
@@ -1492,7 +1598,9 @@ button.tempo:focus-visible {
   font-weight: 600;
 }
 .ringGap {
-  flex: 1;
+  flex: none;
+  /* Once the ring hits its cap, the spare height sits here and the card and buttons stay at the bottom. */
+  margin-top: auto;
   min-height: 16px;
 }
 .ringNext {
@@ -1516,6 +1624,7 @@ button.tempo:focus-visible {
   color: var(--color-text);
 }
 .restBody:has(.ring) .restDone {
+  margin-bottom: 12px;
   color: var(--color-text-muted);
 }
 .restBody:has(.ring) .restDone svg {
@@ -1535,6 +1644,14 @@ button.tempo:focus-visible {
   font-size: var(--font-size-21);
   font-stretch: var(--type-label-width);
   font-weight: var(--type-label-weight);
+}
+
+/* A cooldown carries no yellow: progress fills are ink. */
+.root[data-calm] .segs > i.cur,
+.root[data-calm] .hbar.calmFill > i,
+.root[data-calm] .tbar.calmFill > i,
+.root[data-calm] .bar [role='progressbar'] > i[data-state='current'] {
+  background: var(--color-text);
 }
 
 /* progress segments and their label on yellow */
@@ -1639,4 +1756,15 @@ button.tempo:focus-visible {
 .restNextHit:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 3px var(--color-focus);
+}
+
+/* the travel kit glyph beside the context line */
+.barKit {
+  display: grid;
+  flex: none;
+  place-items: center;
+  color: var(--color-text-muted);
+}
+.bar[data-tone='rest'] .barKit {
+  color: var(--color-on-rest);
 }

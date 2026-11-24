@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { IconButton, ProgressBar } from '@/ui/components';
+import { Icon, IconButton, ProgressBar } from '@/ui/components';
 import styles from '../Play.module.css';
 
 interface PlayerBarProps {
@@ -15,6 +15,8 @@ interface PlayerBarProps {
   /** Toggles the voice announcements. */
   onVoice?: () => void;
   tone?: 'base' | 'rest';
+  /** The session runs on a travel kit. */
+  kit?: boolean;
 }
 
 /** Pause, where the session stands, the session clock and the voice toggle. */
@@ -27,6 +29,7 @@ export function PlayerBar({
   onPause,
   onVoice,
   tone = 'base',
+  kit = false,
 }: PlayerBarProps) {
   const { t } = useTranslation();
   return (
@@ -36,6 +39,11 @@ export function PlayerBar({
         label={paused ? t('play.paused.resume') : t('play.pause')}
         onClick={onPause}
       />
+      {kit ? (
+        <span className={styles.barKit} role="img" aria-label={t('settings.travel.playerLabel')}>
+          <Icon name="suitcase" size={20} />
+        </span>
+      ) : null}
       <div className={styles.barMid}>
         {segments ? (
           <ProgressBar variant="segmented" label={context} {...segments} />

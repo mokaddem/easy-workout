@@ -14,3 +14,17 @@ export {
   type Concern,
 } from './safety';
 export type { LoadContext } from './loads';
+export {
+  constraintsOf,
+  fitFor,
+  isConstrained,
+  jointFit,
+  moderateRegions,
+  outCause,
+  topGrade,
+  withRegion,
+  type Constraints,
+  type Fit,
+} from './constraints';
+export { MODERATE_PER_REGION } from './select';
+export { VOLUME_LOSS_NOTE } from './programme';

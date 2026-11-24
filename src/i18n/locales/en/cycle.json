@@ -31,7 +31,10 @@
       "noneBody": "No max test ran this cycle. Doing one now gives cycle {{next}} a starting point.",
       "skippedBody": "The week {{week}} test was skipped. Doing one now gives cycle {{next}} a starting point.",
       "blockedBody": "The week {{week}} test didn't run, after a pain. You can take one from Progress.",
-      "action": "Take a test"
+      "action": "Take a test",
+      "heldBody_one": "The week {{weeks}} test didn’t run: that session was away from home or at the lighter volume. Doing one now gives cycle {{next}} a starting point.",
+      "heldBody_other": "The tests of weeks {{weeks}} didn’t run: those sessions were away from home or at the lighter volume. Doing one now gives cycle {{next}} a starting point.",
+      "now": "Test now"
     },
     "muscles": {
       "chest": "your chest",

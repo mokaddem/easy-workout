@@ -457,6 +457,12 @@
   outline: none;
   box-shadow: var(--focus-ring);
 }
+.phaseBadge {
+  padding: 3px 8px;
+  border: var(--border-control) solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+}
 .phaseNow {
   color: var(--color-text);
   border-left-color: var(--color-accent-line);
@@ -541,4 +547,104 @@
 .decisions {
   display: grid;
   padding-top: var(--space-2);
+}
+
+/* a card that asks something, under the next session or on top of the tab */
+.invite {
+  margin: var(--space-4) var(--space-4) 0;
+}
+
+/* paused: the week stops, in grey, and the phase block gives way to the way back */
+.heroN,
+.heroOf {
+  transition: color var(--duration-base) var(--ease-move);
+}
+.segs i {
+  transition: background-color var(--duration-base) var(--ease-move);
+}
+.heroPaused .heroN,
+.heroPaused .heroOf {
+  color: var(--color-text-subtle);
+}
+.heroPaused .segs .cur {
+  background: var(--color-text-subtle);
+}
+.pausedTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.heroPaused .heroPhase > :last-child {
+  margin-top: var(--space-3);
+}
+
+/* "today" reads as the one thing to do */
+.nextToday {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+
+/* one line of context inside the next-session card: a missed day, the travel kit */
+.noteLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.noteLine > svg {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.noteLine > span {
+  flex: 1;
+  min-width: 0;
+}
+.noteLine > button {
+  flex: none;
+}
+.startNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.startNote svg {
+  flex: none;
+  color: var(--color-text-subtle);
+}
+
+/* the limits row is a button, styled like the other nudges */
+.nudgeButton {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* short phones: tighten the hero and the next card so Start stays on the first screen */
+@media (max-height: 700px) {
+  .hero {
+    gap: 10px;
+    padding-top: var(--space-4);
+  }
+  .heroN {
+    font-size: var(--font-size-96);
+  }
+  .heroOf {
+    font-size: var(--font-size-36);
+  }
+  .next {
+    margin-top: var(--space-5);
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+  .noteLine {
+    padding-block: var(--space-2);
+  }
 }

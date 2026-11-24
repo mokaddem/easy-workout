@@ -31,6 +31,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'dead-hang',
@@ -64,6 +65,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'wrist-circles',
@@ -98,6 +100,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'cross-body-arm-swing',
@@ -132,6 +135,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'band-dislocate',
@@ -172,6 +176,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'wall-slide',
@@ -212,6 +217,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'thoracic-rotation',
@@ -246,6 +252,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'cat-cow',
@@ -280,6 +287,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'scapular-push-up',
@@ -314,6 +322,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'band-external-rotation',
@@ -354,6 +363,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'leg-swing-front-back',
@@ -394,6 +404,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { hip: 'moderate' },
   },
   {
     id: 'leg-swing-lateral',
@@ -434,6 +445,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { hip: 'moderate' },
   },
   {
     id: 'hip-circles',
@@ -468,6 +480,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { hip: 'moderate' },
   },
   {
     id: 'worlds-greatest-stretch',
@@ -502,6 +515,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { knee: 'moderate', hip: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'hip-90-90-switch',
@@ -536,6 +550,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { knee: 'moderate', hip: 'moderate' },
   },
   {
     id: 'ankle-rocks',
@@ -570,6 +585,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { ankle: 'moderate' },
   },
   {
     id: 'deep-squat-hold',
@@ -604,6 +620,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { knee: 'moderate', hip: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'inchworm',
@@ -630,7 +647,7 @@ export const warmupExercises: readonly Exercise[] = [
     primaryMuscles: ['hamstrings', 'abs'],
     secondaryMuscles: ['front-delts', 'calves', 'chest'],
     pattern: 'mobility',
-    tags: ['warmup', 'mobility'],
+    tags: ['warmup', 'mobility', 'needs-space'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'reps',
@@ -638,6 +655,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'torso-rotation',
@@ -672,6 +690,7 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'walking-knee-hug',
@@ -698,7 +717,7 @@ export const warmupExercises: readonly Exercise[] = [
     primaryMuscles: ['glutes', 'hamstrings'],
     secondaryMuscles: ['hip-flexors', 'calves'],
     pattern: 'mobility',
-    tags: ['warmup', 'mobility'],
+    tags: ['warmup', 'mobility', 'needs-space'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'reps',
@@ -706,5 +725,6 @@ export const warmupExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { hip: 'moderate' },
   },
 ];

@@ -90,7 +90,9 @@ export function WeekRuler({ weeks, phases, selected, current, onSelect }: WeekRu
             className={`${styles.phase} ${phaseSelected(phase) ? styles.phaseSelected : ''}`}
             style={{ gridColumn: `${phase.fromWeek} / ${phase.toWeek + 1}` }}
           >
-            {phase.name[lang].split(' + ')[0]}
+            {phase.origin === 'early'
+              ? t('programme.week.lighterShort')
+              : phase.name[lang].split(' + ')[0]}
           </li>
         ))}
       </ul>

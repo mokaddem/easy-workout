@@ -1,0 +1,266 @@
+beginner · knee
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  c-lower-core: lunge-main -> glute-bridge [hip-extension]
+  c-lower-core: lunge-step -> heels-on-chair-bridge [hip-extension]
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  e-lower-metabolic: walking-lunge -> glute-bridge [hip-extension]
+  e-lower-metabolic: jump -> donkey-kick [hip-extension]
+  week: quads 11 -> 5 sets
+
+beginner · shoulder
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  a-push: dip left out (region shoulder)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: close-grip left out (region shoulder)
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  week: triceps 5 -> 0 sets
+
+beginner · lower-back
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  c-lower-core: leg-raise -> dead-bug [core-anti-extension]
+  c-lower-core: rotation left out (region lower-back)
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  week: obliques 5 -> 3 sets
+
+beginner · wrist
+  a-push: press-vertical left out (region wrist)
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  a-push: dip left out (region wrist)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: close-grip left out (region wrist)
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  week: front-delts 5 -> 2 sets
+  week: triceps 5 -> 0 sets
+
+beginner · elbow
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+beginner · hip
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  c-lower-core: hinge-tempo -> glute-bridge [hip-extension]
+  c-lower-core: lunge-step -> heels-on-chair-bridge [hip-extension]
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  e-lower-metabolic: walking-lunge -> glute-bridge [hip-extension]
+
+beginner · ankle
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+beginner · quiet + small space
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> door-towel-row [pull-horizontal]
+  b-pull: row-band left out (no equipment)
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> door-towel-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+intermediate · knee
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  c-lower-core: lunge-main -> single-leg-heels-on-chair-bridge [hip-extension]
+  c-lower-core: lunge-step -> heels-on-chair-bridge [hip-extension]
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  e-lower-metabolic: walking-lunge -> single-leg-heels-on-chair-bridge [hip-extension]
+  e-lower-metabolic: jump -> heels-on-chair-bridge [hip-extension]
+  week: quads 16 -> 7 sets
+
+intermediate · shoulder
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+intermediate · lower-back
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  c-lower-core: leg-raise -> towel-body-saw [core-anti-extension]
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+intermediate · wrist
+  a-push: press-vertical left out (region wrist)
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  a-push: dip left out (region wrist)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: close-grip left out (region wrist)
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  week: chest 16 -> 10 sets
+  week: front-delts 10 -> 3 sets
+  week: triceps 5 -> 0 sets
+
+intermediate · elbow
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+intermediate · hip
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  c-lower-core: hinge-tempo -> single-leg-heels-on-chair-bridge [hip-extension]
+  c-lower-core: lunge-step -> heels-on-chair-bridge [hip-extension]
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+  e-lower-metabolic: walking-lunge -> single-leg-heels-on-chair-bridge [hip-extension]
+  week: quads 16 -> 10 sets
+
+intermediate · ankle
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)
+
+intermediate · quiet + small space
+  a-push: chest-fly left out (no equipment)
+  a-push: lateral-raise left out (no equipment)
+  a-push: triceps left out (no equipment)
+  b-pull: pull-vertical-main -> feet-elevated-inverted-row [pull-horizontal]
+  b-pull: row-bilateral left out (no equipment)
+  b-pull: curl left out (no equipment)
+  b-pull: hammer-curl left out (no equipment)
+  b-pull: shrug left out (no equipment)
+  d-upper-density: chin-circuit -> feet-elevated-inverted-row [pull-horizontal]
+  d-upper-density: lateral-circuit left out (no equipment)
+  d-upper-density: curl-circuit left out (no equipment)
+  d-upper-density: kickback left out (no equipment)

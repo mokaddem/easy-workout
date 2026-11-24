@@ -281,6 +281,8 @@ export function CountUp({ from, to, format, enabled = true, className }: CountUp
 interface PulseProps {
   /** Each change fires one pulse; `undefined` or `false` rests. */
   fire: string | number | false | undefined;
+  /** A calm break: the numerals dip in opacity instead of scaling. */
+  soft?: boolean;
   className?: string;
   children: ReactNode;
 }
@@ -289,7 +291,7 @@ interface PulseProps {
  * The last-seconds pulse: scale 1, 1.04, 1 over `fast`. Under reduced motion the scale is
  * dropped and the numerals dip in opacity instead, so it still reads as a beat.
  */
-export function Pulse({ fire, className, children }: PulseProps) {
+export function Pulse({ fire, soft = false, className, children }: PulseProps) {
   const t = useMotionTokens();
   const active = fire !== false && fire !== undefined;
   return (
@@ -300,7 +302,7 @@ export function Pulse({ fire, className, children }: PulseProps) {
       initial={{ scale: 1, opacity: 1 }}
       animate={
         active
-          ? t.reduced
+          ? t.reduced || soft
             ? { opacity: [0.55, 1], transition: { duration: t.duration.fast, ease: t.ease.move } }
             : { scale: [1, 1.04, 1], transition: { duration: t.duration.fast, ease: t.ease.move } }
           : { scale: 1, opacity: 1 }
@@ -463,6 +465,8 @@ export function Reposition({
     }
     return () => {
       controls?.stop();
+      // A run cut short (a second layout effect) must never leave a transform behind.
+      el.style.transform = '';
       anchorRef.current = el.getBoundingClientRect().top;
     };
     // The motion plays once per arrival.

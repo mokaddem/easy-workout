@@ -70,5 +70,25 @@
     "full-b": "Full body",
     "full-c": "Full body",
     "core": "Core"
+  },
+  "constraint": {
+    "joint": "your joint",
+    "ladderEnd": "At the top of this exercise. The harder version isn’t advised for {{joint}}: more reps instead.",
+    "doseHold": "Same weight after a hard set, to go easy on {{joint}}.",
+    "capped": "At least 2 reps in the tank, to go easy on {{joint}}.",
+    "cappedChip": "For {{joint}}: keep 2 reps in the tank.",
+    "reentryChip": "Lighter first week back.",
+    "leftOutTitle": "No {{pattern}} exercise",
+    "leftOutRegion": "Left out to go easy on {{joint}}: nothing fits with your kit. Its time goes to the other exercises.",
+    "leftOutQuiet": "Left out: nothing fits without jumping.",
+    "leftOutSpace": "Left out: nothing fits in a small space.",
+    "thinFinisher": "Your finisher is a short circuit of simple moves: not much conditioning fits what you avoid.",
+    "keptOutRegion": "Not advised for {{joint}}. Kept because you chose it, with at least 2 reps in the tank.",
+    "keptOutQuiet": "Involves jumping. Kept because you chose it.",
+    "keptOutSpace": "Needs room. Kept because you chose it."
+  },
+  "group": {
+    "limits": "Your limits",
+    "limitsLabel": "Joints, noise, space"
   }
 }

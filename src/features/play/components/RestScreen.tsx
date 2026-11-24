@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pulse } from '@/motion';
 import { exerciseById } from '@/catalogue';
+import { useMaxTests, useProfile, useProgrammes, useSessionLogs } from '@/app/data';
+import { isCooldownLog } from '@/domain';
+import { setRecord } from '@/engine';
+import { recordSetText } from '@/features/records/format';
 import { equipmentInUse, FigureTile } from '@/features/figure';
 import { usePlayerHowTo } from '@/features/howto';
 import { Button, Icon } from '@/ui/components';
 import { clockSeconds, type PlayerState } from '../machine';
-import { exerciseLabel, itemLetter, repsAt, rxText, targetNumber } from '../format';
+import { exerciseLabel, itemLetter, numberText, repsAt, rxText, targetNumber } from '../format';
 import styles from '../Play.module.css';
 import { ItemTiles } from './parts';
 import { PlayerBar } from './PlayerBar';
+import { rampOf } from '../ramp';
 import type { PlayContext } from './types';
 
 /** The arc and bar follow the clock; a +/-15 s nudge is the one jump, and it glides over `base`, `move`. */
@@ -40,6 +45,8 @@ interface RestProps extends PlayContext {
   onVoice: () => void;
   /** The ring timer instead of the yellow takeover. */
   ring?: boolean;
+  /** A cooldown: no record or logged-set lines, no time nudges. */
+  calm?: boolean;
 }
 
 /** Between two sets, items or rounds: the yellow takeover (or the ring) with the countdown and what is next. */
@@ -50,13 +57,19 @@ export function RestScreen({
   voiceOn,
   onVoice,
   ring,
+  calm,
   lang,
   inventory,
+  log,
   player,
   step,
 }: RestProps) {
   const { t } = useTranslation();
   const phase = state.phase;
+  const logs = useSessionLogs();
+  const programmes = useProgrammes();
+  const maxTests = useMaxTests();
+  const bodyweightKg = useProfile()?.bodyweightKg;
   const nudge = useNudged(phase.kind === 'pause' ? clockSeconds(state, now) : 0);
   const howto = usePlayerHowTo({
     exerciseId: step.item.exerciseId,
@@ -70,8 +83,29 @@ export function RestScreen({
         : undefined,
     screenKey: phase.kind === 'pause' ? `rest-${phase.startedAt}` : 'none',
   });
-  if (phase.kind !== 'pause') return null;
   const last = state.last === undefined ? undefined : state.steps[state.last];
+  const resting = phase.kind === 'pause';
+  // A set that beat the exercise's best: the takeover says so, once, right after the set.
+  const record = useMemo(
+    () =>
+      resting && last && logs && programmes && maxTests
+        ? setRecord(
+            log,
+            {
+              section: last.section,
+              blockIndex: last.blockIndex,
+              itemIndex: last.itemIndex,
+              set: last.set,
+            },
+            logs,
+            programmes,
+            maxTests,
+            { ...(bodyweightKg !== undefined && { bodyweightKg }) },
+          )
+        : undefined,
+    [resting, last, log, logs, programmes, maxTests, bodyweightKg],
+  );
+  if (phase.kind !== 'pause') return null;
   const lastExercise = last && exerciseById.get(last.item.exerciseId);
   const seconds = clockSeconds(state, now);
   const total = Math.max(1, (phase.endsAt - phase.startedAt) / 1000);
@@ -80,18 +114,28 @@ export function RestScreen({
   const group = step.block.type === 'group';
   const betweenItems = group && kind === 'item';
 
-  const done = !last
-    ? null
-    : betweenItems
+  const lastRamp = rampOf(state.steps, last);
+  const nextRamp = rampOf(state.steps, step);
+  // Done with the ramp-up sets: the work starts next.
+  const toWork = !!lastRamp && !nextRamp && step.section === 'main';
+  const workKg =
+    step.planned.load?.kind === 'kg' ? numberText(step.planned.load.kg, lang) : undefined;
+
+  const done =
+    !last || calm
       ? null
-      : kind === 'rest'
-        ? t(last.block.type === 'group' ? 'play.rest.roundLogged' : 'play.rest.setLogged', {
-            set: last.set,
-            sets: last.sets,
-          })
-        : t('play.rest.exerciseDone', {
-            name: exerciseLabel(lastExercise, lang, last.item.exerciseId),
-          });
+      : betweenItems
+        ? null
+        : lastRamp
+          ? t('play.rest.rampLogged', { set: lastRamp.set, sets: lastRamp.count })
+          : kind === 'rest'
+            ? t(last.block.type === 'group' ? 'play.rest.roundLogged' : 'play.rest.setLogged', {
+                set: last.set,
+                sets: last.sets,
+              })
+            : t('play.rest.exerciseDone', {
+                name: exerciseLabel(lastExercise, lang, last.item.exerciseId),
+              });
 
   const exercise = exerciseById.get(step.item.exerciseId);
   const { planned } = step;
@@ -108,31 +152,43 @@ export function RestScreen({
   const startsRound = group && kind === 'rest';
   const nextLabel = startsRound
     ? t('play.rest.roundStarts', { set: step.set, sets: step.sets })
-    : t('play.rest.next');
+    : nextRamp && nextRamp.count > 1
+      ? t('play.rest.nextWarmup', { set: nextRamp.set, sets: nextRamp.count })
+      : toWork
+        ? workKg
+          ? t('play.rest.nextWorkAt', { kg: workKg })
+          : t('play.rest.nextWork')
+        : t('play.rest.next');
   const letter = group && (startsRound || betweenItems) ? itemLetter(step.itemIndex) : undefined;
   const nextRx = group
     ? rx
-    : `${t('play.rest.setOf', { set: step.set, sets: step.sets })}${rx ? ` · ${rx}` : ''}`;
+    : nextRamp || calm
+      ? rx
+      : `${t('play.rest.setOf', { set: step.set, sets: step.sets })}${rx ? ` · ${rx}` : ''}`;
   const context = kind === 'item' ? t('play.context.change') : t('play.context.rest');
 
   const controls = (
-    <div className={styles.restCtrls}>
-      <button
-        type="button"
-        className={styles.restBtn}
-        aria-label={t('play.rest.less')}
-        onClick={() => player.adjustPause(-15)}
-      >
-        {t('play.rest.minus')}
-      </button>
-      <button
-        type="button"
-        className={styles.restBtn}
-        aria-label={t('play.rest.more')}
-        onClick={() => player.adjustPause(15)}
-      >
-        {t('play.rest.plus')}
-      </button>
+    <div className={calm ? `${styles.restCtrls} ${styles.restCtrlsCalm}` : styles.restCtrls}>
+      {calm ? null : (
+        <>
+          <button
+            type="button"
+            className={styles.restBtn}
+            aria-label={t('play.rest.less')}
+            onClick={() => player.adjustPause(-15)}
+          >
+            {t('play.rest.minus')}
+          </button>
+          <button
+            type="button"
+            className={styles.restBtn}
+            aria-label={t('play.rest.more')}
+            onClick={() => player.adjustPause(15)}
+          >
+            {t('play.rest.plus')}
+          </button>
+        </>
+      )}
       <button
         type="button"
         className={`${styles.restBtn} ${ring ? styles.ringSkip : styles.restSkip}`}
@@ -179,10 +235,25 @@ export function RestScreen({
     </p>
   ) : null;
 
+  const recordCue =
+    record && !calm ? (
+      <p
+        className={styles.restRecord}
+        aria-label={t('play.record.cueSr', { set: recordSetText(t, lang, record.set) })}
+      >
+        <Icon name="medal" size={24} />
+        <span className={styles.restRecordText} aria-hidden="true">
+          <span className={styles.restRecordTitle}>{t('play.record.cue')}</span>
+          <span className={styles.restRecordSet}>{recordSetText(t, lang, record.set)}</span>
+        </span>
+      </p>
+    ) : null;
+
   if (ring)
     return (
       <>
         <PlayerBar
+          kit={log.adjustments?.travel !== undefined}
           context={context}
           clock={clock}
           voiceOn={voiceOn}
@@ -190,7 +261,7 @@ export function RestScreen({
           onPause={player.pause}
         />
         <div className={styles.restBody}>
-          {doneLine}
+          {recordCue ?? doneLine}
           <div
             className={styles.ring}
             role="timer"
@@ -199,7 +270,7 @@ export function RestScreen({
             <svg viewBox="0 0 340 340" aria-hidden="true">
               <circle className={styles.ringTrack} cx="170" cy="170" r="160" />
               <circle
-                className={styles.ringProgress}
+                className={calm ? `${styles.ringProgress} ${styles.ringCalm}` : styles.ringProgress}
                 cx="170"
                 cy="170"
                 r="160"
@@ -210,7 +281,9 @@ export function RestScreen({
             </svg>
             <div className={styles.ringCenter}>
               <span className={`${styles.num} ${styles.ringN}`}>
-                <Pulse fire={lastSeconds(seconds)}>{seconds}</Pulse>
+                <Pulse fire={lastSeconds(seconds)} soft={calm}>
+                  {seconds}
+                </Pulse>
               </span>
               <span className={styles.ringU}>{t('play.rest.seconds')}</span>
             </div>
@@ -226,6 +299,7 @@ export function RestScreen({
   return (
     <>
       <PlayerBar
+        kit={log.adjustments?.travel !== undefined}
         tone="rest"
         context={context}
         clock={clock}
@@ -253,7 +327,7 @@ export function RestScreen({
             />
           </div>
         ) : null}
-        {doneLine}
+        {recordCue ?? doneLine}
         <div className={styles.restCenter}>
           <div
             className={styles.restTimer}
@@ -285,6 +359,7 @@ export function SwitchScreen({
   voiceOn,
   onVoice,
   lang,
+  log,
   player,
   step,
   context,
@@ -300,9 +375,11 @@ export function SwitchScreen({
   const letter = (side: 'left' | 'right') =>
     t(side === 'left' ? 'play.side.leftLetter' : 'play.side.rightLetter');
   const nextWord = t(`play.side.${step.side}`);
+  const calm = isCooldownLog(log);
   return (
     <>
       <PlayerBar
+        kit={log.adjustments?.travel !== undefined}
         context={context}
         segments={segments}
         clock={clock}
@@ -329,7 +406,9 @@ export function SwitchScreen({
             </span>
           </div>
           <Icon name="chev-right" size={28} />
-          <div className={`${styles.switchTile} ${styles.next}`}>
+          <div
+            className={`${styles.switchTile} ${styles.next}${calm ? ` ${styles.calmTile}` : ''}`}
+          >
             <b>{letter(step.side)}</b>
             <span className={styles.capital}>{t('play.side.sideWord', { side: nextWord })}</span>
           </div>
@@ -341,7 +420,10 @@ export function SwitchScreen({
               {t('play.set.seconds', { count: seconds })}
             </span>
           </div>
-          <div className={styles.tbar} aria-hidden="true">
+          <div
+            className={calm ? `${styles.tbar} ${styles.calmFill}` : styles.tbar}
+            aria-hidden="true"
+          >
             <i style={{ width: `${Math.min(100, (seconds / total) * 100)}%` }} />
           </div>
         </div>

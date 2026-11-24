@@ -8,6 +8,8 @@ import type {
   Target,
   Tempo,
 } from '../../domain';
+import { exerciseById } from '../../catalogue';
+import { fitFor, isConstrained, type Constraints } from '../generate/constraints';
 import { FIXED_REP_EXERCISES } from '../generate/dose';
 import type { Exposure, WeekRole } from './exposures';
 import {
@@ -73,13 +75,20 @@ export interface ItemInput {
   /** Epoch ms of the session being prescribed. */
   now?: number;
   level?: Level;
+  /** The exercise spares a limited joint: no weight step right after a set picked hard. */
+  doseCap?: boolean;
+  /** What the user avoids: a harder variant that is ruled out is no way forward. */
+  constraints?: Constraints;
 }
 
 export type LadderEnd =
   | { kind: 'harder' | 'easier' | 'assisted'; logId: string }
   | { kind: 'buy-next' }
   /** Nothing harder exists and nothing to buy would help: the goal holds at its top. */
-  | { kind: 'none' };
+  | {
+      kind: 'none';
+      /** The harder variants exist but a limitation, quiet or small space rules them out. */ limited?: true;
+    };
 
 export interface ItemResult {
   item: SessionItem;
@@ -229,6 +238,30 @@ const usable = (exposures: readonly Exposure[]) =>
 
 /** What an exercise gets next, from its history. */
 export function progressItem(input: ItemInput): ItemResult {
+  const result = progressByKind(input);
+  return input.doseCap ? holdAfterHard(input, result) : result;
+}
+
+/**
+ * An exercise sparing a limited joint doesn't get a heavier weight (or band step) right after a
+ * set the user picked as hard: it stays at its load, with the goal it had.
+ */
+function holdAfterHard(input: ItemInput, result: ItemResult): ItemResult {
+  const last = usable(input.exposures)[0];
+  const was = last?.item.load;
+  const now = result.item.load;
+  if (!last || !was || !now || !last.evidence.some((e) => e.hard)) return result;
+  const ladder = ladderOf(input);
+  if (rungOf(ladder, now) <= rungOf(ladder, was)) return result;
+  const { ladderEnd: _ladderEnd, ...rest } = result;
+  return {
+    ...rest,
+    item: withItem(result.item, was, last.item.goal ?? result.item.goal, result.item.tempo),
+    note: note('dose-cap-hold', { load: loadToken(was) }),
+  };
+}
+
+function progressByKind(input: ItemInput): ItemResult {
   switch (input.base.target.kind) {
     case 'reps':
       return progressReps(input);
@@ -652,9 +685,14 @@ function progressReps(input: ItemInput): ItemResult {
       };
     } else {
       goal = Math.min(goal, tempoStage ? hi + SPAN_REPS : maxBeyond);
-      ladderEnd = endOfLadder(exercise, last.logId);
+      ladderEnd = endOfLadder(exercise, last.logId, input.constraints);
       result = {
-        code: ladderEnd.kind === 'buy-next' ? 'buy-next' : 'ladder-end',
+        code:
+          ladderEnd.kind === 'buy-next'
+            ? 'buy-next'
+            : ladderEnd.kind === 'none' && ladderEnd.limited
+              ? 'ladder-end-limited'
+              : 'ladder-end',
         params: params(),
       };
     }
@@ -695,12 +733,22 @@ const takesLoad = (exercise: Exercise) =>
   exercise.loadType === 'band-assisted' ||
   (exercise.addedLoad?.length ?? 0) > 0;
 
-const endOfLadder = (exercise: Exercise, logId: string): LadderEnd =>
-  exercise.harder.length > 0
+const endOfLadder = (exercise: Exercise, logId: string, constraints?: Constraints): LadderEnd => {
+  if (
+    exercise.harder.length > 0 &&
+    isConstrained(constraints) &&
+    exercise.harder.every((id) => {
+      const harder = exerciseById.get(id);
+      return harder !== undefined && fitFor(harder, constraints) === 'out';
+    })
+  )
+    return { kind: 'none', limited: true };
+  return exercise.harder.length > 0
     ? { kind: 'harder', logId }
     : takesLoad(exercise)
       ? { kind: 'buy-next' }
       : { kind: 'none' };
+};
 
 /** Time off: ease the goal, or step back a load and start the range again. */
 function breakAdjust(input: ItemInput, result: ItemResult, ladder: Ladder, lo: number): ItemResult {

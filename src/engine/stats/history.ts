@@ -9,7 +9,7 @@ import type {
   Side,
   Target,
 } from '../../domain';
-import { BAND_LEVELS } from '../../domain';
+import { BAND_LEVELS, isCooldownLog } from '../../domain';
 import { exerciseById as catalogueById } from '../../catalogue';
 import { itemKey } from '../play';
 import { weekRole, type WeekRole } from '../progress/exposures';
@@ -210,7 +210,7 @@ export function pointsByExercise(
   const out = new Map<string, ExercisePoint[]>();
   const calibrated = new Set<string>();
   const finished = logs
-    .filter((l) => l.status !== 'in-progress')
+    .filter((l) => l.status !== 'in-progress' && !isCooldownLog(l))
     .sort((a, b) => a.startedAt.localeCompare(b.startedAt));
 
   for (const log of finished) {

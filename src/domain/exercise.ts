@@ -78,9 +78,38 @@ export const EXERCISE_TAGS = [
   'ballistic',
   'warmup',
   'mobility',
+  /** Both feet leave the floor and land, or the body drops to the floor: loud for neighbours. */
+  'impact',
+  /** Travels more than a step, or sweeps wider than a mat with arm room. */
+  'needs-space',
+  /** A static hold at a comfortable end range, no external load. */
+  'stretch',
 ] as const;
 export const ExerciseTagSchema = z.enum(EXERCISE_TAGS);
 export type ExerciseTag = z.infer<typeof ExerciseTagSchema>;
+
+/** Joints a user can mark as limited. */
+export const JOINT_REGIONS = [
+  'knee',
+  'shoulder',
+  'lower-back',
+  'wrist',
+  'elbow',
+  'hip',
+  'ankle',
+] as const;
+export const JointRegionSchema = z.enum(JOINT_REGIONS);
+export type JointRegion = z.infer<typeof JointRegionSchema>;
+
+/**
+ * How hard an exercise is on a joint, done its usual way.
+ * high: loaded at end range, under impact, or under full bodyweight in a weak position.
+ * moderate: a main working joint under real load through a normal range.
+ * A joint with no entry only stabilises, carries no load, or works in a limited range.
+ */
+export const JOINT_LOADS = ['moderate', 'high'] as const;
+export const JointLoadSchema = z.enum(JOINT_LOADS);
+export type JointLoad = z.infer<typeof JointLoadSchema>;
 
 /**
  * external: dumbbells / kettlebells, load in kg per implement.
@@ -136,9 +165,13 @@ export const ExerciseSchema = z
     metric: MetricSchema,
     /** Performed one side at a time (reps counted per side). */
     unilateral: z.boolean(),
+    /** Where a stretch is held: on its feet, on a chair, or on the floor. Required on stretches. */
+    position: z.enum(['standing', 'chair', 'floor']).optional(),
     difficulty: int(1, 5),
     easier: z.array(SlugSchema),
     harder: z.array(SlugSchema),
+    /** Joints the exercise is hard on; empty when none. */
+    joints: z.partialRecord(JointRegionSchema, JointLoadSchema),
   })
   .superRefine((ex, ctx) => {
     const issue = (message: string, path: string) =>

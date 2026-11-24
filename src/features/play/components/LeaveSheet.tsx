@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { SessionLog } from '@/domain';
+import { isCooldownLog, type SessionLog } from '@/domain';
 import { Button, Icon, Sheet, type IconName } from '@/ui/components';
 import { mainSetCounts } from '../format';
 import { AbandonDialog } from './AbandonDialog';
@@ -20,6 +20,7 @@ export function LeaveSheet({ open, log, onClose, onPauseLeave, onFinish, onAband
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const counts = mainSetCounts(log);
+  const cooldown = isCooldownLog(log);
   const rows: { id: string; icon: IconName; danger?: boolean; onClick: () => void }[] = [
     { id: 'pause', icon: 'pause', onClick: onPauseLeave },
     { id: 'finish', icon: 'flag', onClick: () => void onFinish() },
@@ -55,8 +56,22 @@ export function LeaveSheet({ open, log, onClose, onPauseLeave, onFinish, onAband
                 <Icon name={row.icon} size={24} />
               </span>
               <span className={styles.leaveText}>
-                <b>{t(`play.leave.${row.id}`)}</b>
-                <small>{t(`play.leave.${row.id}Hint`)}</small>
+                <b>
+                  {t(
+                    cooldown && row.id === 'abandon'
+                      ? 'play.cooldown.leaveStop'
+                      : `play.leave.${row.id}`,
+                  )}
+                </b>
+                <small>
+                  {t(
+                    cooldown && row.id === 'abandon'
+                      ? 'play.cooldown.leaveStopHint'
+                      : cooldown && row.id === 'finish'
+                        ? 'play.cooldown.leaveFinishHint'
+                        : `play.leave.${row.id}Hint`,
+                  )}
+                </small>
               </span>
             </button>
           ))}

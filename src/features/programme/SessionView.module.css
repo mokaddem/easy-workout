@@ -230,6 +230,16 @@
   padding: 12px 0;
   border-top: var(--border-hairline) solid var(--color-line);
 }
+.ramp {
+  border-top: var(--border-strong) solid var(--color-line-strong);
+}
+.rampTitle {
+  margin: 0;
+  padding: 12px 0 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
 .wuName {
   font-weight: var(--font-weight-semibold);
   line-height: 1.3;
@@ -587,4 +597,9 @@
   text-decoration: underline;
   text-decoration-color: var(--color-line-strong);
   text-underline-offset: 3px;
+}
+
+/* what the plan has no exercise for, after the exercises of its section */
+.leftOutItem {
+  margin-top: var(--space-3);
 }

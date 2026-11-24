@@ -2,8 +2,10 @@ import { catalogue as defaultCatalogue } from '../../catalogue';
 import type { Exercise, Generation, Goal, LocalizedText, Programme, Session } from '../../domain';
 import { equipmentCapabilities, meetsRequirement, sameEquipment } from '../equipment';
 import { sessionMinutes, sessionSeconds } from '../duration';
+import { isStrengthWork } from '../volume';
 import { isTestable } from '../testable';
 import { buildSession } from './build';
+import { constraintsOf, isConstrained } from './constraints';
 import { OVER_TOLERANCE } from './fit';
 import { ownedWeights } from './loads';
 import { phasesFor, PROGRAMME_WEEKS } from './phases';
@@ -41,6 +43,8 @@ export const makeContext = (
   lastPicks: new Map(Object.entries(input.lastCycle ?? {})),
   logged: new Set(input.loggedExercises ?? []),
   upgrades: new Map(Object.entries(input.upgrades ?? {})),
+  constraints: constraintsOf(input.profile),
+  ...(input.reserved && { reserved: new Map(Object.entries(input.reserved)) }),
   log: new NoteLog(),
 });
 
@@ -198,10 +202,21 @@ const maxTestExercise = (sessions: Session[], ctx: Context): Exercise | undefine
     .map((item) => ctx.catalogue.get(item.exerciseId))
     .filter(
       (e): e is Exercise =>
-        e !== undefined && e.pattern === 'push-horizontal' && isTestable(e, ctx.level),
+        e !== undefined &&
+        e.pattern === 'push-horizontal' &&
+        isTestable(e, ctx.level, ctx.constraints),
     );
   const fallback = ctx.level === 'beginner' ? 'knee-push-up' : 'push-up';
-  return pushUps.find((e) => e.id === 'push-up') ?? pushUps[0] ?? ctx.catalogue.get(fallback);
+  const usual =
+    pushUps.find((e) => e.id === 'push-up') ?? pushUps[0] ?? ctx.catalogue.get(fallback);
+  if (!isConstrained(ctx.constraints)) return usual;
+  // The usual test may be ruled out (or spare a joint): another one that is fine, or none.
+  const others = [...ctx.catalogue.values()]
+    .filter((e) => isTestable(e, ctx.level, ctx.constraints))
+    .sort((a, b) => a.difficulty - b.difficulty || a.id.localeCompare(b.id));
+  return [usual, ...others].find(
+    (e) => e !== undefined && isTestable(e, ctx.level, ctx.constraints),
+  );
 };
 
 /** Some loadable bodyweight move in the programme can take load the user owns. */
@@ -211,6 +226,52 @@ const canAddLoad = (sessions: Session[], ctx: Context): boolean => {
     const exercise = ctx.catalogue.get(item.exerciseId);
     return exercise?.addedLoad?.some((req) => meetsRequirement(req, capabilities)) ?? false;
   });
+};
+
+/** Weekly hard sets per primary muscle over one pass of the rotation (warm-ups and cardio aside). */
+const weeklySets = (rotation: readonly Session[], ctx: Context): Map<string, number> => {
+  const sets = new Map<string, number>();
+  for (const session of rotation)
+    for (const block of [...session.main, ...session.finisher]) {
+      const n = block.type === 'straight' ? block.sets : block.rounds;
+      for (const item of block.type === 'straight' ? [block.item] : block.items) {
+        const exercise = ctx.catalogue.get(item.exerciseId);
+        if (!exercise || !isStrengthWork(exercise)) continue;
+        for (const m of exercise.primaryMuscles) sets.set(m, (sets.get(m) ?? 0) + n);
+      }
+    }
+  return sets;
+};
+
+/** A muscle losing more than this share of its weekly sets to a limitation is said so. */
+export const VOLUME_LOSS_NOTE = 0.3;
+/** Muscles with fewer weekly sets than this at baseline are not worth a note. */
+const MIN_BASELINE_SETS = 4;
+
+/**
+ * Adds a note per muscle that a limitation took more than 30 % of the weekly sets from, measured
+ * against the same programme (inputs and seed) with no limitation.
+ */
+const noteVolumeLoss = (
+  rotation: readonly Session[],
+  input: GenerateInput,
+  exercises: readonly Exercise[],
+  ctx: Context,
+): void => {
+  const { limitations: _limitations, ...rest } = input.profile;
+  const baseline = generateProgramme({ ...input, profile: rest, reserved: undefined }, exercises);
+  const before = weeklySets(baseline.rotation, ctx);
+  const after = weeklySets(rotation, ctx);
+  for (const [muscle, was] of [...before].sort(([a], [b]) => a.localeCompare(b))) {
+    const now = after.get(muscle) ?? 0;
+    if (was >= MIN_BASELINE_SETS && now < was * (1 - VOLUME_LOSS_NOTE))
+      ctx.log.add('muscle-volume-reduced', {
+        muscle,
+        before: was,
+        after: now,
+        regions: ctx.constraints!.regions.join(','),
+      });
+  }
 };
 
 const hasCardioFinisher = (sessions: Session[]) =>
@@ -271,7 +332,7 @@ export const generateProgramme = (
   const lastCycle = keptPicks(input, exercises);
   const ctx = makeContext(input, exercises, lastCycle);
   const { profile } = input;
-  const split = splitFor(profile.daysPerWeek, profile.sessionMinutes);
+  const split = input.rotationKeys ?? splitFor(profile.daysPerWeek, profile.sessionMinutes);
   ctx.log.add('split', {
     daysPerWeek: profile.daysPerWeek,
     sessionMinutes: profile.sessionMinutes,
@@ -315,7 +376,8 @@ export const generateProgramme = (
 
   // A split the equipment can't fill (e.g. a pull day with nothing to pull) becomes full body
   // on the same days, so the week stays balanced.
-  const isSplit = !split.every((key) => key.startsWith('full-') || key === 'cardio');
+  const isSplit =
+    !input.rotationKeys && !split.every((key) => key.startsWith('full-') || key === 'cardio');
   let full = 0;
   const rotation =
     buildRotation(split, isSplit) ??
@@ -325,6 +387,9 @@ export const generateProgramme = (
     )!;
 
   balancePushPull(rotation, ctx, profile.sessionMinutes);
+
+  if (ctx.constraints && ctx.constraints.regions.length > 0)
+    noteVolumeLoss(rotation, input, exercises, ctx);
 
   const maxTest = maxTestExercise(rotation, ctx);
   const phases = phasesFor({

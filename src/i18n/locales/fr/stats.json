@@ -135,7 +135,8 @@
     "resultSeconds_other": "{{count}} s",
     "howto": "Comment faire",
     "howtoMeta_one": "Le mouvement animé et {{count}} étape",
-    "howtoMeta_other": "Le mouvement animé et {{count}} étapes"
+    "howtoMeta_other": "Le mouvement animé et {{count}} étapes",
+    "record": "Nouveau record : {{set}}. Avant : {{previous}}."
   },
   "body": {
     "title": "Corps",

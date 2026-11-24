@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProgrammes, useSessionLogs } from '@/app/data';
 import { goBack, navigate } from '@/app/router';
+import { isCooldownLog } from '@/domain';
 import { AppBar, EmptyState, Skeleton } from '@/ui/components';
 import { langOf, longDate, timeText } from '../format';
 import { historyGroups, weekDistance } from './groups';
@@ -54,7 +55,7 @@ export function HistoryScreen() {
       </>
     );
 
-  const completed = logs.filter((l) => l.status === 'completed');
+  const completed = logs.filter((l) => l.status === 'completed' && !isCooldownLog(l));
   if (groups.length === 0)
     return (
       <>
@@ -104,7 +105,7 @@ export function HistoryScreen() {
             <PresenceList>
               {group.logs.map((log) => (
                 <RowMotion key={log.id}>
-                  <HistoryRow log={log} programmes={programmes} />
+                  <HistoryRow log={log} programmes={programmes} logs={logs} />
                 </RowMotion>
               ))}
             </PresenceList>

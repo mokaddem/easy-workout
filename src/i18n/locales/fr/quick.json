@@ -62,5 +62,10 @@
     "error": "Donne un nom à ta séance."
   },
   "savedToast": "Enregistrée dans mes séances",
-  "savedView": "Voir"
+  "savedView": "Voir",
+  "travelKit": "Kit de voyage",
+  "travelKitHint": "Ce que tu as emporté",
+  "constraintsBoth": "Sans sauts et en petit espace, comme ton programme.",
+  "constraintsQuiet": "Sans sauts, comme ton programme.",
+  "constraintsSpace": "En petit espace, comme ton programme."
 }

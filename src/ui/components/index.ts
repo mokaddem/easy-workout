@@ -3,6 +3,7 @@ export { AppBar, type AppBarProps } from './AppBar';
 export { BarButton, type BarButtonProps } from './BarButton';
 export { Button, type ButtonProps, type ButtonVariant } from './Button';
 export { Card, SelectableCard, type CardProps, type SelectableCardProps } from './Card';
+export { CheckRow, type CheckRowProps } from './CheckRow';
 export { Checkbox, IncludedList, type CheckboxProps, type IncludedListProps } from './Checkbox';
 export { Chip, ChipGroup, type ChipProps, type ChipGroupProps } from './Chip';
 export { Dialog, type DialogProps } from './Dialog';

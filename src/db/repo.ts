@@ -25,6 +25,7 @@ import {
   saveSessionEdit,
   syncPlacements,
 } from '../engine/edit';
+import { insertLighterWeek } from '../engine/progress/lighter-week';
 import {
   db as defaultDb,
   type CustomSessionRecord,
@@ -286,7 +287,7 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
 
   function finishSession(
     id: string,
-    outcome: { endedEarly: boolean; countsAsDone: boolean },
+    outcome: { endedEarly: boolean; countsAsDone?: boolean },
     now = new Date(),
   ): Promise<void> {
     return changeOpen(id, (log) => ({
@@ -294,7 +295,7 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
       status: 'completed',
       endedAt: now.toISOString(),
       ...(outcome.endedEarly && { endedEarly: true }),
-      countsAsDone: outcome.countsAsDone,
+      ...(outcome.countsAsDone !== undefined && { countsAsDone: outcome.countsAsDone }),
     }));
   }
 
@@ -469,6 +470,19 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     });
   }
 
+  /** Puts one lighter week at `week` and moves the rest of the cycle back a week. */
+  function insertLighterWeekAt(programmeId: string, week: number, now = new Date()): Promise<void> {
+    return changeProgramme(programmeId, (p) => insertLighterWeek(p, week, now));
+  }
+
+  /** "Not now" on the lighter-week offer: it stays quiet for two weeks. */
+  function dismissLighterWeek(programmeId: string, now = new Date()): Promise<void> {
+    return changeProgramme(programmeId, (p) => ({
+      ...p,
+      lighterWeek: { ...p.lighterWeek, dismissedAt: now.toISOString() },
+    }));
+  }
+
   /** The user's version of a programme session, for the whole cycle. */
   function saveProgrammeSession(programmeId: string, session: Session): Promise<void> {
     return changeProgramme(programmeId, (p) => saveSessionEdit(p, session));
@@ -556,6 +570,8 @@ export function createRepo(db: WorkoutDatabase = defaultDb) {
     getCustomSession,
     saveCustomSession,
     deleteCustomSession,
+    insertLighterWeekAt,
+    dismissLighterWeek,
     saveProgrammeSession,
     resetProgrammeSession,
     placeCustomSession,

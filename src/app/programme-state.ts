@@ -1,9 +1,11 @@
-import type { EquipmentInventory, Profile, Programme, SessionLog } from '@/domain';
+import type { EquipmentInventory, Profile, Programme } from '@/domain';
+import { constraintsOf } from '@/engine';
 
 /**
  * How a programme relates to the current profile and equipment.
  * - `current`: generated from them.
- * - `out-of-date`: level, minutes, bodyweight or equipment changed; the user picks when to regenerate.
+ * - `out-of-date`: level, minutes, bodyweight, equipment or what is avoided (limited joints, quiet,
+ *   small space) changed; the user picks when to regenerate.
  * - `needs-new`: goal or days per week changed; the split itself is different.
  */
 export type Freshness = 'current' | 'out-of-date' | 'needs-new';
@@ -21,10 +23,36 @@ export function programmeFreshness(
     was.level !== profile.level ||
     was.sessionMinutes !== profile.sessionMinutes ||
     was.bodyweightKg !== profile.bodyweightKg ||
+    avoidedKey(was) !== avoidedKey(profile) ||
     !sameInventory(generation.equipment, equipment)
   )
     return 'out-of-date';
   return 'current';
+}
+
+/**
+ * The programme is out of date only because of what the profile avoids (joints, quiet, small
+ * space): it can be re-picked in place, without restarting the cycle.
+ */
+export function onlyConstraintsDiffer(
+  programme: Programme,
+  profile: Profile,
+  equipment: EquipmentInventory,
+): boolean {
+  const was = programme.generation?.profile;
+  if (!was || programmeFreshness(programme, profile, equipment) !== 'out-of-date') return false;
+  return (
+    was.level === profile.level &&
+    was.sessionMinutes === profile.sessionMinutes &&
+    was.bodyweightKg === profile.bodyweightKg &&
+    sameInventory(programme.generation!.equipment, equipment)
+  );
+}
+
+/** What a profile avoids, as the generator sees it: the limited joints now, quiet, small space. Dates never count. */
+export function avoidedKey(profile: Pick<Profile, 'limitations' | 'quiet' | 'smallSpace'>): string {
+  const c = constraintsOf(profile);
+  return JSON.stringify([c.regions, c.quiet, c.smallSpace]);
 }
 
 /** Same items with the same specs, whatever the order. */
@@ -47,41 +75,4 @@ function canonical(value: unknown): unknown {
   return value;
 }
 
-export interface Position {
-  /** 1-based week. */
-  week: number;
-  /** Index in the rotation of the next session to run. */
-  index: number;
-  sessionId: string;
-  /** Every session of every week is done. */
-  finished: boolean;
-}
-
-/**
- * The next session in the rotation. No calendar: each completed session of this programme
- * that counts as done moves the rotation on by one, and a week ends after `sessionsPerWeek` sessions.
- */
-export function nextSession(
-  programme: Programme & { id: string },
-  logs: readonly SessionLog[] = [],
-): Position {
-  const size = programme.rotation.length;
-  const perWeek = programme.sessionsPerWeek;
-  const done = logs.filter(
-    (log) =>
-      log.status === 'completed' &&
-      log.countsAsDone !== false &&
-      log.source.kind === 'programme' &&
-      log.source.programmeId === programme.id,
-  ).length;
-  const total = perWeek * programme.weeks;
-  const finished = done >= total;
-  const step = Math.min(done, total - 1);
-  const index = step % size;
-  return {
-    week: Math.floor(step / perWeek) + 1,
-    index,
-    sessionId: programme.rotation[index]!.id,
-    finished,
-  };
-}
+export { nextSession, type Position } from '@/engine/position';

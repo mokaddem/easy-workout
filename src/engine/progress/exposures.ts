@@ -1,16 +1,19 @@
-import type {
-  Block,
-  Load,
-  PhaseKind,
-  Programme,
-  ProgressionNote,
-  SessionItem,
-  SessionLog,
-  SetLog,
-  Target,
+import {
+  isCooldownLog,
+  type Block,
+  type Exercise,
+  type Load,
+  type PhaseKind,
+  type Programme,
+  type ProgressionNote,
+  type SessionItem,
+  type SessionLog,
+  type SetLog,
+  type Target,
 } from '../../domain';
 import { itemKey } from '../play';
 import { phaseForWeek } from '../week';
+import { droppedIds, isTravelLog } from './stamps';
 
 /** Same exercise, same rep or time range, same kind of block: one progression. */
 export const progressKey = (exerciseId: string, target: Target, context: Context): string =>
@@ -32,6 +35,18 @@ const targetSignature = (t: Target): string => {
       return 'c';
   }
 };
+
+/**
+ * Notes that say the exercise sits at what the equipment (or a spared joint) allows: holding there
+ * isn't a stall.
+ */
+export const AT_MAX = new Set([
+  'buy-next',
+  'ladder-end',
+  'ladder-end-limited',
+  'tempo-slower',
+  'dose-cap-hold',
+]);
 
 /** How much a week's sets say about where the user stands. */
 export type WeekRole = 'build' | 'peak' | 'deload';
@@ -102,10 +117,18 @@ const valueOf = (set: SetLog): number | undefined => {
 
 const itemsOf = (block: Block) => (block.type === 'straight' ? [block.item] : block.items);
 
-/** Logs that are over, newest first: programme ones only, or every kind. */
+/**
+ * Logs that are over, newest first: programme ones only, or every kind. A session run with a
+ * travel kit reads like a quick one: its stops count, its sets are no evidence.
+ */
 const finishedLogs = (logs: readonly SessionLog[], anySource: boolean): SessionLog[] =>
   logs
-    .filter((l) => l.status !== 'in-progress' && (anySource || l.source.kind === 'programme'))
+    .filter(
+      (l) =>
+        l.status !== 'in-progress' &&
+        !isCooldownLog(l) &&
+        (anySource || (l.source.kind === 'programme' && !isTravelLog(l))),
+    )
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
 
 /** Programme logs that are over, newest first. */
@@ -211,15 +234,85 @@ function toExposure(
   };
 }
 
-/** Starts of finished programme sessions, oldest first, in epoch ms. */
-export const sessionTimes = (logs: readonly SessionLog[]): number[] =>
-  finishedProgrammeLogs(logs)
-    .map((l) => Date.parse(l.startedAt))
-    .reverse();
+const DAY_MS = 86_400_000;
+
+const isCardioTarget = (t: Target) => t.kind === 'cardio' || t.kind === 'interval';
+
+const workingCache = new WeakMap<SessionLog, string[]>();
 
 /**
- * Longest gap, in days, between programme sessions from `since` up to `now`: a break the
- * exercise hasn't been back from yet. An exercise left out of a few sessions is not on a break.
+ * The exercises of a session's working sets, one entry per set done: main and finisher parts,
+ * no warm-up, no cardio, nothing stopped or skipped.
+ */
+export function workingSetExercises(log: SessionLog): string[] {
+  let cached = workingCache.get(log);
+  if (cached) return cached;
+  const seen = new Set<string>();
+  cached = [];
+  if (isCooldownLog(log)) {
+    workingCache.set(log, cached);
+    return cached;
+  }
+  for (const s of log.sets) {
+    if (s.section === 'warmup' || s.flag || !s.actual || isCardioTarget(s.planned.target)) continue;
+    const key = `${s.section}/${s.blockIndex}/${s.itemIndex}/${s.set}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cached.push(s.exerciseId);
+  }
+  workingCache.set(log, cached);
+  return cached;
+}
+
+/** Working sets that make a session of any kind count as training for the programme as a whole. */
+export const PROGRAMME_SESSION_SETS = 6;
+/** Working sets on an exercise's primary muscles that make a quick or custom session count for it. */
+export const MUSCLE_SESSION_SETS = 3;
+
+/**
+ * Starts of the sessions that kept the programme going, oldest first, in epoch ms: completed
+ * programme sessions, and any other session (an abandoned one too) with enough working sets.
+ */
+export function programmeTimes(logs: readonly SessionLog[]): number[] {
+  return logs
+    .filter(
+      (l) =>
+        l.status !== 'in-progress' &&
+        ((l.status === 'completed' && l.source.kind === 'programme') ||
+          workingSetExercises(l).length >= PROGRAMME_SESSION_SETS),
+    )
+    .map((l) => Date.parse(l.startedAt))
+    .sort((a, b) => a - b);
+}
+
+/**
+ * Starts of the sessions that kept one exercise's muscles going, oldest first: programme and
+ * travel sessions (one that left the exercise out doesn't count), plus quick and custom ones
+ * with enough working sets on its primary muscles.
+ */
+export function exerciseTimes(
+  exercise: Exercise,
+  logs: readonly SessionLog[],
+  exercises: ReadonlyMap<string, Exercise>,
+): number[] {
+  const muscles = new Set(exercise.primaryMuscles);
+  return logs
+    .filter((l) => {
+      if (l.status === 'in-progress' || isCooldownLog(l)) return false;
+      if (l.source.kind === 'programme' || isTravelLog(l)) return !droppedIds(l).has(exercise.id);
+      let n = 0;
+      for (const id of workingSetExercises(l))
+        if (exercises.get(id)?.primaryMuscles.some((m) => muscles.has(m))) n++;
+      return n >= MUSCLE_SESSION_SETS;
+    })
+    .map((l) => Date.parse(l.startedAt))
+    .sort((a, b) => a - b);
+}
+
+/**
+ * Longest gap, in days, between sessions from `since` up to `now`: a break the exercise hasn't
+ * been back from yet. An exercise left out of a few sessions is not on a break. Days paused
+ * are part of the gap.
  */
 export function longestGapDays(times: readonly number[], since: number, now: number): number {
   let previous = since;
@@ -229,5 +322,25 @@ export function longestGapDays(times: readonly number[], since: number, now: num
     longest = Math.max(longest, t - previous);
     previous = t;
   }
-  return Math.max(longest, now - previous) / 86_400_000;
+  return Math.max(longest, now - previous) / DAY_MS;
+}
+
+/**
+ * When the last gap longer than `days` ended, in epoch ms: the session that came back, or `now`
+ * when the gap is still open (the session being prepared ends it).
+ */
+export function lastGapEnd(times: readonly number[], now: number, days = 28): number | undefined {
+  const sorted = times.filter((t) => t <= now);
+  let end: number | undefined;
+  for (let i = 1; i < sorted.length; i++)
+    if (sorted[i]! - sorted[i - 1]! > days * DAY_MS) end = sorted[i]!;
+  const last = sorted[sorted.length - 1];
+  if (last !== undefined && now - last > days * DAY_MS) end = now;
+  return end;
+}
+
+/** Days since the last session that kept the programme going; undefined with none. */
+export function daysSinceTraining(logs: readonly SessionLog[], now: Date): number | undefined {
+  const last = programmeTimes(logs).at(-1);
+  return last === undefined ? undefined : (now.getTime() - last) / DAY_MS;
 }

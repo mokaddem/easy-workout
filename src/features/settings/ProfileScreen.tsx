@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useEquipment, useProfile } from '@/app/data';
+import { useEquipment, useProfile, useSettings } from '@/app/data';
 import { goBack, navigate, useLeaveGuard } from '@/app/router';
+import { constraintsRepo } from '@/db/constraints';
 import { repo } from '@/db/repo';
 import { GOALS, LEVELS, type Goal, type Level, type Profile } from '@/domain';
 import { ChoiceGroup } from '@/features/onboarding/components/ChoiceGroup';
@@ -51,6 +52,7 @@ function ProfileForm({
 }) {
   const { t } = useTranslation();
   const toast = useToast();
+  const settings = useSettings();
   const initial = toForm(profile);
   const [form, setForm] = useState<Form>(initial);
   const [dialog, setDialog] = useState<'new' | null>(null);
@@ -89,6 +91,10 @@ function ProfileForm({
       daysPerWeek: form.daysPerWeek,
       sessionMinutes: form.sessionMinutes,
       ...(weight.status === 'ok' ? { bodyweightKg: weight.kg } : {}),
+      // Joints, noise and space have their own screen: saving the profile keeps them.
+      ...(profile.limitations ? { limitations: profile.limitations } : {}),
+      ...(profile.quiet ? { quiet: true } : {}),
+      ...(profile.smallSpace ? { smallSpace: true } : {}),
     };
   }
 
@@ -105,7 +111,11 @@ function ProfileForm({
     }
     setSaving(true);
     await repo.saveProfile(next);
+    // Training days are one per session of the week: another number of days starts them over.
+    const resetDays = daysChanged && (settings?.trainingDays?.length ?? 0) > 0;
+    if (resetDays) await constraintsRepo.setTrainingDays([]);
     setDialog(null);
+    if (resetDays) toast.show({ message: t('settings.profilePage.daysReset') });
     if (needsNew) {
       navigate({ name: 'programme', preview: 'new' });
     } else {

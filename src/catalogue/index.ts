@@ -4,6 +4,8 @@ import { coreExercises } from './core';
 import { legsExercises } from './legs';
 import { pullExercises } from './pull';
 import { pushExercises } from './push';
+import { stretchLowerExercises } from './stretch-lower';
+import { stretchUpperExercises } from './stretch-upper';
 import { warmupExercises } from './warmup';
 
 export const CATALOGUE_FAMILIES = {
@@ -12,7 +14,8 @@ export const CATALOGUE_FAMILIES = {
   legs: legsExercises,
   core: coreExercises,
   cardio: cardioExercises,
-  warmup: warmupExercises,
+  /** Warm-up drills, then the static stretches that end a session. */
+  warmup: [...warmupExercises, ...stretchLowerExercises, ...stretchUpperExercises],
 } as const satisfies Record<string, readonly Exercise[]>;
 
 export type CatalogueFamily = keyof typeof CATALOGUE_FAMILIES;

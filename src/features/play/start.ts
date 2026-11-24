@@ -2,10 +2,17 @@ import { requestPersistence } from '@/app/backup';
 import { loadProgressContext } from '@/app/progress';
 import { nextSession } from '@/app/programme-state';
 import type { ProgrammeRecord } from '@/db';
+import { constraintsRepo } from '@/db/constraints';
 import { repo } from '@/db/repo';
-import type { EquipmentInventory, Session, SessionLog } from '@/domain';
+import { isCooldownLog } from '@/domain';
+import type { EquipmentInventory, Profile, Session, SessionLog } from '@/domain';
 import {
+  activeTravelKit,
+  buildCooldown,
   countsAsDoneByDefault,
+  defaultCountsAsDone,
+  isPaused,
+  isTravelLog,
   scheduledTest,
   playSteps,
   prepareSession,
@@ -20,26 +27,41 @@ import { idleSince } from './usePlayer';
 
 /**
  * Opens the next session of the rotation: the week's changes, swaps and each exercise's
- * progression, resolved against the equipment owned now. The why of each change is kept on the
- * log. Throws `OpenSessionError` when a session is already open.
+ * progression, resolved against the equipment owned now, or the travel kit while one is in
+ * force. A long break shapes it (lighter volume) and starting it resumes a paused programme.
+ * The why of each change is kept on the log. Throws `OpenSessionError` when a session is
+ * already open.
  */
 export async function startProgrammeSession(
   programme: ProgrammeRecord,
   inventory: EquipmentInventory,
 ): Promise<SessionLog> {
   const ctx = { ...(await loadProgressContext()), inventory };
+  const settings = await repo.getSettings('en');
+  const kit = activeTravelKit(settings, ctx.now);
   const position = nextSession(programme, ctx.logs);
   const plan = sessionForWeek(programme, position.sessionId, position.week);
   const prepared = prepareSession(plan.session, ctx, 'programme', {
     role: weekRole(programme, position.week),
+    place: { programme, week: position.week },
+    ...(kit && { travelKit: kit }),
   });
-  const adjustments = setAdjustments({ ...plan, session: prepared.session }, inventory);
-  // The test week's chosen session runs the max test; a movement that hurt lately gets none.
+  const adjustments = setAdjustments(
+    { ...plan, session: prepared.session },
+    kit ?? inventory,
+    undefined,
+    prepared.doseCapped,
+    prepared,
+  );
+  // The test week's chosen session runs the max test; a movement that hurt lately gets none,
+  // nor does a session away from home or at the lighter volume after a long break.
   const test = scheduledTest(programme, position.sessionId, position.week, {
     ...ctx,
     ...(ctx.profile && { level: ctx.profile.level }),
     ...(ctx.profile?.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
     maxTests: ctx.maxTests ?? [],
+    travel: kit !== undefined,
+    reentry: prepared.reentry !== undefined,
   });
   const log = await repo.startSession({
     source: {
@@ -52,6 +74,8 @@ export async function startProgrammeSession(
     ...(adjustments && { adjustments }),
     progression: prepared.notes,
   });
+  // Only a programme session takes the programme out of its pause.
+  if (isPaused(settings)) await constraintsRepo.resumeProgramme('en', ctx.now);
   return test?.kind === 'run' ? attachTest(log, test.test) : log;
 }
 
@@ -72,6 +96,19 @@ export async function startCustomSession(
   });
 }
 
+/**
+ * Opens the cooldown after a finished session: a short stretching routine for what it worked.
+ * Stored as its own kind of log, linked to the session; nothing in it moves loads or the rotation.
+ */
+export function startCooldown(
+  after: Pick<SessionLog, 'id' | 'sets'>,
+  profile: Profile | undefined,
+  inventory: EquipmentInventory,
+): Promise<SessionLog> {
+  const plan = buildCooldown({ after, profile, inventory, now: new Date() });
+  return repo.startSession({ source: { kind: 'cooldown', afterLogId: after.id }, plan });
+}
+
 /** Stores a quick session as it starts: it was not kept before. */
 export function startQuickSession(session: Session): Promise<SessionLog> {
   return repo.startSession({ source: { kind: 'quick' }, plan: session });
@@ -88,7 +125,11 @@ export async function finishOpenSession(log: SessionLog, now = Date.now()): Prom
     log.id,
     {
       endedEarly: resumeIndex(steps, log.sets) < steps.length,
-      countsAsDone: countsAsDoneByDefault(sessionTotals(log)),
+      ...(!isCooldownLog(log) && {
+        countsAsDone: isTravelLog(log)
+          ? defaultCountsAsDone(log)
+          : countsAsDoneByDefault(sessionTotals(log)),
+      }),
     },
     new Date(end),
   );

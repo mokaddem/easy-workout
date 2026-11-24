@@ -25,7 +25,8 @@ export function PlayScreen(_props: { route: Extract<Route, { name: 'play' }> }) 
     if (open === null && !shown && !summary) navigate({ name: 'programme' }, { replace: true });
   }, [open, shown, summary]);
 
-  if (summary) return <SummaryScreen id={summary} />;
+  // A cooldown started from a summary is another session: the player takes over.
+  if (summary && !(open && open.id !== summary)) return <SummaryScreen id={summary} />;
   const log = open ?? shown;
   if (!log) return null;
   return (

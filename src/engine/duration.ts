@@ -78,13 +78,16 @@ export const blockTransitionSec = (previous: Block | undefined, transitionSec: n
   Math.max(transitionSec, previous ? blockRestSec(previous) : 0);
 
 /** Estimated session length in seconds. */
-export const sessionSeconds = (session: Pick<Session, 'warmup' | 'main' | 'finisher'>): number => {
+export const sessionSeconds = (
+  session: Pick<Session, 'warmup' | 'main' | 'finisher'> & Pick<Partial<Session>, 'transitionSec'>,
+): number => {
   let total = 0;
   let previous: Block | undefined;
+  const own = session.transitionSec;
   const sections: [readonly Block[], number][] = [
-    [session.warmup, WARMUP_TRANSITION_SEC],
-    [session.main, BLOCK_TRANSITION_SEC],
-    [session.finisher, BLOCK_TRANSITION_SEC],
+    [session.warmup, own ?? WARMUP_TRANSITION_SEC],
+    [session.main, own ?? BLOCK_TRANSITION_SEC],
+    [session.finisher, own ?? BLOCK_TRANSITION_SEC],
   ];
   for (const [blocks, transitionSec] of sections)
     for (const block of blocks) {

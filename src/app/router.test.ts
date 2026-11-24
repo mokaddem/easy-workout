@@ -14,6 +14,8 @@ describe('router', () => {
     { name: 'progress' },
     { name: 'settings' },
     { name: 'profile' },
+    { name: 'constraints' },
+    { name: 'travel' },
     { name: 'equipment' },
     { name: 'play' },
     { name: 'play', source: 'quick' },
@@ -57,6 +59,8 @@ describe('router', () => {
     expect(tabOf({ name: 'onboarding' })).toBeNull();
     expect(tabOf({ name: 'play' })).toBeNull();
     expect(parentOf({ name: 'profile' })).toEqual({ name: 'settings' });
+    expect(parentOf({ name: 'constraints' })).toEqual({ name: 'settings' });
+    expect(parentOf({ name: 'travel' })).toEqual({ name: 'settings' });
     expect(parentOf({ name: 'session', sessionId: 'a' })).toEqual({ name: 'programme' });
   });
 });

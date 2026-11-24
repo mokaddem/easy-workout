@@ -177,3 +177,11 @@
 .nudge > svg {
   color: var(--color-text-muted);
 }
+
+/* an exercise the travel kit could not do: listed last, quieter */
+.dropped .name {
+  color: var(--color-text-muted);
+}
+.dropped .why {
+  color: var(--color-text-muted);
+}

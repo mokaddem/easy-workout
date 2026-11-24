@@ -12,6 +12,7 @@ import type { Answer, Programme, SessionLog } from '@/domain';
 import type { ProgrammeRecord } from '@/db';
 import { repo } from '@/db/repo';
 import {
+  activeTravelKit,
   nextTime,
   pendingProposals,
   prepareSession,
@@ -29,6 +30,7 @@ import {
   useProfile,
   useProgrammes,
   useSessionLogs,
+  useSettings,
 } from './data';
 
 /** How often the clock progression reads moves on while the app stays open. */
@@ -122,20 +124,33 @@ export async function loadProgressContext(now = new Date()): Promise<ProgressCon
  * load, goal and tempo from its history. `undefined` while loading.
  */
 export function usePreparedSession(
-  programme: Programme | null | undefined,
+  programme: (Programme & { id?: string }) | null | undefined,
   sessionId: string | undefined,
   week: number | undefined,
+  /**
+   * The session is the one that runs next: a long break shapes it (re-entry volume) and the
+   * travel kit in force adapts it, as when it starts.
+   */
+  next = false,
 ): (PreparedSession & { week: number }) | undefined {
   const ctx = useProgressContext();
+  const settings = useSettings();
   return useMemo(() => {
     if (!ctx || !programme || !sessionId || week === undefined) return undefined;
     if (!programme.rotation.some((s) => s.id === sessionId)) return undefined;
+    if (next && !settings) return undefined;
     const plan = sessionForWeek(programme, sessionId, week);
+    const kit = next && settings ? activeTravelKit(settings, ctx.now) : undefined;
+    const id = programme.id;
     return {
-      ...prepareSession(plan.session, ctx, 'programme', { role: weekRole(programme, week) }),
+      ...prepareSession(plan.session, ctx, 'programme', {
+        role: weekRole(programme, week),
+        ...(next && id && { place: { programme: { ...programme, id }, week } }),
+        ...(kit && { travelKit: kit }),
+      }),
       week,
     };
-  }, [ctx, programme, sessionId, week]);
+  }, [ctx, programme, sessionId, week, next, settings]);
 }
 
 /** What changes next time, for a finished session's summary. */

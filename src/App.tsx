@@ -30,6 +30,14 @@ const ProfileScreen = lazyScreen(
   () => import('@/features/settings/ProfileScreen'),
   'ProfileScreen',
 );
+const ConstraintsScreen = lazyScreen(
+  () => import('@/features/settings/constraints/ConstraintsScreen'),
+  'ConstraintsScreen',
+);
+const TravelScreen = lazyScreen(
+  () => import('@/features/settings/travel/TravelScreen'),
+  'TravelScreen',
+);
 const DataScreen = lazyScreen(() => import('@/features/settings/DataScreen'), 'DataScreen');
 const EquipmentScreen = lazyScreen(
   () => import('@/features/equipment/EquipmentScreen'),
@@ -93,6 +101,10 @@ function Screen({ route }: { route: Route }) {
       return <SettingsScreen />;
     case 'profile':
       return <ProfileScreen />;
+    case 'constraints':
+      return <ConstraintsScreen />;
+    case 'travel':
+      return <TravelScreen />;
     case 'equipment':
       return <EquipmentScreen route={route} />;
     case 'data':

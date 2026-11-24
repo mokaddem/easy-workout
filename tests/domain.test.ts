@@ -39,6 +39,7 @@ const gobletSquat: Exercise = {
   difficulty: 2,
   easier: ['bodyweight-squat'],
   harder: ['bulgarian-split-squat'],
+  joints: { knee: 'moderate' },
 };
 
 describe('exercise schema', () => {

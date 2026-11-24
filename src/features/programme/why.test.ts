@@ -126,4 +126,51 @@ describe('describeNote', () => {
     expect(groups.map((g) => g.input)).toEqual(expect.arrayContaining(['schedule', 'goal']));
     for (const g of groups) expect(g.sentences.length).toBeGreaterThan(0);
   });
+
+  it('words the constraint notes in both languages and files them under "your limits"', () => {
+    const programme = generateProgramme({
+      profile: {
+        goal: 'recomposition',
+        level: 'intermediate',
+        daysPerWeek: 5,
+        sessionMinutes: 45,
+        quiet: true,
+        smallSpace: true,
+        limitations: [
+          { region: 'shoulder', since: '2026-11-01T00:00:00.000Z' },
+          { region: 'knee', since: '2026-11-01T00:00:00.000Z' },
+        ],
+      },
+      equipment: [],
+    });
+    const notes = (programme.generation?.notes ?? []).filter((n) =>
+      ['slot-limited', 'muscle-volume-reduced', 'finisher-thin'].includes(n.code),
+    );
+    expect(notes.length).toBeGreaterThan(0);
+    for (const note of notes)
+      for (const lang of ['fr', 'en'] as Language[])
+        expect(
+          bad(describeNote(note, instance.getFixedT(lang), lang)),
+          `${lang} ${note.code}`,
+        ).toBe(false);
+    const groups = programmeReasons(programme.generation!.notes, instance.getFixedT('en'), 'en');
+    expect(groups.map((g) => g.input)).toContain('limits');
+  });
+
+  it('names the joint and the pattern of a slot left out', () => {
+    const note = {
+      code: 'slot-limited',
+      params: { slot: 'pull-1', patterns: 'pull-vertical', cause: 'region', region: 'shoulder' },
+    };
+    expect(describeNote(note, instance.getFixedT('en'), 'en')).toBe(
+      'No vertical pull exercise. Left out to go easy on your shoulder: nothing fits with your kit. Its time goes to the other exercises.',
+    );
+    expect(
+      describeNote(
+        { ...note, params: { ...note.params, cause: 'quiet' } },
+        instance.getFixedT('fr'),
+        'fr',
+      ),
+    ).toContain('sans sauts');
+  });
 });

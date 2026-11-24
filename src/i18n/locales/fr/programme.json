@@ -11,6 +11,9 @@
     "exercisesCount_other": "{{count}} exercices",
     "equipment": "Matériel",
     "warmup": "Échauffement",
+    "rampTitle_one": "Série d’échauffement",
+    "rampTitle_other": "Séries d’échauffement",
+    "rampShare": "{{pct}}\u00A0% de {{kg}}\u00A0kg",
     "warmupMeta_one": "{{count}} exercice, environ {{minutes}} min",
     "warmupMeta_other": "{{count}} exercices, environ {{minutes}} min",
     "main": "Bloc principal",
@@ -69,7 +72,10 @@
       "calves": "les mollets"
     },
     "testReps_one": "{{count}} rep",
-    "testReps_other": "{{count}} reps"
+    "testReps_other": "{{count}} reps",
+    "reentry": "Reprise en douceur : {{percent}} % de séries en moins sur tes {{count}} premières séances ({{n}} sur {{count}}).",
+    "testHeldReentry": "Pas de test max cette semaine : tu reprends après une longue pause. Fais-le depuis Progrès, avec Faire un test, quand tu veux.",
+    "testHeldTravel": "Pas de test max avec ton kit de voyage. Fais-le depuis Progrès, avec Faire un test, en rentrant."
   },
   "week": {
     "group": "Semaine du programme",
@@ -77,7 +83,14 @@
     "title": "Semaine {{week}}, {{phase}}",
     "current": "En cours",
     "preview": "Aperçu",
-    "test": "Test de la semaine : le plus de {{names}} possible."
+    "test": "Test de la semaine : le plus de {{names}} possible.",
+    "lighterShort": "Léger",
+    "today": "auj.",
+    "cell": "{{weekday}} {{day}} : séance {{letter}}",
+    "cardio": "cardio",
+    "doneCell": "{{weekday}} {{day}} : séance faite",
+    "rest": "{{weekday}} {{day}} : repos",
+    "stripTitle": "Tes 7 prochains jours"
   },
   "changes": {
     "intro": "Par rapport à la semaine {{week}} :",
@@ -187,7 +200,11 @@
       "maxTest": "<b>Test max</b> en fin de semaine : {{names}}"
     },
     "sameLoads": "Mêmes exercices ; les charges montent quand tu atteins le haut de la fourchette.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "lighter": {
+      "summary": "Une semaine allégée en plus : moins de séries et plus de reps en réserve, puis le cycle reprend là où il s’était arrêté.",
+      "goal": "Évacuer la fatigue, puis repartir avec les mêmes charges."
+    }
   },
   "whyCard": {
     "title": "Pourquoi ce programme ?",
@@ -204,7 +221,9 @@
     "outOfDate": "Ton profil ou ton matériel a changé depuis la création de ce programme. Un nouveau programme peut en tenir compte.",
     "needsNew": "Ton objectif ou ton nombre de jours a changé : le découpage des séances ne correspond plus.",
     "generate": "Générer un nouveau programme",
-    "keep": "Garder celui-ci"
+    "keep": "Garder celui-ci",
+    "constraints": "Ce que tu ménages a changé depuis la création de ce programme : articulations, bruit ou place. Les exercices peuvent être choisis à nouveau, et tu restes dans ta semaine.",
+    "apply": "Voir ce qui change"
   },
   "nudge": {
     "title_one": "{{count}} exercice adapté faute de matériel",
@@ -215,7 +234,9 @@
     "label": "Prochaine séance",
     "details": "Voir la séance",
     "testFact": "Puis un test max : {{name}}",
-    "testFactFirst": "Commence par un test max : {{name}}"
+    "testFactFirst": "Commence par un test max : {{name}}",
+    "today": "Prochaine séance, aujourd’hui",
+    "on": "Prochaine séance, {{weekday}} {{day}}"
   },
   "start": "Commencer la séance",
   "rotation": {
@@ -236,7 +257,8 @@
       "later": "Semaine {{week}} : plus tard"
     },
     "mine": "Perso",
-    "mineSr": "{{letter}}, ma séance"
+    "mineSr": "{{letter}}, ma séance",
+    "continued": "{{name}} (suite)"
   },
   "sessions": {
     "title": "Séances",
@@ -255,7 +277,11 @@
     "variant": "Essayer une autre variante",
     "variantHint": "Change des exercices secondaires. Tu vois les changements avant de valider.",
     "profile": "Modifier le profil",
-    "equipment": "Modifier le matériel"
+    "equipment": "Modifier le matériel",
+    "pause": "Mettre en pause",
+    "pauseHint": "Rien n’est manqué pendant ce temps",
+    "resume": "Reprendre le programme",
+    "travel": "Kit de voyage"
   },
   "preview": {
     "variantEyebrow": "Autre variante",
@@ -407,5 +433,81 @@
     "later": "Pas cette semaine",
     "hidden": "Rappel masqué jusqu’au {{date}}",
     "undo": "Annuler"
+  },
+  "lighter": {
+    "title": "Une semaine allégée pourrait aider",
+    "intro": "Quelques signes montrent un peu de fatigue accumulée.",
+    "hardSets": "Sur tes {{sessions}} dernières séances, {{misses}} séries principales sur {{sets}} étaient dures ou sous l’objectif",
+    "stalledLifts": "{{lifts}} de tes {{of}} exercices principaux n’ont pas progressé en {{sessions}} séances",
+    "painStops": "La douleur a arrêté {{exercises}} exercices différents ces {{days}} derniers jours",
+    "make": "Alléger la semaine {{week}}",
+    "later": "Pas maintenant",
+    "sheetEyebrow": "Semaine allégée",
+    "sheetTitle": "Alléger la semaine {{week}} ?",
+    "what": "La semaine {{week}} aura moins de séries et plus de reps en réserve. Tes charges restent les mêmes.",
+    "moves_one": "La semaine {{from}} recule d’une semaine.",
+    "moves_other": "Les semaines {{from}} à {{to}} reculent d’une semaine.",
+    "end": "Le cycle se termine désormais en semaine {{end}} au lieu de la semaine {{old}}, avec la même dernière semaine.",
+    "resume": "Ensuite, tu reprends là où tu t’étais arrêté.",
+    "confirm": "Alléger la semaine {{week}}",
+    "keep": "Garder mon plan",
+    "done": "La semaine {{week}} est maintenant allégée",
+    "failed": "Impossible de modifier le programme"
+  },
+  "missed": {
+    "line": "Prévue {{weekday}}, toujours la prochaine.",
+    "ok": "Compris"
+  },
+  "paused": {
+    "title": "En pause",
+    "line_one": "Depuis le {{date}}, {{count}} jour. Rien n’est manqué : tu reprends en semaine {{week}}, {{session}}.",
+    "line_other": "Depuis le {{date}}, {{count}} jours. Rien n’est manqué : tu reprends en semaine {{week}}, {{session}}.",
+    "lineToday": "Depuis aujourd’hui. Rien n’est manqué : tu reprends en semaine {{week}}, {{session}}.",
+    "reentry": "Après {{weeks}} semaines, tes {{count}} premières séances seront allégées.",
+    "resume": "Reprendre le programme",
+    "startNote": "Commencer une séance reprend le programme.",
+    "toast": "Programme en pause.",
+    "resumed": "Programme repris : {{session}} {{when}}.",
+    "resumedToday": "Programme repris : {{session}} aujourd’hui."
+  },
+  "restart": {
+    "title": "Recommencer ce programme en semaine 1 ?",
+    "kicker": "Ta dernière séance date du {{date}}, il y a <b>{{days}} jours</b>.",
+    "again": "Recommencer en semaine 1",
+    "againSub": "Mêmes séances et exercices, la réadaptation reprend du début. Tes charges repartent prudemment.",
+    "carry": "Continuer en semaine {{week}}",
+    "carrySub": "Tes {{count}} prochaines séances avec 30 % de séries en moins pour te remettre en route.",
+    "dialogTitle": "Recommencer en semaine 1 ?",
+    "dialogBody": "Ton programme actuel rejoint tes programmes passés. Tes séances restent dans l’historique.",
+    "confirm": "Recommencer",
+    "done": "Programme recommencé en semaine 1.",
+    "carried": "C’est parti : séances allégées pour te remettre en route.",
+    "fact": "Reprise : séries allégées, séance {{n}} sur {{count}}"
+  },
+  "kit": {
+    "line": "{{until}} : {{what}}.",
+    "until": "Kit de voyage jusqu’au {{date}}",
+    "manage": "Gérer",
+    "swapped_one": "{{count}} exercice remplacé",
+    "swapped_other": "{{count}} exercices remplacés",
+    "dropped_one": "{{count}} retiré",
+    "dropped_other": "{{count}} retirés",
+    "all": "tout est possible",
+    "swapLine": "Kit de voyage. Remplace : {{name}}.",
+    "swapChip": "Kit de voyage. Remplace : {{name}}.",
+    "droppedRow": "Pas possible avec ton kit : retiré de cette séance.",
+    "droppedShort": "Pas possible avec ton kit : retiré."
+  },
+  "limits": {
+    "title": "Adapté pour toi : {{list}}",
+    "sub_one": "{{count}} exercice laissé de côté",
+    "sub_other": "{{count}} exercices laissés de côté",
+    "subNone": "Rien n’est laissé de côté",
+    "sheetTitle": "Ce que ton programme ménage",
+    "leftOut": "Laissés de côté",
+    "lessVolume": "Moins de séries",
+    "capped": "Avec 2 reps en réserve au moins",
+    "sessionLine": "{{session}} : {{what}}",
+    "edit": "Modifier"
   }
 }

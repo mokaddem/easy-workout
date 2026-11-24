@@ -172,7 +172,7 @@ export function WhyChip({ why }: { why: Why }) {
   if (!why.text) return null;
   return (
     <p data-reserve="chip" className={`${styles.whyChip} ${why.pain ? styles.whyPain : ''}`}>
-      <Icon name={why.pain ? 'stop' : 'info'} size={20} />
+      <Icon name={why.pain ? 'stop' : (why.glyph ?? 'info')} size={20} />
       <span>{why.text}</span>
     </p>
   );

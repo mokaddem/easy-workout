@@ -1,6 +1,7 @@
 import type {
   Answer,
   Block,
+  EquipmentInventory,
   Exercise,
   Load,
   Programme,
@@ -15,18 +16,23 @@ import type {
 import { exerciseById as catalogueById } from '../../catalogue';
 import { sessionMinutes } from '../duration';
 import { equipmentCapabilities } from '../equipment';
+import { constraintsOf, isConstrained } from '../generate/constraints';
 import { ownedWeights, snapDown } from '../generate/loads';
 import { implementOf, itemKey } from '../play';
 import { sessionForWeek } from '../week';
 import {
+  exerciseTimes,
   exposuresOf,
   longestGapDays,
   progressKey,
-  sessionTimes,
   weekRole,
   type Exposure,
   type WeekRole,
 } from './exposures';
+import { capItem, isDoseCapped } from './dose-cap';
+import { liftEasing } from './lifted';
+import { applyReentry, reentryFor, weekVolumeFactor } from './reentry';
+import { applyTravelKit, snapToKit, travelStamp } from './travel';
 import { capacity, effectiveKg, ladderFor, loadAt, predictReps, rungCount, rungOf } from './ladder';
 import { flagProposals, holdForPain, ladderProposal, painState } from './proposals';
 import { compatible, liftFromTest, progressItem } from './rules';
@@ -36,16 +42,62 @@ import type { PreparedSession, ProgressContext, Proposal } from './types';
 export type { PreparedSession, ProgressContext, Proposal } from './types';
 export {
   activeSwaps,
+  applySwaps,
   fitsAsHarder,
   harderNeedsEquipment,
   harderVariantFor,
   replacementItem,
   substituteFor,
   substitutesFor,
+  type Swaps,
 } from './swaps';
 export { BREAK_DAYS, liftFromTest, loadToken } from './rules';
+export { capItem, DOSE_CAP_RIR, isDoseCapped } from './dose-cap';
+export type { LimitationOffer } from './types';
+export type { SubstituteContext } from './swaps';
 export { weekRole, type WeekRole } from './exposures';
+export {
+  LIGHTER_WEEK,
+  insertLighterWeek,
+  lighterWeekSignal,
+  type LighterWeekReason,
+  type LighterWeekReasonCode,
+  type LighterWeekSignal,
+} from './lighter-week';
 export { capacity, predictReps } from './ladder';
+export {
+  daysSinceTraining,
+  exerciseTimes,
+  lastGapEnd,
+  longestGapDays,
+  MUSCLE_SESSION_SETS,
+  PROGRAMME_SESSION_SETS,
+  programmeTimes,
+  workingSetExercises,
+} from './exposures';
+export {
+  applyReentry,
+  REENTRY_FACTOR,
+  REENTRY_GAP_DAYS,
+  reentryFor,
+  RESTART_GAP_DAYS,
+  restartOffer,
+  testSkippedWeeks,
+  weekVolumeFactor,
+} from './reentry';
+export {
+  activeTravelKit,
+  applyTravelKit,
+  defaultCountsAsDone,
+  snapToKit,
+  travelCoverage,
+  travelCoverageOf,
+  travelStamp,
+  type TravelContext,
+  type TravelResult,
+} from './travel';
+export { droppedEntry, droppedIds, isTravelLog, parseDropped, type DroppedItem } from './stamps';
+export { liftEasing, LIFT_CAPPED_EXPOSURES, LIFT_STALE_DAYS, type LiftEasing } from './lifted';
 
 const itemsOf = (block: Block) => (block.type === 'straight' ? [block.item] : block.items);
 const withItems = (block: Block, items: SessionItem[]): Block =>
@@ -124,30 +176,88 @@ export function prepareSession(
     role?: WeekRole;
     /** A session of the user's own run on its own: its last run is remembered too. */
     ownSessionId?: string;
+    /**
+     * Where a programme session sits: with it, a long break shapes the session (re-entry volume)
+     * and the stamp comes back in `reentry`.
+     */
+    place?: { programme: Programme & { id: string }; week: number };
+    /** Equipment on hand while away: the session is adapted to it and stamped as a travel one. */
+    travelKit?: EquipmentInventory;
   } = {},
 ): PreparedSession {
   const exercises = lookup(ctx);
   const swaps = activeSwaps(ctx.answers);
+  const constraints = constraintsOf(ctx.profile);
+  const level = ctx.profile?.level ?? 'intermediate';
   const swapped = applySwaps(
     session,
     swaps,
     {
       inventory: ctx.inventory,
-      level: ctx.profile?.level ?? 'intermediate',
+      level,
       ...(ctx.profile?.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
+      ...(isConstrained(constraints) && { constraints }),
     },
     exercises,
   );
+  const programmeMode = mode === 'programme';
+  // Back after a long break: the first sessions run at a share of the usual volume.
+  const place = programmeMode ? options.place : undefined;
+  const reentry = place
+    ? reentryFor(ctx.logs, place.programme.sessionsPerWeek, ctx.now)
+    : undefined;
+  let working = swapped.session;
+  if (reentry !== undefined && place) {
+    const weekFactor = weekVolumeFactor(place.programme, place.week);
+    const base = place.programme.rotation.find((s) => s.id === session.id);
+    working = applyReentry(working, {
+      factor: reentry,
+      ...(weekFactor !== undefined && { weekFactor }),
+      ...(base && { base }),
+    });
+  }
+  // Away: what the kit can't do is replaced or left out, and loads follow the kit's weights.
+  const kit = programmeMode ? options.travelKit : undefined;
+  let replaces = swapped.replaces;
+  let blocked = swapped.blocked;
+  let travel: ReturnType<typeof applyTravelKit> | undefined;
+  if (kit) {
+    travel = applyTravelKit(working, {
+      kit,
+      level,
+      ...(ctx.profile?.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
+      ...(isConstrained(constraints) && { constraints }),
+      ...(ctx.exercises && { exercises: ctx.exercises }),
+      avoid: swaps.painful,
+    });
+    working = travel.session;
+    const moved = (from: Record<string, string>) =>
+      Object.fromEntries(
+        Object.entries(from).flatMap(([k, v]) => {
+          const to = travel!.keyMap[k];
+          return to ? [[to, v] as const] : [];
+        }),
+      );
+    replaces = { ...travel.substitutions, ...moved(swapped.replaces) };
+    blocked = moved(swapped.blocked);
+  }
+  const inventory = kit ?? ctx.inventory;
   const tested = withTestPain(ctx);
   ctx = tested.ctx;
   const exposures = exposureCache(ctx);
   const flaggedRaw = exposureCache(ctx, true);
   const flagged = (exerciseId: string) => tested.flagged(flaggedRaw(exerciseId), exerciseId);
-  const times = sessionTimes(ctx.logs);
+  const gapTimes = new Map<string, number[]>();
+  const timesOf = (exercise: Exercise) => {
+    let t = gapTimes.get(exercise.id);
+    if (!t) gapTimes.set(exercise.id, (t = exerciseTimes(exercise, ctx.logs, exercises)));
+    return t;
+  };
   const now = ctx.now.getTime();
   const notes: Record<string, ProgressionNote> = {};
   const proposals: Proposal[] = [];
   const buyNext: string[] = [];
+  const doseCapped: string[] = [];
 
   const progressSection = (section: 'main' | 'finisher', blocks: Block[]): Block[] =>
     blocks.map((block, blockIndex) =>
@@ -157,11 +267,23 @@ export function prepareSession(
           const exercise = exercises.get(base.exerciseId);
           if (!exercise) return base;
           const all = exposures(exercise.id);
+          // An exercise sparing a limited joint never goes under 2 reps in reserve; nor does
+          // one back after a lifted limitation, for its first two times.
+          const easing = liftEasing(exercise, ctx.profile?.limitations, all, now);
+          const capped = isDoseCapped(exercise, constraints) || easing?.capped === true;
+          if (capped) doseCapped.push(itemKey(section, blockIndex, itemIndex));
+          const easeInPeak = reentry !== undefined && options.role === 'peak';
+          const cap = (item: SessionItem) => (capped || easeInPeak ? capItem(item) : item);
           if (mode === 'quick')
-            return quickItem(base, exercise, all, flagged(exercise.id), ctx, options.ownSessionId);
+            return cap(
+              quickItem(base, exercise, all, flagged(exercise.id), ctx, options.ownSessionId),
+            );
           const context = block.type === 'straight' ? 'straight' : 'group';
           const lastAt = all[0] ? Date.parse(all[0].at) : undefined;
-          const gapDays = lastAt === undefined ? undefined : longestGapDays(times, lastAt, now);
+          const ownGap =
+            lastAt === undefined ? undefined : longestGapDays(timesOf(exercise), lastAt, now);
+          const gapDays =
+            easing?.gapDays === undefined ? ownGap : Math.max(ownGap ?? 0, easing.gapDays);
           const key = progressKey(exercise.id, base.target, context);
           let result = progressItem({
             base,
@@ -169,13 +291,15 @@ export function prepareSession(
             exercise,
             exposures: all.filter((e) => e.key === key),
             all,
-            inventory: ctx.inventory,
+            inventory,
             ...(ctx.profile?.bodyweightKg !== undefined && {
               bodyweightKg: ctx.profile.bodyweightKg,
             }),
             ...(gapDays !== undefined && { gapDays }),
             ...(options.role && { role: options.role }),
             ...(ctx.profile?.level && { level: ctx.profile.level }),
+            ...(capped && { doseCap: true }),
+            ...(isConstrained(constraints) && { constraints }),
             now,
           });
           if (ctx.maxTests?.length)
@@ -190,11 +314,12 @@ export function prepareSession(
           const pain = painState(flagged(exercise.id), ctx.answers);
           if (pain) result = holdForPain(result, pain, base, exercise, ctx);
           const ik = itemKey(section, blockIndex, itemIndex);
-          const replaced = swapped.replaces[ik];
+          const replaced = replaces[ik];
           if (replaced && !result.note && all.length === 0)
             result = { ...result, note: { code: 'swapped-in', params: { from: replaced } } };
           if (result.note) notes[ik] = result.note;
-          if (result.ladderEnd) {
+          // Away, the kit's weights are no reason to buy anything or to change exercise.
+          if (result.ladderEnd && !kit) {
             const proposal = ladderProposal(result.ladderEnd, exercise, all, ctx);
             if (proposal === 'buy-next') {
               buyNext.push(exercise.id);
@@ -203,23 +328,27 @@ export function prepareSession(
           }
           for (const p of flagProposals(exercise, flagged(exercise.id), ctx, swaps))
             proposals.push(p);
-          return result.item;
+          return cap(kit ? snapToKit(result.item, exercise, kit) : result.item);
         }),
       ),
     );
 
-  const before = swapped.session;
+  const before = working;
   const main = progressSection('main', before.main);
   const finisher = progressSection('finisher', before.finisher);
-  const warmup = rescaleRamps(before, main, ctx);
+  const warmup = rescaleRamps(before, main, { ...ctx, inventory });
   const out: Session = { ...before, warmup, main, finisher };
   out.estimatedMinutes = sessionMinutes(out);
   return {
     session: out,
     notes,
-    replaces: swapped.replaces,
+    replaces,
+    blockedSwaps: blocked,
+    doseCapped,
     proposals: unique(proposals),
     buyNext: [...new Set(buyNext)],
+    ...(reentry !== undefined && { reentry }),
+    ...(travel && { travel: travelStamp(travel) }),
   };
 }
 

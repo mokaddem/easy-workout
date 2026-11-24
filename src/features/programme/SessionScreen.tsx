@@ -7,6 +7,7 @@ import {
   useOpenSession,
   useProfile,
   useSessionLogs,
+  useSettings,
 } from '@/app/data';
 import { nextSession } from '@/app/programme-state';
 import { switchBack, useProgressContext, usePreparedSession } from '@/app/progress';
@@ -19,6 +20,7 @@ import {
   weekRole,
   sessionForWeek,
   setAdjustments,
+  skippedTest,
   type Proposal,
 } from '@/engine';
 import { repo } from '@/db/repo';
@@ -42,7 +44,10 @@ import { startProgrammeSession } from '../play/start';
 import { effortText } from './effort';
 import { exerciseName, sessionIdentity, weekChanges, type WeekChanges } from './format';
 import { hasHistory, placeState } from './edits';
+import { kitSummary } from './kitSummary';
+import { reentryPosition } from './reentry';
 import { SessionView } from './SessionView';
+import { dayMonth } from './testFormat';
 import { sessionTest } from './cycleTest';
 import { TestBlock, TestNotice } from './TestBlock';
 import { WeekRuler } from './WeekRuler';
@@ -166,7 +171,10 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const session = record?.rotation.find((s) => s.id === route.sessionId);
   const position = record ? nextSession(record, logs) : null;
   const week = record ? Math.min(Math.max(route.week ?? position?.week ?? 1, 1), record.weeks) : 1;
-  const prepared = usePreparedSession(record, session?.id, week);
+  const isNextNow =
+    !!position && !!session && week === position.week && session.id === position.sessionId;
+  const prepared = usePreparedSession(record, session?.id, week, isNextNow);
+  const settings = useSettings();
 
   // Goals set by set: an intensity week asks more of the first set.
   const goals = useMemo(() => {
@@ -254,7 +262,23 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
   const isNext = session.id === position.sessionId;
   const canStart = isCurrentWeek && isNext && !position.finished;
   const over = profile ? plan.session.estimatedMinutes - profile.sessionMinutes : 0;
-  const testView = testCtx ? sessionTest(record, session.id, week, testCtx) : undefined;
+  const away = prepared?.travel !== undefined;
+  const easing = prepared?.reentry;
+  const testView = testCtx
+    ? sessionTest(record, session.id, week, {
+        ...testCtx,
+        ...(away && { travel: true }),
+        ...(easing !== undefined && { reentry: true }),
+      })
+    : undefined;
+  const heldTest =
+    testCtx && (away || easing !== undefined)
+      ? skippedTest(record, session.id, week, {
+          ...testCtx,
+          ...(away && { travel: true }),
+          ...(easing !== undefined && { reentry: true }),
+        })
+      : undefined;
 
   const selectWeek = (next: number) =>
     navigate(
@@ -300,6 +324,43 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
         </div>
       ) : null}
       {testView ? <TestNotice view={testView} /> : null}
+      {heldTest ? (
+        <p className={styles.flag}>
+          <Icon name="target" size={20} />
+          <span>
+            {t(
+              heldTest.kind === 'travel'
+                ? 'programme.session.testHeldTravel'
+                : 'programme.session.testHeldReentry',
+            )}
+          </span>
+        </p>
+      ) : null}
+      {prepared?.travel && settings?.travelKit ? (
+        <p className={styles.flag}>
+          <Icon name="suitcase" size={20} />
+          <span>
+            {t('programme.kit.line', {
+              until: t('programme.kit.until', {
+                date: dayMonth(settings.travelKit.until, lang),
+              }),
+              what: kitSummary(t, prepared.travel),
+            })}
+          </span>
+        </p>
+      ) : null}
+      {easing !== undefined ? (
+        <p className={styles.flag}>
+          <Icon name="hourglass" size={20} />
+          <span>
+            {t('programme.session.reentry', {
+              percent: Math.round((1 - easing) * 100),
+              count: record.sessionsPerWeek,
+              n: reentryPosition(logs ?? []),
+            })}
+          </span>
+        </p>
+      ) : null}
       {brk ? (
         <p className={styles.flag}>
           <Icon name="hourglass" size={20} />
@@ -391,6 +452,7 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
             ? {
                 adaptation: {
                   prepared,
+                  profile,
                   goals,
                   answers,
                   onSwitchBack: setBack,
@@ -410,6 +472,7 @@ export function SessionScreen({ route }: { route: Extract<Route, { name: 'sessio
             : {})}
           {...(placed ? { kickerLabel: t('programme.session.mine') } : {})}
           mode="programme"
+          programme={record}
           identity={identity}
           inventory={record.generation?.equipment ?? equipment ?? []}
           {...(previous ? { previous: previous.session } : {})}

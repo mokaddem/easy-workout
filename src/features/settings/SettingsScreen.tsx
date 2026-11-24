@@ -1,12 +1,25 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { updateSettings, useEquipment, useProfile, useSettings } from '@/app/data';
+import {
+  updateSettings,
+  useActiveProgramme,
+  useEquipment,
+  useProfile,
+  useSessionLogs,
+  useSettings,
+} from '@/app/data';
 import { navigate } from '@/app/router';
 import { repo } from '@/db/repo';
 import type { Language, Settings } from '@/domain';
+import { activeTravelKit } from '@/engine';
 import { equipmentSummary } from '@/features/onboarding/summary';
 import { Card, Dialog, ListRow, SegmentedControl, SwitchRow } from '@/ui/components';
 import { canVibrate } from '../play/signals';
+import { constraintsMeta } from './constraints/joints';
+import { draftOf } from './constraints/model';
+import { shortDate, localDay, weekdayName } from './dates';
+import { TrainingDaysSheet } from './days/TrainingDaysSheet';
+import { sortDays } from './days/model';
 import { RestPicker } from './RestPicker';
 import { profileSummary } from './summary';
 import { useVoiceAvailable } from './voices';
@@ -23,7 +36,10 @@ export function SettingsScreen() {
   const settings = useSettings();
   const profile = useProfile();
   const equipment = useEquipment();
+  const programme = useActiveProgramme();
+  const logs = useSessionLogs();
   const [confirmNew, setConfirmNew] = useState(false);
+  const [daysOpen, setDaysOpen] = useState(false);
   const [now] = useState(() => Date.now());
 
   const language: Language = settings?.language ?? (i18n.language === 'fr' ? 'fr' : 'en');
@@ -32,6 +48,20 @@ export function SettingsScreen() {
     { value: 'dark', label: t('settings.themeDark') },
     { value: 'light', label: t('settings.themeLight') },
   ];
+
+  const constraintsRow = profile
+    ? (constraintsMeta(t, draftOf(profile)) ?? t('settings.constraintsNone'))
+    : undefined;
+  const days = sortDays(settings?.trainingDays ?? []);
+  const daysRow =
+    days.length > 0
+      ? days.map((d) => weekdayName(d, language, 'short')).join(', ')
+      : t('settings.daysNone');
+  const kit = settings ? activeTravelKit(settings, new Date(now)) : undefined;
+  const travelRow =
+    kit && settings?.travelKit
+      ? t('settings.travelUntil', { date: shortDate(localDay(settings.travelKit.until), language) })
+      : t('settings.travelNone');
 
   const vibrates = canVibrate();
   const lastBackup = settings?.lastBackupAt;
@@ -60,6 +90,24 @@ export function SettingsScreen() {
             title={t('settings.profile')}
             meta={profile ? profileSummary(profile, t, language) : undefined}
             onClick={() => navigate({ name: 'profile' })}
+          />
+          <ListRow
+            icon="joint"
+            title={t('settings.constraintsRow')}
+            meta={constraintsRow}
+            onClick={() => navigate({ name: 'constraints' })}
+          />
+          <ListRow
+            icon="calendar"
+            title={t('settings.daysRow')}
+            meta={settings && profile ? daysRow : undefined}
+            onClick={() => setDaysOpen(true)}
+          />
+          <ListRow
+            icon="suitcase"
+            title={t('settings.travelRow')}
+            meta={settings ? travelRow : undefined}
+            onClick={() => navigate({ name: 'travel' })}
           />
           <SwitchRow
             checked={settings?.checkInPrompt ?? true}
@@ -172,6 +220,17 @@ export function SettingsScreen() {
         <p className={styles.aboutName}>{t('app.title')}</p>
         <p className={styles.hint}>{t('settings.aboutLocal')}</p>
       </section>
+
+      {profile ? (
+        <TrainingDaysSheet
+          open={daysOpen}
+          onClose={() => setDaysOpen(false)}
+          daysPerWeek={profile.daysPerWeek}
+          saved={settings?.trainingDays ?? []}
+          programme={programme}
+          logs={logs ?? []}
+        />
+      ) : null}
 
       <Dialog
         open={confirmNew}

@@ -91,18 +91,32 @@ export const SessionSourceSchema = z.discriminatedUnion('kind', [
   }),
   z.strictObject({ kind: z.literal('custom'), sessionId: IdSchema }),
   z.strictObject({ kind: z.literal('quick') }),
+  /** A short stretching routine after a session; the session it follows, when it is stored. */
+  z.strictObject({ kind: z.literal('cooldown'), afterLogId: IdSchema.optional() }),
 ]);
 export type SessionSource = z.infer<typeof SessionSourceSchema>;
 
 /**
  * Per-set changes a week makes on top of the session (intensity weeks): RIR of the first or last
  * set of rep-based main exercises, and the load of the back-off sets after a hard first set,
- * per exercise (`section/blockIndex/itemIndex`), already snapped to owned weights.
+ * per exercise (`section/blockIndex/itemIndex`), already snapped to owned weights. It also
+ * records, at the start, what else shaped the session (a joint spared, travel, a break).
  */
 export const SetAdjustmentsSchema = z.strictObject({
   firstSetRir: int(0, 5).optional(),
   lastSetRir: int(0, 5).optional(),
   backOffLoads: z.record(z.string(), LoadSchema).optional(),
+  /** Exercises (`section/blockIndex/itemIndex`) spared for a joint: never prescribed under 2 reps in reserve. */
+  doseCapped: z.array(z.string()).optional(),
+  /** Stamped when the session starts away from home: what stood in for what, what was left out. */
+  travel: z
+    .strictObject({
+      substitutions: z.record(z.string(), SlugSchema),
+      dropped: z.array(z.string()),
+    })
+    .optional(),
+  /** Stamped when the session starts after a long break: the share of the usual sets it was given. */
+  reentry: positive.max(1).optional(),
 });
 export type SetAdjustments = z.infer<typeof SetAdjustmentsSchema>;
 
@@ -172,6 +186,10 @@ export const SessionLogSchema = z.strictObject({
   sets: z.array(SetLogSchema),
 });
 export type SessionLog = z.infer<typeof SessionLogSchema>;
+
+/** A cooldown is a stretching routine, not training: it never counts as evidence, work or a streak. */
+export const isCooldownLog = (log: Pick<SessionLog, 'source'>): boolean =>
+  log.source.kind === 'cooldown';
 
 export const CheckInSchema = z.strictObject({
   id: IdSchema,

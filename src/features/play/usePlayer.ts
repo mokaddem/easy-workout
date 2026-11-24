@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { requestPersistence } from '@/app/backup';
 import { repo } from '@/db/repo';
+import { isCooldownLog } from '@/domain';
 import type { Feel, SessionLog, SetActual, SetFlag, SetLog } from '@/domain';
-import { countsAsDoneByDefault, sessionTotals } from '@/engine';
+import { countsAsDoneByDefault, defaultCountsAsDone, isTravelLog, sessionTotals } from '@/engine';
 import * as machine from './machine';
 import type { PlayerState, Transition } from './machine';
 
@@ -39,6 +40,7 @@ export interface Player {
   setFeel: (feel: Feel) => void;
   stopExercise: (flag: Exclude<SetFlag, 'skipped'>, partial?: SetActual) => void;
   skipWarmupItem: () => void;
+  skipRamp: () => void;
   startTimer: () => void;
   finishTimer: () => void;
   /** Intervals: end the current work or recovery part now. */
@@ -132,8 +134,18 @@ export function usePlayer(log: SessionLog): Player {
       await queue.current;
       const stored = await repo.getOpenSession();
       if (!stored || stored.id !== id) return;
-      const countsAsDone = endedEarly ? countsAsDoneByDefault(sessionTotals(stored)) : true;
-      await enqueue(() => repo.finishSession(id, { endedEarly, countsAsDone }));
+      // Away from home it counts when half the plan's main sets were done, as the original or a stand-in.
+      // A cooldown has no such switch: it never counts towards anything.
+      const countsAsDone = isCooldownLog(stored)
+        ? undefined
+        : isTravelLog(stored)
+          ? defaultCountsAsDone(stored)
+          : endedEarly
+            ? countsAsDoneByDefault(sessionTotals(stored))
+            : true;
+      await enqueue(() =>
+        repo.finishSession(id, { endedEarly, ...(countsAsDone !== undefined && { countsAsDone }) }),
+      );
       // Each finished session asks again, until the browser promises to keep the data.
       void requestPersistence();
     },
@@ -155,6 +167,7 @@ export function usePlayer(log: SessionLog): Player {
     stopExercise: (flag, partial) =>
       void apply((s, t) => machine.stopExercise(s, flag, t, partial)),
     skipWarmupItem: () => void apply(machine.skipStep),
+    skipRamp: () => void apply(machine.skipRamp),
     startTimer: () => void apply(machine.startTimer),
     finishTimer: () => void apply(machine.finishTimer),
     skipIntervalPart: () => void apply(machine.skipIntervalPart),

@@ -21,6 +21,10 @@ export type Route =
   | { name: 'review'; programmeId: string }
   | { name: 'settings' }
   | { name: 'profile' }
+  /** Joints, noise, space. */
+  | { name: 'constraints' }
+  /** The travel kit: set up in two steps, or the active kit. */
+  | { name: 'travel' }
   /** `buy`: straight to the "what to buy next" view. */
   | { name: 'equipment'; view?: 'buy' }
   | { name: 'data' }
@@ -44,6 +48,8 @@ const STATIC: Record<string, Route> = {
   '/progress': { name: 'progress' },
   '/settings': { name: 'settings' },
   '/settings/profile': { name: 'profile' },
+  '/settings/limits': { name: 'constraints' },
+  '/settings/travel': { name: 'travel' },
   '/settings/equipment': { name: 'equipment' },
   '/settings/data': { name: 'data' },
   '/play': { name: 'play' },
@@ -143,6 +149,10 @@ export function routeHref(route: Route): string {
       return route.preview ? `/programme?preview=${route.preview}` : '/programme';
     case 'profile':
       return '/settings/profile';
+    case 'constraints':
+      return '/settings/limits';
+    case 'travel':
+      return '/settings/travel';
     case 'equipment':
       return route.view ? `/settings/equipment?view=${route.view}` : '/settings/equipment';
     case 'data':
@@ -228,6 +238,8 @@ export function parentOf(route: Route): Route {
           ? { name: 'quick' }
           : { name: 'mine', sessionId: route.sessionId };
     case 'profile':
+    case 'constraints':
+    case 'travel':
     case 'equipment':
     case 'data':
       return { name: 'settings' };

@@ -80,8 +80,8 @@
     "right": "Right",
     "hard": "Hard"
   },
-  "repsCount_one": "{{count}} rep",
-  "repsCount_other": "{{count}} reps",
+  "repsCount_one": "{{count}}\u00A0rep",
+  "repsCount_other": "{{count}}\u00A0reps",
   "rest": {
     "seconds": "seconds",
     "label": "{{count}} seconds of rest",
@@ -89,6 +89,10 @@
     "roundLogged": "Round {{set}} of {{sets}} done",
     "exerciseDone": "{{name}} done",
     "next": "Next up",
+    "nextWarmup": "Next: warm-up set {{set}} of {{sets}}",
+    "nextWork": "Next: working set",
+    "nextWorkAt": "Next: working set at {{kg}}\u00A0kg",
+    "rampLogged": "Warm-up set {{set}} of {{sets}} logged",
     "setOf": "Set {{set}} of {{sets}}",
     "roundOf": "Round {{set}} of {{sets}}",
     "less": "Remove 15 seconds",
@@ -102,6 +106,7 @@
   },
   "adjust": {
     "title": "Adjust set {{set}}",
+    "titleWarmup": "Adjust this warm-up set",
     "intro": "Log what you actually did.",
     "reps": "Reps",
     "target": "Target {{target}}",
@@ -189,6 +194,13 @@
   "warmup": {
     "done": "Done",
     "skip": "Skip this exercise",
+    "skipSet": "Skip this set",
+    "skipRamp": "Go straight to the work sets",
+    "rampSet": "Warm-up set {{set}} of {{sets}}",
+    "rampSetOne": "Warm-up set",
+    "rampShare": "{{pct}}\u00A0% of {{kg}}\u00A0kg, your working weight",
+    "rampShareOne": "About {{pct}}\u00A0% of {{kg}}\u00A0kg, a single set to get the movement going",
+    "rampPlain": "A light set to get the movement going",
     "tag": "Warm-up",
     "slow": "slow reps",
     "doneLabel": "Done"
@@ -199,7 +211,8 @@
     "resume": "Resume",
     "pickUp": "You’ll pick up at",
     "leave": "Leave the session",
-    "session": "{{name}}"
+    "session": "{{name}}",
+    "pauseLine": "Travel kit until {{date}}"
   },
   "voiceOn": "Voice cues on.",
   "voiceOff": "Voice cues off. Beeps stay on.",
@@ -226,9 +239,36 @@
     "confirm": "Abandon the session",
     "cancel": "Cancel"
   },
+  "cooldown": {
+    "offerTitle": "Cooldown · 5 min",
+    "offerStart": "Start",
+    "offerStartLabel": "Start the cooldown",
+    "offerGroups": "Stretches what you worked: {{groups}}.",
+    "offerGeneral": "A few gentle stretches for the whole body.",
+    "name": "Cooldown",
+    "title": "Cooldown done",
+    "stretches_one": "{{count}} stretch",
+    "stretches_other": "{{count}} stretches",
+    "calm": "Nothing to log, nothing to change. Breathe out, drink some water.",
+    "abandonTitle": "Stop the cooldown?",
+    "abandonBody": "What you stretched stays in your history. Nothing else changes.",
+    "abandonConfirm": "Stop the cooldown",
+    "next": "Next stretch",
+    "otherSide": "Other side",
+    "last": "Finish",
+    "leaveFinishHint": "See the summary",
+    "leaveStop": "Stop",
+    "leaveStopHint": "What you stretched is kept"
+  },
   "summary": {
     "title": "Session done",
     "titleEarly": "Session ended early",
+    "rampDone_one": "Warm-up: the warm-up set is done. It isn’t counted in your work sets.",
+    "rampDone_other": "Warm-up: {{done}} of {{total}} warm-up sets done. They aren’t counted in your work sets.",
+    "rampSkipped_one": "Warm-up: the warm-up set was skipped.",
+    "rampSkipped_other": "Warm-up: the {{total}} warm-up sets were skipped.",
+    "rampMixed_one": "Warm-up: {{done}} of {{total}} warm-up sets done, {{skipped}} skipped. They aren’t counted in your work sets.",
+    "rampMixed_other": "Warm-up: {{done}} of {{total}} warm-up sets done, {{skipped}} skipped. They aren’t counted in your work sets.",
     "duration": "{{minutes}} minutes of active time",
     "durationLabel": "Active time, pauses not counted",
     "sets_one": "set",
@@ -254,7 +294,12 @@
     "ofTotalTime_other": "{{count}} sets of {{total}}: {{values}}",
     "testKicker": "Max test",
     "testSkipped": "<b>Max test skipped:</b> nothing recorded. You can do it later from Progress, with Take a test.",
-    "toReview": "See the cycle review"
+    "toReview": "See the cycle review",
+    "travelNotice": "<b>Travel kit</b>: {{what}}. Your home loads stay where they are.",
+    "travelOff": "With your kit, less than half of the planned session: it will be offered again.",
+    "travelList": "With your kit, nothing moves for your home sessions.",
+    "testHeldReentry": "No max test this session: you’re easing back in after a long break. Do it from Progress, with Take a test, whenever you like.",
+    "testHeldTravel": "No max test with your travel kit. Do it from Progress, with Take a test, when you’re back."
   },
   "resume": {
     "paused": "{{name}} is paused",
@@ -276,7 +321,8 @@
   "open": {
     "title": "A session is already open",
     "titleStale": "A session was left open",
-    "body": "{{open}} isn’t finished ({{done}} of {{total}} sets). Resume it, or abandon it to start {{next}}.",
+    "body_one": "{{open}} isn’t finished ({{done}} of {{total}} sets). Resume it, or abandon it to start {{next}}.",
+    "body_other": "{{open}} isn’t finished ({{done}} of {{total}} sets). Resume it, or abandon it to start {{next}}.",
     "bodyStale": "{{open}} was left open. Finish it to keep its sets, then {{next}} starts.",
     "resume": "Resume the open session",
     "abandonStart": "Abandon it and start",
@@ -400,5 +446,15 @@
     "meta_other": "{{name}}: {{count}} tests since {{month}}",
     "back": "Back to progress",
     "warmup": "Warm up first: a few easy sets of the movement, then start."
+  },
+  "record": {
+    "cue": "New record",
+    "cueSr": "New record: {{set}}",
+    "line": "{{set}} · best was {{previous}}",
+    "loadTimes": "{{load}} × {{reps}}",
+    "loadedHold": "{{load}} · {{time}}",
+    "title_one": "New record",
+    "title_other": "New records",
+    "sub": "Your best set on each of these exercises so far."
   }
 }

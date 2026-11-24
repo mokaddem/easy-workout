@@ -31,6 +31,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['wall-push-up'],
     harder: ['incline-push-up'],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'incline-push-up',
@@ -62,6 +63,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['knee-push-up'],
     harder: ['push-up'],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'push-up',
@@ -96,6 +98,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['incline-push-up'],
     harder: ['close-grip-push-up', 'feet-elevated-push-up', 'suspension-push-up'],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'wide-push-up',
@@ -127,6 +130,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['archer-push-up'],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'close-grip-push-up',
@@ -158,6 +162,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['push-up'],
     harder: [],
+    joints: { elbow: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'feet-elevated-push-up',
@@ -189,6 +194,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['push-up'],
     harder: ['archer-push-up'],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'dumbbell-bench-press',
@@ -224,6 +230,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['dumbbell-floor-press'],
     harder: ['incline-dumbbell-press'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'dumbbell-floor-press',
@@ -255,6 +262,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-chest-press'],
     harder: ['dumbbell-bench-press'],
+    joints: {},
   },
   {
     id: 'dumbbell-floor-fly',
@@ -286,6 +294,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-chest-fly'],
     harder: ['incline-dumbbell-fly'],
+    joints: {},
   },
   {
     id: 'seated-dumbbell-shoulder-press',
@@ -322,6 +331,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-overhead-press'],
     harder: ['standing-dumbbell-shoulder-press', 'dumbbell-arnold-press'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'standing-dumbbell-shoulder-press',
@@ -353,6 +363,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['seated-dumbbell-shoulder-press'],
     harder: ['kettlebell-bottoms-up-press'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'incline-dumbbell-fly',
@@ -389,6 +400,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-floor-fly'],
     harder: [],
+    joints: { shoulder: 'high' },
   },
   {
     id: 'band-lateral-raise',
@@ -420,6 +432,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-lateral-raise'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'dumbbell-lateral-raise',
@@ -451,6 +464,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-lateral-raise'],
     harder: [],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'overhead-dumbbell-triceps-extension',
@@ -485,6 +499,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-triceps-pushdown', 'band-overhead-triceps-extension'],
     harder: [],
+    joints: { shoulder: 'moderate', elbow: 'high' },
   },
   {
     id: 'dumbbell-triceps-kickback',
@@ -516,6 +531,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { 'lower-back': 'moderate', elbow: 'moderate' },
   },
   {
     id: 'bench-dip',
@@ -547,6 +563,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['dip', 'dip-bar-negative-dip'],
+    joints: { shoulder: 'high', wrist: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'dip',
@@ -581,6 +598,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['bench-dip', 'dip-bar-negative-dip'],
     harder: [],
+    joints: { shoulder: 'high', wrist: 'moderate', elbow: 'high' },
   },
   {
     id: 'wall-push-up',
@@ -612,6 +630,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['knee-push-up'],
+    joints: {},
   },
   {
     id: 'archer-push-up',
@@ -643,6 +662,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['wide-push-up', 'feet-elevated-push-up'],
     harder: [],
+    joints: { shoulder: 'high', wrist: 'high' },
   },
   {
     id: 'incline-dumbbell-press',
@@ -683,6 +703,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-bench-press'],
     harder: [],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'band-chest-press',
@@ -716,6 +737,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-floor-press'],
+    joints: {},
   },
   {
     id: 'band-chest-fly',
@@ -749,6 +771,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-floor-fly'],
+    joints: {},
   },
   {
     id: 'band-overhead-press',
@@ -780,6 +803,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['seated-dumbbell-shoulder-press'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'dumbbell-arnold-press',
@@ -814,6 +838,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['seated-dumbbell-shoulder-press'],
     harder: [],
+    joints: { shoulder: 'high' },
   },
   {
     id: 'hands-elevated-pike-push-up',
@@ -845,6 +870,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['pike-push-up'],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'pike-push-up',
@@ -876,6 +902,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['hands-elevated-pike-push-up'],
     harder: ['feet-elevated-pike-push-up'],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'feet-elevated-pike-push-up',
@@ -907,6 +934,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['pike-push-up'],
     harder: ['wall-handstand-hold'],
+    joints: { shoulder: 'high', wrist: 'high' },
   },
   {
     id: 'wall-handstand-hold',
@@ -940,6 +968,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['feet-elevated-pike-push-up'],
     harder: [],
+    joints: { shoulder: 'high', wrist: 'high' },
   },
   {
     id: 'band-triceps-pushdown',
@@ -973,6 +1002,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-floor-triceps-extension', 'overhead-dumbbell-triceps-extension'],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'dumbbell-floor-triceps-extension',
@@ -1004,6 +1034,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-triceps-pushdown'],
     harder: ['dumbbell-lying-triceps-extension'],
+    joints: { elbow: 'high' },
   },
   {
     id: 'dumbbell-lying-triceps-extension',
@@ -1035,6 +1066,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dumbbell-floor-triceps-extension'],
     harder: [],
+    joints: { elbow: 'high' },
   },
   {
     id: 'band-overhead-triceps-extension',
@@ -1069,6 +1101,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['overhead-dumbbell-triceps-extension'],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'kettlebell-bottoms-up-press',
@@ -1100,6 +1133,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['standing-dumbbell-shoulder-press'],
     harder: [],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'dip-bar-support-hold',
@@ -1133,6 +1167,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['dip-bar-negative-dip'],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'dip-bar-negative-dip',
@@ -1166,6 +1201,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['dip-bar-support-hold', 'bench-dip'],
     harder: ['dip'],
+    joints: { shoulder: 'high', wrist: 'moderate', elbow: 'high' },
   },
   {
     id: 'suspension-push-up',
@@ -1199,6 +1235,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['push-up'],
     harder: [],
+    joints: { shoulder: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'suspension-chest-fly',
@@ -1232,6 +1269,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: [],
     harder: [],
+    joints: { shoulder: 'high' },
   },
   {
     id: 'suspension-triceps-extension',
@@ -1265,6 +1303,7 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
+    joints: { shoulder: 'moderate', elbow: 'high' },
   },
   {
     id: 'hindu-push-up',
@@ -1298,5 +1337,6 @@ export const pushExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
+    joints: { shoulder: 'moderate', wrist: 'moderate', 'lower-back': 'moderate' },
   },
 ];

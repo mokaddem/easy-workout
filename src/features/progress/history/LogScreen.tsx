@@ -4,6 +4,7 @@ import {
   useAnswers,
   useEquipment,
   useMaxTests,
+  useProfile,
   useProgrammes,
   useSessionLog,
   useSessionLogs,
@@ -11,7 +12,7 @@ import {
 import { nextSession } from '@/app/programme-state';
 import { goBack, handleLinkClick, navigate, routeHref, type Route } from '@/app/router';
 import { repo } from '@/db/repo';
-import type { Language, SessionLog } from '@/domain';
+import { isCooldownLog, type Language, type SessionLog } from '@/domain';
 import { activeSeconds, phaseForWeek, sessionTotals } from '@/engine';
 import {
   Button,
@@ -28,6 +29,7 @@ import { ChangeTag, Rich } from '../../adapt';
 import { exerciseName } from '../../adapt/format';
 import { programmeIdentities } from '../../programme/format';
 import { activeParts, clockTime, dayLong, langOf } from '../format';
+import { CooldownLog } from './CooldownLog';
 import { exerciseBlocks, type ExerciseBlock } from './blocks';
 import { painStop } from './groups';
 import { logIdentity } from './identity';
@@ -45,6 +47,7 @@ export function LogScreen({ route }: { route: Extract<Route, { name: 'log' }> })
   const tests = useMaxTests();
   const answers = useAnswers();
   const inventory = useEquipment();
+  const bodyweightKg = useProfile()?.bodyweightKg;
 
   const bar = (
     <div className={styles.bar}>
@@ -79,6 +82,14 @@ export function LogScreen({ route }: { route: Extract<Route, { name: 'log' }> })
       </>
     );
 
+  if (isCooldownLog(log))
+    return (
+      <>
+        {bar}
+        <CooldownLog log={log} logs={logs} programmes={programmes} />
+      </>
+    );
+
   return (
     <>
       {bar}
@@ -86,7 +97,8 @@ export function LogScreen({ route }: { route: Extract<Route, { name: 'log' }> })
         log={log}
         logs={logs}
         programmes={programmes}
-        hasTest={tests.some((x) => x.logId === log.id)}
+        tests={tests}
+        {...(bodyweightKg !== undefined && { bodyweightKg })}
         answers={answers}
         inventory={inventory}
       />
@@ -98,14 +110,16 @@ function LogDetail({
   log,
   logs,
   programmes,
-  hasTest,
+  tests,
+  bodyweightKg,
   answers,
   inventory,
 }: {
   log: SessionLog;
   logs: SessionLog[];
   programmes: ReturnType<typeof useProgrammes> & object;
-  hasTest: boolean;
+  tests: ReturnType<typeof useMaxTests> & object;
+  bodyweightKg?: number;
   answers: ReturnType<typeof useAnswers> & object;
   inventory: ReturnType<typeof useEquipment> & object;
 }) {
@@ -118,7 +132,11 @@ function LogDetail({
   const identity = logIdentity(log, programmes, lang);
   const totals = useMemo(() => sessionTotals(log, inventory), [log, inventory]);
   const blocks = useMemo(() => exerciseBlocks(log), [log]);
-  const records = useMemo(() => recordsIn(log, logs, programmes), [log, logs, programmes]);
+  const hasTest = tests.some((x) => x.logId === log.id);
+  const records = useMemo(
+    () => recordsIn(log, logs, programmes, tests, bodyweightKg),
+    [log, logs, programmes, tests, bodyweightKg],
+  );
   const source = log.source;
   const programme =
     source.kind === 'programme' ? programmes.find((p) => p.id === source.programmeId) : undefined;
@@ -166,7 +184,7 @@ function LogDetail({
       icon: 'flag',
       text: t(
         log.countsAsDone === false ? 'progress.log.earlyNoCountNotice' : 'progress.log.earlyNotice',
-        { done: totals.main.done, total: totals.main.planned },
+        { count: totals.main.done, done: totals.main.done, total: totals.main.planned },
       ),
     };
 

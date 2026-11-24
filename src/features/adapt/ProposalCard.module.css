@@ -202,3 +202,36 @@
   justify-self: start;
   margin-left: -12px;
 }
+
+/* Go easy on a joint: matters, destroys nothing. Second stop: first, with a firmer edge. */
+.ansFirst {
+  border-width: var(--border-strong);
+  border-color: var(--color-text);
+}
+.ansLead {
+  font-size: var(--type-meta-size);
+  line-height: 1.35;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+.ans > .ansChev {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.pickFoot {
+  display: grid;
+  gap: var(--space-2);
+}
+.pickList {
+  /* The group brings its own side padding; the sheet already pads. */
+  margin: 0 calc(var(--space-4) * -1);
+}
+.pickError {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger-text);
+}

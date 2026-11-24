@@ -1,4 +1,4 @@
-import type { Exercise, Programme, SessionLog } from '../../domain';
+import { isCooldownLog, type Exercise, type Programme, type SessionLog } from '../../domain';
 import { exerciseById as catalogueById } from '../../catalogue';
 import { sessionForWeek } from '../week';
 import { MUSCLE_GROUP_IDS, type MuscleGroup } from '../volume';
@@ -72,7 +72,7 @@ export function programmeWeekSets(input: {
   const since = programmeWeekStart(programme, week, logs, programmeStartedAt);
   let done: GroupCounts = emptyGroupCounts();
   for (const log of logs) {
-    if (log.status !== 'completed') continue;
+    if (log.status !== 'completed' || isCooldownLog(log)) continue;
     const counts =
       log.source.kind === 'programme'
         ? log.source.programmeId === programme.id && log.source.week === week

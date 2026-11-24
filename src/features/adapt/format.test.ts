@@ -141,6 +141,18 @@ describe('notes', () => {
     );
   });
 
+  it('words the notes about sparing a joint, with its name when there is one', () => {
+    const hold = note('dose-cap-hold', { load: 'kg:8' });
+    expect(noteReason(en, 'en', hold, { joint: 'knee' })).toBe(
+      'Same weight after a hard set, to go easy on your knee.',
+    );
+    expect(noteChip(fr, 'fr', hold, { joint: 'knee' })).toContain('ton genou');
+    expect(noteReason(en, 'en', hold)).toContain('your joint');
+    const end = note('ladder-end-limited');
+    expect(noteReason(en, 'en', end, { joint: 'shoulder' })).toContain('your shoulder');
+    expect(showsWhy(end)).toBe(true);
+  });
+
   it('has no chip for plain holds and no line for them either', () => {
     expect(noteChip(en, 'en', note('hold'))).toBeUndefined();
     expect(showsWhy(note('hold'))).toBe(false);

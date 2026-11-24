@@ -70,5 +70,25 @@
     "full-b": "Full body",
     "full-c": "Full body",
     "core": "Gainage"
+  },
+  "constraint": {
+    "joint": "ton articulation",
+    "ladderEnd": "Au maximum de cet exercice. La version plus dure est déconseillée pour {{joint}} : plus de reps à la place.",
+    "doseHold": "Même charge après une série dure, pour ménager {{joint}}.",
+    "capped": "2 reps en réserve au moins, pour ménager {{joint}}.",
+    "cappedChip": "Pour {{joint}} : garde 2 reps en réserve.",
+    "reentryChip": "Première semaine de reprise plus légère.",
+    "leftOutTitle": "Pas d’exercice de {{pattern}}",
+    "leftOutRegion": "Laissé de côté pour ménager {{joint}} : rien ne convient avec ton matériel. Son temps va aux autres exercices.",
+    "leftOutQuiet": "Laissé de côté : rien ne convient sans sauts.",
+    "leftOutSpace": "Laissé de côté : rien ne convient en petit espace.",
+    "thinFinisher": "Ton finale est un court circuit de mouvements simples : peu de cardio convient à ce que tu ménages.",
+    "keptOutRegion": "Déconseillé pour {{joint}}. Gardé parce que tu l’as choisi, avec 2 reps en réserve au moins.",
+    "keptOutQuiet": "Fait sauter. Gardé parce que tu l’as choisi.",
+    "keptOutSpace": "Demande de la place. Gardé parce que tu l’as choisi."
+  },
+  "group": {
+    "limits": "Tes limites",
+    "limitsLabel": "Articulations, bruit, place"
   }
 }

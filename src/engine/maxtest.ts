@@ -10,6 +10,7 @@ import type {
   SessionLog,
   SessionTest,
 } from '../domain';
+import { isConstrained, type Constraints } from './generate/constraints';
 import { exposuresOf } from './progress/exposures';
 import { activeSwaps, applySwaps } from './progress/swaps';
 import { isTestable, testKind } from './testable';
@@ -27,7 +28,13 @@ export interface TestContext {
   inventory: EquipmentInventory;
   level?: Level;
   bodyweightKg?: number;
+  /** What the user avoids: a test goes to the limit, so nothing ruled out or spared qualifies. */
+  constraints?: Constraints;
   exercises?: ReadonlyMap<string, Exercise>;
+  /** The session runs away from home: never a test. */
+  travel?: boolean;
+  /** The session runs at the re-entry volume after a long break: the scheduled test is skipped. */
+  reentry?: boolean;
 }
 
 const lookup = (ctx: Pick<TestContext, 'exercises'>) => ctx.exercises ?? catalogueById;
@@ -45,6 +52,7 @@ function weekSessions(programme: Programme, week: number, ctx: TestContext): Ses
     inventory: ctx.inventory,
     level: ctx.level ?? 'intermediate',
     ...(ctx.bodyweightKg !== undefined && { bodyweightKg: ctx.bodyweightKg }),
+    ...(isConstrained(ctx.constraints) && { constraints: ctx.constraints }),
   };
   const out: Session[] = [];
   for (let k = 0; k < programme.sessionsPerWeek; k++) {
@@ -69,21 +77,33 @@ export const testWeeks = (programme: Programme): number[] => {
   return weeks;
 };
 
+/**
+ * Another exercise that suits a test when the usual one is ruled out by what the user avoids:
+ * the easiest that is testable for them, or none.
+ */
+function otherTest(ctx: TestContext): string | undefined {
+  return [...lookup(ctx).values()]
+    .filter((e) => isTestable(e, ctx.level, ctx.constraints))
+    .sort((a, b) => a.difficulty - b.difficulty || a.id.localeCompare(b.id))[0]?.id;
+}
+
 /** The generator's rule: a bodyweight push-up variant in the programme, else push-ups. */
-function pushUpTest(sessions: readonly Session[], ctx: TestContext): string {
+function pushUpTest(sessions: readonly Session[], ctx: TestContext): string | undefined {
   const exercises = lookup(ctx);
   const pushUps = sessions
     .flatMap((s) => s.main.flatMap((b) => (b.type === 'straight' ? [b.item] : b.items)))
     .map((i) => exercises.get(i.exerciseId))
     .filter(
       (e): e is Exercise =>
-        e !== undefined && e.pattern === 'push-horizontal' && isTestable(e, ctx.level),
+        e !== undefined &&
+        e.pattern === 'push-horizontal' &&
+        isTestable(e, ctx.level, ctx.constraints),
     );
-  return (
-    pushUps.find((e) => e.id === 'push-up')?.id ??
-    pushUps[0]?.id ??
-    (ctx.level === 'beginner' ? 'knee-push-up' : 'push-up')
-  );
+  const usual = ctx.level === 'beginner' ? 'knee-push-up' : 'push-up';
+  const found = pushUps.find((e) => e.id === 'push-up')?.id ?? pushUps[0]?.id ?? usual;
+  if (!isConstrained(ctx.constraints)) return found;
+  const e = exercises.get(found);
+  return e && isTestable(e, ctx.level, ctx.constraints) ? found : otherTest(ctx);
 }
 
 /**
@@ -104,7 +124,7 @@ export function testExerciseFor(
   const swaps = activeSwaps(ctx.answers);
   const testable = (id: string | undefined) => {
     const e = id ? exercises.get(id) : undefined;
-    return e && isTestable(e, ctx.level) ? e.id : undefined;
+    return e && isTestable(e, ctx.level, ctx.constraints) ? e.id : undefined;
   };
 
   if (swaps.painful.has(planned)) return undefined;
@@ -231,6 +251,7 @@ export function scheduledTest(
   week: number,
   ctx: TestContext,
 ): ScheduledTest | undefined {
+  if (ctx.travel || ctx.reentry) return undefined;
   const exerciseId = testExerciseFor(programme, week, ctx);
   if (!exerciseId) return undefined;
   const at = testPlacement(programme, week, exerciseId, ctx);
@@ -250,6 +271,27 @@ export function scheduledTest(
 }
 
 /**
+ * The test this session would have run but doesn't, because it is away from home or at the
+ * re-entry volume: the interface says so, and the cycle review offers "Test now" instead.
+ */
+export function skippedTest(
+  programme: Programme,
+  sessionId: string,
+  week: number,
+  ctx: TestContext,
+): { kind: 'travel' | 'reentry'; exerciseId: string } | undefined {
+  if (!ctx.travel && !ctx.reentry) return undefined;
+  const planned = scheduledTest(programme, sessionId, week, {
+    ...ctx,
+    travel: false,
+    reentry: false,
+  });
+  return planned?.kind === 'run'
+    ? { kind: ctx.travel ? 'travel' : 'reentry', exerciseId: planned.test.exerciseId }
+    : undefined;
+}
+
+/**
  * The exercise "Test now" offers first: the programme's test exercise, else the last one tested,
  * else push-ups (on the knees for a beginner).
  */
@@ -260,9 +302,19 @@ export function defaultTestExercise(programme: Programme | undefined, ctx: TestC
       if (id) return id;
     }
   }
-  const last = ctx.maxTests.filter((t) => !t.stopped).sort((a, b) => b.at.localeCompare(a.at))[0];
+  const last = ctx.maxTests
+    .filter((t) => !t.stopped)
+    .sort((a, b) => b.at.localeCompare(a.at))
+    .find((t) => {
+      const e = lookup(ctx).get(t.exerciseId);
+      return !isConstrained(ctx.constraints) || (e && isTestable(e, ctx.level, ctx.constraints));
+    });
   if (last) return last.exerciseId;
-  return ctx.level === 'beginner' ? 'knee-push-up' : 'push-up';
+  const usual = ctx.level === 'beginner' ? 'knee-push-up' : 'push-up';
+  const e = lookup(ctx).get(usual);
+  if (!isConstrained(ctx.constraints) || (e && isTestable(e, ctx.level, ctx.constraints)))
+    return usual;
+  return otherTest(ctx) ?? usual;
 }
 
 /** The latest earlier result of the same exercise and context, to compare a new one with. */

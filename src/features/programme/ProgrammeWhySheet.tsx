@@ -8,6 +8,7 @@ const ICON: Record<ReasonInput, IconName> = {
   schedule: 'calendar',
   goal: 'gauge',
   equipment: 'user',
+  limits: 'joint',
 };
 
 /** Why this programme, reason by reason, grouped by what the user told us. */
@@ -55,6 +56,8 @@ export function ProgrammeWhySheet({
             : t('programme.why.goal'),
           label: t('programme.why.goal'),
         };
+      case 'limits':
+        return { title: t('why.group.limits'), label: t('why.group.limitsLabel') };
       case 'equipment':
         return {
           title:

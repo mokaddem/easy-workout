@@ -208,7 +208,7 @@ const measure = (
     s.main.flatMap((b) => (b.type === 'straight' ? [b.item] : b.items)),
   );
   return {
-    dropped: count(p, 'slot-dropped') + count(p, 'cardio-unavailable'),
+    dropped: count(p, 'slot-dropped') + count(p, 'slot-limited') + count(p, 'cardio-unavailable'),
     fallbacks: count(p, 'exercise-fallback-pattern'),
     ranked: count(p, 'exercise-ranked'),
     cappedLoads: loadNotes.filter((n) => Number(n.params.kg) < 0.8 * Number(n.params.targetKg))

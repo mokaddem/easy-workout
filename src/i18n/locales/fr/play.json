@@ -80,8 +80,8 @@
     "right": "Idéal",
     "hard": "Dur"
   },
-  "repsCount_one": "{{count}} rep",
-  "repsCount_other": "{{count}} reps",
+  "repsCount_one": "{{count}}\u00A0rep",
+  "repsCount_other": "{{count}}\u00A0reps",
   "rest": {
     "seconds": "secondes",
     "label": "{{count}} secondes de repos",
@@ -89,6 +89,10 @@
     "roundLogged": "Tour {{set}} sur {{sets}} terminé",
     "exerciseDone": "{{name}} terminé",
     "next": "Ensuite",
+    "nextWarmup": "Ensuite : série d’échauffement {{set}} sur {{sets}}",
+    "nextWork": "Ensuite : série de travail",
+    "nextWorkAt": "Ensuite : série de travail à {{kg}}\u00A0kg",
+    "rampLogged": "Série d’échauffement {{set}} sur {{sets}} notée",
     "setOf": "Série {{set}} sur {{sets}}",
     "roundOf": "Tour {{set}} sur {{sets}}",
     "less": "Retirer 15 secondes",
@@ -102,6 +106,7 @@
   },
   "adjust": {
     "title": "Ajuster la série {{set}}",
+    "titleWarmup": "Ajuster cette série d’échauffement",
     "intro": "Note ce que tu as vraiment fait.",
     "reps": "Reps",
     "target": "Objectif {{target}}",
@@ -189,6 +194,13 @@
   "warmup": {
     "done": "Fait",
     "skip": "Passer cet exercice",
+    "skipSet": "Passer cette série",
+    "skipRamp": "Aller directement aux séries de travail",
+    "rampSet": "Série d’échauffement {{set}} sur {{sets}}",
+    "rampSetOne": "Série d’échauffement",
+    "rampShare": "{{pct}}\u00A0% de {{kg}}\u00A0kg, ta charge de travail",
+    "rampShareOne": "Environ {{pct}}\u00A0% de {{kg}}\u00A0kg, une seule série pour lancer le mouvement",
+    "rampPlain": "Une série légère pour lancer le mouvement",
     "tag": "Échauffement",
     "slow": "reps lentes",
     "doneLabel": "Fait"
@@ -199,7 +211,8 @@
     "resume": "Reprendre",
     "pickUp": "Tu reprendras à",
     "leave": "Quitter la séance",
-    "session": "{{name}}"
+    "session": "{{name}}",
+    "pauseLine": "Kit de voyage jusqu’au {{date}}"
   },
   "voiceOn": "Annonces vocales activées.",
   "voiceOff": "Annonces vocales coupées. Les bips restent actifs.",
@@ -226,8 +239,35 @@
     "confirm": "Abandonner la séance",
     "cancel": "Annuler"
   },
+  "cooldown": {
+    "offerTitle": "Retour au calme · 5 min",
+    "offerStart": "Commencer",
+    "offerStartLabel": "Commencer le retour au calme",
+    "offerGroups": "Étire ce que tu as travaillé : {{groups}}.",
+    "offerGeneral": "Quelques étirements doux pour tout le corps.",
+    "name": "Retour au calme",
+    "title": "Retour au calme terminé",
+    "stretches_one": "{{count}} étirement",
+    "stretches_other": "{{count}} étirements",
+    "calm": "Rien à noter, rien à changer. Souffle doucement, bois un peu d’eau.",
+    "abandonTitle": "Arrêter le retour au calme ?",
+    "abandonBody": "Ce que tu as étiré reste dans ton historique. Rien d’autre ne change.",
+    "abandonConfirm": "Arrêter le retour au calme",
+    "next": "Étirement suivant",
+    "otherSide": "Autre côté",
+    "last": "Terminer",
+    "leaveFinishHint": "Voir le bilan",
+    "leaveStop": "Arrêter",
+    "leaveStopHint": "Ce que tu as étiré est conservé"
+  },
   "summary": {
     "title": "Séance terminée",
+    "rampDone_one": "Échauffement : la série d’échauffement est faite. Elle ne compte pas dans tes séries de travail.",
+    "rampDone_other": "Échauffement : {{done}} séries d’échauffement sur {{total}} faites. Elles ne comptent pas dans tes séries de travail.",
+    "rampSkipped_one": "Échauffement : la série d’échauffement a été passée.",
+    "rampSkipped_other": "Échauffement : les {{total}} séries d’échauffement ont été passées.",
+    "rampMixed_one": "Échauffement : {{done}} série d’échauffement sur {{total}} faite, {{skipped}} passée. Elles ne comptent pas dans tes séries de travail.",
+    "rampMixed_other": "Échauffement : {{done}} séries d’échauffement sur {{total}} faites, {{skipped}} passées. Elles ne comptent pas dans tes séries de travail.",
     "titleEarly": "Séance arrêtée avant la fin",
     "duration": "{{minutes}} minutes de temps actif",
     "durationLabel": "Temps actif, pauses non comptées",
@@ -254,7 +294,12 @@
     "ofTotalTime_other": "{{count}} séries sur {{total}} : {{values}}",
     "testKicker": "Test max",
     "testSkipped": "<b>Test max passé :</b> rien n’est enregistré. Tu peux le faire plus tard depuis Progrès, avec Faire un test.",
-    "toReview": "Voir le bilan du cycle"
+    "toReview": "Voir le bilan du cycle",
+    "travelNotice": "<b>Kit de voyage</b> : {{what}}. Tes charges à la maison ne bougent pas.",
+    "travelOff": "Avec ton kit, moins de la moitié de la séance prévue : elle te sera reproposée.",
+    "travelList": "Avec ton kit, rien ne bouge pour tes séances à la maison.",
+    "testHeldReentry": "Pas de test max cette séance : tu reprends après une longue pause. Fais-le depuis Progrès, avec Faire un test, quand tu veux.",
+    "testHeldTravel": "Pas de test max avec ton kit de voyage. Fais-le depuis Progrès, avec Faire un test, en rentrant."
   },
   "resume": {
     "paused": "{{name}} en pause",
@@ -276,7 +321,8 @@
   "open": {
     "title": "Une séance est déjà ouverte",
     "titleStale": "Une séance est restée ouverte",
-    "body": "{{open}} n’est pas terminée ({{done}} séries sur {{total}}). Reprends-la, ou abandonne-la pour commencer {{next}}.",
+    "body_one": "{{open}} n’est pas terminée ({{done}} série sur {{total}}). Reprends-la, ou abandonne-la pour commencer {{next}}.",
+    "body_other": "{{open}} n’est pas terminée ({{done}} séries sur {{total}}). Reprends-la, ou abandonne-la pour commencer {{next}}.",
     "bodyStale": "{{open}} est restée ouverte. Termine-la pour garder ses séries, puis {{next}} commence.",
     "resume": "Reprendre la séance ouverte",
     "abandonStart": "L’abandonner et commencer",
@@ -400,5 +446,15 @@
     "meta_other": "{{name}} : {{count}} tests depuis {{month}}",
     "back": "Retour aux progrès",
     "warmup": "Échauffe-toi d’abord : quelques séries faciles du mouvement, puis lance le test."
+  },
+  "record": {
+    "cue": "Nouveau record",
+    "cueSr": "Nouveau record : {{set}}",
+    "line": "{{set}} · avant : {{previous}}",
+    "loadTimes": "{{load}} × {{reps}}",
+    "loadedHold": "{{load}} · {{time}}",
+    "title_one": "Nouveau record",
+    "title_other": "Nouveaux records",
+    "sub": "Ta meilleure série sur chacun de ces exercices jusqu’ici."
   }
 }

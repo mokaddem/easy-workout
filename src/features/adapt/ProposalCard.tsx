@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import { Swap } from '@/motion';
 import type { Answer, Language } from '@/domain';
+import { jointName } from '@/features/settings/constraints/joints';
 import type { Proposal } from '@/engine';
 import { answerProposal, undoAnswer } from '@/app/progress';
 import { glyphOf } from '@/features/play/format';
 import { Button, Card, Icon, type IconName } from '@/ui/components';
 import { cx } from '@/ui/components/cx';
+import { LimitationRow, type Limited } from './LimitationRow';
 import { Rich } from './Rich';
 import {
   bandWord,
@@ -82,6 +84,8 @@ export function ProposalCard({
   const nameId = useId();
   const [answered, setAnswered] = useState<{ answer: Answer; choice: Choice } | undefined>();
   const [busy, setBusy] = useState(false);
+  /** The user added the joint to the limitations instead of answering with one of the rows. */
+  const [limited, setLimited] = useState<Limited | undefined>();
 
   const { kind, exerciseId } = proposal;
   const exercise = exerciseById.get(exerciseId);
@@ -324,6 +328,17 @@ export function ProposalCard({
   };
 
   const undo = async () => {
+    if (limited && !busy) {
+      setBusy(true);
+      try {
+        await limited.undo();
+        setLimited(undefined);
+        onUndone?.();
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     if (!answered || busy) return;
     setBusy(true);
     try {
@@ -347,12 +362,13 @@ export function ProposalCard({
             ? 'step-down'
             : 'band';
 
+  const done = answered !== undefined || limited !== undefined;
   const wrap = (children: ReactNode) =>
     variant === 'card' ? (
       <Card as="article" className={styles.pc} aria-labelledby={nameId}>
         <Swap
-          id={answered ? 'confirmed' : 'asking'}
-          innerClassName={answered ? cx(styles.body, styles.bodyDone) : styles.body}
+          id={done ? 'confirmed' : 'asking'}
+          innerClassName={done ? cx(styles.body, styles.bodyDone) : styles.body}
         >
           {children}
         </Swap>
@@ -360,16 +376,33 @@ export function ProposalCard({
     ) : (
       <article className={styles.flat} aria-labelledby={nameId}>
         <Swap
-          id={answered ? 'confirmed' : 'asking'}
-          innerClassName={answered ? cx(styles.body, styles.bodyDone) : styles.body}
+          id={done ? 'confirmed' : 'asking'}
+          innerClassName={done ? cx(styles.body, styles.bodyDone) : styles.body}
         >
           {children}
         </Swap>
       </article>
     );
 
-  if (answered) {
-    const copy = confirmedCopy(answered.choice);
+  if (limited || answered) {
+    const copy = limited
+      ? {
+          title: t('adapt.card.confirmed.limitTitle', {
+            joint: jointName(t, limited.region, 'your'),
+          }),
+          sub: t(
+            limited.substitute
+              ? 'adapt.card.confirmed.limitSwap'
+              : limited.removes
+                ? 'adapt.card.confirmed.limitRemoved'
+                : 'adapt.card.confirmed.limitStays',
+            {
+              count: limited.others,
+              name: limited.substitute ? exerciseName(limited.substitute, lang) : '',
+            },
+          ),
+        }
+      : confirmedCopy(answered!.choice);
     return wrap(
       <>
         <h3 id={nameId} hidden>
@@ -398,6 +431,12 @@ export function ProposalCard({
     );
   }
 
+  const limitRow =
+    kind === 'pain' && proposal.limitation ? (
+      <LimitationRow proposal={proposal} disabled={busy} onLimited={setLimited} />
+    ) : null;
+  const limitFirst = proposal.limitation?.first === true;
+
   const pendingNote =
     kind === 'pain'
       ? loadChanged
@@ -421,6 +460,7 @@ export function ProposalCard({
         </div>
       </div>
       <div className={styles.answers}>
+        {limitRow && limitFirst ? limitRow : null}
         {rows.map((row) => (
           <button
             key={row.choice}
@@ -436,6 +476,7 @@ export function ProposalCard({
             </span>
           </button>
         ))}
+        {limitRow && !limitFirst ? limitRow : null}
       </div>
       {pendingNote ? (
         <p className={cx(styles.note, styles.noteNow)}>

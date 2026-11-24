@@ -23,7 +23,8 @@ export interface WeekPlan {
 const isCardioItem = (item: SessionItem) =>
   item.target.kind === 'cardio' || item.target.kind === 'interval';
 
-const isCardioBlock = (block: Block) => block.type === 'straight' && isCardioItem(block.item);
+export const isCardioBlock = (block: Block) =>
+  block.type === 'straight' && isCardioItem(block.item);
 
 /** RIR only means something for sets counted in reps. */
 const takesRir = (item: SessionItem) => item.target.kind === 'reps' || item.target.kind === 'max';
@@ -69,10 +70,31 @@ export const BACK_OFF_LOAD_FACTOR = 0.9;
 /** Intervals are work-dense: phases lengthen them by half their rounds at most. */
 const MAX_INTERVAL_GROWTH = 0.5;
 
-const scaleBlock = (block: Block, factor: number): Block =>
+export const scaleBlock = (block: Block, factor: number): Block =>
   block.type === 'straight'
     ? { ...block, sets: scale(block.sets, factor) }
     : { ...block, rounds: scale(block.rounds, factor) };
+
+/** Fewer interval rounds, never fewer than this (nor more than there were). */
+const MIN_INTERVAL_ROUNDS = 3;
+
+const scaleIntervals = (item: SessionItem, factor: number): SessionItem => {
+  const t = item.target;
+  if (t.kind !== 'interval') return item;
+  const rounds = Math.min(t.rounds, Math.max(MIN_INTERVAL_ROUNDS, Math.round(t.rounds * factor)));
+  return { ...item, target: { ...t, rounds } };
+};
+
+/**
+ * A block with its sets (rounds) scaled to the nearest whole, minimum 1. Steady cardio stays as
+ * it is; interval rounds only change with `intervals`.
+ */
+export const scaleVolume = (block: Block, factor: number, intervals: boolean): Block =>
+  isCardioBlock(block)
+    ? intervals
+      ? mapItems(block, (i) => scaleIntervals(i, factor))
+      : block
+    : scaleBlock(block, factor);
 
 const addCardioMinutes = (item: SessionItem, minutes: number): SessionItem => {
   const t = item.target;
@@ -159,10 +181,13 @@ export const sessionForWeek = (programme: Programme, sessionId: string, week: nu
         }
         break;
       }
-      case 'volume':
-        main = main.map((b) => (isCardioBlock(b) ? b : scaleBlock(b, adjustment.factor)));
-        finisher = finisher.map((b) => (isCardioBlock(b) ? b : scaleBlock(b, adjustment.factor)));
+      case 'volume': {
+        const scaleAll = (b: Block): Block =>
+          scaleVolume(b, adjustment.factor, adjustment.intervals === true);
+        main = main.map(scaleAll);
+        finisher = finisher.map(scaleAll);
         break;
+      }
       case 'cardio-minutes':
         // Applied last, so it can only use the time the other changes left.
         cardioMinutes += adjustment.addMinutes;

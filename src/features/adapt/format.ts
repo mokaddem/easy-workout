@@ -1,7 +1,15 @@
 import type { TFunction } from 'i18next';
 import { exerciseById } from '@/catalogue';
 import { BAND_LEVELS } from '@/domain';
-import type { BandLevel, Exercise, Language, Load, ProgressionNote, Target } from '@/domain';
+import type {
+  BandLevel,
+  Exercise,
+  JointRegion,
+  Language,
+  Load,
+  ProgressionNote,
+  Target,
+} from '@/domain';
 import type { Prescribed } from '@/engine';
 import type { IconName } from '@/ui/components';
 
@@ -183,7 +191,13 @@ export interface NoteContext {
   date?: string;
   /** Chips only: the set is not the first of the exercise. */
   later?: boolean;
+  /** The limited joint a note about sparing it speaks of. */
+  joint?: JointRegion;
 }
+
+/** "your knee", or a plain "a joint" when the note has none to name. */
+const jointOf = (t: TFunction, ctx: NoteContext): string =>
+  ctx.joint ? t(`labels.joint.${ctx.joint}.your`) : t('why.constraint.joint');
 
 /** Whether the item's progression is worth a line (moved, or held for a reason worth knowing). */
 export const showsWhy = (note: ProgressionNote | undefined): boolean =>
@@ -372,6 +386,10 @@ export function noteReason(
       });
     case 'swapped-in':
       return t('adapt.why.swappedIn.reason');
+    case 'ladder-end-limited':
+      return t('why.constraint.ladderEnd', { joint: jointOf(t, ctx) });
+    case 'dose-cap-hold':
+      return t('why.constraint.doseHold', { joint: jointOf(t, ctx) });
     default:
       return undefined;
   }
@@ -488,6 +506,10 @@ export function noteChip(
         to: secondsText(num(r.p.to) ?? 0, lang),
         min: r.min,
       });
+    case 'ladder-end-limited':
+      return t('why.constraint.ladderEnd', { joint: jointOf(t, ctx) });
+    case 'dose-cap-hold':
+      return t('why.constraint.doseHold', { joint: jointOf(t, ctx) });
     default:
       return undefined;
   }

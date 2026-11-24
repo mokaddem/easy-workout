@@ -139,5 +139,42 @@
     "kmh": "km/h",
     "pct": "%",
     "reps": "reps"
+  },
+  "joint": {
+    "shoulder": {
+      "label": "Shoulder",
+      "the": "the shoulder",
+      "your": "your shoulder"
+    },
+    "elbow": {
+      "label": "Elbow",
+      "the": "the elbow",
+      "your": "your elbow"
+    },
+    "wrist": {
+      "label": "Wrist",
+      "the": "the wrist",
+      "your": "your wrist"
+    },
+    "lower-back": {
+      "label": "Lower back",
+      "the": "the lower back",
+      "your": "your lower back"
+    },
+    "hip": {
+      "label": "Hip",
+      "the": "the hip",
+      "your": "your hip"
+    },
+    "knee": {
+      "label": "Knee",
+      "the": "the knee",
+      "your": "your knee"
+    },
+    "ankle": {
+      "label": "Ankle",
+      "the": "the ankle",
+      "your": "your ankle"
+    }
   }
 }

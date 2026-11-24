@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAnswers, useCustomSessions, useOpenSession, useSessionLogs } from '@/app/data';
 import { nextSession } from '@/app/programme-state';
+import { constraintsRepo, type Constraints } from '@/db/constraints';
 import { repo, type Repo } from '@/db/repo';
 import type { EquipmentInventory, Language, Profile, Programme } from '@/domain';
 import { activeSwaps, issueKey, placedItems, type SlotChange } from '@/engine';
+import { InPlaceCause, InPlaceNotes } from './InPlaceNotes';
 import { exerciseById } from '@/catalogue';
 import { issueText } from '../editor/issueText';
 import { Button, Icon, IssueLine, Sheet, useToast } from '@/ui/components';
@@ -21,9 +23,14 @@ export interface ChangePreviewProps {
   equipment: EquipmentInventory;
   onClose: () => void;
   onEquipment: () => void;
+  /** `constraints` mode: called after the re-picked programme and the constraints are saved. */
+  onApplied?: (info: { changes: number }) => void;
   /** Injected for tests. */
-  store?: Pick<Repo, 'activateProgramme'>;
+  store?: Pick<Repo, 'activateProgramme'> & Pick<Constraints, 'saveConstraints'>;
 }
+
+/** The in-place preview's reason for a removed slot is keyed by session and slot. */
+const causeKey = (change: SlotChange) => `${change.sessionId}|${change.slot.replace(/-\d+$/, '')}`;
 
 export function ChangePreviewSheet(props: ChangePreviewProps) {
   const { mode, current, profile, equipment, onClose } = props;
@@ -31,17 +38,24 @@ export function ChangePreviewSheet(props: ChangePreviewProps) {
   const custom = useCustomSessions();
   const answers = useAnswers();
   const customIds = useMemo(() => (custom ? new Set(custom.map((s) => s.id)) : null), [custom]);
-  const painful = useMemo(() => (answers ? activeSwaps(answers).painful : null), [answers]);
+  const swaps = useMemo(() => (answers ? activeSwaps(answers) : null), [answers]);
+  const painful = swaps?.painful ?? null;
   const logs = useSessionLogs();
   const data = useMemo(
     () =>
-      mode && customIds && painful && logs
-        ? previewData(mode, current, profile, equipment, customIds, painful, logs)
+      mode && customIds && painful && logs && swaps
+        ? previewData(mode, current, profile, equipment, customIds, painful, logs, swaps)
         : null,
-    [mode, current, profile, equipment, customIds, painful, logs],
+    [mode, current, profile, equipment, customIds, painful, logs, swaps],
   );
   const empty =
     mode === 'variant' && data !== null && data.changes.length === 0 && !data.splitChanged;
+  const eyebrow =
+    mode === 'variant'
+      ? 'programme.preview.variantEyebrow'
+      : mode === 'constraints'
+        ? 'settings.preview.constraintsEyebrow'
+        : 'programme.preview.newEyebrow';
   return (
     <Sheet
       open={mode !== null && data !== null}
@@ -49,13 +63,7 @@ export function ChangePreviewSheet(props: ChangePreviewProps) {
       title={
         mode && data ? (
           <>
-            <span className={styles.eyebrow}>
-              {t(
-                mode === 'variant'
-                  ? 'programme.preview.variantEyebrow'
-                  : 'programme.preview.newEyebrow',
-              )}
-            </span>
+            <span className={styles.eyebrow}>{t(eyebrow)}</span>
             {empty ? (
               <span className={styles.big}>{t('programme.preview.noneTitle')}</span>
             ) : (
@@ -72,8 +80,10 @@ export function ChangePreviewSheet(props: ChangePreviewProps) {
 
 function Headline({ data }: { data: PreviewData }) {
   const { t } = useTranslation();
-  const { next, changes, sizeChanged } = data;
+  const { next, changes, sizeChanged, inPlace } = data;
   const number = sizeChanged ? next.rotation.length : changes.length;
+  if (inPlace && changes.length === 0)
+    return <span className={styles.big}>{t('settings.preview.noChangeTitle')}</span>;
   if (!sizeChanged && changes.length === 0)
     return <span className={styles.big}>{t('programme.preview.sameExercises')}</span>;
   return (
@@ -82,7 +92,9 @@ function Headline({ data }: { data: PreviewData }) {
       <span className={styles.countLabel}>
         {sizeChanged
           ? t('programme.preview.sessionsInstead', { count: number, old: data.oldSize })
-          : t('programme.preview.exercisesChange', { count: number })}
+          : inPlace && inPlace.added.length === 0 && inPlace.lifted.length > 0
+            ? t('settings.preview.comeBack', { count: number })
+            : t('programme.preview.exercisesChange', { count: number })}
       </span>
     </span>
   );
@@ -95,9 +107,10 @@ function Preview({
   equipment,
   onClose,
   onEquipment,
+  onApplied,
   data,
   empty,
-  store = repo,
+  store = { ...repo, saveConstraints: constraintsRepo.saveConstraints },
 }: ChangePreviewProps & { mode: PreviewMode; data: PreviewData; empty: boolean }) {
   const { t, i18n } = useTranslation();
   const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
@@ -107,14 +120,31 @@ function Preview({
   const [saving, setSaving] = useState(false);
   const { next, changes, splitChanged } = data;
 
+  const inPlace = data.inPlace;
   const confirm = async () => {
     setSaving(true);
     try {
+      if (mode === 'constraints') {
+        await store.saveConstraints(profile, next);
+        toast.show({
+          message: t(
+            changes.length > 0
+              ? 'settings.constraints.saved'
+              : 'settings.constraints.savedNoChange',
+          ),
+        });
+        onApplied?.({ changes: changes.length });
+        onClose();
+        return;
+      }
       await store.activateProgramme(next);
       toast.show({
         message: t(mode === 'new' ? 'programme.preview.doneNew' : 'programme.preview.doneVariant'),
       });
       onClose();
+    } catch (error) {
+      if (mode !== 'constraints') throw error;
+      toast.show({ message: t('settings.preview.failed'), tone: 'error' });
     } finally {
       setSaving(false);
     }
@@ -170,9 +200,13 @@ function Preview({
         }),
       })),
   );
+  // Re-picking in place keeps the user's edits where their slot stays: only the ones that no
+  // longer apply are worth listing.
+  const shownLedger =
+    data.ledger && inPlace ? { kept: [], dropped: data.ledger.dropped } : data.ledger;
   const ledger =
-    data.ledger && data.ledger.kept.length + data.ledger.dropped.length > 0
-      ? ledgerRows(t, lang, current, data.ledger, {
+    shownLedger && shownLedger.kept.length + shownLedger.dropped.length > 0
+      ? ledgerRows(t, lang, current, shownLedger, {
           rotationIds: next.rotation.map((s) => s.id),
           days: next.generation?.profile.daysPerWeek ?? profile.daysPerWeek,
           inventory: next.generation?.equipment ?? equipment,
@@ -184,16 +218,20 @@ function Preview({
       <p className={styles.kept}>
         <Icon name="check" size={20} />
         <span>
-          {mode === 'variant'
-            ? t('programme.preview.keptVariant', { week })
-            : splitChanged
-              ? t('programme.preview.keptNewSplit', { days: profile.daysPerWeek })
-              : t('programme.preview.keptNew')}
+          {mode === 'constraints'
+            ? changes.length === 0
+              ? t('settings.preview.noChangeBody')
+              : t('settings.preview.keptInPlace', { week })
+            : mode === 'variant'
+              ? t('programme.preview.keptVariant', { week })
+              : splitChanged
+                ? t('programme.preview.keptNewSplit', { days: profile.daysPerWeek })
+                : t('programme.preview.keptNew')}
         </span>
       </p>
 
       {ledger ? <EditsLedger ledger={ledger} /> : null}
-      {checks.length > 0 ? (
+      {checks.length > 0 && !inPlace ? (
         <section className={styles.checks} aria-label={t('programme.preview.edits.checkTitle')}>
           <h3 className={styles.checksTitle}>{t('programme.preview.edits.checkTitle')}</h3>
           {checks.map((check) => (
@@ -244,14 +282,21 @@ function Preview({
                 {change.from ? (
                   <span className={styles.swapOld}>{exerciseName(change.from, lang)}</span>
                 ) : null}
-                <span className={styles.swapNew}>
-                  {change.to ? exerciseName(change.to, lang) : t('programme.preview.removed')}
-                </span>
+                {change.to || !inPlace?.causes[causeKey(change)] ? (
+                  <span className={styles.swapNew}>
+                    {change.to ? exerciseName(change.to, lang) : t('programme.preview.removed')}
+                  </span>
+                ) : null}
+                {!change.to && inPlace ? (
+                  <InPlaceCause cause={inPlace.causes[causeKey(change)]} />
+                ) : null}
               </div>
             ))}
           </section>
         ))
       )}
+
+      {inPlace ? <InPlaceNotes data={inPlace} lang={lang} sessionTitle={sessionTitle} /> : null}
 
       {mode === 'new' ? (
         <p className={styles.notice}>
@@ -269,13 +314,23 @@ function Preview({
 
       <div className={styles.foot}>
         <Button loading={saving} fullWidth size="player" onClick={() => void confirm()}>
-          {t(mode === 'variant' ? 'programme.preview.useVariant' : 'programme.preview.useNew')}
+          {t(
+            mode === 'constraints'
+              ? changes.length === 0
+                ? 'settings.preview.save'
+                : 'settings.preview.apply'
+              : mode === 'variant'
+                ? 'programme.preview.useVariant'
+                : 'programme.preview.useNew',
+          )}
         </Button>
         <Button variant="secondary" fullWidth onClick={onClose}>
           {t(
-            mode === 'variant'
-              ? 'programme.preview.keepCurrent'
-              : 'programme.preview.keepCurrentNew',
+            mode === 'constraints'
+              ? 'settings.preview.cancel'
+              : mode === 'variant'
+                ? 'programme.preview.keepCurrent'
+                : 'programme.preview.keepCurrentNew',
           )}
         </Button>
       </div>

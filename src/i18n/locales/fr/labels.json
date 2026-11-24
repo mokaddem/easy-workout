@@ -139,5 +139,42 @@
     "kmh": "km/h",
     "pct": "%",
     "reps": "reps"
+  },
+  "joint": {
+    "shoulder": {
+      "label": "Épaule",
+      "the": "l’épaule",
+      "your": "ton épaule"
+    },
+    "elbow": {
+      "label": "Coude",
+      "the": "le coude",
+      "your": "ton coude"
+    },
+    "wrist": {
+      "label": "Poignet",
+      "the": "le poignet",
+      "your": "ton poignet"
+    },
+    "lower-back": {
+      "label": "Bas du dos",
+      "the": "le bas du dos",
+      "your": "ton bas du dos"
+    },
+    "hip": {
+      "label": "Hanche",
+      "the": "la hanche",
+      "your": "ta hanche"
+    },
+    "knee": {
+      "label": "Genou",
+      "the": "le genou",
+      "your": "ton genou"
+    },
+    "ankle": {
+      "label": "Cheville",
+      "the": "la cheville",
+      "your": "ta cheville"
+    }
   }
 }

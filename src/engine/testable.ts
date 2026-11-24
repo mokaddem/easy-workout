@@ -1,4 +1,5 @@
 import type { Exercise, Level, SessionTest } from '../domain';
+import { fitFor, type Constraints } from './generate/constraints';
 import { levelCap } from './generate/select';
 
 /** A rep test stops here: past 50 reps, it measures endurance, not the movement. */
@@ -28,10 +29,12 @@ const NEVER_TESTED = /negative|eccentric|handstand|dip/;
 
 /**
  * An exercise a max test may use: a bodyweight press, pull or squat on both sides for reps, or
- * one of a few safe holds; within the level's difficulty when a level is given.
+ * one of a few safe holds; within the level's difficulty when a level is given. With
+ * constraints, nothing that is ruled out or spares a limited joint: a test goes to the limit.
  */
-export function isTestable(exercise: Exercise, level?: Level): boolean {
+export function isTestable(exercise: Exercise, level?: Level, constraints?: Constraints): boolean {
   if (level && exercise.difficulty > levelCap(level, exercise)) return false;
+  if (fitFor(exercise, constraints) !== 'ok') return false;
   if (HOLD_TESTS.has(exercise.id)) return true;
   return (
     exercise.metric === 'reps' &&

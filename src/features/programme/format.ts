@@ -134,13 +134,14 @@ export const range = (min: number, max: number): string =>
 /** Where in a programme's phases a week sits. */
 export function phaseSlug(
   nameEn: string,
-): 'readapt' | 'volume' | 'intensity' | 'peak' | 'deload' | null {
+): 'readapt' | 'volume' | 'intensity' | 'peak' | 'deload' | 'lighter' | null {
   const key = nameEn.toLowerCase();
   if (key.startsWith('re-adaptation')) return 'readapt';
   if (key.startsWith('volume')) return 'volume';
   if (key.startsWith('intensity')) return 'intensity';
   if (key.startsWith('peak')) return 'peak';
   if (key.startsWith('deload')) return 'deload';
+  if (key.startsWith('lighter')) return 'lighter';
   return null;
 }
 

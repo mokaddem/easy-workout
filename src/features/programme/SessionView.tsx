@@ -10,11 +10,18 @@ import type {
   EquipmentInventory,
   GenerationNote,
   Language,
+  Profile,
+  Programme,
   Session,
   SessionItem,
 } from '@/domain';
 import {
+  constraintsOf,
+  isRampSlot,
   itemKey,
+  outCause,
+  parseDropped,
+  rampSharePct,
   sessionSeconds,
   type PreparedSession,
   type Proposal,
@@ -33,10 +40,14 @@ import {
   sessionEquipment,
   type SessionIdentity,
 } from './format';
+import { sparedJoint } from '../adapt';
 import { notesForItem } from './why';
 import { editLine, editSentence, type SessionEdits } from './edits';
 import { CardioRow, DeltaTag, Prescription, type ItemAdapt, type WhyRequest } from './Blocks';
 import { noteTag, pendingPainFor, swapAnswerFor, type ItemGoals } from './adaptation';
+import { LeftOutRow } from './AdaptLines';
+import { leftOutPosition } from './limits';
+import { leftOutBecause, leftOutTitle } from './why';
 import { effortText } from './effort';
 import { WhySheet } from './WhySheet';
 import styles from './SessionView.module.css';
@@ -52,7 +63,10 @@ export interface SessionEditing {
 
 /** What progression did to the session: the why of each exercise, swaps, pain waiting, set goals. */
 export interface SessionAdaptation {
-  prepared: Pick<PreparedSession, 'notes' | 'replaces' | 'proposals'>;
+  prepared: Pick<PreparedSession, 'notes' | 'replaces' | 'proposals'> &
+    Partial<Pick<PreparedSession, 'travel' | 'doseCapped'>>;
+  /** What the profile avoids: the joint the notes about sparing it name. */
+  profile?: Pick<Profile, 'limitations' | 'quiet' | 'smallSpace'> | null;
   goals: Record<string, ItemGoals>;
   answers: readonly Answer[];
   onSwitchBack: (originalId: string) => void;
@@ -82,6 +96,8 @@ export interface SessionViewProps {
   adaptation?: SessionAdaptation;
   /** Set when the user edited the session: edited rows say so, notes follow their slots. */
   editing?: SessionEditing;
+  /** The programme the session belongs to: where a slot that was left out stood. */
+  programme?: Pick<Programme, 'rotation' | 'generation'>;
   /** Replaces the kicker above the title ("My session"). */
   kickerLabel?: string;
   /** Glyph of the hero tile when the session has no letter (the user's own: bookmark). */
@@ -109,6 +125,7 @@ export function SessionView({
   ruler,
   adaptation,
   editing,
+  programme,
   kickerLabel,
   heroIcon,
   testAfterWarmup,
@@ -160,6 +177,23 @@ export function SessionView({
     return line ? editSentence(t, line, (id) => exerciseName(id, lang)) : undefined;
   };
 
+  /** The user's own pick that what they avoid now rules out: kept, with the reason. */
+  const keptOutOf = (item: SessionItem): string | undefined => {
+    if (!editing || !item.slot || !editing.edits.items.has(item.slot)) return undefined;
+    const exercise = exerciseById.get(item.exerciseId);
+    const profile = adaptation?.profile;
+    if (!exercise || !profile) return undefined;
+    const cause = outCause(exercise, constraintsOf(profile));
+    if (!cause) return undefined;
+    if (cause.cause === 'region')
+      return t('why.constraint.keptOutRegion', {
+        joint: t(`labels.joint.${cause.region}.your`),
+      });
+    return t(
+      cause.cause === 'quiet' ? 'why.constraint.keptOutQuiet' : 'why.constraint.keptOutSpace',
+    );
+  };
+
   const adaptFor = (
     section: 'main' | 'finisher',
     blockIndex: number,
@@ -169,7 +203,12 @@ export function SessionView({
     if (!adaptation) return undefined;
     const key = itemKey(section, blockIndex, itemIndex);
     const note = adaptation.prepared.notes[key];
-    const original = adaptation.prepared.replaces[key];
+    const away = adaptation.prepared.travel?.substitutions[key];
+    // The travel kit's stand-ins have no way back: only the user's own swaps do.
+    const original =
+      adaptation.prepared.replaces[key] === away ? undefined : adaptation.prepared.replaces[key];
+    const capped = adaptation.prepared.doseCapped?.includes(key) === true;
+    const joint = sparedJoint(exerciseById.get(item.exerciseId), adaptation.profile);
     const tag = noteTag(
       t,
       lang,
@@ -184,6 +223,9 @@ export function SessionView({
       ...(goals && { goals }),
       ...(tag && { tag }),
       ...(pain && { pain }),
+      ...(away && { travelFrom: away }),
+      ...(capped && { capped }),
+      ...(joint && { joint }),
       ...(original && {
         replaces: { id: original, answer: swapAnswerFor(adaptation.answers, original) },
       }),
@@ -221,10 +263,76 @@ export function SessionView({
   const warmupMinutes = Math.round(
     sessionSeconds({ warmup: session.warmup, main: [], finisher: [] }) / 60,
   );
-  const warmupCount = session.warmup.reduce((sum, block) => sum + itemsOf(block).length, 0);
+  // Ramp-up sets of the first lift are listed apart from the warm-up drills, and count as one item.
+  const isRamp = (block: Session['warmup'][number]) =>
+    block.type === 'straight' && isRampSlot(block.item.slot);
+  const rampBlocks = session.warmup.filter(isRamp);
+  const warmupCount =
+    session.warmup
+      .filter((b) => !isRamp(b))
+      .reduce((sum, block) => sum + itemsOf(block).length, 0) + (rampBlocks.length > 0 ? 1 : 0);
+  const leadMain = session.main[0];
+  const workingKg =
+    leadMain?.type === 'straight' && leadMain.item.load?.kind === 'kg'
+      ? leadMain.item.load.kg
+      : undefined;
   const finisherIsCardio = session.finisher.length > 0 && session.finisher.every(isCardioBlock);
 
-  const renderBlocks = (section: 'main' | 'finisher') =>
+  /** What this section has no exercise for: slots a joint, quiet or small space left out, and what the kit can't do. */
+  const leftOutItems = (section: 'main' | 'finisher') => {
+    const rows: { key: string; at: number; icon: IconName; title: string; sub: string }[] = [];
+    if (section === 'main')
+      for (const note of notes) {
+        if (note.code !== 'slot-limited') continue;
+        if (note.ref?.sessionId && note.ref.sessionId !== sessionId) continue;
+        rows.push({
+          key: `slot-${String(note.params.slot)}`,
+          at:
+            (programme && sessionId
+              ? leftOutPosition(programme, sessionId, String(note.params.slot))
+              : undefined) ?? Infinity,
+          icon: note.params.cause === 'region' ? 'joint' : 'info',
+          title: leftOutTitle(t, note.params.patterns, lang),
+          sub: leftOutBecause(t, note.params),
+        });
+      }
+    for (const entry of adaptation?.prepared.travel?.dropped ?? []) {
+      const dropped = parseDropped(entry);
+      if (!dropped || !dropped.itemKey.startsWith(`${section}/`)) continue;
+      rows.push({
+        key: `kit-${entry}`,
+        // Where it stood in the plan before the kit: its block index.
+        at: Number(dropped.itemKey.split('/')[1]),
+        icon: 'suitcase',
+        title: exerciseName(dropped.exerciseId, lang),
+        sub: t('programme.kit.droppedRow'),
+      });
+    }
+    return rows.map((row) => ({
+      at: row.at,
+      node: (
+        <div key={row.key} className={styles.leftOutItem}>
+          <LeftOutRow icon={row.icon} title={row.title} sub={row.sub} />
+        </div>
+      ),
+    }));
+  };
+
+  /** The section's blocks, with each left-out row at the place its slot stood. */
+  const renderBlocks = (section: 'main' | 'finisher') => {
+    const rows = leftOutItems(section);
+    const out: ReactNode[] = [];
+    const blocks = renderBlockList(section);
+    blocks.forEach((block, i) => {
+      for (const row of rows) if (Math.min(row.at, blocks.length) === i) out.push(row.node);
+      out.push(block);
+    });
+    if (blocks.length === 0) for (const row of rows) out.push(row.node);
+    else for (const row of rows) if (row.at >= blocks.length) out.push(row.node);
+    return out;
+  };
+
+  const renderBlockList = (section: 'main' | 'finisher') =>
     session[section].map((block, blockIndex) => {
       const delta = blockDelta(previous?.[section][blockIndex], block);
       const first = blockIndex === 0;
@@ -242,6 +350,7 @@ export function SessionView({
             delta={delta}
             notes={itemNotes}
             edit={editOf(block.item)}
+            keptOut={keptOutOf(block.item)}
             {...optional(adaptFor(section, blockIndex, 0, block.item))}
             onWhy={() => ask(section, blockIndex, block.item)}
             onHowTo={() => openHowTo(block.item.exerciseId)}
@@ -257,6 +366,7 @@ export function SessionView({
             delta={delta}
             notes={itemNotes}
             edit={editOf(block.item)}
+            keptOut={keptOutOf(block.item)}
             {...(section === 'main' && setRir?.first !== undefined
               ? { firstSetRir: setRir.first }
               : {})}
@@ -305,6 +415,7 @@ export function SessionView({
                 sets={block.rounds}
                 notes={notesOf(section, blockIndex, item, itemIndex)}
                 edit={editOf(item)}
+                keptOut={keptOutOf(item)}
                 {...optional(adaptFor(section, blockIndex, itemIndex, item))}
                 onWhy={() => ask(section, blockIndex, item, itemIndex)}
                 onHowTo={() => openHowTo(item.exerciseId)}
@@ -398,28 +509,71 @@ export function SessionView({
           <Collapse open={warmupOpen} id="warmup-body" className={styles.discCollapse}>
             <div className={styles.discBody}>
               {session.warmup.flatMap((block, blockIndex) =>
-                itemsOf(block).map((item, itemIndex) => {
-                  const sets = block.type === 'straight' ? block.sets : block.rounds;
-                  const rest = block.type === 'straight' && sets > 1 ? block.restSec : 0;
-                  return (
-                    <div key={`${blockIndex}-${itemIndex}`} className={styles.wu}>
-                      <button
-                        type="button"
-                        className={`${styles.wuName} ${styles.wuOpen}`}
-                        data-howto={item.exerciseId}
-                        aria-label={t('play.figure.open', {
-                          name: exerciseName(item.exerciseId, lang),
-                        })}
-                        onClick={() => openHowTo(item.exerciseId)}
-                      >
-                        {exerciseName(item.exerciseId, lang)}
-                      </button>
-                      <span className={styles.wuRx}>{warmupDose(item, sets, t)}</span>
-                      <WarmupMeta item={item} rest={rest} />
-                    </div>
-                  );
-                }),
+                isRamp(block)
+                  ? []
+                  : itemsOf(block).map((item, itemIndex) => {
+                      const sets = block.type === 'straight' ? block.sets : block.rounds;
+                      const rest = block.type === 'straight' && sets > 1 ? block.restSec : 0;
+                      return (
+                        <div key={`${blockIndex}-${itemIndex}`} className={styles.wu}>
+                          <button
+                            type="button"
+                            className={`${styles.wuName} ${styles.wuOpen}`}
+                            data-howto={item.exerciseId}
+                            aria-label={t('play.figure.open', {
+                              name: exerciseName(item.exerciseId, lang),
+                            })}
+                            onClick={() => openHowTo(item.exerciseId)}
+                          >
+                            {exerciseName(item.exerciseId, lang)}
+                          </button>
+                          <span className={styles.wuRx}>{warmupDose(item, sets, t)}</span>
+                          <WarmupMeta item={item} rest={rest} />
+                        </div>
+                      );
+                    }),
               )}
+              {rampBlocks.length > 0 ? (
+                <div className={styles.ramp}>
+                  <p className={styles.rampTitle}>
+                    {t('programme.session.rampTitle', { count: rampBlocks.length })}
+                  </p>
+                  {rampBlocks.map((block, i) => {
+                    if (block.type !== 'straight') return null;
+                    const { item } = block;
+                    const kg = item.load?.kind === 'kg' ? item.load.kg : undefined;
+                    const meta = [
+                      kg !== undefined
+                        ? `${formatNumber(kg, lang)}\u00A0${t('labels.unit.kg')}`
+                        : '',
+                      kg !== undefined && workingKg !== undefined
+                        ? t('programme.session.rampShare', {
+                            pct: rampSharePct(kg, workingKg),
+                            kg: formatNumber(workingKg, lang),
+                          })
+                        : '',
+                      `${t('programme.rx.rest').toLocaleLowerCase(lang)} ${block.restSec} ${t('labels.unit.s')}`,
+                    ].filter(Boolean);
+                    return (
+                      <div key={item.slot ?? i} className={styles.wu}>
+                        <button
+                          type="button"
+                          className={`${styles.wuName} ${styles.wuOpen}`}
+                          data-howto={item.exerciseId}
+                          aria-label={t('play.figure.open', {
+                            name: exerciseName(item.exerciseId, lang),
+                          })}
+                          onClick={() => openHowTo(item.exerciseId)}
+                        >
+                          {exerciseName(item.exerciseId, lang)}
+                        </button>
+                        <span className={styles.wuRx}>{warmupDose(item, 1, t)}</span>
+                        <span className={styles.wuMeta}>{meta.join(', ')}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
           </Collapse>
         </section>
@@ -447,6 +601,8 @@ export function SessionView({
           </div>
           {renderBlocks('finisher')}
         </section>
+      ) : leftOutItems('finisher').length > 0 ? (
+        <section className={styles.section}>{renderBlocks('finisher')}</section>
       ) : null}
 
       {testAtEnd}

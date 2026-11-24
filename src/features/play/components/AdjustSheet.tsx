@@ -20,6 +20,8 @@ interface AdjustSheetProps extends PlayContext {
   mode?: 'adjust' | 'stop';
   /** What a stop for pain keeps of the set in progress, read when it is confirmed. */
   partial?: () => SetActual | undefined;
+  /** A ramp-up set: reps and load only, no feel and no stopping the lift. */
+  ramp?: boolean;
 }
 
 /** Log what was really done, or stop the exercise. */
@@ -29,6 +31,7 @@ export function AdjustSheet({
   initialReps,
   mode = 'adjust',
   partial: partialOf,
+  ramp,
   lang,
   inventory,
   player,
@@ -119,7 +122,13 @@ export function AdjustSheet({
     <Sheet
       open={open}
       onClose={onClose}
-      title={view === 'adjust' ? t('play.adjust.title', { set: step.set }) : t('play.stop.title')}
+      title={
+        view === 'adjust'
+          ? ramp
+            ? t('play.adjust.titleWarmup')
+            : t('play.adjust.title', { set: step.set })
+          : t('play.stop.title')
+      }
       description={view === 'adjust' ? t('play.adjust.intro') : t('play.stop.purpose')}
       footer={
         view === 'adjust' ? (
@@ -127,17 +136,19 @@ export function AdjustSheet({
             <Button size="player" fullWidth onClick={save}>
               {t('play.adjust.save')}
             </Button>
-            <div className={styles.sheetStop}>
-              <Button
-                variant="destructive-outline"
-                fullWidth
-                icon="stop"
-                onClick={() => setView('stop')}
-              >
-                {t('play.adjust.stop')}
-              </Button>
-              <small>{t('play.adjust.stopHint')}</small>
-            </div>
+            {ramp ? null : (
+              <div className={styles.sheetStop}>
+                <Button
+                  variant="destructive-outline"
+                  fullWidth
+                  icon="stop"
+                  onClick={() => setView('stop')}
+                >
+                  {t('play.adjust.stop')}
+                </Button>
+                <small>{t('play.adjust.stopHint')}</small>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -216,12 +227,14 @@ export function AdjustSheet({
               />
             </div>
           ) : null}
-          <SegmentedControl
-            options={FEELS.map((value) => ({ value, label: t(`play.feel.${value}`) }))}
-            value={state.feel}
-            onChange={player.setFeel}
-            label={t('play.set.feel')}
-          />
+          {ramp ? null : (
+            <SegmentedControl
+              options={FEELS.map((value) => ({ value, label: t(`play.feel.${value}`) }))}
+              value={state.feel}
+              onChange={player.setFeel}
+              label={t('play.set.feel')}
+            />
+          )}
         </>
       ) : (
         <>

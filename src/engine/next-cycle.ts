@@ -2,6 +2,7 @@ import { exerciseById } from '../catalogue';
 import type { EquipmentInventory, Profile, Programme, SessionLog } from '../domain';
 import { carryEdits, type CarriedEdit } from './edit/merge';
 import type { Issue } from './edit/check';
+import { constraintsOf, fitFor, type Constraints } from './generate/constraints';
 import { programmeChanges, type SlotChange } from './generate/diff';
 import { generateProgramme, slotPicks } from './generate/programme';
 import { withinStep } from './generate/select';
@@ -27,13 +28,21 @@ const lastTrainingWeek = (programme: Programme): number => {
  * Lifts that finished the cycle at the end of their ladder with a harder variant waiting (already
  * checked for the slot, the level and safety): the next cycle starts them on it. Not while
  * the exercise has a pain or easier proposal open, or hurt in either of its last two sessions.
+ * With `constraints` (the profile the next cycle is for), a harder variant that a limitation,
+ * quiet or small space rules out is not offered.
  */
-export function upgradesFor(previous: Programme, ctx: ProgressContext): Upgrade[] {
+export function upgradesFor(
+  previous: Programme,
+  ctx: ProgressContext,
+  constraints?: Constraints,
+): Upgrade[] {
   const { proposals } = pendingProposals(previous, lastTrainingWeek(previous), ctx);
   const troubled = new Set(proposals.filter((p) => p.kind !== 'harder').map((p) => p.exerciseId));
   const out: Upgrade[] = [];
   for (const p of proposals) {
     if (p.kind !== 'harder' || !p.substituteId || troubled.has(p.exerciseId)) continue;
+    const harder = (ctx.exercises ?? exerciseById).get(p.substituteId);
+    if (harder && fitFor(harder, constraints) === 'out') continue;
     const recent = exposuresOf(p.exerciseId, ctx.logs, ctx.programmes, { anySource: true }).slice(
       0,
       2,
@@ -160,7 +169,7 @@ export function nextCycle(input: NextCycleInput): NextCycle {
     });
   // Only the upgrades the slots actually took are offered: the preview never promises a change
   // that doesn't happen.
-  const offered = newGoal ? [] : upgradesFor(previous, input.progress);
+  const offered = newGoal ? [] : upgradesFor(previous, input.progress, constraintsOf(profile));
   const withAll = generate(offered);
   const applied = new Set(
     (withAll.generation?.notes ?? [])

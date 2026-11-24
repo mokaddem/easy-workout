@@ -12,7 +12,7 @@ import type {
 import { DEFAULT_BODYWEIGHT_KG } from './generate/loads';
 import { isMainLift } from './generate/safety';
 import { activeSeconds } from './play';
-import { exposuresOf, type Exposure } from './progress/exposures';
+import { AT_MAX, exposuresOf, type Exposure } from './progress/exposures';
 import { bodyShare, capacity } from './progress/ladder';
 import { painState } from './progress/proposals';
 import { previousTest, testBlockedByPain } from './maxtest';
@@ -28,6 +28,8 @@ const PERCENT_MAX_REPS = 12;
 /** Level-up thresholds: sessions done in full, weeks taken, lifts progressed. */
 export const LEVEL_UP_DONE = 0.75;
 export const LEVEL_UP_MAX_WEEKS = 10;
+/** A programme with a lighter week inserted runs a week longer: the allowance grows with it. */
+const isEarlyPhase = (phase: Programme['phases'][number]) => phase.origin === 'early';
 export const LEVEL_UP_LIFTS = 2 / 3;
 
 /** What a lift's best set said: reps (or seconds) at a load, with the reserve left. */
@@ -235,8 +237,6 @@ const strength = (r: LiftReading, exercise: Exercise, bodyweightKg: number) => {
 
 /** Reps at reserve 2, so readings at different efforts compare. */
 const repsAtTwo = (r: LiftReading) => r.value + (r.rir ?? 2) - 2;
-
-const AT_MAX = new Set(['buy-next', 'ladder-end', 'tempo-slower']);
 
 /**
  * One lift across the cycle. Start: the first logged (touched) training session after the
@@ -456,7 +456,7 @@ export function cycleReview(programme: Programme, ctx: CycleContext): CycleRevie
     (ctx.level === 'beginner' || ctx.level === 'returning') &&
     sessions.planned > 0 &&
     sessions.inFull >= LEVEL_UP_DONE * sessions.planned &&
-    sessions.weeksTaken <= LEVEL_UP_MAX_WEEKS &&
+    sessions.weeksTaken <= LEVEL_UP_MAX_WEEKS + (programme.phases.some(isEarlyPhase) ? 1 : 0) &&
     lifts.length > 0 &&
     counts.progressed >= LEVEL_UP_LIFTS * lifts.length &&
     !unresolvedPain;

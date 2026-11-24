@@ -6,6 +6,7 @@ import {
   useAnswers,
   useEquipment,
   useMaxTests,
+  useProfile,
   useProgrammes,
   useSessionLog,
   useSessionLogs,
@@ -14,22 +15,40 @@ import { useNextTime } from '@/app/progress';
 import { nextSession } from '@/app/programme-state';
 import { navigate } from '@/app/router';
 import { repo } from '@/db/repo';
-import type { Language, SessionLog } from '@/domain';
-import { activeSeconds, phaseForWeek, previousTest, sessionTotals, type Proposal } from '@/engine';
+import { isCooldownLog, type Language, type SessionLog } from '@/domain';
+import {
+  activeSeconds,
+  defaultCountsAsDone,
+  isTravelLog,
+  phaseForWeek,
+  previousTest,
+  sessionRecords,
+  skippedTest,
+  sessionTotals,
+  type Proposal,
+} from '@/engine';
 import { Rich } from '@/features/adapt';
 import { Button, Card, Icon, SetStrip, SwitchRow, TestResultRow } from '@/ui/components';
+import { canCooldown } from '@/engine';
 import { BackupLine } from '../../settings/BackupBanner';
 import { useBackupReminder } from '../../settings/useBackupReminder';
 import { programmeIdentities } from '../../programme/format';
+import { kitSummary } from '../../programme/kitSummary';
 import { durationParts, numberText, stripGroups } from '../format';
+import { useBegin } from '../begin';
+import { offerLine } from '../cooldown';
 import { clearSummary } from '../lifecycle';
+import { startCooldown } from '../start';
 import { resultValue } from '../testFlow';
 import { valueText } from '../testFormat';
 import { exerciseById } from '@/catalogue';
 import { exerciseLabel } from '../format';
+import { CooldownSummary } from './CooldownSummary';
 import { Decisions } from './summary/Decisions';
 import { ExerciseList, type ListMode } from './summary/ExerciseList';
+import { Records } from './summary/Records';
 import { mainExercises } from './summary/rows';
+import { rampSummary } from '../ramp';
 import { useLeaveOneOffs } from './summary/useOneOffs';
 import styles from './Summary.module.css';
 
@@ -44,7 +63,7 @@ export function SummaryScreen({ id }: { id: string }) {
     }
   }, [log]);
   if (!log) return null;
-  return <Summary log={log} />;
+  return isCooldownLog(log) ? <CooldownSummary log={log} /> : <Summary log={log} />;
 }
 
 function Summary({ log }: { log: SessionLog }) {
@@ -53,12 +72,14 @@ function Summary({ log }: { log: SessionLog }) {
   const inventory = useEquipment() ?? [];
   const programme = useActiveProgramme();
   const logs = useSessionLogs();
-  const [counts, setCounts] = useState(log.countsAsDone ?? true);
+  const [counts, setCounts] = useState(log.countsAsDone ?? defaultCountsAsDone(log, inventory));
   const backup = useBackupReminder();
   const programmes = useProgrammes();
   const answers = useAnswers() ?? [];
   const nextTime = useNextTime(log);
   const maxTests = useMaxTests();
+  const profile = useProfile();
+  const { begin, dialog: beginDialog } = useBegin();
 
   // The decisions the session raised, kept as they were when the summary opened so an answered
   // card stays on screen with its Undo.
@@ -71,6 +92,7 @@ function Summary({ log }: { log: SessionLog }) {
   const groups = stripGroups(log);
   const early = log.endedEarly === true;
   const quick = log.source.kind === 'quick';
+  const away = isTravelLog(log);
   const inRotation =
     log.source.kind === 'programme' && !!programme && programme.id === log.source.programmeId;
 
@@ -103,6 +125,17 @@ function Summary({ log }: { log: SessionLog }) {
   }
 
   const rows = useMemo(() => mainExercises(log), [log]);
+  const ramp = useMemo(() => rampSummary(log), [log]);
+  const bodyweightKg = profile?.bodyweightKg;
+  const records = useMemo(
+    () =>
+      logs && programmes && maxTests
+        ? sessionRecords(log, logs, programmes, maxTests, {
+            ...(bodyweightKg !== undefined && { bodyweightKg }),
+          })
+        : [],
+    [log, logs, programmes, maxTests, bodyweightKg],
+  );
   const source = log.source;
   const sourceProgramme =
     source.kind === 'programme'
@@ -112,13 +145,14 @@ function Summary({ log }: { log: SessionLog }) {
     source.kind === 'programme' && sourceProgramme
       ? phaseForWeek(sourceProgramme, source.week)?.kind
       : undefined;
-  const mode: ListMode = quick
-    ? 'quick'
-    : phaseKind === 'deload'
-      ? 'deload'
-      : phaseKind === 'peak'
-        ? 'peak'
-        : 'normal';
+  const mode: ListMode =
+    quick || away
+      ? 'quick'
+      : phaseKind === 'deload'
+        ? 'deload'
+        : phaseKind === 'peak'
+          ? 'peak'
+          : 'normal';
   const sessionLetter =
     source.kind === 'programme' && sourceProgramme
       ? programmeIdentities(sourceProgramme, lang)[
@@ -126,10 +160,36 @@ function Summary({ log }: { log: SessionLog }) {
         ]?.letter
       : undefined;
 
+  // A max test the session would have run, but couldn't: away from home or at the lighter volume.
+  const heldTest =
+    source.kind === 'programme' &&
+    sourceProgramme &&
+    logs &&
+    programmes &&
+    maxTests &&
+    (away || log.adjustments?.reentry !== undefined)
+      ? skippedTest(sourceProgramme, source.sessionId, source.week, {
+          logs,
+          programmes,
+          answers,
+          maxTests,
+          inventory,
+          ...(profile && { level: profile.level }),
+          ...(bodyweightKg !== undefined && { bodyweightKg }),
+          ...(away && { travel: true }),
+          ...(!away && { reentry: true }),
+        })
+      : undefined;
+
   const context =
     log.source.kind === 'programme'
       ? t('play.summary.context', { week: log.source.week, name: log.plan.name[lang] })
       : log.plan.name[lang];
+
+  const startCool = () => {
+    oneOffs.record();
+    void begin(() => startCooldown(log, profile ?? undefined, inventory), t('play.cooldown.name'));
+  };
 
   const back = () => {
     oneOffs.record();
@@ -247,7 +307,9 @@ function Summary({ log }: { log: SessionLog }) {
                 checked={counts}
                 onChange={toggle}
                 title={t('play.summary.switchTitle')}
-                meta={counts ? onLine : t('play.summary.switchOff')}
+                meta={
+                  counts ? onLine : t(away ? 'play.summary.travelOff' : 'play.summary.switchOff')
+                }
               />
             </Card>
           ) : quick || log.source.kind === 'custom' ? (
@@ -257,7 +319,34 @@ function Summary({ log }: { log: SessionLog }) {
             </p>
           ) : null}
 
+          {away ? (
+            <p className={styles.notice}>
+              <Icon name="suitcase" size={20} />
+              <span>
+                <Rich
+                  text={t('play.summary.travelNotice', {
+                    what: kitSummary(t, log.adjustments?.travel),
+                  })}
+                />
+              </span>
+            </p>
+          ) : null}
+
           {testRow}
+          {heldTest ? (
+            <p className={styles.notice}>
+              <Icon name="target" size={20} />
+              <span>
+                {t(
+                  heldTest.kind === 'travel'
+                    ? 'play.summary.testHeldTravel'
+                    : 'play.summary.testHeldReentry',
+                )}
+              </span>
+            </p>
+          ) : null}
+
+          <Records records={records} lang={lang} />
 
           <Decisions
             proposals={proposals ?? []}
@@ -267,7 +356,43 @@ function Summary({ log }: { log: SessionLog }) {
             onAnswered={(proposal) => oneOffs.markAnswered(proposal)}
             onUndone={(proposal) => oneOffs.markUndone(proposal)}
           />
+          {canCooldown(log) ? (
+            <div className={styles.cooldown}>
+              <div className={styles.cooldownText}>
+                <h2 className={styles.cooldownTitle}>{t('play.cooldown.offerTitle')}</h2>
+                <p className={styles.cooldownLine}>{offerLine(t, log, lang)}</p>
+              </div>
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={startCool}
+                aria-label={t('play.cooldown.offerStartLabel')}
+              >
+                {t('play.cooldown.offerStart')}
+              </Button>
+            </div>
+          ) : null}
           {backup.reminder !== 'none' ? <BackupLine state={backup} /> : null}
+          {ramp ? (
+            <p className={styles.notice}>
+              <Icon name="check" size={20} />
+              <span>
+                {t(
+                  ramp.skipped === 0
+                    ? 'play.summary.rampDone'
+                    : ramp.done === 0
+                      ? 'play.summary.rampSkipped'
+                      : 'play.summary.rampMixed',
+                  {
+                    done: ramp.done,
+                    skipped: ramp.skipped,
+                    total: ramp.total,
+                    count: ramp.skipped > 0 && ramp.done > 0 ? ramp.done : ramp.total,
+                  },
+                )}
+              </span>
+            </p>
+          ) : null}
           {rows.length > 0 ? (
             <ExerciseList
               rows={rows}
@@ -277,6 +402,7 @@ function Summary({ log }: { log: SessionLog }) {
               mode={mode}
               lang={lang}
               buyNext={nextTime?.buyNext ?? []}
+              {...(away && log.adjustments?.travel && { travel: log.adjustments.travel })}
             />
           ) : null}
         </div>
@@ -288,6 +414,7 @@ function Summary({ log }: { log: SessionLog }) {
             : t(quick ? 'play.summary.backQuick' : 'play.summary.backProgramme')}
         </Button>
       </div>
+      {beginDialog}
     </div>
   );
 }

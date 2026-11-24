@@ -18,7 +18,12 @@ export const PhaseAdjustmentSchema = z.discriminatedUnion('kind', [
     mainBlockIndexes: z.array(int(0)).min(1),
   }),
   /** Scale sets and rounds, e.g. 0.6 for a deload. Cardio blocks are never affected. */
-  z.strictObject({ kind: z.literal('volume'), factor: positive.max(2) }),
+  z.strictObject({
+    kind: z.literal('volume'),
+    factor: positive.max(2),
+    /** Also scale interval rounds (minimum 3); steady cardio stays as it is. */
+    intervals: z.literal(true).optional(),
+  }),
   /** Lengthen the cardio items in session finishers by this many minutes. */
   z.strictObject({ kind: z.literal('cardio-minutes'), addMinutes: int(1, 60) }),
   /** Max-effort retest at the end of the phase. */
@@ -35,6 +40,8 @@ export const PhaseSchema = z
     name: LocalizedTextSchema,
     /** What the phase is for; absent on older programmes. */
     kind: PhaseKindSchema.optional(),
+    /** Inserted by the user's confirmation of a lighter week, not part of the generated cycle. */
+    origin: z.literal('early').optional(),
     fromWeek: int(1),
     toWeek: int(1),
     adjustments: z.array(PhaseAdjustmentSchema),
@@ -71,6 +78,8 @@ export const ProgrammeSchema = z
     generatedRotation: z.array(SessionSchema).optional(),
     /** Rotation sessions replaced by one of the user's own sessions: session id → custom session id. */
     placements: z.record(IdSchema, IdSchema).optional(),
+    /** The lighter-week offer was dismissed at this time. */
+    lighterWeek: z.strictObject({ dismissedAt: DateTimeSchema.optional() }).optional(),
     createdAt: DateTimeSchema.optional(),
   })
   .superRefine((p, ctx) => {

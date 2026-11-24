@@ -10,6 +10,7 @@ import type {
   Profile,
   Tempo,
 } from '../../domain';
+import type { Constraints } from './constraints';
 
 /**
  * What a slot is for. It drives hard filters, how candidates are ranked and how
@@ -42,6 +43,8 @@ export interface SlotSpec {
   time?: readonly [number, number];
   rir?: number;
   tempo?: Tempo;
+  /** Only bodyweight moves without equipment and without any grade on a limited joint. */
+  plain?: boolean;
 }
 
 /** Steady cardio, resolved to the best machine (or a bodyweight fallback) the user has. */
@@ -127,6 +130,16 @@ export interface GenerateInput {
    * kept lift needs no owned weight near the starting-load estimate.
    */
   loggedExercises?: readonly string[];
+  /**
+   * The session templates to build, in order, instead of the split the profile calls for. Used to
+   * re-pick a programme in place, so its sessions keep their ids and order.
+   */
+  rotationKeys?: readonly TemplateKey[];
+  /**
+   * Exercises that stay in a session whatever the constraints say (the user's own choices), by
+   * session id: they use up the session's budget of exercises that spare a limited joint.
+   */
+  reserved?: Readonly<Record<string, readonly string[]>>;
   /** Defaults to a name derived from the inputs. */
   id?: string;
 }
@@ -154,5 +167,9 @@ export interface Context {
   /** Exercises with logged history. */
   logged: ReadonlySet<string>;
   upgrades: ReadonlyMap<string, string>;
+  /** Joints, noise and space to respect; absent means none. */
+  constraints?: Constraints;
+  /** Exercises kept in a session whatever the constraints say, by session id. */
+  reserved?: ReadonlyMap<string, readonly string[]>;
   log: NoteLog;
 }

@@ -8,9 +8,9 @@ export interface WeekActivity {
   startDate: string;
   /** `YYYY-MM-DD` of the Sunday. */
   endDate: string;
-  /** Completed sessions, every source. Abandoned ones are not counted. */
+  /** Completed training sessions, every source but cooldowns. Abandoned ones are not counted. */
   sessions: number;
-  bySource: Record<SessionSource['kind'], number>;
+  bySource: Record<Exclude<SessionSource['kind'], 'cooldown'>, number>;
   /** Active time of those sessions, pauses excluded. */
   activeSeconds: number;
 }
@@ -28,7 +28,7 @@ export function calendarWeekActivity(logs: readonly SessionLog[], now: Date): We
     activeSeconds: 0,
   };
   for (const log of logs) {
-    if (log.status !== 'completed') continue;
+    if (log.status !== 'completed' || log.source.kind === 'cooldown') continue;
     const at = Date.parse(log.startedAt);
     if (at < start.getTime() || at >= end.getTime()) continue;
     out.sessions++;

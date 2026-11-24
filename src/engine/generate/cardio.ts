@@ -1,6 +1,7 @@
 import type { Block, Exercise, LocalizedText, Target } from '../../domain';
 import { equipmentCapabilities, isExerciseAvailable } from '../equipment';
-import { withinStep } from './select';
+import { fitFor, fitRank, isConstrained, moderateRegions, type Fit } from './constraints';
+import { MODERATE_PER_REGION, withinStep, type SelectionState } from './select';
 import type { CardioSpec, Context } from './types';
 
 export type CardioModality =
@@ -69,12 +70,23 @@ const resolveWith = (
   place: 'finisher' | 'day',
   ctx: Context,
   allowed: (exercise: Exercise) => boolean,
+  limit: Fit = 'moderate',
+  state?: SelectionState,
 ): CardioChoice | null => {
   const capabilities = equipmentCapabilities(ctx.equipment);
   const available = (id: string) => {
     const exercise = ctx.catalogue.get(id);
-    return (
-      exercise !== undefined && allowed(exercise) && isExerciseAvailable(exercise, capabilities)
+    if (
+      exercise === undefined ||
+      !allowed(exercise) ||
+      !isExerciseAvailable(exercise, capabilities)
+    )
+      return false;
+    const fit = fitFor(exercise, ctx.constraints);
+    if (fit === 'out' || fitRank(fit) > fitRank(limit)) return false;
+    // At most one exercise sparing a limited joint per session, cardio included.
+    return !moderateRegions(exercise, ctx.constraints).some(
+      (r) => (state?.moderate.get(r) ?? 0) >= MODERATE_PER_REGION,
     );
   };
   const treadmill = ctx.equipment.find((item) => item.kind === 'treadmill');
@@ -172,11 +184,18 @@ export const resolveCardio = (
   place: 'finisher' | 'day',
   ctx: Context,
   sessionId?: string,
+  state?: SelectionState,
 ): CardioChoice | null => {
-  const best = resolveWith(spec, place, ctx, () => true);
+  // With constraints, a modality that spares nothing comes before one that does.
+  const limits: Fit[] = isConstrained(ctx.constraints) ? ['ok', 'moderate'] : ['moderate'];
   const was = lastCardio(sessionId, ctx);
-  if (!best || !was) return best;
-  const exercise = ctx.catalogue.get(best.exerciseId);
-  if (exercise && withinStep(exercise, was)) return best;
-  return resolveWith(spec, place, ctx, (e) => withinStep(e, was)) ?? best;
+  for (const limit of limits) {
+    const best = resolveWith(spec, place, ctx, () => true, limit, state);
+    if (!best) continue;
+    if (!was) return best;
+    const exercise = ctx.catalogue.get(best.exerciseId);
+    if (exercise && withinStep(exercise, was)) return best;
+    return resolveWith(spec, place, ctx, (e) => withinStep(e, was), limit, state) ?? best;
+  }
+  return null;
 };

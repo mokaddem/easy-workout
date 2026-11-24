@@ -1,4 +1,13 @@
 import type { Answer, AnswerKind, Exercise, SessionItem } from '../../domain';
+import {
+  constraintsOf,
+  isConstrained,
+  topGrade,
+  withRegion,
+  fitFor,
+  type Constraints,
+} from '../generate/constraints';
+import { isDoseCapped } from './dose-cap';
 import type { Exposure } from './exposures';
 import { ladderFor, loadAt, rungOf } from './ladder';
 import { loadToken, note, type ItemResult, type LadderEnd } from './rules';
@@ -7,9 +16,56 @@ import {
   harderVariantFor,
   substituteFor,
   variantFor,
+  type SubstituteContext,
   type Swaps,
 } from './swaps';
-import type { ProgressContext, Proposal } from './types';
+import type { LimitationOffer, ProgressContext, Proposal } from './types';
+
+/** What a substitute is checked against, when the profile says who it is for. */
+const substituteContext = (
+  ctx: Pick<ProgressContext, 'profile'>,
+  constraints: Constraints,
+): SubstituteContext | undefined =>
+  ctx.profile?.level
+    ? {
+        level: ctx.profile.level,
+        ...(ctx.profile.bodyweightKg !== undefined && { bodyweightKg: ctx.profile.bodyweightKg }),
+        ...(isConstrained(constraints) && { constraints }),
+      }
+    : undefined;
+
+/**
+ * "Add the joint to my limitations" on a pain card: the joint the exercise is hardest on (none
+ * when it has no grade, so the card shows a picker), whether adding it takes the exercise out of
+ * the programme (the card is then answered as a swap), and whether it comes first (second stop).
+ */
+export function limitationOffer(
+  exercise: Exercise,
+  ctx: Pick<ProgressContext, 'inventory' | 'profile'>,
+  swaps: Swaps,
+  repeated: boolean,
+): LimitationOffer {
+  const constraints = constraintsOf(ctx.profile);
+  const top = topGrade(exercise, constraints.regions);
+  const offer: LimitationOffer = { ...(repeated && { first: true }) };
+  if (!top) return offer;
+  offer.region = top.region;
+  if (fitFor(exercise, withRegion(constraints, top.region)) === 'out') {
+    offer.removes = true;
+    const substitute = substituteFor(exercise, ctx.inventory, {
+      pain: true,
+      avoid: swaps.painful,
+      ...(ctx.profile?.level && {
+        context: {
+          ...substituteContext(ctx, constraints)!,
+          constraints: withRegion(constraints, top.region),
+        },
+      }),
+    });
+    if (substitute) offer.substituteId = substitute.id;
+  }
+  return offer;
+}
 
 /** Pain-free sessions after a pain stop before the exercise may get harder again. */
 export const PAIN_FREE_EXPOSURES = 2;
@@ -135,8 +191,16 @@ export function flagProposals(
 ): Proposal[] {
   const out: Proposal[] = [];
   const pain = painState(all, ctx.answers);
+  const constraints = constraintsOf(ctx.profile);
+  const context = substituteContext(ctx, constraints);
   if (pain && pain.answer === undefined) {
-    const substitute = substituteFor(exercise, ctx.inventory, { pain: true, avoid: swaps.painful });
+    const substitute = substituteFor(exercise, ctx.inventory, {
+      pain: true,
+      avoid: swaps.painful,
+      ...(context && { context }),
+    });
+    // A stop on an exercise sparing a limited joint goes straight to the second-stop path.
+    const repeated = pain.repeated || isDoseCapped(exercise, constraints);
     const lighter = lighterItem(pain.exposure.item, exercise, ctx);
     out.push({
       kind: 'pain',
@@ -148,12 +212,16 @@ export function flagProposals(
         to: loadToken(lighter.load),
         ...(lighter.goal !== undefined && { goal: lighter.goal }),
       }),
-      ...(pain.repeated && { repeated: true }),
+      ...(repeated && { repeated: true }),
+      limitation: limitationOffer(exercise, ctx, swaps, repeated),
     });
   }
   const latest = all[0];
   if (latest?.noEquipment && !answerTo(ctx.answers, exercise.id, 'no-equipment', latest.logId)) {
-    const substitute = substituteFor(exercise, ctx.inventory, { avoid: swaps.painful });
+    const substitute = substituteFor(exercise, ctx.inventory, {
+      avoid: swaps.painful,
+      ...(context && { context }),
+    });
     out.push({
       kind: 'no-equipment',
       exerciseId: exercise.id,
@@ -173,11 +241,12 @@ export function ladderProposal(
 ): Proposal | 'buy-next' | undefined {
   if (end.kind === 'buy-next') return 'buy-next';
   if (end.kind === 'none') return undefined;
+  const constraints = constraintsOf(ctx.profile);
   const variant =
     end.kind === 'harder'
       ? harderVariantFor(
           exercise,
-          { inventory: ctx.inventory, ...ctx.profile },
+          { inventory: ctx.inventory, ...ctx.profile, constraints },
           ctx.exercises ?? undefined,
         )
       : end.kind === 'easier'
@@ -191,7 +260,11 @@ export function ladderProposal(
           );
   if (!variant)
     return end.kind === 'harder' &&
-      harderNeedsEquipment(exercise, { inventory: ctx.inventory, ...ctx.profile }, ctx.exercises)
+      harderNeedsEquipment(
+        exercise,
+        { inventory: ctx.inventory, ...ctx.profile, constraints },
+        ctx.exercises,
+      )
       ? 'buy-next'
       : undefined;
   if (suppressed(ctx.answers, exercise.id, end.kind, end.logId, all)) return undefined;

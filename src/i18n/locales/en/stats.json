@@ -135,7 +135,8 @@
     "resultSeconds_other": "{{count}} s",
     "howto": "How to do it",
     "howtoMeta_one": "The movement, animated, and {{count}} step",
-    "howtoMeta_other": "The movement, animated, and {{count}} steps"
+    "howtoMeta_other": "The movement, animated, and {{count}} steps",
+    "record": "New record: {{set}}. Before: {{previous}}."
   },
   "body": {
     "title": "Body",

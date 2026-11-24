@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
+import { useSettings } from '@/app/data';
 import { Button } from '@/ui/components';
+import { dayMonth } from '../../programme/testFormat';
 import { exerciseLabel } from '../format';
 import styles from '../Play.module.css';
 import type { PlayContext } from './types';
@@ -16,12 +18,19 @@ export function PausedScreen({
 }: PlayContext & { clock: string; onLeave: () => void }) {
   const { t } = useTranslation();
   const exercise = exerciseById.get(step.item.exerciseId);
+  const settings = useSettings();
+  const kitUntil = log.adjustments?.travel ? settings?.travelKit?.until : undefined;
   return (
     <>
       <div className={styles.set}>
         <div className={styles.pausedHead}>
           <h1 className={styles.name}>{t('play.paused.title')}</h1>
           <p className={styles.pausedSession}>{log.plan.name[lang]}</p>
+          {kitUntil ? (
+            <p className={styles.pausedSession}>
+              {t('play.paused.pauseLine', { date: dayMonth(kitUntil, lang) })}
+            </p>
+          ) : null}
         </div>
         <p className={styles.pausedClock}>
           <span className={`${styles.num} ${styles.pausedN}`}>{clock}</span>

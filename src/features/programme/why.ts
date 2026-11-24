@@ -4,7 +4,7 @@ import type { GenerationNote, Language, Session } from '@/domain';
 import { placedItems } from '@/engine';
 
 /** Notes that name a specific exercise slot of a session. */
-export type ReasonInput = 'schedule' | 'goal' | 'equipment';
+export type ReasonInput = 'schedule' | 'goal' | 'equipment' | 'limits';
 
 const lcFirst = (text: string, lang: Language) =>
   text.charAt(0).toLocaleLowerCase(lang) + text.slice(1);
@@ -143,6 +143,21 @@ export function describeNote(
       return t('why.kept');
     case 'max-test':
       return t('why.maxTest', { name });
+    case 'slot-limited':
+      return `${leftOutTitle(t, p.patterns, language)}. ${leftOutBecause(t, p)}`;
+    case 'muscle-volume-reduced':
+      return t('settings.preview.volume', {
+        muscle: capFirst(
+          t(`labels.muscle.${String(p.muscle)}`, { defaultValue: String(p.muscle) }),
+        ),
+        before: num(p.before),
+        after: num(p.after),
+        joint: new Intl.ListFormat(language, { style: 'long', type: 'conjunction' }).format(
+          list(p.regions).map((r) => t(`labels.joint.${r}.your`)),
+        ),
+      });
+    case 'finisher-thin':
+      return t('why.constraint.thinFinisher');
     case 'quick-session':
       return t('why.quick', {
         minutes: num(p.minutes),
@@ -151,6 +166,26 @@ export function describeNote(
     default:
       return null;
   }
+}
+
+const capFirst = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/** "No vertical pull exercise": the slot's first pattern. */
+export function leftOutTitle(t: TFunction, patterns: unknown, language: Language): string {
+  const first = list(patterns)[0] ?? '';
+  const name = lcFirst(t(`labels.pattern.${first}`, { defaultValue: first }), language);
+  return t('why.constraint.leftOutTitle', { pattern: name });
+}
+
+/** Why a slot was left out: a joint, quiet or small space. */
+export function leftOutBecause(t: TFunction, params: GenerationNote['params']): string {
+  const cause = String(params.cause);
+  if (cause === 'quiet') return t('why.constraint.leftOutQuiet');
+  if (cause === 'region')
+    return t('why.constraint.leftOutRegion', {
+      joint: t(`labels.joint.${String(params.region)}.your`),
+    });
+  return t('why.constraint.leftOutSpace');
 }
 
 /** Codes worth a line under the exercise itself: the choice is out of the ordinary. */
@@ -237,6 +272,9 @@ const GROUP_OF: Record<string, ReasonInput | undefined> = {
   'cardio-unavailable': 'equipment',
   'cardio-modality': 'equipment',
   'exercise-preferred': 'equipment',
+  'slot-limited': 'limits',
+  'muscle-volume-reduced': 'limits',
+  'finisher-thin': 'limits',
 };
 
 /** Programme-level reasons grouped by the input behind them; repeats across sessions collapse. */
@@ -255,7 +293,7 @@ export function programmeReasons(
     if (!sentences.includes(sentence)) sentences.push(sentence);
     groups.set(input, sentences);
   }
-  return (['schedule', 'goal', 'equipment'] as const)
+  return (['schedule', 'goal', 'equipment', 'limits'] as const)
     .filter((input) => groups.has(input))
     .map((input) => ({ input, sentences: groups.get(input) ?? [] }));
 }

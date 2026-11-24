@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Answer, Language } from '@/domain';
-import { Button, Icon } from '@/ui/components';
+import { Button, Icon, type IconName } from '@/ui/components';
 import { exerciseName, loadText, parseToken, Rich } from '../adapt';
 import styles from './AdaptLines.module.css';
 
@@ -92,6 +92,33 @@ export function PendingPainLine({
       <Button variant="secondary" onClick={onChoose}>
         {t('adapt.detail.pendingPain.choose')}
       </Button>
+    </div>
+  );
+}
+
+/** "Travel kit. Replaces: X." No way back: it only holds while the kit does. */
+export function TravelSwapLine({ originalId }: { originalId: string }) {
+  const { t, i18n } = useTranslation();
+  const lang: Language = i18n.language === 'fr' ? 'fr' : 'en';
+  return (
+    <div className={styles.line}>
+      <p className={styles.text}>
+        <Icon name="suitcase" size={20} />
+        <span>{t('programme.kit.swapLine', { name: exerciseName(originalId, lang) })}</span>
+      </p>
+    </div>
+  );
+}
+
+/** What the plan has no exercise for: its title and why, in a dashed box. Not a button. */
+export function LeftOutRow({ icon, title, sub }: { icon: IconName; title: string; sub: string }) {
+  return (
+    <div className={styles.leftOut}>
+      <Icon name={icon} size={20} />
+      <div className={styles.leftOutText}>
+        <p className={styles.leftOutTitle}>{title}</p>
+        <p className={styles.leftOutSub}>{sub}</p>
+      </div>
     </div>
   );
 }

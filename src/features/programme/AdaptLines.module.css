@@ -41,3 +41,34 @@
   justify-self: start;
   background: var(--color-surface);
 }
+
+/* a row for what the plan has no exercise for: left out because of a joint, quiet, space, the kit */
+.leftOut {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 56px;
+  padding: 12px 14px;
+  border: var(--border-control) dashed var(--color-line-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+.leftOut svg {
+  flex: none;
+  margin-top: 1px;
+}
+.leftOutText {
+  display: grid;
+  gap: 2px;
+}
+.leftOutTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+}
+.leftOutSub {
+  margin: 0;
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}

@@ -3,6 +3,7 @@ import type {
   EquipmentInventory,
   EquipmentRequirement,
   Exercise,
+  JointRegion,
   LocalizedText,
   MovementPattern,
   Session,
@@ -19,6 +20,7 @@ import {
   type BuiltSession,
   type PendingNote,
 } from './fit';
+import { isConstrained, moderateRegions, outCause, type Constraints } from './constraints';
 import { rampLoad, startingLoad } from './loads';
 import { selectExercise, type Selection, type SelectionState } from './select';
 import { SHORT_SESSION_MINUTES } from './templates';
@@ -47,6 +49,87 @@ const COLLAPSED_RAMP_FRACTION = 0.6;
 
 /** How a pick is dosed: a kept stand-in from a neighbouring pattern stays dosed as one. */
 const dosedAs = (sel: Selection) => (sel.fallback ? 'fallback-pattern' : sel.method);
+
+/** The limited joints any of the exercises is graded on, high or moderate. */
+const touchedBy = (exercises: readonly Exercise[], c: Constraints | undefined): JointRegion[] =>
+  (c?.regions ?? []).filter((r) => exercises.some((e) => e.joints[r] !== undefined));
+
+/** A copy of the picks made so far, so a what-if search leaves the real ones alone. */
+const cloneState = (state: SelectionState): SelectionState => ({
+  ...state,
+  session: new Set(state.session),
+  warmup: new Set(state.warmup),
+  programme: new Set(state.programme),
+  moderate: new Map(state.moderate),
+  warmupModerate: new Map(state.warmupModerate),
+});
+
+/**
+ * The note for a slot nothing could fill. When the constraints are why (what the slot would get
+ * without them is ruled out or spared), it names the cause: a joint, quiet or small space.
+ */
+const droppedNote = (slot: SlotSpec, ctx: Context, state: SelectionState): PendingNote => {
+  const plain: PendingNote = {
+    code: 'slot-dropped',
+    params: { slot: slot.id, patterns: slot.patterns.join(',') },
+  };
+  if (!isConstrained(ctx.constraints)) return plain;
+  const probe = selectExercise(slot, { ...ctx, constraints: undefined }, cloneState(state));
+  if (!probe) return plain;
+  const cause =
+    outCause(probe.exercise, ctx.constraints) ??
+    (moderateRegions(probe.exercise, ctx.constraints)[0] !== undefined
+      ? ({ cause: 'region', region: moderateRegions(probe.exercise, ctx.constraints)[0]! } as const)
+      : undefined);
+  if (!cause) return plain;
+  return {
+    code: 'slot-limited',
+    params: {
+      slot: slot.id,
+      patterns: slot.patterns.join(','),
+      cause: cause.cause,
+      ...('region' in cause && { region: cause.region }),
+    },
+  };
+};
+
+/** Short conditioning circuit of moves needing nothing, for when constraints leave no cardio drill. */
+const THIN_FINISHER: readonly SlotSpec[] = [
+  {
+    id: 'thin-drill',
+    role: 'conditioning',
+    patterns: ['conditioning'],
+    prefer: ['step-jacks', 'shadow-boxing', 'mountain-climber'],
+    reps: [20, 20],
+    time: [30, 30],
+    plain: true,
+  },
+  {
+    id: 'thin-squat',
+    role: 'conditioning',
+    patterns: ['squat', 'conditioning'],
+    prefer: ['bodyweight-squat', 'chair-squat'],
+    reps: [20, 20],
+    time: [30, 30],
+    plain: true,
+  },
+  {
+    id: 'thin-push',
+    role: 'conditioning',
+    patterns: ['push-horizontal', 'core-anti-extension'],
+    prefer: ['push-up', 'knee-push-up', 'plank'],
+    reps: [12, 12],
+    time: [30, 30],
+    plain: true,
+  },
+];
+const THIN_FINISHER_ROUNDS = 3;
+const THIN_FINISHER_REST_SEC = 45;
+
+const touches = (exercises: readonly Exercise[], ctx: Context): { touches?: JointRegion[] } => {
+  const regions = touchedBy(exercises, ctx.constraints);
+  return regions.length > 0 ? { touches: regions } : {};
+};
 
 /** The time fit may shorten the block but must not drop it. */
 const keeps = (tpl: BlockTemplate, ctx: Context): boolean =>
@@ -135,15 +218,49 @@ const buildBlock = (
 ): BuiltBlock | null => {
   const priority = tpl.priority ?? 1;
   if (tpl.type === 'cardio') {
-    const choice = resolveCardio(tpl.cardio, place, ctx, state.sessionId);
+    const choice = resolveCardio(tpl.cardio, place, ctx, state.sessionId, state);
+    // Quiet and small space leave a thin pool: a mere walk, or nothing, is no finisher for a
+    // recomposition or fitness goal, so a short circuit of plain moves takes its place.
+    const thin =
+      isConstrained(ctx.constraints) &&
+      place === 'finisher' &&
+      (!choice || (choice.modality === 'brisk-walk' && ctx.profile.goal === 'recomposition'));
+    if (thin) {
+      const circuit = buildBlock(
+        {
+          type: 'group',
+          style: 'circuit',
+          slots: THIN_FINISHER,
+          rounds: THIN_FINISHER_ROUNDS,
+          restAfterRoundSec: THIN_FINISHER_REST_SEC,
+          priority,
+          ...(tpl.keep !== undefined && { keep: tpl.keep }),
+          ...(tpl.keepUpToDays !== undefined && { keepUpToDays: tpl.keepUpToDays }),
+        },
+        ctx,
+        state,
+        dropped,
+        place,
+      );
+      if (circuit) {
+        circuit.notes.push({ code: 'finisher-thin', params: {} });
+        return circuit;
+      }
+    }
     if (!choice) {
       dropped.push({ code: 'cardio-unavailable', params: {} });
       return null;
     }
+    const picked = ctx.catalogue.get(choice.exerciseId);
+    for (const region of picked ? moderateRegions(picked, ctx.constraints) : [])
+      state.moderate.set(region, (state.moderate.get(region) ?? 0) + 1);
     return {
       block: choice.block,
       priority,
       role: 'cardio',
+      ...(picked && touchedBy([picked], ctx.constraints).length > 0
+        ? { touches: touchedBy([picked], ctx.constraints) }
+        : {}),
       included: priority < 3,
       ...(keeps(tpl, ctx) ? { keep: true } : {}),
       muscles: [],
@@ -159,10 +276,7 @@ const buildBlock = (
   if (tpl.type === 'straight') {
     const sel = selectExercise(tpl.slot, ctx, state);
     if (!sel) {
-      dropped.push({
-        code: 'slot-dropped',
-        params: { slot: tpl.slot.id, patterns: tpl.slot.patterns.join(',') },
-      });
+      dropped.push(droppedNote(tpl.slot, ctx, state));
       return null;
     }
     const notes = selectionNote(sel, tpl.slot);
@@ -187,6 +301,7 @@ const buildBlock = (
       notes,
       setup: sel.setup,
       muscles: [sel.exercise.primaryMuscles],
+      ...touches([sel.exercise], ctx),
     };
   }
 
@@ -194,11 +309,7 @@ const buildBlock = (
   for (const slot of tpl.slots) {
     const sel = selectExercise({ ...slot, grouped: true }, ctx, state);
     if (sel) picks.push({ slot, sel });
-    else
-      dropped.push({
-        code: 'slot-dropped',
-        params: { slot: slot.id, patterns: slot.patterns.join(',') },
-      });
+    else dropped.push(droppedNote({ ...slot, grouped: true }, ctx, state));
   }
   if (picks.length === 0) return null;
   const rounds = groupRounds(tpl.rounds, ctx.level);
@@ -221,6 +332,7 @@ const buildBlock = (
       ...(keeps(tpl, ctx) ? { keep: true } : {}),
       notes,
       muscles: [first.sel.exercise.primaryMuscles],
+      ...touches([first.sel.exercise], ctx),
     };
   }
   const notes: PendingNote[] = [];
@@ -243,6 +355,10 @@ const buildBlock = (
     ...(keeps(tpl, ctx) ? { keep: true } : {}),
     notes,
     muscles: picks.map(({ sel }) => sel.exercise.primaryMuscles),
+    ...touches(
+      picks.map(({ sel }) => sel.exercise),
+      ctx,
+    ),
   };
 };
 
@@ -383,7 +499,16 @@ export const buildSession = (
 ): Session | null => {
   state.session = new Set();
   state.warmup = new Set();
+  state.moderate = new Map();
+  state.warmupModerate = new Map();
   state.sessionId = options.id;
+  // The user's own exercises that stay (whatever the constraints say) use up the budget first.
+  for (const id of ctx.reserved?.get(options.id) ?? []) {
+    const kept = ctx.catalogue.get(id);
+    for (const region of ctx.constraints?.regions ?? [])
+      if (kept?.joints[region] !== undefined)
+        state.moderate.set(region, (state.moderate.get(region) ?? 0) + 1);
+  }
   const dropped: PendingNote[] = [];
   const cardioDay = tpl.key === 'cardio';
   const place = options.cardioPlace ?? (cardioDay ? 'day' : 'finisher');
@@ -420,6 +545,11 @@ export const buildSession = (
   );
   const built: BuiltSession = { warmup, main, finisher };
   built.warmup.push(...rampUp(built, ctx));
+  const spared = dropped.flatMap((n) =>
+    n.code === 'slot-limited' && n.params.cause === 'region'
+      ? [n.params.region as JointRegion]
+      : [],
+  );
 
   // Beginners and returning trainees keep their lower volume even with time to spare.
   const maxSets = ctx.level === 'beginner' || ctx.level === 'returning' ? 4 : 5;
@@ -428,6 +558,8 @@ export const buildSession = (
     : fitToBudget(built, options.budget, maxSets, {
         goal: ctx.profile.goal,
         ...(options.keepConditioning ? { keepConditioning: true } : {}),
+        // Time freed by a slot left out for a joint goes to blocks that don't work that joint.
+        ...(spared.length > 0 ? { spare: spared } : {}),
       });
   const session = materialise(built);
 

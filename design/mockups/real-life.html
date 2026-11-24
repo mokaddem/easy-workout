@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fitting real life: limits, training days, pause, travel kit, restart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans); font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size); line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+:root[lang="fr"] .en, :root[lang="en"] .fr { display: none !important; }
+button, input { font: inherit; color: inherit; background: none; border: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+svg.i--xs { width: 14px; height: 14px; stroke-width: 2.5; }
+svg.i--fill { fill: currentColor; stroke: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.mock-bar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 12px 24px; background: color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-line); font-size: 14px; }
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; }
+.mock-bar__nav { display: flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.mock-bar__nav a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: var(--radius-pill); color: var(--color-text-muted); font-weight: 600; font-stretch: var(--font-width-label); }
+.mock-bar__nav a:hover { background: var(--color-surface-sunken); color: var(--color-text); }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible, .mock-bar__nav a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-sec { flex: 0 0 100%; max-width: 1280px; display: grid; gap: 4px; padding-top: 24px; scroll-margin-top: 72px; }
+.mock-sec h2 { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-title); }
+.mock-sec p { color: var(--color-text-muted); font-size: 15px; max-width: 64ch; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; scroll-margin-top: 80px; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); max-width: 390px; text-align: center; text-wrap: balance; }
+.mock-shot figcaption code { font-size: 13px; color: var(--color-text-subtle); }
+.mock-shot.is-flash .device { box-shadow: 0 0 0 4px var(--color-focus), 0 24px 80px rgb(0 0 0 / 0.28); }
+[data-go] { cursor: pointer; }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device { position: relative; width: 390px; height: 844px; flex: none; display: flex; flex-direction: column; border-radius: 48px; overflow: hidden; isolation: isolate; background: var(--color-bg); color: var(--color-text); box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28); transition: box-shadow var(--duration-base) var(--ease-move); }
+@media (max-width: 440px) { .mock-stage { padding: 16px 0 48px; gap: 32px; } .mock-bar { padding: 10px 16px; } .device { border-radius: 0; box-shadow: none; } }
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; position: relative; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-exercise { font-size: var(--type-exercise-size); line-height: var(--type-exercise-line); font-weight: var(--type-exercise-weight); font-stretch: var(--type-exercise-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.t-title { font-size: var(--type-title-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); text-wrap: balance; }
+.t-headline, .section-title { font-size: var(--type-headline-size); line-height: var(--type-title-line); font-weight: var(--type-title-weight); font-stretch: var(--type-title-width); }
+.t-meta { font-size: var(--type-meta-size); line-height: 1.4; }
+.t-body { font-size: var(--type-body-size); line-height: 1.45; }
+.muted { color: var(--color-text-muted); }
+
+/* ---------- buttons ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap-comfort); padding: 0 var(--space-6); border-radius: var(--radius-md); border: var(--border-control) solid transparent; font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); text-align: center; }
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); min-height: var(--tap-min); }
+.btn--block { width: 100%; }
+.btn--player { min-height: var(--tap-player); font-size: var(--font-size-21); }
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.icon-btn--player { width: var(--tap-player); height: var(--tap-player); }
+
+/* ---------- shell ---------- */
+.appbar { flex: none; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 12px 6px var(--layout-gutter); background: var(--color-bg); }
+.appbar--back { padding-left: 4px; gap: 4px; }
+.appbar__text { flex: 1; min-width: 0; display: grid; }
+.appbar__title { font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.appbar__meta { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctxbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 8px 4px 4px; background: var(--color-bg); }
+.ctxbar__text { flex: 1; min-width: 0; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctxbar--plain { padding-left: var(--layout-gutter); }
+.dock { flex: none; display: grid; gap: 8px; padding: 12px 16px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-sticky); }
+.dock--home { padding-bottom: 42px; }
+.dock .btn--ghost { justify-self: center; }
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-nav); }
+.tab { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); text-align: center; line-height: 1.1; }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+
+/* ---------- shared bits ---------- */
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.notice > .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.notice b { font-weight: 700; }
+.inline-note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.inline-note > .i { width: 20px; height: 20px; color: var(--color-text-subtle); }
+.inline-note b { color: var(--color-text); font-weight: 700; }
+.well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.well--pain { background: var(--color-danger-tint); color: var(--color-danger-text); }
+.well--done { background: var(--color-complete); color: var(--color-on-complete); }
+.well--count { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.well--count .num { font-size: var(--font-size-36); line-height: 1; }
+.toast { position: absolute; left: 16px; right: 16px; z-index: var(--z-toast); display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 20px; border-radius: var(--radius-pill); background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: var(--elevation-3); font-weight: 600; font-size: 15px; }
+.toast__text { flex: 1; line-height: 1.3; }
+.toast .btn { min-height: var(--tap-min); color: var(--color-on-inverse); border-radius: var(--radius-pill); }
+/* Change tag: outline = something you did moved it */
+.tag { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px 0 7px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-size: 13px; font-weight: 700; font-stretch: var(--font-width-label); color: var(--color-text); white-space: nowrap; line-height: 1; }
+.tag .i { width: 14px; height: 14px; stroke-width: 2.5; color: var(--color-text-muted); }
+.tag--lg { min-height: 32px; padding: 0 12px 0 9px; font-size: 16px; gap: 6px; }
+.tag--lg .i { width: 18px; height: 18px; }
+.segs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.segs > i { height: 6px; border-radius: var(--radius-xs); background: var(--color-track); }
+.segs > i.done { background: var(--color-text-subtle); }
+.segs > i.cur { background: var(--color-accent-line); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.facts li { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; }
+.facts .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+
+/* ---------- segmented view tabs ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); text-align: center; transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt[aria-selected="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- switch row and list rows (settings) ---------- */
+.switch { position: relative; flex: none; width: 52px; height: 32px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); border: var(--border-strong) solid var(--color-line-strong); transition: background-color var(--duration-fast) var(--ease-move), border-color var(--duration-fast) var(--ease-move); }
+.switch::after { content: ""; position: absolute; top: 50%; left: 4px; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--color-text-muted); transition: transform var(--duration-fast) var(--ease-move), width var(--duration-fast) var(--ease-move), height var(--duration-fast) var(--ease-move), margin var(--duration-fast) var(--ease-move), background-color var(--duration-fast) var(--ease-move); }
+[aria-checked="true"] .switch { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); }
+[aria-checked="true"] .switch::after { width: 22px; height: 22px; margin-top: -11px; transform: translateX(19px); background: var(--color-on-inverse); }
+.swrow { position: relative; width: 100%; display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 14px 16px; text-align: left; }
+.swrow:active { background: var(--color-press-overlay); }
+.swrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.swrow__text { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.swrow__title { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.swrow__meta { font-size: 14px; line-height: 1.4; color: var(--color-text-muted); }
+.rows { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0 16px; overflow: hidden; }
+.row { position: relative; min-width: 0; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 12px 12px 12px 16px; text-align: left; width: 100%; }
+.row:active { background: var(--color-press-overlay); }
+.row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.row__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.row__title { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.row__meta { font-size: 14px; line-height: 1.4; color: var(--color-text-muted); }
+.row > .i { color: var(--color-text-muted); }
+.rows .row + .row::before, .rows .row + .swrow::before, .rows .swrow + .row::before, .rows .swrow + .swrow::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--color-line); }
+.sset { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.sset + .sset { margin-top: 28px; }
+.sset__title { padding: 0 var(--layout-gutter); }
+.intro { padding: 12px var(--layout-gutter) 20px; }
+
+/* ================================================================== */
+/* Programme tab                                                        */
+/* ================================================================== */
+.hero { padding: 20px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.hero__week { display: grid; gap: 8px; }
+.hero__label { font-size: var(--font-size-18); font-weight: 600; color: var(--color-text-muted); line-height: 1; }
+.hero__row { display: flex; align-items: flex-end; gap: 12px; }
+.hero__n { font-size: var(--font-size-144); line-height: 0.74; margin-left: -6px; }
+.hero__of { font-size: var(--font-size-48); color: var(--color-text-muted); line-height: 0.8; }
+.hero__phase { display: grid; gap: 6px; padding-top: 6px; }
+.hero__phase .t-display { font-size: var(--font-size-36); }
+.hero .segs > i { height: 8px; }
+.next { margin: 24px 16px 0; padding: 20px; display: grid; gap: 16px; }
+.next__label { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.next__title { font-size: var(--font-size-36); }
+.next__muscles { color: var(--color-text-muted); margin-top: 6px; }
+.next > .btn--ghost { justify-self: center; }
+.banner { margin: 8px 16px 0; padding: 16px; display: grid; gap: 14px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-control) solid var(--color-line-strong); box-shadow: var(--elevation-1); }
+.banner__head { display: flex; gap: 14px; align-items: flex-start; }
+.banner__text { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.banner__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.banner__actions { display: grid; gap: 4px; }
+.banner__actions .btn--ghost { justify-self: start; padding: 0 4px; }
+.sec-pad { padding: 28px var(--layout-gutter) 0; display: grid; gap: 14px; }
+.sec-pad:last-child { padding-bottom: 28px; }
+.small { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+
+/* ---------- sheets, dialogs ---------- */
+.scrim { position: absolute; inset: 0; z-index: var(--z-sheet); background: var(--color-scrim); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: calc(var(--z-sheet) + 1); max-height: calc(100% - 64px); display: flex; flex-direction: column; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.sheet__grab { align-self: center; flex: none; width: 40px; height: 5px; margin: 10px 0 6px; border-radius: 3px; background: var(--color-line-strong); }
+.sheet__head { flex: none; display: grid; gap: 8px; padding: 8px var(--layout-gutter) 14px; }
+.sheet__eyebrow { font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 var(--layout-gutter) 20px; display: grid; gap: 22px; align-content: start; }
+.sheet__body::-webkit-scrollbar { display: none; }
+.sheet__body > * { min-width: 0; }
+.sheet__foot { flex: none; display: grid; gap: 8px; padding: 12px 16px 42px; border-top: var(--border-hairline) solid var(--color-line); }
+.dlg-wrap { position: absolute; inset: 0; z-index: calc(var(--z-sheet) + 1); display: grid; place-items: center; padding: 20px; }
+.dialog { width: 100%; max-width: 24rem; display: grid; gap: 20px; padding: 24px 20px 20px; border-radius: var(--radius-xl); background: var(--color-surface-raised); box-shadow: var(--elevation-3); }
+.dialog__text { display: grid; gap: 10px; }
+.dialog__title { font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; text-wrap: balance; }
+.dialog__text p { color: var(--color-text-muted); font-size: 16px; line-height: 1.45; }
+.dialog__text p b { color: var(--color-text); }
+.dialog__actions { display: grid; gap: 8px; }
+
+/* ================================================================== */
+/* P11: fitting real life                                               */
+/* ================================================================== */
+.device { width: var(--dev-w, 390px); height: var(--dev-h, 844px); }
+.btn--sm { min-height: var(--tap-min); padding: 0 var(--space-4); font-size: 16px; }
+
+/* Rotation-grid cells reused in the week strip and the days sheet */
+.cell { height: 36px; border-radius: var(--radius-sm); display: grid; place-items: center; font-weight: 800; font-size: 16px; font-stretch: var(--font-width-title); }
+.cell--done { background: var(--color-complete); color: var(--color-on-complete); }
+.cell--done .i { width: 18px; height: 18px; stroke-width: 3; }
+.cell--next { background: var(--color-accent); color: var(--color-on-accent); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-accent-line); }
+.cell--todo { border: var(--border-control) solid var(--color-line-strong); color: var(--color-text-muted); }
+
+/* Next-session card label: the planned day */
+.next__label b { color: var(--color-text); font-weight: 700; }
+.next .inline-note { margin-top: -6px; }
+
+/* Kit line: the swap-line block with the suitcase */
+.kline { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; }
+.kline > .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.kline b { font-weight: 700; }
+.kline .btn { grid-column: 2; justify-self: start; background: var(--color-surface); }
+.fact-reentry { color: var(--color-text); }
+
+/* Week strip */
+.wkst { padding: 28px var(--layout-gutter) 0; display: grid; gap: 12px; }
+.wkst__title { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+.wk { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 0 -6px; }
+.wk__d { display: grid; justify-items: center; gap: 6px; padding: 8px 0 10px; border-radius: var(--radius-md); }
+.wk__d.is-today { background: var(--color-accent-tint); }
+.wk__w { font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); color: var(--color-text-muted); line-height: 1; }
+.wk__d.is-today .wk__w { color: var(--color-text); font-weight: 800; }
+.wk__n { font-size: var(--font-size-24); color: var(--color-text-muted); }
+.wk__d.is-today .wk__n { color: var(--color-text); }
+.wk .cell { width: 36px; }
+.wk__rest { height: 36px; display: grid; place-items: center; }
+.wk__rest::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color-line-strong); }
+
+/* Nudge row (limits) */
+.nudge { margin: 16px 16px 0; display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 12px 12px 14px; }
+.nudge__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.nudge__t { font-size: 17px; font-weight: 700; line-height: 1.25; }
+.nudge__s { font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.nudge > .i { color: var(--color-text-muted); }
+
+/* Proposal-card look (answer rows), from the adaptation mockup */
+.pc { display: grid; gap: 14px; padding: 16px; }
+.pc--tab { margin: 16px 16px 0; }
+.pc__head { display: flex; gap: 14px; align-items: flex-start; }
+.pc__head-text { flex: 1; min-width: 0; display: grid; gap: 4px; padding-top: 1px; }
+.pc__kick { font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text-muted); }
+.pc__kick b { color: var(--color-text); font-weight: 700; }
+.pc__kick .pain { color: var(--color-danger-text); font-weight: 700; }
+.pc__name { font-size: var(--font-size-21); line-height: 1.15; font-weight: 700; font-stretch: var(--font-width-title); text-wrap: balance; }
+.pc__answers { display: grid; gap: 8px; }
+.pc__note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text); }
+.pc__note .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.pc__note b { font-weight: 700; }
+.pc__note--care { padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-weight: 600; }
+.pc__note--care .i { color: var(--color-text); }
+.ans { width: 100%; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 14px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); text-align: left; }
+.ans:active { background: var(--color-press-overlay); transform: scale(var(--motion-scale-press)); }
+.ans:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.ans > .i { color: var(--color-text-muted); }
+.ans__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.ans__t { font-size: 17px; line-height: 1.25; font-weight: 700; font-stretch: var(--font-width-label); }
+.ans__s { font-size: var(--type-meta-size); line-height: 1.35; color: var(--color-text-muted); }
+.ans__s b { color: var(--color-text); font-weight: 700; display: block; }
+/* New: suggested (firm edge) and opens (chevron) */
+.ans--firm { border: var(--border-strong) solid var(--color-text); padding: 9.5px 13.5px; }
+.ans__chev { color: var(--color-text-muted); }
+
+/* Check-box rows */
+.check { width: 28px; height: 28px; border-radius: var(--radius-sm); display: grid; place-items: center; border: var(--border-strong) solid var(--color-line-strong); flex: none; }
+.check .i { width: 18px; height: 18px; stroke-width: 3; opacity: 0; }
+[aria-checked="true"] > .check { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+[aria-checked="true"] > .check .i { opacity: 1; }
+.cbrow { position: relative; width: 100%; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 12px 16px; text-align: left; }
+.cbrow--sm { min-height: 56px; padding: 8px 16px; }
+.cbrow:active { background: var(--color-press-overlay); }
+.cbrow:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.cbrow__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.cbrow__t { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.cbrow__m { font-size: 14px; line-height: 1.4; color: var(--color-text-muted); }
+.cbrow__m b { color: var(--color-text); font-weight: 700; }
+.cbrow.is-draft::after { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 2px 2px 0; background: var(--color-text); }
+.cbrow[aria-disabled="true"] { cursor: default; }
+.cbrow[aria-disabled="true"] .cbrow__t { color: var(--color-text-subtle); }
+.cbrow[aria-disabled="true"] > .check { border-style: dashed; border-color: var(--color-text-disabled); }
+.cbrow .cell { width: 32px; height: 32px; font-size: 15px; }
+.rows .cbrow + .cbrow::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--color-line); }
+.status { font-size: var(--type-meta-size); color: var(--color-text-muted); line-height: 1.4; }
+.care { margin: 12px 16px 0; }
+
+/* Banner (missed day) */
+.banner__actions .btn--ghost { justify-self: start; padding: 0 4px; }
+
+/* Paused hero */
+.hero--paused .hero__n, .hero--paused .hero__of { color: var(--color-text-subtle); }
+.hero--paused .segs > i.cur { background: var(--color-text-subtle); }
+.paused { display: grid; gap: 8px; padding-top: 6px; }
+.paused__t { display: flex; align-items: center; gap: 10px; font-size: var(--font-size-36); }
+.paused__t .i { width: 28px; height: 28px; stroke-width: 2.5; }
+.paused p { color: var(--color-text-muted); }
+.paused p b { color: var(--color-text); font-weight: 700; }
+.paused .btn { margin-top: 10px; }
+
+/* Settings */
+.set-head { padding: 12px var(--layout-gutter) 16px; }
+.set-sec { display: grid; gap: 10px; margin-top: 24px; }
+.set-sec__h { padding: 0 var(--layout-gutter); font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+.row .i:first-child { color: var(--color-text-muted); }
+
+/* Constraints screen */
+.intro p { color: var(--color-text-muted); }
+.dock-note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+.dock-note .i { width: 20px; height: 20px; color: var(--color-text-subtle); }
+
+/* Change preview pieces */
+.cp-count { display: flex; align-items: flex-end; gap: 12px; }
+.cp-n { font-size: var(--font-size-96); line-height: 0.8; }
+.cp-l { font-size: var(--font-size-36); line-height: 0.94; font-weight: 800; font-stretch: var(--font-width-display); padding-bottom: 4px; }
+.kept { display: flex; gap: 10px; align-items: flex-start; font-size: 16px; line-height: 1.4; }
+.kept .i { width: 20px; height: 20px; }
+.chg { display: grid; gap: 10px; }
+.chg__s { font-size: 14px; color: var(--color-text-muted); font-weight: 600; }
+.sw { position: relative; display: grid; padding-left: 26px; gap: 4px; }
+.sw::before { content: ""; position: absolute; left: 4px; top: 7px; width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--color-line-strong); }
+.sw::after { content: ""; position: absolute; left: 3px; bottom: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-text); }
+.sw i { position: absolute; left: 8px; top: 19px; bottom: 20px; width: 2px; background: var(--color-line-strong); }
+.sw__o { font-size: 15px; color: var(--color-text-muted); }
+.sw__n { font-size: 18px; font-weight: 700; line-height: 1.25; }
+.sw--rm::after, .sw--rm i { display: none; }
+.sw__cause { font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.aside { display: grid; gap: 10px; }
+.aside__h { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+.issue { display: grid; grid-template-columns: 20px 1fr; gap: 10px; font-size: var(--type-meta-size); line-height: 1.4; }
+.issue .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+
+/* Joint picker: compact choice cards */
+.choices { display: grid; gap: 8px; }
+.choice { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 8px 16px; border-radius: var(--radius-md); border: var(--border-control) solid var(--color-line-strong); text-align: left; font-size: 18px; font-weight: 700; font-stretch: var(--font-width-title); }
+.choice__mark { width: 24px; height: 24px; border-radius: 50%; border: var(--border-strong) solid var(--color-line-strong); flex: none; display: grid; place-items: center; }
+.choice__mark .i { width: 16px; height: 16px; stroke-width: 3; opacity: 0; }
+.choice[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.choice[aria-checked="true"] .choice__mark { border-color: var(--color-on-inverse); background: var(--color-on-inverse); color: var(--color-surface-inverse); }
+.choice[aria-checked="true"] .choice__mark .i { opacity: 1; }
+
+/* Summary */
+.sum { padding: 4px var(--layout-gutter) 24px; display: grid; gap: 22px; }
+.sum__dur { display: flex; align-items: flex-end; gap: 10px; }
+.sum__dur .num:first-child { font-size: var(--font-size-144); line-height: 0.74; }
+.sum__dur .num + .num { font-size: var(--font-size-48); color: var(--color-text-muted); line-height: 0.8; }
+.sum__stats { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; }
+.sum__stats .num { font-size: var(--font-size-60); display: block; }
+.sum__stats span span { font-size: 16px; color: var(--color-text-muted); }
+.sw-card { padding: 0; }
+.swrow--lg { min-height: 76px; }
+.swrow--lg .swrow__title { font-size: 18px; font-weight: 700; font-stretch: var(--font-width-title); }
+.swrow--lg .swrow__meta { font-size: 15px; }
+.exl { padding: 0; }
+.exl__row { display: grid; gap: 4px; padding: 14px 16px; }
+.exl__row + .exl__row { border-top: 1px solid var(--color-line); }
+.exl__n { font-size: 18px; font-weight: 600; }
+.exl__d { font-size: 14px; color: var(--color-text-muted); line-height: 1.4; }
+.exl__d b { color: var(--color-text); }
+.exl__r { font-size: 14px; line-height: 1.4; }
+.exl__row.is-dropped .exl__n, .exl__row.is-dropped .exl__r { color: var(--color-text-muted); }
+
+/* Travel kit */
+.stepbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 20px 4px 4px; }
+.stepbar__p { flex: 1; display: grid; gap: 6px; }
+.stepbar__l { font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+.tk-head { padding: 12px var(--layout-gutter) 20px; display: grid; gap: 10px; }
+.tk-head p { color: var(--color-text-muted); }
+.eqs { display: grid; gap: 10px; margin: 0 16px; }
+.eq { display: flex; align-items: stretch; padding: 0; }
+.eq.is-on { border-color: var(--color-line-strong); }
+.eq__main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 0 12px 14px; }
+.eq__text { display: grid; gap: 2px; min-width: 0; }
+.eq__name { font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; }
+.eq__sub { font-size: 14px; color: var(--color-text-muted); }
+.eq__tick { width: 64px; flex: none; display: grid; place-items: center; }
+.eq .well svg { width: 28px; height: 28px; }
+.live { display: flex; align-items: center; gap: 10px; }
+.live .num { font-size: var(--font-size-48); line-height: 0.85; }
+.live__l { font-size: 14px; color: var(--color-text-muted); line-height: 1.25; }
+.dock--live { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 16px; }
+.lfield { display: flex; align-items: center; gap: 12px; height: 72px; padding: 0 16px; border-radius: var(--radius-md); background: var(--color-surface-sunken); border: var(--border-control) solid var(--color-line-strong); }
+.lfield__w { font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); color: var(--color-text-muted); }
+.lfield .num { font-size: var(--font-size-48); }
+.lfield__m { font-size: var(--font-size-24); font-weight: 700; font-stretch: var(--font-width-title); flex: 1; }
+.lfield .i { color: var(--color-text-muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-min); padding: 0 16px; border-radius: var(--radius-pill); border: var(--border-control) solid var(--color-line-strong); font-weight: 600; font-size: 15px; font-stretch: var(--font-width-label); }
+.chip .i { width: 18px; height: 18px; stroke-width: 2.5; }
+.chip[aria-checked="true"] { background: var(--color-surface-inverse); border-color: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.chip[aria-checked="false"] .i { display: none; }
+.tk { padding: 0 var(--layout-gutter); display: grid; gap: 12px; }
+.tk + .tk { padding-top: 28px; }
+.covs { display: grid; }
+.cov { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 6px; align-items: center; padding: 12px 0; }
+.cov + .cov { border-top: 1px solid var(--color-line); }
+.cov__tile { grid-row: 1 / span 3; align-self: start; width: 40px; height: 40px; border-radius: var(--radius-sm); border: var(--border-control) solid var(--color-line-strong); display: grid; place-items: center; font-weight: 800; font-size: 18px; font-stretch: var(--font-width-title); }
+.cov__name { font-size: 17px; font-weight: 600; line-height: 1.2; }
+.cov__pct { font-size: var(--font-size-24); text-align: right; }
+.cov__bar { grid-column: 2 / 4; height: 8px; border-radius: var(--radius-xs); background: var(--color-track); overflow: hidden; }
+.cov__bar i { display: block; height: 100%; background: var(--color-text); border-radius: var(--radius-xs); }
+.cov__m { grid-column: 2 / 4; display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.cov__m .i { width: 18px; height: 18px; }
+.firm { padding: 16px; display: grid; gap: 12px; border-radius: var(--radius-lg); background: var(--color-surface); border: var(--border-strong) solid var(--color-text); font-size: 15px; line-height: 1.45; }
+
+/* Session detail */
+.shero { padding: 8px var(--layout-gutter) 0; display: grid; gap: 12px; }
+.shero__top { display: flex; align-items: flex-end; gap: 14px; }
+.shero__l { font-size: var(--font-size-144); line-height: 0.74; }
+.shero__k { font-size: 14px; color: var(--color-text-muted); font-weight: 600; }
+.shero .t-display { font-size: var(--font-size-36); }
+.px-list { padding: 20px var(--layout-gutter) 24px; display: grid; }
+.px { display: grid; gap: 10px; padding: 16px 0; }
+.px + .px, .px + .lo-wrap, .lo-wrap + .px { border-top: 1px solid var(--color-line); }
+.px__h { display: flex; gap: 10px; align-items: baseline; }
+.px__i { font-size: var(--font-size-21); color: var(--color-text-subtle); width: 18px; }
+.px__n { flex: 1; font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.15; }
+.px__cells { display: flex; gap: 22px; padding-left: 28px; }
+.px__cell .num { font-size: var(--font-size-36); }
+.px__cell .u { font-size: var(--font-size-21); color: var(--color-text-muted); font-weight: 600; font-stretch: var(--font-width-title); margin-left: 4px; }
+.px__cell small { display: block; font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+.px__f { padding-left: 28px; font-size: 14px; color: var(--color-text-muted); }
+.whyl { display: grid; grid-template-columns: 20px 1fr; gap: 10px; padding-left: 28px; font-size: 14px; line-height: 1.4; }
+.whyl .i { width: 20px; height: 20px; color: var(--color-text-muted); }
+.lo-wrap { padding: 16px 0; display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; }
+.lo-wrap .px__i { color: var(--color-text-disabled); }
+.lo { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 4px 10px; padding: 12px 14px; border-radius: var(--radius-md); border: var(--border-control) dashed var(--color-line-strong); color: var(--color-text-muted); }
+.lo .i { width: 20px; height: 20px; }
+.lo__t { font-size: 16px; font-weight: 600; line-height: 1.3; }
+.lo__s { grid-column: 2; font-size: 14px; line-height: 1.4; }
+
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .seg__opt, .device, .switch, .switch::after { transition-duration: 1ms !important; }
+  .btn:active, .ans:active { transform: none; }
+}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 8.5l7 7"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-mat" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="1.5"/><path d="M7 9v6M17 9v6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-why" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.5"/><path d="M12 16.9h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15.5v3a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-3"/></symbol>
+  <symbol id="i-step-up" viewBox="0 0 24 24"><path d="M3 19.5h5v-5h5v-5h5v-5h3"/></symbol>
+  <symbol id="i-equals" viewBox="0 0 24 24"><path d="M6 9.5h12M6 14.5h12"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3.5 7h3c4.5 0 5.5 10 10 10h3.5"/><path d="M3.5 17h3c1.5 0 2.6-1.2 3.4-2.8M13.6 9.8C14.4 8.2 15.5 7 17 7h3"/><path d="M17.5 4.5L20 7l-2.5 2.5M17.5 14.5L20 17l-2.5 2.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5"/><path d="M12 16.4h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l8 6-8 6z"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-person-run" viewBox="0 0 24 24"><circle cx="14" cy="4.5" r="1.8"/><path d="M6 21l3.5-5.5 3 2.5 1-5.5"/><path d="M8 10.5l3.5-3 4 2.5 2.5 3"/><path d="M13.5 13l2.5 2.5"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="i-incline" viewBox="0 0 24 24"><path d="M3 19h18L21 8z"/><path d="M16 19v-3"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01" stroke-width="3"/></symbol>
+  <!-- New: max test (a target: one effort, aimed at a number) -->
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01" stroke-width="3"/></symbol>
+  <!-- New: weekly check-in (bathroom scale) -->
+  <symbol id="i-scale" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M7.5 11a5.5 5.5 0 0 1 9 0z"/><path d="M12 11l1.8-2.6"/></symbol>
+  <symbol id="i-band" viewBox="0 0 24 24"><path d="M3 5h4M17 5h4"/><path d="M7 5c0 9 2.5 14 5 14s5-5 5-14"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M2.5 7h19M5 4v6M19 4v6"/><path d="M9.5 7v3.5M14.5 7v3.5"/><circle cx="12" cy="15.5" r="2.5"/></symbol>
+  <symbol id="i-rope" viewBox="0 0 24 24"><path d="M5.5 3.5v6M18.5 3.5v6"/><path d="M5.5 9.5c0 7.5 3 11 6.5 11s6.5-3.5 6.5-11"/></symbol>
+  <symbol id="i-straps" viewBox="0 0 24 24"><path d="M12 2.5v5M12 7.5L7 17M12 7.5L17 17"/><path d="M5 17h4M15 17h4M7 17v3M17 17v3"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 4h10M7 20h10"/><path d="M8 4c0 4.5 8 5.5 8 8s-8 3.5-8 8M16 4c0 4.5-8 5.5-8 8s8 3.5 8 8"/></symbol>
+  <!-- New: a joint to go easy on (two segments meeting at a ring: a bent limb) -->
+  <symbol id="i-joint" viewBox="0 0 24 24"><circle cx="11" cy="11.5" r="3.5"/><path d="M8.6 9L4 4.5M13.2 14.3L17 21"/><path d="M2.5 6l3-3M15.3 21.8l3.4-1.6"/></symbol>
+  <!-- New: travel kit (a suitcase on wheels) -->
+  <symbol id="i-suitcase" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2"/><path d="M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M9.5 11v4M14.5 11v4"/><path d="M8 21.5h.01M16 21.5h.01" stroke-width="3"/></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Fitting real life">Vie réelle</span>
+  <nav class="mock-bar__nav" aria-label="Surfaces">
+    <a href="#s1" data-en="1 Programme tab">1 Onglet Programme</a><a href="#s2" data-en="2 Settings">2 Réglages</a><a href="#s3" data-en="3 Pain card">3 Carte douleur</a><a href="#s4" data-en="4 Travel kit">4 Kit de voyage</a><a href="#s5" data-en="5 Session detail">5 Détail de séance</a>
+  </nav>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s1"><h2 data-en="1. Programme tab">1. Onglet Programme</h2><p data-en="Training days set, a travel kit on, the knee limited for 6 weeks. Zone A shows one banner (missed day); the invitation under the next card is the limitation review; the week strip and the limits row follow.">Jours d’entraînement fixés, kit de voyage actif, genou ménagé depuis 6 semaines. La zone A montre une bannière (jour manqué)&#8239;; l’invitation sous la prochaine séance est la question sur le genou&#8239;; viennent ensuite la semaine et la ligne des limites.</p></section>
+
+<figure class="mock-shot" id="f1a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar">
+        <div class="appbar__text"><span class="appbar__title" data-en="Muscle gain">Prise de muscle</span><span class="appbar__meta" data-en="8 weeks, 4 sessions a week">8 semaines, 4 séances par semaine</span></div>
+        <button class="icon-btn" type="button" aria-haspopup="menu" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+      </div>
+      <div class="scroll">
+        <section class="banner" aria-labelledby="mb-t">
+          <div class="banner__head"><span class="well"><svg class="i"><use href="#i-calendar"/></svg></span><div class="banner__text"><h2 class="banner__title" id="mb-t" data-en="Tuesday’s session is still next">La séance de mardi est toujours la prochaine</h2><p class="t-meta muted" data-en="Nothing is skipped: your rotation waits for you. Session B, planned today.">Rien n’est sauté&#8239;: ta rotation t’attend. Séance B, prévue aujourd’hui.</p></div></div>
+          <div class="banner__actions"><button class="btn btn--ghost" type="button" data-en="Got it">Compris</button></div>
+        </section>
+        <section class="hero">
+          <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">3</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+          <div class="segs"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="hero__phase"><h2 class="t-display" data-en="Volume phase">Phase volume</h2><p class="muted" data-en="More sets each week, same loads.">Plus de séries chaque semaine, mêmes charges.</p></div>
+        </section>
+        <article class="card next">
+          <div><p class="next__label" data-en="&lt;b&gt;Next session, today&lt;/b&gt;"><b>Prochaine séance, aujourd’hui</b></p><h2 class="t-display next__title" data-en="Session B — Legs">Séance B — Jambes</h2><p class="next__muscles" data-en="Quads, glutes, hamstrings, calves">Quadriceps, fessiers, ischios, mollets</p></div>
+          <ul class="facts"><li><svg class="i"><use href="#i-clock"/></svg><span>~45&nbsp;min</span></li><li><svg class="i"><use href="#i-list"/></svg><span data-en="6 exercises">6 exercices</span></li></ul>
+          <div class="kline"><svg class="i"><use href="#i-suitcase"/></svg><span data-en="&lt;b&gt;Travel kit until 30 Nov&lt;/b&gt;: 2 exercises swapped, 1 dropped."><b>Kit de voyage jusqu’au 30 nov.</b>&#8239;: 2 exercices remplacés, 1 retiré.</span><button class="btn btn--secondary btn--sm" type="button" data-go="f4b" data-en="Manage">Gérer</button></div>
+          <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button>
+          <button class="btn btn--ghost" type="button" data-en="View session">Voir la séance</button>
+        </article>
+      </div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Missed day (zone A), next session planned today, kit line inside the card: Start stays the only yellow">Jour manqué (zone A), prochaine séance prévue aujourd’hui, ligne du kit dans la carte&#8239;: Commencer reste le seul jaune</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar">
+        <div class="appbar__text"><span class="appbar__title" data-en="Muscle gain">Prise de muscle</span><span class="appbar__meta" data-en="8 weeks, 4 sessions a week">8 semaines, 4 séances par semaine</span></div>
+        <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+      </div>
+      <div class="scroll">
+        <article class="card next" style="margin-top: 8px">
+          <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button>
+          <button class="btn btn--ghost" type="button" data-en="View session">Voir la séance</button>
+        </article>
+        <section class="card pc pc--tab" aria-labelledby="rv-t">
+          <div class="pc__head"><span class="well"><svg class="i"><use href="#i-joint"/></svg></span><div class="pc__head-text"><h2 class="pc__name" id="rv-t" data-en="Still bothered by your knee?">Ton genou te gêne encore&#8239;?</h2><p class="pc__kick" data-en="Going easy since 9 Oct, &lt;b&gt;6 weeks&lt;/b&gt; ago. 4 exercises adapted.">À ménager depuis le 9 octobre, il y a <b>6 semaines</b>. 4 exercices adaptés.</p></div></div>
+          <div class="pc__answers">
+            <button class="ans" type="button"><svg class="i"><use href="#i-equals"/></svg><span class="ans__text"><span class="ans__t" data-en="Yes, it still bothers me">Oui, ça me gêne encore</span><span class="ans__s" data-en="We’ll ask again in 6 weeks.">On te reposera la question dans 6 semaines.</span></span></button>
+            <button class="ans" type="button" aria-haspopup="dialog"><svg class="i"><use href="#i-arrow-up"/></svg><span class="ans__text"><span class="ans__t" data-en="No, it’s fine now">Non, c’est passé</span><span class="ans__s" data-en="You’ll see what comes back before it applies.">Tu vois ce qui revient avant de valider.</span></span><svg class="i i--sm ans__chev"><use href="#i-chev-right"/></svg></button>
+          </div>
+        </section>
+        <section class="wkst" aria-labelledby="wk-t">
+          <h2 class="wkst__title" id="wk-t" data-en="Your next 7 days">Tes 7 prochains jours</h2>
+          <div class="wk" role="table" aria-labelledby="wk-t">
+            <div class="wk__d is-today"><span class="wk__w" data-en="today">auj.</span><span class="num wk__n">20</span><span class="cell cell--next">B</span></div>
+            <div class="wk__d"><span class="wk__w" data-en="Fri">ven.</span><span class="num wk__n">21</span><span class="wk__rest"></span></div>
+            <div class="wk__d"><span class="wk__w" data-en="Sat">sam.</span><span class="num wk__n">22</span><span class="cell cell--todo">C</span></div>
+            <div class="wk__d"><span class="wk__w" data-en="Sun">dim.</span><span class="num wk__n">23</span><span class="wk__rest"></span></div>
+            <div class="wk__d"><span class="wk__w" data-en="Mon">lun.</span><span class="num wk__n">24</span><span class="cell cell--todo">D</span></div>
+            <div class="wk__d"><span class="wk__w" data-en="Tue">mar.</span><span class="num wk__n">25</span><span class="cell cell--todo">A</span></div>
+            <div class="wk__d"><span class="wk__w" data-en="Wed">mer.</span><span class="num wk__n">26</span><span class="wk__rest"></span></div>
+          </div>
+        </section>
+        <a class="card nudge" href="#f5a" data-go="f5a">
+          <span class="well"><svg class="i"><use href="#i-joint"/></svg></span>
+          <span class="nudge__text"><span class="nudge__t" data-en="Adapted for you: knee, no jumping">Adapté pour toi&#8239;: genou, sans sauts</span><span class="nudge__s" data-en="2 exercises left out">2 exercices laissés de côté</span></span>
+          <svg class="i i--sm"><use href="#i-chev-right"/></svg>
+        </a>
+        <section class="sec-pad"><h2 class="section-title" data-en="Rotation">Rotation</h2><p class="small" data-en="Always in order. A missed day shifts the rotation; nothing is skipped.">Toujours dans l’ordre. Un jour manqué décale la rotation&#8239;; rien n’est sauté.</p></section>
+      </div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Scrolled: one invitation (limitation review, answer rows), then the week strip on the grid’s today band, then the limits row">Plus bas&#8239;: une seule invitation (la question sur le genou), puis la semaine avec aujourd’hui sur la bande de la grille, puis la ligne des limites</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar">
+        <div class="appbar__text"><span class="appbar__title" data-en="Muscle gain">Prise de muscle</span><span class="appbar__meta" data-en="8 weeks, 4 sessions a week">8 semaines, 4 séances par semaine</span></div>
+        <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+      </div>
+      <div class="scroll">
+        <section class="hero hero--paused">
+          <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">3</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+          <div class="segs"><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="paused">
+            <h2 class="t-display paused__t"><svg class="i"><use href="#i-pause"/></svg><span data-en="Paused">En pause</span></h2>
+            <p data-en="Since 12 November, 8 days. Nothing is missed: you pick up in week 3, session B.">Depuis le 12 novembre, 8 jours. Rien n’est manqué&#8239;: tu reprends en semaine 3, séance B.</p>
+            <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Resume programme">Reprendre le programme</span></button>
+          </div>
+        </section>
+        <article class="card next">
+          <div><p class="next__label" data-en="Next session">Prochaine séance</p><h2 class="t-display next__title" data-en="Session B — Legs">Séance B — Jambes</h2></div>
+          <ul class="facts"><li><svg class="i"><use href="#i-clock"/></svg><span>~45&nbsp;min</span></li><li><svg class="i"><use href="#i-list"/></svg><span data-en="6 exercises">6 exercices</span></li></ul>
+          <button class="btn btn--secondary btn--player btn--block" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button>
+          <p class="inline-note"><svg class="i"><use href="#i-info"/></svg><span data-en="Starting a session resumes the programme.">Commencer une séance reprend le programme.</span></p>
+          <button class="btn btn--ghost" type="button" data-en="View session">Voir la séance</button>
+        </article>
+      </div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Paused: the week freezes in subtle grey, Resume is the primary, Start turns secondary. Missed day, week strip, invitations and the kit line are hidden">En pause&#8239;: la semaine se fige en gris, Reprendre devient le principal, Commencer passe en secondaire. Jour manqué, semaine, invitations et ligne du kit sont masqués</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f1d">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar">
+        <div class="appbar__text"><span class="appbar__title" data-en="Muscle gain">Prise de muscle</span><span class="appbar__meta" data-en="8 weeks, 4 sessions a week">8 semaines, 4 séances par semaine</span></div>
+        <button class="icon-btn" type="button" aria-label="Options du programme" data-en-label="Programme options"><svg class="i"><use href="#i-sliders"/></svg></button>
+      </div>
+      <div class="scroll">
+        <section class="card pc pc--tab" style="margin-top: 8px" aria-labelledby="rs-t">
+          <div class="pc__head"><span class="well"><svg class="i"><use href="#i-hourglass"/></svg></span><div class="pc__head-text"><h2 class="pc__name" id="rs-t" data-en="Start this programme again from week 1?">Recommencer ce programme en semaine 1&#8239;?</h2><p class="pc__kick" data-en="Your last session was on 14 August, &lt;b&gt;97 days&lt;/b&gt; ago.">Ta dernière séance date du 14 août, il y a <b>97 jours</b>.</p></div></div>
+          <div class="pc__answers">
+            <button class="ans" type="button" aria-haspopup="dialog"><svg class="i"><use href="#i-refresh"/></svg><span class="ans__text"><span class="ans__t" data-en="Start again from week 1">Recommencer en semaine 1</span><span class="ans__s" data-en="Same sessions and exercises, re-adaptation starts over. Your loads restart carefully.">Mêmes séances et exercices, la réadaptation reprend du début. Tes charges repartent prudemment.</span></span></button>
+            <button class="ans" type="button"><svg class="i"><use href="#i-arrow-right"/></svg><span class="ans__text"><span class="ans__t" data-en="Carry on in week 5">Continuer en semaine 5</span><span class="ans__s" data-en="Your next 4 sessions with 30% fewer sets to ease back in.">Tes 4 prochaines séances avec 30&#8239;% de séries en moins pour te remettre en route.</span></span></button>
+          </div>
+        </section>
+        <section class="hero">
+          <div class="hero__week"><span class="hero__label" data-en="Week">Semaine</span><span class="hero__row"><span class="num hero__n">5</span><span class="num hero__of" data-en="of 8">sur 8</span></span></div>
+          <div class="segs"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="cur"></i><i></i><i></i><i></i></div>
+          <div class="hero__phase"><h2 class="t-display" data-en="Intensity phase">Phase intensité</h2></div>
+        </section>
+        <article class="card next">
+          <div><p class="next__label" data-en="Next session">Prochaine séance</p><h2 class="t-display next__title" data-en="Session C — Upper">Séance C — Haut</h2></div>
+          <ul class="facts"><li><svg class="i"><use href="#i-clock"/></svg><span>~38&nbsp;min</span></li><li class="fact-reentry"><svg class="i"><use href="#i-hourglass"/></svg><span data-en="Easing back in: lighter sets, session 1 of 4">Reprise&#8239;: séries allégées, séance 1 sur 4</span></li></ul>
+          <button class="btn btn--primary btn--player btn--block" type="button"><svg class="i"><use href="#i-play"/></svg><span data-en="Start">Commencer</span></button>
+        </article>
+      </div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Over 84 days: the restart card leads zone A with answer rows (no yellow). Start without answering = carry on with lighter sets">Plus de 84 jours&#8239;: la carte de reprise mène la zone A, avec des lignes de réponse (pas de jaune). Commencer sans répondre = continuer avec des séries allégées</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s2"><h2 data-en="2. Settings: joints, noise, space · training days">2. Réglages&#8239;: articulations, bruit, place · jours d’entraînement</h2><p data-en="Joints, quiet and small space are a draft confirmed through the change preview, so they are check-box rows, not switches. Lift = untick.">Articulations, calme et petit espace sont un brouillon validé par l’aperçu des changements&#8239;: des cases à cocher, pas des interrupteurs. Lever = décocher.</p></section>
+
+<figure class="mock-shot" id="f2a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll">
+        <div class="set-head"><h1 class="t-display" data-en="Settings">Réglages</h1></div>
+        <section class="set-sec">
+          <h2 class="set-sec__h" data-en="Your training">Ton entraînement</h2>
+          <div class="card rows">
+            <button class="row" type="button"><svg class="i"><use href="#i-user"/></svg><span class="row__text"><span class="row__title" data-en="Profile">Profil</span><span class="row__meta" data-en="Muscle gain, intermediate, 4 × 45 min">Prise de muscle, intermédiaire, 4 × 45&nbsp;min</span></span><svg class="i i--sm"><use href="#i-chev-right"/></svg></button>
+            <button class="row" type="button"><svg class="i"><use href="#i-dumbbell"/></svg><span class="row__text"><span class="row__title" data-en="Equipment">Matériel</span><span class="row__meta" data-en="Adjustable dumbbells, bands. 6 items">Haltères réglables, élastiques. 6 équipements</span></span><svg class="i i--sm"><use href="#i-chev-right"/></svg></button>
+            <button class="row" type="button" data-go="f2b"><svg class="i"><use href="#i-joint"/></svg><span class="row__text"><span class="row__title" data-en="Joints, noise, space">Articulations, bruit, place</span><span class="row__meta" data-en="Knee, no jumping">Genou, sans sauts</span></span><svg class="i i--sm"><use href="#i-chev-right"/></svg></button>
+            <button class="row" type="button" data-go="f2d"><svg class="i"><use href="#i-calendar"/></svg><span class="row__text"><span class="row__title" data-en="Training days">Jours d’entraînement</span><span class="row__meta" data-en="Mon, Wed, Fri, Sat">Lun., mer., ven., sam.</span></span><svg class="i i--sm"><use href="#i-chev-right"/></svg></button>
+            <button class="row" type="button" data-go="f4a"><svg class="i"><use href="#i-suitcase"/></svg><span class="row__text"><span class="row__title" data-en="Travel kit">Kit de voyage</span><span class="row__meta" data-en="For training away from your equipment">Pour t’entraîner loin de ton matériel</span></span><svg class="i i--sm"><use href="#i-chev-right"/></svg></button>
+            <button class="swrow" type="button" role="switch" aria-checked="true"><span class="swrow__text"><span class="swrow__title" data-en="Weekly check-in reminder">Rappel des mesures de la semaine</span><span class="swrow__meta" data-en="A card on Programme when your last check-in is more than 7 days old.">Une carte sur Programme quand tes dernières mesures datent de plus de 7 jours.</span></span><span class="switch"></span></button>
+            <button class="row" type="button"><svg class="i"><use href="#i-refresh"/></svg><span class="row__text"><span class="row__title" data-en="New programme">Nouveau programme</span><span class="row__meta" data-en="Start again from your profile and equipment">Repartir de ton profil et de ton matériel</span></span><svg class="i i--sm"><use href="#i-chev-right"/></svg></button>
+          </div>
+        </section>
+      </div>
+      <nav class="tabbar" data-tab="settings"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Settings: three new rows under Your training, each with its state as meta">Réglages&#8239;: trois nouvelles lignes dans Ton entraînement, l’état en sous-titre</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar appbar--back">
+        <button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+        <div class="appbar__text"><span class="appbar__title" data-en="Joints, noise, space">Articulations, bruit, place</span></div>
+      </div>
+      <div class="scroll">
+        <div class="intro"><p data-en="Your programme leaves out exercises that are hard on these joints and keeps 2 reps in the tank on those that load them a little.">Ton programme écarte les exercices durs pour ces articulations et garde 2 reps en réserve sur ceux qui les sollicitent un peu.</p></div>
+        <section class="set-sec" style="margin-top: 0">
+          <h2 class="set-sec__h" data-en="Joints to go easy on">Articulations à ménager</h2>
+          <div class="card rows" role="group">
+            <button class="cbrow is-draft" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Shoulder">Épaule</span><span class="cbrow__m" data-en="New: you’ll see what changes before it applies.">Nouveau&#8239;: tu verras ce qui change avant de valider.</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="false"><span class="cbrow__text"><span class="cbrow__t" data-en="Elbow">Coude</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="false"><span class="cbrow__text"><span class="cbrow__t" data-en="Wrist">Poignet</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="false"><span class="cbrow__text"><span class="cbrow__t" data-en="Lower back">Bas du dos</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="false"><span class="cbrow__text"><span class="cbrow__t" data-en="Hip">Hanche</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Knee">Genou</span><span class="cbrow__m" data-en="Going easy since 9 Oct (6 wk)">À ménager depuis le 9 octobre (6&nbsp;sem.)</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="false"><span class="cbrow__text"><span class="cbrow__t" data-en="Ankle">Cheville</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+          </div>
+          <p class="pc__note pc__note--care care"><svg class="i"><use href="#i-info"/></svg><span data-en="If pain persists, see a health professional.">Si une douleur persiste, consulte un professionnel de santé.</span></p>
+        </section>
+        <section class="set-sec">
+          <h2 class="set-sec__h" data-en="At home">Chez toi</h2>
+          <div class="card rows" role="group">
+            <button class="cbrow" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="No jumping or impact">Sans sauts ni impacts</span><span class="cbrow__m" data-en="For the neighbours: no jumps, skipping or running.">Pour les voisins&#8239;: pas de sauts, de corde à sauter ni de course.</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow" type="button" role="checkbox" aria-checked="false"><span class="cbrow__text"><span class="cbrow__t" data-en="Small space">Petit espace</span><span class="cbrow__m" data-en="Everything on the spot: no walking lunges, crawls or carries.">Tout se fait sur place&#8239;: pas de fentes marchées, de déplacements ni de portés.</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+          </div>
+          <p class="inline-note" style="padding: 0 var(--layout-gutter) 24px"><svg class="i"><use href="#i-info"/></svg><span data-en="Applies to quick sessions too.">S’applique aussi aux séances rapides.</span></p>
+        </section>
+      </div>
+      <div class="dock dock--home">
+        <p class="dock-note"><svg class="i"><use href="#i-info"/></svg><span data-en="Your programme’s exercises are picked again; you stay in week 3.">Les exercices de ton programme sont choisis à nouveau&#8239;; tu restes en semaine 3.</span></p>
+        <button class="btn btn--primary btn--block" type="button" data-go="f2c" data-en="See what changes">Voir ce qui change</button>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Shoulder added in the draft (left bar + consequence meta), knee active since 9 Oct, quiet on. The dock note says the cycle doesn’t restart">Épaule ajoutée au brouillon (barre à gauche + conséquence), genou actif depuis le 9 octobre, calme activé. La note du dock dit que le cycle ne repart pas</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="appbar appbar--back">
+        <button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+        <div class="appbar__text"><span class="appbar__title" data-en="Joints, noise, space">Articulations, bruit, place</span></div>
+      </div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="cp-t">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head">
+          <span class="sheet__eyebrow" data-en="Joints, noise, space">Articulations, bruit, place</span>
+          <h2 class="cp-count" id="cp-t"><span class="num cp-n">4</span><span class="cp-l" data-en="exercises change">exercices changent</span></h2>
+        </div>
+        <div class="sheet__body">
+          <p class="kept"><svg class="i"><use href="#i-check"/></svg><span data-en="Same split, same loads. You stay in week 3.">Même découpage, mêmes charges. Tu restes en semaine 3.</span></p>
+          <section class="chg"><h3 class="chg__s" data-en="Session A — Upper">Séance A — Haut</h3>
+            <div class="sw"><i></i><span class="sw__o" data-en="Standing overhead press">Développé militaire debout</span><span class="sw__n" data-en="Landmine-style band press">Développé à l’élastique en diagonale</span></div>
+            <div class="sw"><i></i><span class="sw__o" data-en="Dumbbell lateral raise">Élévations latérales haltères</span><span class="sw__n" data-en="Band face pull">Face pull à l’élastique</span></div>
+          </section>
+          <section class="chg"><h3 class="chg__s" data-en="Session C — Upper">Séance C — Haut</h3>
+            <div class="sw"><i></i><span class="sw__o" data-en="Pike push-up">Pompes piquées</span><span class="sw__n" data-en="Half-kneeling dumbbell press">Développé haltère à genou</span></div>
+            <div class="sw sw--rm"><span class="sw__o" data-en="Dips between chairs">Dips entre deux chaises</span><span class="sw__cause" data-en="Removed: nothing fits while going easy on your shoulder">Retiré&#8239;: rien ne convient pour ménager ton épaule</span></div>
+          </section>
+          <section class="aside"><h3 class="aside__h" data-en="Good to know">À savoir</h3>
+            <p class="notice"><svg class="i"><use href="#i-joint"/></svg><span data-en="Triceps: 4 sets a week instead of 9, to go easy on your shoulder.">Triceps&#8239;: 4 séries par semaine au lieu de 9, pour ménager ton épaule.</span></p>
+            <p class="issue"><svg class="i"><use href="#i-alert"/></svg><span data-en="Session A — Upper: Push-up stays because you chose it. Not advised for your shoulder: at least 2 reps in the tank.">Séance A — Haut&#8239;: Pompes reste, parce que tu l’as choisi. Déconseillé pour ton épaule&#8239;: 2 reps en réserve au moins.</span></p>
+          </section>
+        </div>
+        <div class="sheet__foot">
+          <button class="btn btn--primary btn--player btn--block" type="button" data-en="Apply">Appliquer</button>
+          <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="In-place preview: count, “you stay in week 3”, swaps by session, a removed slot with its cause, then volume and kept-edit notes">Aperçu sur place&#8239;: le nombre, «&#8239;tu restes en semaine 3&#8239;», les échanges par séance, une place retirée avec sa cause, puis le volume et le choix gardé</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f2d">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="scroll"><div class="set-head"><h1 class="t-display" data-en="Settings">Réglages</h1></div></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="dy-t">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head">
+          <h2 class="t-title" id="dy-t" data-en="Your training days">Tes jours d’entraînement</h2>
+          <p class="muted t-meta" data-en="Pick 4 days. Sessions keep their order: a missed day shifts the rest.">Choisis 4 jours. Les séances gardent leur ordre&#8239;: un jour manqué décale la suite.</p>
+        </div>
+        <div class="sheet__body" style="padding-left: 0; padding-right: 0; gap: 12px">
+          <div class="rows" role="group" aria-labelledby="dy-t" style="margin: 0">
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Monday">Lundi</span></span><span class="cell cell--todo">D</span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="false" aria-disabled="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Tuesday">Mardi</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Wednesday">Mercredi</span></span><span class="cell cell--todo">A</span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="false" aria-disabled="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Thursday">Jeudi</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Friday">Vendredi</span></span><span class="cell cell--todo">B</span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Saturday">Samedi</span></span><span class="cell cell--todo">C</span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+            <button class="cbrow cbrow--sm" type="button" role="checkbox" aria-checked="false" aria-disabled="true"><span class="cbrow__text"><span class="cbrow__t" data-en="Sunday">Dimanche</span></span><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button>
+          </div>
+          <p class="status" style="padding: 0 var(--layout-gutter)" aria-live="polite" data-en="4 days picked. Untick one to change it.">4 jours choisis. Décoche un jour pour en changer.</p>
+        </div>
+        <div class="sheet__foot">
+          <button class="btn btn--primary btn--player btn--block" type="button" data-en="Save">Enregistrer</button>
+          <button class="btn btn--secondary btn--block" type="button" data-en="No set days">Ne pas fixer de jours</button>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Training days, full: the other days dim. Letter tiles preview where each session falls from today (Thursday): B on Friday">Jours d’entraînement, complet&#8239;: les autres jours s’estompent. Les lettres montrent où tombe chaque séance à partir d’aujourd’hui (jeudi)&#8239;: B vendredi</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s3"><h2 data-en="3. Pain card: go easy on this joint">3. Carte douleur&#8239;: ménager l’articulation</h2><p data-en="A second pain stop puts the joint answer first, with the firm 2 px edge and a bold lead. It is the only answer with a chevron: it opens the in-place preview. First stop: same row, last, standard edge.">Une deuxième douleur met la réponse articulation en premier, avec le bord ferme de 2&nbsp;px et une première ligne en gras. C’est la seule réponse avec un chevron&#8239;: elle ouvre l’aperçu. Première douleur&#8239;: même ligne, en dernier, bord standard.</p></section>
+
+<figure class="mock-shot" id="f3a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar ctxbar--plain"><span class="ctxbar__text" data-en="Week 3 · Session B — Legs">Semaine 3 · Séance B — Jambes</span></div>
+      <div class="scroll">
+        <div class="sum">
+          <div><h2 class="section-title" data-en="Your call">À toi de choisir</h2><p class="small" data-en="One exercise was stopped. Your answer shapes the next sessions.">Un exercice a été arrêté. Ta réponse oriente les prochaines séances.</p></div>
+          <section class="card pc">
+            <div class="pc__head"><span class="well well--pain"><svg class="i"><use href="#i-stop"/></svg></span><div class="pc__head-text"><h3 class="pc__name" data-en="Bulgarian split squat">Fentes bulgares</h3><p class="pc__kick" data-en="&lt;span class=&quot;pain&quot;&gt;Pain again&lt;/span&gt;, 1 of 3 sets done, even at 8&amp;nbsp;kg. What next?"><span class="pain">Douleur à nouveau</span>, 1 série sur 3 faite, même à 8&nbsp;kg. Pour la suite&#8239;?</p></div></div>
+            <div class="pc__answers">
+              <button class="ans ans--firm" type="button" aria-haspopup="dialog"><svg class="i"><use href="#i-joint"/></svg><span class="ans__text"><span class="ans__t" data-en="Go easy on your knee">Ménager ton genou</span><span class="ans__s" data-en="&lt;b&gt;Suggested after a second pain.&lt;/b&gt;It leaves your programme with the other exercises hard on the knee. Glute bridge instead."><b>Conseillé après une deuxième douleur.</b>Il quitte ton programme avec les exercices durs pour le genou. Pont fessier au sol à la place.</span></span><svg class="i i--sm ans__chev"><use href="#i-chev-right"/></svg></button>
+              <button class="ans" type="button"><svg class="i"><use href="#i-swap"/></svg><span class="ans__text"><span class="ans__t" data-en="Step-up instead">Montée sur chaise à la place</span><span class="ans__s" data-en="Same movement, lower knee bend. In every session, from the next one.">Même mouvement, genou moins plié. Dans toutes tes séances, dès la prochaine.</span></span></button>
+              <button class="ans" type="button"><svg class="i"><use href="#i-arrow-down"/></svg><span class="ans__text"><span class="ans__t" data-en="Keep it, lighter">Le garder, plus léger</span><span class="ans__s" data-en="6 kg instead of 8 kg. No increase before 2 pain-free sessions.">6&nbsp;kg au lieu de 8&nbsp;kg. Pas de hausse avant 2 séances sans douleur.</span></span></button>
+            </div>
+            <p class="pc__note"><svg class="i"><use href="#i-arrow-down"/></svg><span data-en="Next session: &lt;b&gt;6 kg instead of 8 kg&lt;/b&gt; until you choose.">Prochaine séance&#8239;: <b>6&nbsp;kg au lieu de 8&nbsp;kg</b> tant que tu n’as pas choisi.</span></p>
+            <p class="pc__note pc__note--care"><svg class="i"><use href="#i-info"/></svg><span data-en="If the pain persists, see a health professional.">Si la douleur persiste, consulte un professionnel de santé.</span></p>
+          </section>
+        </div>
+      </div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button" data-en="Back to programme">Retour au programme</button></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Second pain stop: the joint answer first and firm; “Keep it as it is” is gone (existing rule); the care note stays neutral">Deuxième douleur&#8239;: la réponse articulation en premier, bord ferme&#8239;; «&#8239;Le garder tel quel&#8239;» disparaît (règle existante)&#8239;; la note de soin reste neutre</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f3b">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar ctxbar--plain"><span class="ctxbar__text" data-en="Week 3 · Session A — Upper">Semaine 3 · Séance A — Haut</span></div>
+      <div class="scroll"></div>
+      <div class="scrim"></div>
+      <div class="sheet" role="dialog" aria-labelledby="jp-t">
+        <span class="sheet__grab"></span>
+        <div class="sheet__head">
+          <h2 class="t-title" id="jp-t" data-en="Which joint?">Quelle articulation&#8239;?</h2>
+          <p class="muted t-meta" data-en="Your programme leaves out exercises that are hard on it. You’ll see what changes before it applies.">Ton programme écarte les exercices durs pour elle. Tu vois ce qui change avant de valider.</p>
+        </div>
+        <div class="sheet__body">
+          <div class="choices" role="radiogroup" aria-labelledby="jp-t">
+            <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Shoulder">Épaule</span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Elbow">Coude</span></button>
+            <button class="choice" type="button" role="radio" aria-checked="true"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Wrist">Poignet</span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Lower back">Bas du dos</span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Hip">Hanche</span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Knee">Genou</span></button>
+            <button class="choice" type="button" role="radio" aria-checked="false"><span class="choice__mark"><svg class="i"><use href="#i-check"/></svg></span><span data-en="Ankle">Cheville</span></button>
+          </div>
+        </div>
+        <div class="sheet__foot">
+          <button class="btn btn--primary btn--player btn--block" type="button" data-en="See what changes">Voir ce qui change</button>
+          <button class="btn btn--secondary btn--block" type="button" data-en="Cancel">Annuler</button>
+        </div>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="The exercise has no joint grade: the row opens this picker first, then the same preview">L’exercice n’a pas de note d’articulation&#8239;: la ligne ouvre d’abord ce choix, puis le même aperçu</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s4"><h2 data-en="4. Travel kit">4. Kit de voyage</h2><p data-en="Two steps: what you take (the equipment checklist, starting empty, with the live coverage in the dock), then until when and what each session keeps. Coverage bars are a measure: ink, never yellow.">Deux étapes&#8239;: ce que tu emportes (la liste du matériel, vide au départ, avec la couverture en direct dans le dock), puis jusqu’à quand et ce que garde chaque séance. Les barres de couverture sont une mesure&#8239;: encre, jamais jaune.</p></section>
+
+<figure class="mock-shot" id="f4a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="stepbar">
+        <button class="icon-btn" type="button" aria-label="Fermer" data-en-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+        <div class="stepbar__p"><div class="segs"><i class="cur"></i><i></i></div><span class="stepbar__l" data-en="Step 1 of 2">Étape 1 sur 2</span></div>
+      </div>
+      <div class="scroll">
+        <div class="tk-head"><h1 class="t-display" data-en="What are you taking?">Qu’emportes-tu&#8239;?</h1><p data-en="Tick what you’ll have at hand. Your home equipment stays as it is.">Coche ce que tu auras sous la main. Ton matériel de la maison ne change pas.</p></div>
+        <div class="eqs">
+          <div class="card eq"><div class="eq__main"><span class="well"><svg class="i"><use href="#i-dumbbell"/></svg></span><span class="eq__text"><span class="eq__name" data-en="Adjustable dumbbells">Haltères réglables</span><span class="eq__sub" data-en="Range and step">Plage et pas</span></span></div><button class="eq__tick" type="button" role="checkbox" aria-checked="false" aria-label="Haltères réglables" data-en-label="Adjustable dumbbells"><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button></div>
+          <div class="card eq is-on"><div class="eq__main"><span class="well"><svg class="i"><use href="#i-band"/></svg></span><span class="eq__text"><span class="eq__name" data-en="Resistance bands">Élastiques</span><span class="eq__sub" data-en="Light, medium">Léger, moyen</span></span></div><button class="eq__tick" type="button" role="checkbox" aria-checked="true" aria-label="Élastiques" data-en-label="Resistance bands"><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button></div>
+          <div class="card eq"><div class="eq__main"><span class="well"><svg class="i"><use href="#i-bar"/></svg></span><span class="eq__text"><span class="eq__name" data-en="Pull-up bar">Barre de traction</span><span class="eq__sub" data-en="Doorway or fixed">Cadre de porte ou fixe</span></span></div><button class="eq__tick" type="button" role="checkbox" aria-checked="false" aria-label="Barre de traction" data-en-label="Pull-up bar"><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button></div>
+          <div class="card eq is-on"><div class="eq__main"><span class="well"><svg class="i"><use href="#i-straps"/></svg></span><span class="eq__text"><span class="eq__name" data-en="Suspension trainer">Sangles de suspension</span><span class="eq__sub" data-en="Door anchor">Ancrage de porte</span></span></div><button class="eq__tick" type="button" role="checkbox" aria-checked="true" aria-label="Sangles de suspension" data-en-label="Suspension trainer"><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button></div>
+          <div class="card eq"><div class="eq__main"><span class="well"><svg class="i"><use href="#i-rope"/></svg></span><span class="eq__text"><span class="eq__name" data-en="Jump rope">Corde à sauter</span><span class="eq__sub" data-en="Not ticked">Non coché</span></span></div><button class="eq__tick" type="button" role="checkbox" aria-checked="false" aria-label="Corde à sauter" data-en-label="Jump rope"><span class="check"><svg class="i"><use href="#i-check"/></svg></span></button></div>
+        </div>
+        <div style="height: 24px"></div>
+      </div>
+      <div class="dock dock--home dock--live">
+        <div class="live" aria-live="polite"><span class="num">64&#8239;%</span><span class="live__l" data-en="of your sessions&lt;br&gt;possible">de tes séances<br>possibles</span></div>
+        <button class="btn btn--primary btn--block" type="button" data-go="f4b" data-en="Continue">Continuer</button>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Step 1: the same checklist as onboarding, starting empty; the live counter shows how much of the rotation the kit covers">Étape 1&#8239;: la même liste qu’à l’inscription, vide au départ&#8239;; le compteur montre la part de la rotation que couvre le kit</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4b" data-scroll="0">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="stepbar">
+        <button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+        <div class="stepbar__p"><div class="segs"><i class="done"></i><i class="cur"></i></div><span class="stepbar__l" data-en="Step 2 of 2">Étape 2 sur 2</span></div>
+      </div>
+      <div class="scroll">
+        <div class="tk-head" style="padding-bottom: 16px"><h1 class="t-display" data-en="Until when?">Jusqu’à quand&#8239;?</h1></div>
+        <div class="tk">
+          <label class="lfield"><span class="lfield__w" data-en="Sun">dim.</span><span class="num">30</span><span class="lfield__m" data-en="Nov">nov.</span><svg class="i"><use href="#i-calendar"/></svg></label>
+          <div class="chips" role="radiogroup" aria-label="Durée" data-en-label="Length"><button class="chip" type="button" role="radio" aria-checked="false"><svg class="i"><use href="#i-check"/></svg><span data-en="One week">Une semaine</span></button><button class="chip" type="button" role="radio" aria-checked="false"><svg class="i"><use href="#i-check"/></svg><span data-en="Two weeks">Deux semaines</span></button></div>
+          <p class="inline-note"><svg class="i"><use href="#i-info"/></svg><span data-en="The kit ends by itself on that date.">Le kit s’arrête seul à cette date.</span></p>
+        </div>
+        <div class="tk">
+          <h2 class="section-title" data-en="Your sessions with this kit">Tes séances avec ce kit</h2>
+          <div class="covs">
+            <div class="cov"><span class="cov__tile">A</span><span class="cov__name" data-en="Upper">Haut</span><span class="num cov__pct">62&#8239;%</span><span class="cov__bar"><i style="width: 62%"></i></span><span class="cov__m" data-en="2 swapped, 1 dropped">2 remplacés, 1 retiré</span></div>
+            <div class="cov"><span class="cov__tile">B</span><span class="cov__name" data-en="Legs">Jambes</span><span class="num cov__pct">31&#8239;%</span><span class="cov__bar"><i style="width: 31%"></i></span><span class="cov__m"><svg class="i"><use href="#i-alert"/></svg><span data-en="Less than half the sets">Moins de la moitié des séries</span></span></div>
+            <div class="cov"><span class="cov__tile">C</span><span class="cov__name" data-en="Upper">Haut</span><span class="num cov__pct">55&#8239;%</span><span class="cov__bar"><i style="width: 55%"></i></span><span class="cov__m" data-en="2 swapped, 2 dropped">2 remplacés, 2 retirés</span></div>
+            <div class="cov"><span class="cov__tile">D</span><span class="cov__name" data-en="Legs">Jambes</span><span class="num cov__pct">28&#8239;%</span><span class="cov__bar"><i style="width: 28%"></i></span><span class="cov__m"><svg class="i"><use href="#i-alert"/></svg><span data-en="Less than half the sets">Moins de la moitié des séries</span></span></div>
+          </div>
+          <div class="firm"><p data-en="With this kit, your sessions lose more than half their sets. A pause keeps your programme intact until you’re back.">Avec ce kit, tes séances perdent plus de la moitié de leurs séries. Une pause garde ton programme intact jusqu’à ton retour.</p><button class="btn btn--secondary btn--block" type="button" data-go="f1c" data-en="Pause instead">Mettre en pause à la place</button></div>
+          <div style="height: 20px"></div>
+        </div>
+      </div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button" data-en="Start the travel kit">Activer le kit de voyage</button></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Step 2 with bands only: two sessions under 50% get the alert line; the mean is under 50%, so the firm notice suggests a pause. Activate stays the primary">Étape 2, élastiques seuls&#8239;: deux séances sous 50&#8239;% ont la ligne d’alerte&#8239;; la moyenne est sous 50&#8239;%, la note ferme propose une pause. Activer reste le principal</figcaption>
+</figure>
+
+<figure class="mock-shot" id="f4c">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar ctxbar--plain"><span class="ctxbar__text" data-en="Week 3 · Session B — Legs">Semaine 3 · Séance B — Jambes</span></div>
+      <div class="scroll">
+        <div class="sum">
+          <h1 class="t-display" data-en="Session done">Séance terminée</h1>
+          <div class="sum__dur"><span class="num">31</span><span class="num">min</span></div>
+          <div class="card sw-card">
+            <button class="swrow swrow--lg" type="button" role="switch" aria-checked="false"><span class="swrow__text"><span class="swrow__title" data-en="Counts as done">Compter comme faite</span><span class="swrow__meta" data-en="With your kit, less than half of the planned session: it will be offered again.">Avec ton kit, moins de la moitié de la séance prévue&#8239;: elle te sera reproposée.</span></span><span class="switch"></span></button>
+          </div>
+          <p class="notice"><svg class="i"><use href="#i-suitcase"/></svg><span data-en="&lt;b&gt;Travel kit&lt;/b&gt;: 2 exercises swapped, 2 dropped. Your home loads stay where they are."><b>Kit de voyage</b>&#8239;: 2 exercices remplacés, 2 retirés. Tes charges à la maison ne bougent pas.</span></p>
+          <div><h2 class="section-title" data-en="Exercise by exercise">Exercice par exercice</h2><p class="small" data-en="With your kit, nothing moves for your home sessions.">Avec ton kit, rien ne bouge pour tes séances à la maison.</p></div>
+          <div class="card exl">
+            <div class="exl__row"><span class="exl__n" data-en="Band squat">Squat à l’élastique</span><span class="exl__d" data-en="3 sets: 15, 15, 14 reps · &lt;b&gt;medium band&lt;/b&gt;">3 séries&#8239;: 15, 15, 14 reps · <b>élastique moyen</b></span><span class="exl__r" data-en="Travel kit. Replaces: Goblet squat.">Kit de voyage. Remplace&#8239;: Squat gobelet.</span></div>
+            <div class="exl__row is-dropped"><span class="exl__n" data-en="Dumbbell Romanian deadlift">Soulevé de terre roumain haltères</span><span class="exl__r" data-en="Not possible with your kit: dropped.">Pas possible avec ton kit&#8239;: retiré.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dock dock--home"><button class="btn btn--primary btn--player btn--block" type="button" data-en="Back to programme">Retour au programme</button></div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Travel summary: the switch starts off (under 50% of the original plan), the travel notice says home loads don’t move, the list has no next-time figures">Résumé en voyage&#8239;: l’interrupteur part éteint (moins de 50&#8239;% du plan d’origine), la note dit que les charges de la maison ne bougent pas, la liste n’a pas de prochaine fois</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s5"><h2 data-en="5. Constraint notes in session detail">5. Notes de limites dans le détail de séance</h2><p data-en="A left-out slot keeps its place as a dashed row; a capped exercise says why it keeps 2 reps in the tank; re-entry extends the break notice.">Une place laissée de côté garde sa position en ligne pointillée&#8239;; un exercice plafonné dit pourquoi il garde 2 reps en réserve&#8239;; la reprise complète la note de retour.</p></section>
+
+<figure class="mock-shot" id="f5a">
+  <div class="device">
+    <div class="statusbar"></div>
+    <div class="screen">
+      <div class="ctxbar"><button class="icon-btn" type="button" aria-label="Retour" data-en-label="Back"><svg class="i"><use href="#i-back"/></svg></button><span class="ctxbar__text" data-en="Week 5 · Intensity">Semaine 5 · Intensité</span></div>
+      <div class="scroll">
+        <section class="shero">
+          <div class="shero__top"><span class="num shero__l">B</span><div><p class="shero__k" data-en="Session">Séance</p><h1 class="t-display" data-en="Legs">Jambes</h1></div></div>
+          <p class="notice"><svg class="i"><use href="#i-hourglass"/></svg><span data-en="Welcome back. Easing back in: 30% fewer sets on your first 4 sessions (1 of 4).">Bon retour. Reprise en douceur&#8239;: 30&#8239;% de séries en moins sur tes 4 premières séances (1 sur 4).</span></p>
+        </section>
+        <div class="px-list">
+          <article class="px">
+            <div class="px__h"><span class="num px__i">1</span><h3 class="px__n" data-en="Glute bridge">Pont fessier au sol</h3></div>
+            <div class="px__cells"><div class="px__cell"><span class="num">3 × 12</span><small data-en="sets × target reps">séries × reps visées</small></div><div class="px__cell"><span class="num">10</span><span class="u">kg</span><small data-en="on the hips">sur les hanches</small></div></div>
+            <p class="px__f" data-en="Rest 90 s · 2 reps in the tank">Repos 90&nbsp;s · 2 reps en réserve</p>
+          </article>
+          <article class="px">
+            <div class="px__h"><span class="num px__i">2</span><h3 class="px__n" data-en="Goblet box squat">Squat gobelet sur chaise</h3></div>
+            <div class="px__cells"><div class="px__cell"><span class="num">3 × 9</span><small data-en="sets × target reps">séries × reps visées</small></div><div class="px__cell"><span class="num">16</span><span class="u">kg</span><small data-en="dumbbell">haltère</small></div></div>
+            <p class="px__f" data-en="Rest 120 s · 2 reps in the tank">Repos 120&nbsp;s · 2 reps en réserve</p>
+            <p class="whyl"><svg class="i"><use href="#i-why"/></svg><span data-en="At least 2 reps in the tank, to go easy on your knee.">2 reps en réserve au moins, pour ménager ton genou.</span></p>
+          </article>
+          <div class="lo-wrap">
+            <span class="num px__i">3</span>
+            <div class="lo"><svg class="i"><use href="#i-joint"/></svg><span class="lo__t" data-en="No lunge exercise">Pas d’exercice de fente</span><span class="lo__s" data-en="Left out to go easy on your knee: nothing fits with your kit. Its time goes to the other exercises.">Laissé de côté pour ménager ton genou&#8239;: rien ne convient avec ton matériel. Son temps va aux autres exercices.</span></div>
+          </div>
+          <article class="px">
+            <div class="px__h"><span class="num px__i">4</span><h3 class="px__n" data-en="Single-leg Romanian deadlift">Soulevé de terre roumain unilatéral</h3></div>
+            <div class="px__cells"><div class="px__cell"><span class="num">3 × 10</span><small data-en="sets × target reps">séries × reps visées</small></div><div class="px__cell"><span class="num">12</span><span class="u">kg</span><small data-en="dumbbell">haltère</small></div></div>
+          </article>
+        </div>
+      </div>
+      <nav class="tabbar" data-tab="programme"></nav>
+    </div>
+    <div class="homebar"></div>
+  </div>
+  <figcaption data-en="Re-entry in the break notice, the dose-cap why line on a moderate knee exercise, and the left-out slot in place (index in disabled grey, dashed, not a button)">La reprise dans la note de retour, la raison du plafond sur un exercice modéré pour le genou, et la place laissée de côté en position (index grisé, pointillés, pas un bouton)</figcaption>
+</figure>
+
+</main>
+
+
+<script>
+(function () {
+  /* Templates: long screens are written once and cloned into each frame that shows them at another scroll position. */
+  document.querySelectorAll('[data-clone]').forEach(function (host) {
+    var tpl = document.getElementById(host.dataset.clone);
+    host.appendChild(tpl.content.cloneNode(true));
+    var ro = host.hasAttribute('data-readonly');
+    host.querySelectorAll(ro ? '[data-live]' : '[data-past]').forEach(function (el) { el.remove(); });
+  });
+  document.querySelectorAll('figure[data-hide]').forEach(function (f) { f.querySelectorAll(f.dataset.hide).forEach(function (el) { el.remove(); }); });
+
+  /* Chrome */
+  var SB = '<span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span>';
+  document.querySelectorAll('.statusbar').forEach(function (el) { el.setAttribute('aria-hidden', 'true'); el.innerHTML = SB; });
+  document.querySelectorAll('.homebar').forEach(function (el) { el.setAttribute('aria-hidden', 'true'); });
+  var TABS = [['programme', 'calendar', 'Programme', 'Programme'], ['quick', 'bolt', 'Séance rapide', 'Quick session'], ['progress', 'chart', 'Progrès', 'Progress'], ['settings', 'sliders', 'Réglages', 'Settings']];
+  document.querySelectorAll('nav.tabbar[data-tab]').forEach(function (nav) {
+    nav.setAttribute('aria-label', 'Navigation');
+    nav.innerHTML = TABS.map(function (t) {
+      var cur = t[0] === nav.dataset.tab;
+      return '<a class="tab' + (cur ? ' is-current" aria-current="page' : '') + '"><span class="tab__icon"><svg class="i"><use href="#i-' + t[1] + '"/></svg></span><span data-en="' + t[3] + '">' + t[2] + '</span></a>';
+    }).join('');
+  });
+
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  if (params.get('w')) root.style.setProperty('--dev-w', parseInt(params.get('w'), 10) + 'px');
+  if (params.get('h')) root.style.setProperty('--dev-h', parseInt(params.get('h'), 10) + 'px');
+  var sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' || params.get('theme') === 'dark' ? params.get('theme') : 'dark';
+  function effectiveTheme() { return theme || (sysDark.matches ? 'dark' : 'light'); }
+  function fmt(v) { return new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { maximumFractionDigits: 1, minimumFractionDigits: v % 1 ? 1 : 0 }).format(v); }
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === effectiveTheme())); });
+  }
+  function swapAttr(el, attr, enAttr) {
+    var frAttr = 'data-fr-' + attr;
+    if (!el.hasAttribute(frAttr)) el.setAttribute(frAttr, el.getAttribute(attr) || '');
+    el.setAttribute(attr, lang === 'en' ? el.getAttribute(enAttr) : el.getAttribute(frAttr));
+  }
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) { swapAttr(el, 'aria-label', 'data-en-label'); });
+    document.querySelectorAll('[data-num]').forEach(function (el) { el.textContent = fmt(parseFloat(el.dataset.num)); });
+    sync();
+    applyScroll();
+  }
+  function applyTheme() { root.dataset.theme = theme; sync(); }
+  function applyScroll() {
+    document.querySelectorAll('figure[data-scroll]').forEach(function (f) { var sc = f.querySelector('.scroll'); if (sc) sc.scrollTop = +f.dataset.scroll; });
+    document.querySelectorAll('figure[data-scroll-to]').forEach(function (f) { var sc = f.querySelector('.scroll'), el = sc && sc.querySelector('[data-anchor="' + f.dataset.scrollTo + '"]'); if (el) sc.scrollTop = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 16; });
+    document.querySelectorAll('figure[data-sheet-scroll]').forEach(function (f) { var sc = f.querySelector('.sheet__body'); if (sc) sc.scrollTop = +f.dataset.sheetScroll; });
+  }
+  function flash(id) {
+    var fig = document.getElementById(id); if (!fig) return;
+    fig.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    fig.classList.add('is-flash'); setTimeout(function () { fig.classList.remove('is-flash'); }, 1200);
+  }
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]'); if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var t = e.target.closest('[data-set-theme]'); if (t) { theme = t.dataset.setTheme; applyTheme(); return; }
+    var sw = e.target.closest('.swrow[data-flip]');
+    if (sw) {
+      var on = sw.getAttribute('aria-checked') !== 'true';
+      sw.setAttribute('aria-checked', String(on));
+      sw.querySelector('.on').hidden = !on; sw.querySelector('.off').hidden = on;
+      return;
+    }
+    var cb = e.target.closest('[role="checkbox"]:not([aria-disabled="true"]), .chip[role="radio"], .choice[role="radio"]');
+    if (cb) {
+      if (cb.getAttribute('role') === 'radio') cb.parentElement.querySelectorAll('[role="radio"]').forEach(function (r) { r.setAttribute('aria-checked', String(r === cb)); });
+      else cb.setAttribute('aria-checked', String(cb.getAttribute('aria-checked') !== 'true'));
+      return;
+    }
+    var go = e.target.closest('[data-go]');
+    if (go) { e.preventDefault(); flash(go.dataset.go); }
+  });
+  sysDark.addEventListener('change', sync);
+  applyTheme();
+  applyLang();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyScroll);
+  window.addEventListener('load', applyScroll);
+})();
+</script>
+</body>
+</html>

@@ -503,3 +503,11 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+/* A cooldown row: quieter than a session */
+.cool {
+  min-height: 64px;
+}
+.cool .name {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}

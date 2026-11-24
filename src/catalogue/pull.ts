@@ -34,6 +34,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['chin-up', 'band-assisted-pull-up', 'negative-pull-up'],
     harder: ['archer-pull-up'],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'chin-up',
@@ -68,6 +69,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['band-assisted-pull-up', 'negative-pull-up'],
     harder: ['pull-up'],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'band-assisted-pull-up',
@@ -101,6 +103,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['scapular-pull-up', 'band-lat-pulldown'],
     harder: ['chin-up', 'pull-up'],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'negative-pull-up',
@@ -134,6 +137,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['scapular-pull-up', 'flexed-arm-hang'],
     harder: ['chin-up', 'pull-up'],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'door-towel-row',
@@ -167,6 +171,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['inverted-row'],
+    joints: {},
   },
   {
     id: 'inverted-row',
@@ -198,6 +203,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['door-towel-row'],
     harder: ['feet-elevated-inverted-row'],
+    joints: {},
   },
   {
     id: 'one-arm-dumbbell-row',
@@ -240,6 +246,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-horizontal-row'],
     harder: [],
+    joints: {},
   },
   {
     id: 'bent-over-dumbbell-row',
@@ -271,6 +278,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['band-horizontal-row'],
     harder: [],
+    joints: { 'lower-back': 'moderate' },
   },
   {
     id: 'band-horizontal-row',
@@ -304,6 +312,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['one-arm-dumbbell-row', 'bent-over-dumbbell-row', 'chest-supported-dumbbell-row'],
+    joints: {},
   },
   {
     id: 'band-face-pull',
@@ -337,6 +346,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-pull-apart'],
     harder: [],
+    joints: {},
   },
   {
     id: 'band-pull-apart',
@@ -368,6 +378,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['band-face-pull', 'dumbbell-reverse-fly'],
+    joints: {},
   },
   {
     id: 'dumbbell-biceps-curl',
@@ -399,6 +410,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['band-biceps-curl'],
     harder: ['dumbbell-21s', 'dumbbell-incline-curl'],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'dumbbell-hammer-curl',
@@ -430,6 +442,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-zottman-curl'],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'dumbbell-21s',
@@ -461,6 +474,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['dumbbell-biceps-curl'],
     harder: [],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'dumbbell-shrug',
@@ -492,6 +506,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'scapular-pull-up',
@@ -525,6 +540,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['band-assisted-pull-up', 'negative-pull-up', 'flexed-arm-hang'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'band-lat-pulldown',
@@ -558,6 +574,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['band-assisted-pull-up'],
+    joints: {},
   },
   {
     id: 'band-straight-arm-pulldown',
@@ -591,6 +608,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'chest-supported-dumbbell-row',
@@ -627,6 +645,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-horizontal-row'],
     harder: [],
+    joints: {},
   },
   {
     id: 'dumbbell-reverse-fly',
@@ -658,6 +677,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['band-pull-apart'],
     harder: [],
+    joints: { 'lower-back': 'moderate' },
   },
   {
     id: 'prone-t-raise',
@@ -689,6 +709,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'prone-y-raise',
@@ -720,6 +741,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'feet-elevated-inverted-row',
@@ -751,6 +773,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['inverted-row'],
     harder: [],
+    joints: {},
   },
   {
     id: 'renegade-row',
@@ -784,6 +807,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'archer-pull-up',
@@ -817,6 +841,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['pull-up'],
     harder: [],
+    joints: { shoulder: 'high', elbow: 'high' },
   },
   {
     id: 'band-biceps-curl',
@@ -848,6 +873,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['dumbbell-biceps-curl'],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'dumbbell-incline-curl',
@@ -884,6 +910,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['dumbbell-biceps-curl'],
     harder: [],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
   {
     id: 'dumbbell-concentration-curl',
@@ -921,6 +948,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'dumbbell-reverse-curl',
@@ -952,6 +980,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { elbow: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'dumbbell-zottman-curl',
@@ -983,6 +1012,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['dumbbell-hammer-curl'],
     harder: [],
+    joints: { elbow: 'moderate', wrist: 'moderate' },
   },
 
   {
@@ -1017,6 +1047,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['scapular-pull-up'],
     harder: ['negative-pull-up'],
+    joints: { shoulder: 'moderate', elbow: 'moderate' },
   },
 
   {
@@ -1051,6 +1082,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['suspension-single-arm-row'],
+    joints: {},
   },
   {
     id: 'suspension-single-arm-row',
@@ -1084,6 +1116,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['suspension-row'],
     harder: [],
+    joints: {},
   },
   {
     id: 'suspension-t-raise',
@@ -1117,6 +1150,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['suspension-y-raise'],
+    joints: { shoulder: 'moderate' },
   },
   {
     id: 'suspension-y-raise',
@@ -1150,6 +1184,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['suspension-t-raise'],
     harder: [],
+    joints: { shoulder: 'high' },
   },
   {
     id: 'suspension-biceps-curl',
@@ -1183,6 +1218,7 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { elbow: 'moderate' },
   },
   {
     id: 'kettlebell-gorilla-row',
@@ -1214,5 +1250,6 @@ export const pullExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
+    joints: { 'lower-back': 'moderate' },
   },
 ];

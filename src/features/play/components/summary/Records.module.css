@@ -1,0 +1,88 @@
+.sec {
+  display: grid;
+  gap: 12px;
+}
+.head {
+  display: grid;
+  gap: 6px;
+}
+.title {
+  margin: 0;
+  font-size: var(--type-headline-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.sub {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--type-meta-size);
+  line-height: 1.4;
+}
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px 12px 12px;
+  border: var(--border-control) solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  /* Rises in after the summary's cross-fade, one chip after the other. */
+  animation: chip-in var(--duration-base) var(--ease-snap) calc(160ms + var(--i, 0) * 70ms)
+    backwards;
+}
+.medal {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.name {
+  font-size: var(--font-size-18);
+  font-weight: var(--font-weight-bold);
+  font-stretch: var(--type-title-width);
+  line-height: 1.2;
+}
+.line {
+  color: var(--color-text-muted);
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-sm));
+  }
+}
+@keyframes medal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+.medal svg {
+  animation: medal-pop var(--duration-fast) var(--ease-snap) calc(260ms + var(--i, 0) * 70ms)
+    backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .medal svg {
+    animation: none;
+  }
+}

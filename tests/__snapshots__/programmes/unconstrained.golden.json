@@ -1,0 +1,4339 @@
+{
+  "ref": {
+    "id": "recomposition-6d-8w",
+    "name": {
+      "fr": "Recomposition 8 semaines",
+      "en": "8-week recomposition"
+    },
+    "goal": "recomposition",
+    "weeks": 8,
+    "sessionsPerWeek": 6,
+    "rotation": [
+      {
+        "id": "a-push",
+        "name": {
+          "fr": "Séance A — Push",
+          "en": "Session A — Push"
+        },
+        "focus": {
+          "fr": "Pectoraux, épaules, triceps",
+          "en": "Chest, shoulders, triceps"
+        },
+        "estimatedMinutes": 53,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-arm-circles",
+              "exerciseId": "arm-circles",
+              "target": {
+                "kind": "time",
+                "minSec": 30,
+                "maxSec": 30
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-push-up",
+              "exerciseId": "push-up",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "tempo": {
+                "down": 2,
+                "pause": 0,
+                "up": 2
+              },
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-pull-apart",
+              "exerciseId": "band-pull-apart",
+              "target": {
+                "kind": "reps",
+                "min": 20,
+                "max": 20
+              },
+              "load": {
+                "kind": "band",
+                "level": "light"
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "push-main",
+              "exerciseId": "dumbbell-floor-press",
+              "target": {
+                "kind": "reps",
+                "min": 8,
+                "max": 10
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 10
+              }
+            },
+            "sets": 4,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "push-second",
+              "exerciseId": "push-up",
+              "target": {
+                "kind": "reps",
+                "min": 8,
+                "max": 12
+              },
+              "rir": 2,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 3,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "press-vertical",
+              "exerciseId": "standing-dumbbell-shoulder-press",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 12
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 10
+              }
+            },
+            "sets": 3,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "chest-fly",
+              "exerciseId": "dumbbell-floor-fly",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 4
+              }
+            },
+            "sets": 3,
+            "restSec": 60
+          },
+          {
+            "type": "group",
+            "style": "superset",
+            "items": [
+              {
+                "slot": "lateral-raise",
+                "exerciseId": "dumbbell-lateral-raise",
+                "target": {
+                  "kind": "reps",
+                  "min": 15,
+                  "max": 15
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 4
+                }
+              },
+              {
+                "slot": "triceps",
+                "exerciseId": "overhead-dumbbell-triceps-extension",
+                "target": {
+                  "kind": "reps",
+                  "min": 12,
+                  "max": 12
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 8
+                }
+              }
+            ],
+            "rounds": 3,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "dip",
+              "exerciseId": "dip",
+              "target": {
+                "kind": "max"
+              },
+              "rir": 1,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 2,
+            "restSec": 60
+          }
+        ],
+        "finisher": [
+          {
+            "type": "straight",
+            "item": {
+              "exerciseId": "treadmill-incline-walk",
+              "target": {
+                "kind": "cardio",
+                "minMinutes": 15,
+                "maxMinutes": 15,
+                "speedKmh": 5,
+                "inclinePct": 12
+              },
+              "slot": "cardio-finisher-0"
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ]
+      },
+      {
+        "id": "b-pull",
+        "name": {
+          "fr": "Séance B — Pull",
+          "en": "Session B — Pull"
+        },
+        "focus": {
+          "fr": "Dos, biceps",
+          "en": "Back, biceps"
+        },
+        "estimatedMinutes": 60,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-hang",
+              "exerciseId": "dead-hang",
+              "target": {
+                "kind": "time",
+                "minSec": 20,
+                "maxSec": 20
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-face-pull",
+              "exerciseId": "band-face-pull",
+              "target": {
+                "kind": "reps",
+                "min": 20,
+                "max": 20
+              },
+              "load": {
+                "kind": "band",
+                "level": "light"
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "pull-vertical-main",
+              "exerciseId": "pull-up",
+              "target": {
+                "kind": "reps",
+                "min": 5,
+                "max": 8
+              },
+              "rir": 2,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 4,
+            "restSec": 120
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "row-unilateral",
+              "exerciseId": "one-arm-dumbbell-row",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "kg",
+                "kg": 14
+              }
+            },
+            "sets": 4,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "row-band",
+              "exerciseId": "band-horizontal-row",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 2,
+              "load": {
+                "kind": "band",
+                "level": "medium"
+              }
+            },
+            "sets": 3,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "row-bilateral",
+              "exerciseId": "bent-over-dumbbell-row",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 12
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 10
+              }
+            },
+            "sets": 3,
+            "restSec": 75
+          },
+          {
+            "type": "group",
+            "style": "superset",
+            "items": [
+              {
+                "slot": "curl",
+                "exerciseId": "dumbbell-biceps-curl",
+                "target": {
+                  "kind": "reps",
+                  "min": 10,
+                  "max": 12
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 8
+                }
+              },
+              {
+                "slot": "hammer-curl",
+                "exerciseId": "dumbbell-hammer-curl",
+                "target": {
+                  "kind": "reps",
+                  "min": 12,
+                  "max": 12
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 8
+                }
+              }
+            ],
+            "rounds": 3,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "shrug",
+              "exerciseId": "dumbbell-shrug",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 20
+              }
+            },
+            "sets": 3,
+            "restSec": 45
+          }
+        ],
+        "finisher": [
+          {
+            "type": "straight",
+            "item": {
+              "exerciseId": "treadmill-incline-walk",
+              "target": {
+                "kind": "cardio",
+                "minMinutes": 15,
+                "maxMinutes": 15,
+                "speedKmh": 4.5,
+                "inclinePct": 15
+              },
+              "slot": "cardio-finisher-0"
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ]
+      },
+      {
+        "id": "c-lower-core",
+        "name": {
+          "fr": "Séance C — Bas du corps + core",
+          "en": "Session C — Lower body + core"
+        },
+        "estimatedMinutes": 56,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-squat",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 20,
+                "max": 20
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-lunge",
+              "exerciseId": "walking-lunge",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-bridge",
+              "exerciseId": "glute-bridge",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "squat-main",
+              "exerciseId": "goblet-squat",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 12
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 14
+              }
+            },
+            "sets": 4,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "lunge-main",
+              "exerciseId": "bulgarian-split-squat",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 3,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "hinge-tempo",
+              "exerciseId": "dumbbell-romanian-deadlift",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "rir": 2,
+              "tempo": {
+                "down": 3,
+                "pause": 0,
+                "up": 2
+              },
+              "load": {
+                "kind": "kg",
+                "kg": 18
+              }
+            },
+            "sets": 4,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "lunge-step",
+              "exerciseId": "dumbbell-step-up",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 12
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 3,
+            "restSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "calf",
+              "exerciseId": "single-leg-calf-raise",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 20
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 3,
+            "restSec": 45
+          },
+          {
+            "type": "group",
+            "style": "superset",
+            "items": [
+              {
+                "slot": "plank",
+                "exerciseId": "plank",
+                "target": {
+                  "kind": "time",
+                  "minSec": 45,
+                  "maxSec": 60
+                }
+              },
+              {
+                "slot": "leg-raise",
+                "exerciseId": "hanging-leg-raise",
+                "target": {
+                  "kind": "reps",
+                  "min": 10,
+                  "max": 12
+                },
+                "rir": 2
+              }
+            ],
+            "rounds": 3,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "rotation",
+              "exerciseId": "russian-twist",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 3,
+            "restSec": 45
+          }
+        ],
+        "finisher": []
+      },
+      {
+        "id": "cardio",
+        "name": {
+          "fr": "Repos actif — marche inclinée",
+          "en": "Active recovery — incline walk"
+        },
+        "estimatedMinutes": 40,
+        "warmup": [],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "exerciseId": "treadmill-incline-walk",
+              "target": {
+                "kind": "cardio",
+                "minMinutes": 35,
+                "maxMinutes": 40,
+                "speedKmh": 5.5,
+                "inclinePct": 10
+              },
+              "slot": "cardio-main-0"
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ],
+        "finisher": []
+      },
+      {
+        "id": "d-upper-density",
+        "name": {
+          "fr": "Séance D — Haut du corps, densité",
+          "en": "Session D — Upper-body density"
+        },
+        "focus": {
+          "fr": "Circuits",
+          "en": "Circuits"
+        },
+        "estimatedMinutes": 46,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-arm-circles",
+              "exerciseId": "arm-circles",
+              "target": {
+                "kind": "time",
+                "minSec": 30,
+                "maxSec": 30
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-pull-apart",
+              "exerciseId": "band-pull-apart",
+              "target": {
+                "kind": "reps",
+                "min": 20,
+                "max": 20
+              },
+              "load": {
+                "kind": "band",
+                "level": "light"
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-hang",
+              "exerciseId": "dead-hang",
+              "target": {
+                "kind": "time",
+                "minSec": 20,
+                "maxSec": 20
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ],
+        "main": [
+          {
+            "type": "group",
+            "style": "circuit",
+            "items": [
+              {
+                "slot": "wide-push",
+                "exerciseId": "wide-push-up",
+                "target": {
+                  "kind": "reps",
+                  "min": 12,
+                  "max": 15
+                },
+                "rir": 2
+              },
+              {
+                "slot": "row-circuit",
+                "exerciseId": "bent-over-dumbbell-row",
+                "target": {
+                  "kind": "reps",
+                  "min": 12,
+                  "max": 12
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 10
+                }
+              },
+              {
+                "slot": "press-circuit",
+                "exerciseId": "seated-dumbbell-shoulder-press",
+                "target": {
+                  "kind": "reps",
+                  "min": 12,
+                  "max": 12
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 10
+                }
+              }
+            ],
+            "rounds": 4,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 45
+          },
+          {
+            "type": "group",
+            "style": "circuit",
+            "items": [
+              {
+                "slot": "chin-circuit",
+                "exerciseId": "chin-up",
+                "target": {
+                  "kind": "max"
+                },
+                "rir": 1,
+                "load": {
+                  "kind": "bodyweight"
+                }
+              },
+              {
+                "slot": "close-grip",
+                "exerciseId": "close-grip-push-up",
+                "target": {
+                  "kind": "reps",
+                  "min": 10,
+                  "max": 12
+                },
+                "rir": 2
+              },
+              {
+                "slot": "lateral-circuit",
+                "exerciseId": "band-lateral-raise",
+                "target": {
+                  "kind": "reps",
+                  "min": 20,
+                  "max": 20
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "band",
+                  "level": "light"
+                }
+              }
+            ],
+            "rounds": 3,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 45
+          },
+          {
+            "type": "group",
+            "style": "circuit",
+            "items": [
+              {
+                "slot": "curl-circuit",
+                "exerciseId": "dumbbell-21s",
+                "target": {
+                  "kind": "reps",
+                  "min": 21,
+                  "max": 21
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "kg",
+                  "kg": 8
+                }
+              },
+              {
+                "slot": "kickback",
+                "exerciseId": "dumbbell-triceps-kickback",
+                "target": {
+                  "kind": "reps",
+                  "min": 15,
+                  "max": 15
+                },
+                "rir": 2,
+                "perSide": true,
+                "load": {
+                  "kind": "kg",
+                  "kg": 4
+                }
+              },
+              {
+                "slot": "face-pull",
+                "exerciseId": "band-face-pull",
+                "target": {
+                  "kind": "reps",
+                  "min": 20,
+                  "max": 20
+                },
+                "rir": 2,
+                "load": {
+                  "kind": "band",
+                  "level": "light"
+                }
+              }
+            ],
+            "rounds": 3,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 45
+          }
+        ],
+        "finisher": [
+          {
+            "type": "straight",
+            "item": {
+              "exerciseId": "treadmill-incline-walk",
+              "target": {
+                "kind": "cardio",
+                "minMinutes": 10,
+                "maxMinutes": 10
+              },
+              "slot": "cardio-finisher-0"
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ]
+      },
+      {
+        "id": "e-lower-metabolic",
+        "name": {
+          "fr": "Séance E — Bas du corps + full body métabolique",
+          "en": "Session E — Lower body + metabolic full body"
+        },
+        "estimatedMinutes": 61,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-squat",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 20,
+                "max": 20
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-lunge",
+              "exerciseId": "walking-lunge",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-bridge",
+              "exerciseId": "glute-bridge",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "ramp-1",
+              "exerciseId": "dumbbell-deadlift",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "load": {
+                "kind": "kg",
+                "kg": 8
+              }
+            },
+            "sets": 1,
+            "restSec": 30
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "ramp-2",
+              "exerciseId": "dumbbell-deadlift",
+              "target": {
+                "kind": "reps",
+                "min": 5,
+                "max": 5
+              },
+              "load": {
+                "kind": "kg",
+                "kg": 12
+              }
+            },
+            "sets": 1,
+            "restSec": 60
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "hinge-main",
+              "exerciseId": "dumbbell-deadlift",
+              "target": {
+                "kind": "reps",
+                "min": 8,
+                "max": 8
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 18
+              }
+            },
+            "sets": 4,
+            "restSec": 120
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "squat-sumo",
+              "exerciseId": "goblet-sumo-squat",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 14
+              }
+            },
+            "sets": 3,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "hip-thrust",
+              "exerciseId": "floor-hip-thrust",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "rir": 2,
+              "load": {
+                "kind": "kg",
+                "kg": 18
+              }
+            },
+            "sets": 3,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "walking-lunge",
+              "exerciseId": "walking-lunge",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 12
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 3,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "abduction",
+              "exerciseId": "band-hip-abduction",
+              "target": {
+                "kind": "reps",
+                "min": 20,
+                "max": 20
+              },
+              "rir": 2,
+              "perSide": true,
+              "load": {
+                "kind": "band",
+                "level": "light"
+              }
+            },
+            "sets": 3,
+            "restSec": 45
+          }
+        ],
+        "finisher": [
+          {
+            "type": "group",
+            "style": "circuit",
+            "items": [
+              {
+                "slot": "swing",
+                "exerciseId": "dumbbell-swing",
+                "target": {
+                  "kind": "reps",
+                  "min": 15,
+                  "max": 15
+                },
+                "load": {
+                  "kind": "kg",
+                  "kg": 14
+                }
+              },
+              {
+                "slot": "climber",
+                "exerciseId": "mountain-climber",
+                "target": {
+                  "kind": "reps",
+                  "min": 30,
+                  "max": 30
+                }
+              },
+              {
+                "slot": "jump",
+                "exerciseId": "jump-squat",
+                "target": {
+                  "kind": "reps",
+                  "min": 15,
+                  "max": 15
+                }
+              },
+              {
+                "slot": "side-plank",
+                "exerciseId": "side-plank",
+                "target": {
+                  "kind": "time",
+                  "minSec": 30,
+                  "maxSec": 30
+                },
+                "perSide": true
+              }
+            ],
+            "rounds": 4,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 60
+          }
+        ]
+      }
+    ],
+    "phases": [
+      {
+        "name": {
+          "fr": "Réadaptation",
+          "en": "Re-adaptation"
+        },
+        "kind": "re-adaptation",
+        "fromWeek": 1,
+        "toWeek": 2,
+        "adjustments": [
+          {
+            "kind": "rir",
+            "value": 3,
+            "scope": "all-sets"
+          }
+        ],
+        "note": {
+          "fr": "Apprends les mouvements, note tes charges.",
+          "en": "Learn the movements and log your loads."
+        }
+      },
+      {
+        "name": {
+          "fr": "Volume",
+          "en": "Volume"
+        },
+        "kind": "volume",
+        "fromWeek": 3,
+        "toWeek": 4,
+        "adjustments": [
+          {
+            "kind": "extra-sets",
+            "add": 1,
+            "mainBlockIndexes": [0, 1]
+          },
+          {
+            "kind": "cardio-minutes",
+            "addMinutes": 5
+          }
+        ]
+      },
+      {
+        "name": {
+          "fr": "Intensité",
+          "en": "Intensity"
+        },
+        "kind": "intensity",
+        "fromWeek": 5,
+        "toWeek": 6,
+        "adjustments": [
+          {
+            "kind": "rir",
+            "value": 1,
+            "scope": "first-set"
+          },
+          {
+            "kind": "cardio-minutes",
+            "addMinutes": 10
+          }
+        ],
+        "note": {
+          "fr": "Ajoute du lest sur un mouvement au poids du corps dès que tu dépasses le haut de la fourchette en reps strictes.",
+          "en": "Add load to a bodyweight move once you get past the top of its rep range with strict reps."
+        }
+      },
+      {
+        "name": {
+          "fr": "Pic",
+          "en": "Peak"
+        },
+        "kind": "peak",
+        "fromWeek": 7,
+        "toWeek": 7,
+        "adjustments": [
+          {
+            "kind": "rir",
+            "value": 1,
+            "scope": "last-set"
+          },
+          {
+            "kind": "cardio-minutes",
+            "addMinutes": 10
+          }
+        ],
+        "note": {
+          "fr": "Charges maximales, RIR 1 sur les dernières séries.",
+          "en": "Heaviest loads, RIR 1 on the last sets."
+        }
+      },
+      {
+        "name": {
+          "fr": "Décharge + test",
+          "en": "Deload + test"
+        },
+        "kind": "deload",
+        "fromWeek": 8,
+        "toWeek": 8,
+        "adjustments": [
+          {
+            "kind": "volume",
+            "factor": 0.6
+          },
+          {
+            "kind": "rir",
+            "value": 3,
+            "scope": "all-sets"
+          },
+          {
+            "kind": "max-test",
+            "exerciseIds": ["push-up"]
+          }
+        ],
+        "note": {
+          "fr": "Semaine allégée, puis test max : pompes.",
+          "en": "Lighter week, then a max test: push-up."
+        }
+      }
+    ],
+    "progression": {
+      "kind": "double-progression",
+      "upperBodyIncrementKg": 2,
+      "lowerBodyIncrementKg": 4
+    },
+    "generation": {
+      "version": 4,
+      "profile": {
+        "goal": "recomposition",
+        "level": "intermediate",
+        "daysPerWeek": 6,
+        "sessionMinutes": 60
+      },
+      "equipment": [
+        {
+          "id": "dumbbells",
+          "kind": "dumbbell",
+          "mode": "adjustable",
+          "count": 2,
+          "minKg": 2,
+          "maxKg": 24,
+          "incrementKg": 2
+        },
+        {
+          "id": "bands",
+          "kind": "band",
+          "levels": ["light", "medium", "heavy"]
+        },
+        {
+          "id": "belt",
+          "kind": "weight-belt",
+          "maxKg": 20,
+          "incrementKg": 2.5
+        },
+        {
+          "id": "bar",
+          "kind": "pull-up-bar",
+          "mount": "doorway"
+        },
+        {
+          "id": "treadmill",
+          "kind": "treadmill",
+          "maxSpeedKmh": 16,
+          "maxInclinePct": 15
+        }
+      ],
+      "seed": 0,
+      "notes": [
+        {
+          "code": "split",
+          "params": {
+            "daysPerWeek": 6,
+            "sessionMinutes": 60,
+            "templates": "push,pull,lower-core,cardio,upper-density,lower-metabolic",
+            "shortSessions": false
+          }
+        },
+        {
+          "code": "dose",
+          "params": {
+            "goal": "recomposition",
+            "level": "intermediate"
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "arm-circles",
+            "slot": "wu-arm-circles"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "push-up",
+            "slot": "wu-push-up"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-pull-apart",
+            "slot": "wu-pull-apart"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-floor-press",
+            "slot": "push-main",
+            "instead": "dumbbell-bench-press",
+            "missing": "bench"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-floor-press",
+            "kg": 10,
+            "targetKg": 10.5,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "push-up",
+            "slot": "push-second"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "push-up"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "standing-dumbbell-shoulder-press",
+            "slot": "press-vertical"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "standing-dumbbell-shoulder-press",
+            "kg": 10,
+            "targetKg": 9.1,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-floor-fly",
+            "slot": "chest-fly"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-floor-fly",
+            "kg": 4,
+            "targetKg": 4.2,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-lateral-raise",
+            "slot": "lateral-raise"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-lateral-raise",
+            "kg": 4,
+            "targetKg": 4.2,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "overhead-dumbbell-triceps-extension",
+            "slot": "triceps"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "overhead-dumbbell-triceps-extension",
+            "kg": 8,
+            "targetKg": 8.4,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dip",
+            "slot": "dip"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "dip"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "cardio-modality",
+          "params": {
+            "exerciseId": "treadmill-incline-walk",
+            "modality": "incline-walk"
+          },
+          "ref": {
+            "sessionId": "a-push",
+            "section": "finisher",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dead-hang",
+            "slot": "wu-hang"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-face-pull",
+            "slot": "wu-face-pull"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "pull-up",
+            "slot": "pull-vertical-main"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "pull-up"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "one-arm-dumbbell-row",
+            "slot": "row-unilateral"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "one-arm-dumbbell-row",
+            "kg": 14,
+            "targetKg": 14,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-horizontal-row",
+            "slot": "row-band"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "load-band",
+          "params": {
+            "exerciseId": "band-horizontal-row",
+            "level": "medium"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bent-over-dumbbell-row",
+            "slot": "row-bilateral"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "bent-over-dumbbell-row",
+            "kg": 10,
+            "targetKg": 9.8,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-biceps-curl",
+            "slot": "curl"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-biceps-curl",
+            "kg": 8,
+            "targetKg": 8.4,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-hammer-curl",
+            "slot": "hammer-curl"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-hammer-curl",
+            "kg": 8,
+            "targetKg": 8.4,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 4,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-shrug",
+            "slot": "shrug"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-shrug",
+            "kg": 20,
+            "targetKg": 18.2,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "cardio-modality",
+          "params": {
+            "exerciseId": "treadmill-incline-walk",
+            "modality": "incline-walk"
+          },
+          "ref": {
+            "sessionId": "b-pull",
+            "section": "finisher",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "wu-squat"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "walking-lunge",
+            "slot": "wu-lunge"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "glute-bridge",
+            "slot": "wu-bridge"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "goblet-squat",
+            "slot": "squat-main"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "goblet-squat",
+            "kg": 14,
+            "targetKg": 14,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bulgarian-split-squat",
+            "slot": "lunge-main"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "bulgarian-split-squat"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-romanian-deadlift",
+            "slot": "hinge-tempo"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-romanian-deadlift",
+            "kg": 18,
+            "targetKg": 16.8,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-step-up",
+            "slot": "lunge-step"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "dumbbell-step-up"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "single-leg-calf-raise",
+            "slot": "calf"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "single-leg-calf-raise"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "plank",
+            "slot": "plank"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 5,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "hanging-leg-raise",
+            "slot": "leg-raise"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 5,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "russian-twist",
+            "slot": "rotation"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 6
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "russian-twist"
+          },
+          "ref": {
+            "sessionId": "c-lower-core",
+            "section": "main",
+            "blockIndex": 6
+          }
+        },
+        {
+          "code": "cardio-modality",
+          "params": {
+            "exerciseId": "treadmill-incline-walk",
+            "modality": "incline-walk"
+          },
+          "ref": {
+            "sessionId": "cardio",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "arm-circles",
+            "slot": "wu-arm-circles"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-pull-apart",
+            "slot": "wu-pull-apart"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dead-hang",
+            "slot": "wu-hang"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "wide-push-up",
+            "slot": "wide-push"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 0,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bent-over-dumbbell-row",
+            "slot": "row-circuit"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 0,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "bent-over-dumbbell-row",
+            "kg": 10,
+            "targetKg": 9.8,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 0,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "seated-dumbbell-shoulder-press",
+            "slot": "press-circuit"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 0,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "seated-dumbbell-shoulder-press",
+            "kg": 10,
+            "targetKg": 9.1,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 0,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "chin-up",
+            "slot": "chin-circuit"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 1,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "chin-up"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 1,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "close-grip-push-up",
+            "slot": "close-grip"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 1,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-lateral-raise",
+            "slot": "lateral-circuit"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 1,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "load-band",
+          "params": {
+            "exerciseId": "band-lateral-raise",
+            "level": "light"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 1,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-21s",
+            "slot": "curl-circuit"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 2,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-21s",
+            "kg": 8,
+            "targetKg": 8.4,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 2,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-triceps-kickback",
+            "slot": "kickback"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 2,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-triceps-kickback",
+            "kg": 4,
+            "targetKg": 4.2,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 2,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-face-pull",
+            "slot": "face-pull"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 2,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "load-band",
+          "params": {
+            "exerciseId": "band-face-pull",
+            "level": "light"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "main",
+            "blockIndex": 2,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "cardio-modality",
+          "params": {
+            "exerciseId": "treadmill-incline-walk",
+            "modality": "incline-walk"
+          },
+          "ref": {
+            "sessionId": "d-upper-density",
+            "section": "finisher",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "time-fit",
+          "params": {
+            "action": "round-added",
+            "exerciseIds": "wide-push-up,bent-over-dumbbell-row,seated-dumbbell-shoulder-press",
+            "budget": 60
+          },
+          "ref": {
+            "sessionId": "d-upper-density"
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "wu-squat"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "walking-lunge",
+            "slot": "wu-lunge"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "glute-bridge",
+            "slot": "wu-bridge"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "ramp-up",
+          "params": {
+            "exerciseId": "dumbbell-deadlift",
+            "kg": 8,
+            "workingKg": 18
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "warmup",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "ramp-up",
+          "params": {
+            "exerciseId": "dumbbell-deadlift",
+            "kg": 12,
+            "workingKg": 18
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "warmup",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-deadlift",
+            "slot": "hinge-main"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-deadlift",
+            "kg": 18,
+            "targetKg": 16.8,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "goblet-sumo-squat",
+            "slot": "squat-sumo"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "goblet-sumo-squat",
+            "kg": 14,
+            "targetKg": 14,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "floor-hip-thrust",
+            "slot": "hip-thrust",
+            "instead": "bench-hip-thrust",
+            "missing": "bench"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "floor-hip-thrust",
+            "kg": 18,
+            "targetKg": 17.5,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "walking-lunge",
+            "slot": "walking-lunge"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "walking-lunge"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "band-hip-abduction",
+            "slot": "abduction"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "load-band",
+          "params": {
+            "exerciseId": "band-hip-abduction",
+            "level": "light"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-swing",
+            "slot": "swing",
+            "instead": "kettlebell-swing",
+            "missing": "kettlebell"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "load-start",
+          "params": {
+            "exerciseId": "dumbbell-swing",
+            "kg": 14,
+            "targetKg": 14,
+            "bodyweightKg": 70,
+            "bodyweightAssumed": true
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "mountain-climber",
+            "slot": "climber"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "jump-squat",
+            "slot": "jump"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "side-plank",
+            "slot": "side-plank"
+          },
+          "ref": {
+            "sessionId": "e-lower-metabolic",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 3
+          }
+        },
+        {
+          "code": "max-test",
+          "params": {
+            "exerciseId": "push-up"
+          }
+        }
+      ]
+    }
+  },
+  "bw": {
+    "id": "general-fitness-3d-8w",
+    "name": {
+      "fr": "Forme générale 8 semaines",
+      "en": "8-week general fitness"
+    },
+    "goal": "general-fitness",
+    "weeks": 8,
+    "sessionsPerWeek": 3,
+    "rotation": [
+      {
+        "id": "a-full-a",
+        "name": {
+          "fr": "Séance A — Full body A",
+          "en": "Session A — Full body A"
+        },
+        "estimatedMinutes": 43,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-arm-circles",
+              "exerciseId": "arm-circles",
+              "target": {
+                "kind": "time",
+                "minSec": 30,
+                "maxSec": 30
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-squat",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-pull-apart",
+              "exerciseId": "prone-y-raise",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "squat-main",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "push-main",
+              "exerciseId": "push-up",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 12
+              },
+              "rir": 3,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "row-unilateral",
+              "exerciseId": "inverted-row",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 12
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "hinge-tempo",
+              "exerciseId": "supported-single-leg-romanian-deadlift",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 12
+              },
+              "rir": 3,
+              "tempo": {
+                "down": 3,
+                "pause": 0,
+                "up": 2
+              },
+              "perSide": true
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "pull-vertical-second",
+              "exerciseId": "door-towel-row",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "press-vertical",
+              "exerciseId": "hands-elevated-pike-push-up",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 60
+          },
+          {
+            "type": "group",
+            "style": "superset",
+            "items": [
+              {
+                "slot": "plank",
+                "exerciseId": "plank",
+                "target": {
+                  "kind": "time",
+                  "minSec": 45,
+                  "maxSec": 60
+                }
+              },
+              {
+                "slot": "leg-raise",
+                "exerciseId": "reverse-crunch",
+                "target": {
+                  "kind": "reps",
+                  "min": 10,
+                  "max": 12
+                },
+                "rir": 3
+              }
+            ],
+            "rounds": 2,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 45
+          }
+        ],
+        "finisher": [
+          {
+            "type": "straight",
+            "item": {
+              "exerciseId": "step-jacks",
+              "target": {
+                "kind": "interval",
+                "rounds": 10,
+                "workSec": 40,
+                "recoverySec": 20
+              },
+              "slot": "cardio-finisher-0"
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ]
+      },
+      {
+        "id": "b-full-b",
+        "name": {
+          "fr": "Séance B — Full body B",
+          "en": "Session B — Full body B"
+        },
+        "estimatedMinutes": 38,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-arm-circles",
+              "exerciseId": "arm-circles",
+              "target": {
+                "kind": "time",
+                "minSec": 30,
+                "maxSec": 30
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-squat",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-pull-apart",
+              "exerciseId": "prone-y-raise",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "hinge-main",
+              "exerciseId": "supported-single-leg-romanian-deadlift",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 10
+              },
+              "rir": 3,
+              "perSide": true
+            },
+            "sets": 2,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "pull-vertical-main",
+              "exerciseId": "door-towel-row",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 90
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "lunge-main",
+              "exerciseId": "dumbbell-step-up",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 12
+              },
+              "rir": 3,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "press-vertical-main",
+              "exerciseId": "hands-elevated-pike-push-up",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 12
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "row-bilateral",
+              "exerciseId": "inverted-row",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "push-second",
+              "exerciseId": "push-up",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 15
+              },
+              "rir": 3,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 2,
+            "restSec": 60
+          }
+        ],
+        "finisher": [
+          {
+            "type": "straight",
+            "item": {
+              "exerciseId": "step-jacks",
+              "target": {
+                "kind": "interval",
+                "rounds": 10,
+                "workSec": 40,
+                "recoverySec": 20
+              },
+              "slot": "cardio-finisher-0"
+            },
+            "sets": 1,
+            "restSec": 0
+          }
+        ]
+      },
+      {
+        "id": "c-full-c",
+        "name": {
+          "fr": "Séance C — Full body C",
+          "en": "Session C — Full body C"
+        },
+        "estimatedMinutes": 41,
+        "warmup": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-arm-circles",
+              "exerciseId": "arm-circles",
+              "target": {
+                "kind": "time",
+                "minSec": 30,
+                "maxSec": 30
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-squat",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 1,
+            "restSec": 0
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "wu-pull-apart",
+              "exerciseId": "prone-y-raise",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              }
+            },
+            "sets": 2,
+            "restSec": 30
+          }
+        ],
+        "main": [
+          {
+            "type": "straight",
+            "item": {
+              "slot": "squat-c",
+              "exerciseId": "bodyweight-squat",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "row-bilateral",
+              "exerciseId": "inverted-row",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "push-c",
+              "exerciseId": "push-up",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 3,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "walking-lunge",
+              "exerciseId": "reverse-lunge",
+              "target": {
+                "kind": "reps",
+                "min": 15,
+                "max": 15
+              },
+              "rir": 3,
+              "perSide": true,
+              "load": {
+                "kind": "bodyweight"
+              }
+            },
+            "sets": 2,
+            "restSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "pull-vertical-second",
+              "exerciseId": "door-towel-row",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 75
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "press-vertical",
+              "exerciseId": "hands-elevated-pike-push-up",
+              "target": {
+                "kind": "reps",
+                "min": 12,
+                "max": 15
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 60
+          },
+          {
+            "type": "straight",
+            "item": {
+              "slot": "leg-curl",
+              "exerciseId": "hamstring-bridge-walkout",
+              "target": {
+                "kind": "reps",
+                "min": 6,
+                "max": 8
+              },
+              "rir": 3
+            },
+            "sets": 2,
+            "restSec": 45
+          },
+          {
+            "type": "group",
+            "style": "superset",
+            "items": [
+              {
+                "slot": "plank",
+                "exerciseId": "plank",
+                "target": {
+                  "kind": "time",
+                  "minSec": 45,
+                  "maxSec": 60
+                }
+              },
+              {
+                "slot": "back-extension",
+                "exerciseId": "superman",
+                "target": {
+                  "kind": "reps",
+                  "min": 12,
+                  "max": 12
+                },
+                "rir": 3
+              }
+            ],
+            "rounds": 2,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 45
+          }
+        ],
+        "finisher": [
+          {
+            "type": "group",
+            "style": "circuit",
+            "items": [
+              {
+                "slot": "swing",
+                "exerciseId": "mountain-climber",
+                "target": {
+                  "kind": "reps",
+                  "min": 15,
+                  "max": 15
+                }
+              },
+              {
+                "slot": "climber",
+                "exerciseId": "bear-crawl",
+                "target": {
+                  "kind": "time",
+                  "minSec": 30,
+                  "maxSec": 30
+                }
+              },
+              {
+                "slot": "jump",
+                "exerciseId": "skater-step",
+                "target": {
+                  "kind": "reps",
+                  "min": 15,
+                  "max": 15
+                }
+              },
+              {
+                "slot": "side-plank",
+                "exerciseId": "side-plank",
+                "target": {
+                  "kind": "time",
+                  "minSec": 30,
+                  "maxSec": 30
+                },
+                "perSide": true
+              }
+            ],
+            "rounds": 2,
+            "restBetweenItemsSec": 0,
+            "restAfterRoundSec": 45
+          }
+        ]
+      }
+    ],
+    "phases": [
+      {
+        "name": {
+          "fr": "Réadaptation",
+          "en": "Re-adaptation"
+        },
+        "kind": "re-adaptation",
+        "fromWeek": 1,
+        "toWeek": 3,
+        "adjustments": [
+          {
+            "kind": "rir",
+            "value": 3,
+            "scope": "all-sets"
+          }
+        ],
+        "note": {
+          "fr": "Apprends les mouvements, note tes charges.",
+          "en": "Learn the movements and log your loads."
+        }
+      },
+      {
+        "name": {
+          "fr": "Volume",
+          "en": "Volume"
+        },
+        "kind": "volume",
+        "fromWeek": 4,
+        "toWeek": 5,
+        "adjustments": [
+          {
+            "kind": "extra-sets",
+            "add": 1,
+            "mainBlockIndexes": [0, 1]
+          },
+          {
+            "kind": "cardio-minutes",
+            "addMinutes": 5
+          }
+        ]
+      },
+      {
+        "name": {
+          "fr": "Intensité",
+          "en": "Intensity"
+        },
+        "kind": "intensity",
+        "fromWeek": 6,
+        "toWeek": 7,
+        "adjustments": [
+          {
+            "kind": "rir",
+            "value": 2,
+            "scope": "first-set"
+          },
+          {
+            "kind": "cardio-minutes",
+            "addMinutes": 10
+          }
+        ]
+      },
+      {
+        "name": {
+          "fr": "Décharge + test",
+          "en": "Deload + test"
+        },
+        "kind": "deload",
+        "fromWeek": 8,
+        "toWeek": 8,
+        "adjustments": [
+          {
+            "kind": "volume",
+            "factor": 0.6
+          },
+          {
+            "kind": "rir",
+            "value": 3,
+            "scope": "all-sets"
+          },
+          {
+            "kind": "max-test",
+            "exerciseIds": ["push-up"]
+          }
+        ],
+        "note": {
+          "fr": "Semaine allégée, puis test max : pompes.",
+          "en": "Lighter week, then a max test: push-up."
+        }
+      }
+    ],
+    "progression": {
+      "kind": "double-progression",
+      "upperBodyIncrementKg": 2,
+      "lowerBodyIncrementKg": 4
+    },
+    "generation": {
+      "version": 4,
+      "profile": {
+        "goal": "general-fitness",
+        "level": "beginner",
+        "daysPerWeek": 3,
+        "sessionMinutes": 45
+      },
+      "equipment": [],
+      "seed": 0,
+      "notes": [
+        {
+          "code": "split",
+          "params": {
+            "daysPerWeek": 3,
+            "sessionMinutes": 45,
+            "templates": "full-a,full-b,full-c",
+            "shortSessions": false
+          }
+        },
+        {
+          "code": "dose",
+          "params": {
+            "goal": "general-fitness",
+            "level": "beginner"
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "arm-circles",
+            "slot": "wu-arm-circles"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "wu-squat"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "prone-y-raise",
+            "slot": "wu-pull-apart",
+            "instead": "band-pull-apart",
+            "missing": "band"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "squat-main",
+            "instead": "goblet-squat",
+            "missing": "dumbbell"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "push-up",
+            "slot": "push-main",
+            "instead": "dumbbell-bench-press",
+            "missing": "dumbbell,bench"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "push-up"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "inverted-row",
+            "slot": "row-unilateral",
+            "instead": "one-arm-dumbbell-row",
+            "missing": "dumbbell"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "supported-single-leg-romanian-deadlift",
+            "slot": "hinge-tempo",
+            "instead": "dumbbell-romanian-deadlift",
+            "missing": "dumbbell"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-fallback-pattern",
+          "params": {
+            "exerciseId": "door-towel-row",
+            "slot": "pull-vertical-second",
+            "pattern": "pull-horizontal",
+            "wanted": "pull-vertical"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "exercise-easier-variant",
+          "params": {
+            "exerciseId": "hands-elevated-pike-push-up",
+            "slot": "press-vertical",
+            "from": "pike-push-up"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "plank",
+            "slot": "plank"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 6,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "reverse-crunch",
+            "slot": "leg-raise",
+            "instead": "hanging-leg-raise",
+            "missing": "pull-up-bar"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "main",
+            "blockIndex": 6,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "cardio-modality",
+          "params": {
+            "exerciseId": "step-jacks",
+            "modality": "step-intervals"
+          },
+          "ref": {
+            "sessionId": "a-full-a",
+            "section": "finisher",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "slot-dropped",
+          "params": {
+            "slot": "curl",
+            "patterns": "elbow-flexion"
+          },
+          "ref": {
+            "sessionId": "a-full-a"
+          }
+        },
+        {
+          "code": "slot-dropped",
+          "params": {
+            "slot": "triceps",
+            "patterns": "elbow-extension"
+          },
+          "ref": {
+            "sessionId": "a-full-a"
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "arm-circles",
+            "slot": "wu-arm-circles"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "wu-squat"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "prone-y-raise",
+            "slot": "wu-pull-apart",
+            "instead": "band-pull-apart",
+            "missing": "band"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-easier-variant",
+          "params": {
+            "exerciseId": "supported-single-leg-romanian-deadlift",
+            "slot": "hinge-main",
+            "from": "single-leg-romanian-deadlift"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-fallback-pattern",
+          "params": {
+            "exerciseId": "door-towel-row",
+            "slot": "pull-vertical-main",
+            "pattern": "pull-horizontal",
+            "wanted": "pull-vertical"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "dumbbell-step-up",
+            "slot": "lunge-main"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "dumbbell-step-up"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-easier-variant",
+          "params": {
+            "exerciseId": "hands-elevated-pike-push-up",
+            "slot": "press-vertical-main",
+            "from": "pike-push-up"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "inverted-row",
+            "slot": "row-bilateral",
+            "instead": "bent-over-dumbbell-row",
+            "missing": "dumbbell"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "push-up",
+            "slot": "push-second"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "push-up"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "cardio-modality",
+          "params": {
+            "exerciseId": "step-jacks",
+            "modality": "step-intervals"
+          },
+          "ref": {
+            "sessionId": "b-full-b",
+            "section": "finisher",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "arm-circles",
+            "slot": "wu-arm-circles"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "warmup",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "wu-squat"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "warmup",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "prone-y-raise",
+            "slot": "wu-pull-apart",
+            "instead": "band-pull-apart",
+            "missing": "band"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "warmup",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bodyweight-squat",
+            "slot": "squat-c",
+            "instead": "dumbbell-front-squat",
+            "missing": "dumbbell"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "inverted-row",
+            "slot": "row-bilateral",
+            "instead": "bent-over-dumbbell-row",
+            "missing": "dumbbell"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "push-up",
+            "slot": "push-c",
+            "instead": "dumbbell-bench-press",
+            "missing": "dumbbell,bench"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "push-up"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "reverse-lunge",
+            "slot": "walking-lunge"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "load-unloaded-start",
+          "params": {
+            "exerciseId": "reverse-lunge"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 3
+          }
+        },
+        {
+          "code": "exercise-fallback-pattern",
+          "params": {
+            "exerciseId": "door-towel-row",
+            "slot": "pull-vertical-second",
+            "pattern": "pull-horizontal",
+            "wanted": "pull-vertical"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 4
+          }
+        },
+        {
+          "code": "exercise-easier-variant",
+          "params": {
+            "exerciseId": "hands-elevated-pike-push-up",
+            "slot": "press-vertical",
+            "from": "pike-push-up"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 5
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "hamstring-bridge-walkout",
+            "slot": "leg-curl"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 6
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "plank",
+            "slot": "plank"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 7,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "superman",
+            "slot": "back-extension"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "main",
+            "blockIndex": 7,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-easier-variant",
+          "params": {
+            "exerciseId": "mountain-climber",
+            "slot": "swing",
+            "from": "squat-thrust"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 0
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "bear-crawl",
+            "slot": "climber"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 1
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "skater-step",
+            "slot": "jump"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 2
+          }
+        },
+        {
+          "code": "exercise-preferred",
+          "params": {
+            "exerciseId": "side-plank",
+            "slot": "side-plank"
+          },
+          "ref": {
+            "sessionId": "c-full-c",
+            "section": "finisher",
+            "blockIndex": 0,
+            "itemIndex": 3
+          }
+        },
+        {
+          "code": "time-fit",
+          "params": {
+            "action": "block-added",
+            "exerciseIds": "mountain-climber,bear-crawl,skater-step,side-plank",
+            "budget": 45
+          },
+          "ref": {
+            "sessionId": "c-full-c"
+          }
+        },
+        {
+          "code": "max-test",
+          "params": {
+            "exerciseId": "push-up"
+          }
+        }
+      ]
+    }
+  },
+  "quick": {
+    "session": {
+      "id": "quick-full",
+      "name": {
+        "fr": "Séance express — Full body",
+        "en": "Quick session — Full body"
+      },
+      "estimatedMinutes": 33,
+      "warmup": [
+        {
+          "type": "straight",
+          "item": {
+            "slot": "wu-arm-circles",
+            "exerciseId": "arm-circles",
+            "target": {
+              "kind": "time",
+              "minSec": 30,
+              "maxSec": 30
+            }
+          },
+          "sets": 1,
+          "restSec": 0
+        },
+        {
+          "type": "straight",
+          "item": {
+            "slot": "wu-squat",
+            "exerciseId": "bodyweight-squat",
+            "target": {
+              "kind": "reps",
+              "min": 15,
+              "max": 15
+            }
+          },
+          "sets": 1,
+          "restSec": 0
+        }
+      ],
+      "main": [
+        {
+          "type": "straight",
+          "item": {
+            "slot": "squat-main",
+            "exerciseId": "goblet-squat",
+            "target": {
+              "kind": "reps",
+              "min": 8,
+              "max": 12
+            },
+            "rir": 2,
+            "load": {
+              "kind": "kg",
+              "kg": 14
+            }
+          },
+          "sets": 4,
+          "restSec": 60
+        },
+        {
+          "type": "straight",
+          "item": {
+            "slot": "push-main",
+            "exerciseId": "dumbbell-floor-press",
+            "target": {
+              "kind": "reps",
+              "min": 8,
+              "max": 10
+            },
+            "rir": 2,
+            "load": {
+              "kind": "kg",
+              "kg": 10
+            }
+          },
+          "sets": 2,
+          "restSec": 60
+        },
+        {
+          "type": "straight",
+          "item": {
+            "slot": "row-unilateral",
+            "exerciseId": "one-arm-dumbbell-row",
+            "target": {
+              "kind": "reps",
+              "min": 10,
+              "max": 10
+            },
+            "rir": 2,
+            "perSide": true,
+            "load": {
+              "kind": "kg",
+              "kg": 14
+            }
+          },
+          "sets": 2,
+          "restSec": 60
+        },
+        {
+          "type": "straight",
+          "item": {
+            "slot": "hinge-tempo",
+            "exerciseId": "dumbbell-romanian-deadlift",
+            "target": {
+              "kind": "reps",
+              "min": 10,
+              "max": 10
+            },
+            "rir": 2,
+            "tempo": {
+              "down": 3,
+              "pause": 0,
+              "up": 2
+            },
+            "load": {
+              "kind": "kg",
+              "kg": 18
+            }
+          },
+          "sets": 2,
+          "restSec": 60
+        },
+        {
+          "type": "group",
+          "style": "superset",
+          "items": [
+            {
+              "slot": "plank",
+              "exerciseId": "plank",
+              "target": {
+                "kind": "time",
+                "minSec": 45,
+                "maxSec": 60
+              }
+            },
+            {
+              "slot": "leg-raise",
+              "exerciseId": "hanging-leg-raise",
+              "target": {
+                "kind": "reps",
+                "min": 10,
+                "max": 12
+              },
+              "rir": 2
+            }
+          ],
+          "rounds": 2,
+          "restBetweenItemsSec": 0,
+          "restAfterRoundSec": 45
+        }
+      ],
+      "finisher": [
+        {
+          "type": "straight",
+          "item": {
+            "exerciseId": "treadmill-incline-walk",
+            "target": {
+              "kind": "cardio",
+              "minMinutes": 10,
+              "maxMinutes": 10,
+              "speedKmh": 5,
+              "inclinePct": 12
+            },
+            "slot": "cardio-finisher-0"
+          },
+          "sets": 1,
+          "restSec": 0
+        }
+      ]
+    },
+    "notes": [
+      {
+        "code": "quick-session",
+        "params": {
+          "focus": "full",
+          "minutes": 30,
+          "template": "full-a"
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "arm-circles",
+          "slot": "wu-arm-circles"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "warmup",
+          "blockIndex": 0
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "bodyweight-squat",
+          "slot": "wu-squat"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "warmup",
+          "blockIndex": 1
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "goblet-squat",
+          "slot": "squat-main"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 0
+        }
+      },
+      {
+        "code": "load-start",
+        "params": {
+          "exerciseId": "goblet-squat",
+          "kg": 14,
+          "targetKg": 14,
+          "bodyweightKg": 70,
+          "bodyweightAssumed": true
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 0
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "dumbbell-floor-press",
+          "slot": "push-main",
+          "instead": "dumbbell-bench-press",
+          "missing": "bench"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 1
+        }
+      },
+      {
+        "code": "load-start",
+        "params": {
+          "exerciseId": "dumbbell-floor-press",
+          "kg": 10,
+          "targetKg": 10.5,
+          "bodyweightKg": 70,
+          "bodyweightAssumed": true
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 1
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "one-arm-dumbbell-row",
+          "slot": "row-unilateral"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 2
+        }
+      },
+      {
+        "code": "load-start",
+        "params": {
+          "exerciseId": "one-arm-dumbbell-row",
+          "kg": 14,
+          "targetKg": 14,
+          "bodyweightKg": 70,
+          "bodyweightAssumed": true
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 2
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "dumbbell-romanian-deadlift",
+          "slot": "hinge-tempo"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 3
+        }
+      },
+      {
+        "code": "load-start",
+        "params": {
+          "exerciseId": "dumbbell-romanian-deadlift",
+          "kg": 18,
+          "targetKg": 16.8,
+          "bodyweightKg": 70,
+          "bodyweightAssumed": true
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 3
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "plank",
+          "slot": "plank"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 4,
+          "itemIndex": 0
+        }
+      },
+      {
+        "code": "exercise-preferred",
+        "params": {
+          "exerciseId": "hanging-leg-raise",
+          "slot": "leg-raise"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "main",
+          "blockIndex": 4,
+          "itemIndex": 1
+        }
+      },
+      {
+        "code": "cardio-modality",
+        "params": {
+          "exerciseId": "treadmill-incline-walk",
+          "modality": "incline-walk"
+        },
+        "ref": {
+          "sessionId": "quick-full",
+          "section": "finisher",
+          "blockIndex": 0
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "block-dropped",
+          "exerciseIds": "standing-dumbbell-shoulder-press",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "block-dropped",
+          "exerciseIds": "chin-up",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "rounds-trimmed",
+          "exerciseIds": "plank,hanging-leg-raise",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "rests-shortened",
+          "seconds": 15,
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "rests-shortened",
+          "seconds": 15,
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "warmup-shortened",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "warmup-shortened",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "sets-trimmed",
+          "exerciseIds": "dumbbell-romanian-deadlift",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "sets-trimmed",
+          "exerciseIds": "one-arm-dumbbell-row",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "sets-trimmed",
+          "exerciseIds": "dumbbell-floor-press",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      },
+      {
+        "code": "time-fit",
+        "params": {
+          "action": "sets-trimmed",
+          "exerciseIds": "dumbbell-floor-press",
+          "budget": 30
+        },
+        "ref": {
+          "sessionId": "quick-full"
+        }
+      }
+    ]
+  }
+}

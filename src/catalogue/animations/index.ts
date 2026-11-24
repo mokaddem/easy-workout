@@ -4,6 +4,8 @@ import { coreAnimations } from './core';
 import { legsAnimations } from './legs';
 import { pullAnimations } from './pull';
 import { pushAnimations } from './push';
+import { stretchLowerAnimations } from './stretch-lower';
+import { stretchUpperAnimations } from './stretch-upper';
 import { warmupAnimations } from './warmup';
 
 /** Animations by catalogue family; every key is an exercise id of that family. */
@@ -13,7 +15,7 @@ export const ANIMATION_FAMILIES = {
   legs: legsAnimations,
   core: coreAnimations,
   cardio: cardioAnimations,
-  warmup: warmupAnimations,
+  warmup: { ...warmupAnimations, ...stretchLowerAnimations, ...stretchUpperAnimations },
 } as const satisfies Record<string, Record<string, ExerciseAnimation>>;
 
 export const animations: Readonly<Record<string, ExerciseAnimation>> = {
@@ -23,6 +25,8 @@ export const animations: Readonly<Record<string, ExerciseAnimation>> = {
   ...coreAnimations,
   ...cardioAnimations,
   ...warmupAnimations,
+  ...stretchLowerAnimations,
+  ...stretchUpperAnimations,
 };
 
 /** The animation of an exercise, if one has been authored. */

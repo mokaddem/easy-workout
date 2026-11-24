@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import { handleLinkClick, routeHref } from '@/app/router';
 import type { Answer, Language } from '@/domain';
-import type { NextTimeLine } from '@/engine';
+import { parseDropped, type NextTimeLine } from '@/engine';
 import {
   Rich,
   changeFigure,
@@ -27,10 +27,12 @@ interface Props {
   mode: ListMode;
   lang: Language;
   buyNext: string[];
+  /** The session ran on a travel kit: what stood in for what, and what was left out. */
+  travel?: { substitutions: Record<string, string>; dropped: string[] };
 }
 
 /** One row per main exercise: what was done, next time's figure, and why. */
-export function ExerciseList({ rows, lines, answers, logId, mode, lang, buyNext }: Props) {
+export function ExerciseList({ rows, lines, answers, logId, mode, lang, buyNext, travel }: Props) {
   const { t } = useTranslation();
   const showFigure = mode === 'normal' || mode === 'peak';
   const pure = t('adapt.summary.same');
@@ -42,6 +44,7 @@ export function ExerciseList({ rows, lines, answers, logId, mode, lang, buyNext 
           {t('adapt.summary.list.title')}
         </h2>
         {showFigure ? <p className={styles.sub}>{t('adapt.summary.list.sub')}</p> : null}
+        {travel ? <p className={styles.sub}>{t('play.summary.travelList')}</p> : null}
         {mode === 'deload' ? <p className={styles.sub}>{t('adapt.summary.deload')}</p> : null}
         {mode === 'peak' ? <p className={styles.sub}>{t('adapt.summary.peak')}</p> : null}
       </div>
@@ -62,7 +65,11 @@ export function ExerciseList({ rows, lines, answers, logId, mode, lang, buyNext 
           let figure: Figure | undefined;
           let reason: string | undefined;
           let swapped = false;
-          if (answer?.substituteId) {
+          const standsIn = travel?.substitutions[row.key];
+          if (standsIn) {
+            swapped = true;
+            reason = t('programme.kit.swapChip', { name: exerciseName(standsIn, lang) });
+          } else if (answer?.substituteId) {
             swapped = true;
             reason = t('adapt.summary.swapped', { name: exerciseName(answer.substituteId, lang) });
           } else if (row.notReached) {
@@ -70,7 +77,7 @@ export function ExerciseList({ rows, lines, answers, logId, mode, lang, buyNext 
           } else if (row.flag === 'no-equipment') {
             reason = t('adapt.summary.oneOff');
           }
-          if (!swapped && !row.notReached && line) {
+          if (!swapped && !row.notReached && line && !travel) {
             const up = movesUp(line.before, line.after, assisted);
             const hold = mode === 'peak' && !up;
             figure = changeFigure(t, lang, line.before, hold ? line.before : line.after);
@@ -124,6 +131,19 @@ export function ExerciseList({ rows, lines, answers, logId, mode, lang, buyNext 
               </div>
             </li>
           );
+        })}
+        {(travel?.dropped ?? []).flatMap((entry) => {
+          const dropped = parseDropped(entry);
+          return dropped
+            ? [
+                <li key={entry} className={`${styles.row} ${styles.dropped}`}>
+                  <div className={styles.text}>
+                    <span className={styles.name}>{exerciseName(dropped.exerciseId, lang)}</span>
+                    <span className={styles.why}>{t('programme.kit.droppedShort')}</span>
+                  </div>
+                </li>,
+              ]
+            : [];
         })}
       </ul>
       {buyNext.length > 0 && mode !== 'quick' ? (

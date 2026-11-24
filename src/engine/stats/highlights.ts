@@ -1,7 +1,8 @@
 import type { Exercise, MaxTest, ProgressionNote, Programme, SessionLog } from '../../domain';
 import { exerciseById as catalogueById } from '../../catalogue';
 import { DAY_MS } from './dates';
-import { compareBest, pointsByExercise, type ExercisePoint } from './history';
+import { pointsByExercise, type ExercisePoint } from './history';
+import { recordsAlong, type ExerciseRecord } from './records';
 import { itemsByKey } from './timeline';
 
 export const HIGHLIGHT_DAYS = 14;
@@ -20,14 +21,21 @@ const NOTE_CODES = new Set([
 
 export type Highlight =
   | { kind: 'note'; exerciseId: string; at: string; logId: string; note: ProgressionNote }
-  | { kind: 'best'; exerciseId: string; at: string; logId: string; point: ExercisePoint }
+  | {
+      kind: 'best';
+      exerciseId: string;
+      at: string;
+      logId: string;
+      point: ExercisePoint;
+      record: ExerciseRecord;
+    }
   | { kind: 'test'; exerciseId: string; at: string; test: MaxTest };
 
 const PRIORITY = { note: 0, best: 1, test: 2 } as const;
 
 /**
  * What moved up in the last 14 days: one row per exercise (its latest qualifying event), newest
- * first. Events: automatic steps, a new best (needs two earlier sessions, never a calibration),
+ * first. Events: automatic steps, a new best (a personal record, see `recordsAlong`),
  * a max test.
  */
 export function highlights(
@@ -67,17 +75,20 @@ export function highlights(
     }
   }
 
+  const lookup = new Map(logs.map((l) => [l.id, l]));
   for (const [exerciseId, points] of pointsByExercise(logs, programmes, exercises)) {
-    let top: ExercisePoint | undefined;
-    points.forEach((point, index) => {
-      const best = point.best;
-      if (!best || point.stopped) return;
-      const beats =
-        index >= 2 && !point.calibration && (!top?.best || compareBest(best, top.best) > 0);
-      if (beats && inWindow(point.at))
-        events.push({ kind: 'best', exerciseId, at: point.at, logId: point.logId, point });
-      if (!top?.best || compareBest(best, top.best) > 0) top = point;
-    });
+    for (const record of recordsAlong(exerciseId, points, tests, lookup, { exercises })) {
+      const point = points.find((p) => p.logId === record.logId);
+      if (point && inWindow(record.at))
+        events.push({
+          kind: 'best',
+          exerciseId,
+          at: record.at,
+          logId: record.logId,
+          point,
+          record,
+        });
+    }
   }
 
   for (const test of tests)

@@ -62,5 +62,10 @@
     "error": "Name your session."
   },
   "savedToast": "Saved to my sessions",
-  "savedView": "View"
+  "savedView": "View",
+  "travelKit": "Travel kit",
+  "travelKitHint": "What you took with you",
+  "constraintsBoth": "No jumping and on the spot, like your programme.",
+  "constraintsQuiet": "No jumping, like your programme.",
+  "constraintsSpace": "On the spot, like your programme."
 }

@@ -8,3 +8,4 @@ export * from './timeline';
 export * from './highlights';
 export * from './body';
 export * from './max-tests';
+export * from './records';

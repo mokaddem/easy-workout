@@ -31,3 +31,7 @@ export function refreshRampUps(session: Session, before: Session, ctx: EditConte
   const next = { ...session, warmup: [...warmup, ...ramps] };
   return { ...next, estimatedMinutes: sessionMinutes(next) };
 }
+
+/** A ramp-up load as a share of the working load, to the nearest 5 %: 22 of 40 kg reads 55. */
+export const rampSharePct = (kg: number, workingKg: number): number =>
+  workingKg > 0 ? Math.round(((kg / workingKg) * 100) / 5) * 5 : 0;

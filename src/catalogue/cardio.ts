@@ -31,6 +31,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['treadmill-walk'],
     harder: ['treadmill-run'],
+    joints: {},
   },
   {
     id: 'mountain-climber',
@@ -62,6 +63,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['squat-thrust'],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'treadmill-walk',
@@ -102,6 +104,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['treadmill-incline-walk'],
+    joints: {},
   },
   {
     id: 'treadmill-run',
@@ -130,7 +133,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['quads', 'calves'],
     secondaryMuscles: ['glutes', 'hamstrings', 'hip-flexors'],
     pattern: 'locomotion',
-    tags: [],
+    tags: ['impact'],
     equipment: [
       [
         {
@@ -144,6 +147,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['treadmill-incline-walk'],
     harder: [],
+    joints: { knee: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'march-in-place',
@@ -178,6 +182,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: ['step-jacks', 'high-knees'],
+    joints: {},
   },
   {
     id: 'step-jacks',
@@ -212,6 +217,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: ['march-in-place'],
     harder: ['jumping-jacks'],
+    joints: {},
   },
   {
     id: 'jumping-jacks',
@@ -238,7 +244,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['calves', 'abductors'],
     secondaryMuscles: ['side-delts', 'quads', 'glutes'],
     pattern: 'conditioning',
-    tags: ['plyometric', 'warmup'],
+    tags: ['plyometric', 'warmup', 'impact'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -246,6 +252,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['step-jacks'],
     harder: ['jump-rope-bounce'],
+    joints: { knee: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'high-knees',
@@ -272,7 +279,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['hip-flexors', 'quads'],
     secondaryMuscles: ['calves', 'abs', 'glutes'],
     pattern: 'conditioning',
-    tags: ['plyometric'],
+    tags: ['plyometric', 'impact'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -280,6 +287,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['march-in-place'],
     harder: [],
+    joints: { knee: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'squat-thrust',
@@ -314,6 +322,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['mountain-climber'],
     harder: ['burpee'],
+    joints: { knee: 'moderate', wrist: 'moderate' },
   },
   {
     id: 'burpee',
@@ -340,7 +349,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['quads', 'chest'],
     secondaryMuscles: ['abs', 'glutes', 'triceps', 'front-delts', 'calves'],
     pattern: 'conditioning',
-    tags: ['compound', 'plyometric'],
+    tags: ['compound', 'plyometric', 'impact'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'reps',
@@ -348,6 +357,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['squat-thrust'],
     harder: [],
+    joints: { knee: 'high', wrist: 'high', ankle: 'high' },
   },
   {
     id: 'skater-step',
@@ -374,7 +384,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['glutes', 'abductors'],
     secondaryMuscles: ['quads', 'adductors', 'calves'],
     pattern: 'conditioning',
-    tags: ['warmup'],
+    tags: ['warmup', 'needs-space'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'reps',
@@ -382,6 +392,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: ['skater-jump'],
+    joints: { knee: 'moderate', hip: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'skater-jump',
@@ -408,7 +419,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['glutes', 'abductors'],
     secondaryMuscles: ['quads', 'adductors', 'calves'],
     pattern: 'conditioning',
-    tags: ['plyometric'],
+    tags: ['plyometric', 'impact', 'needs-space'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'reps',
@@ -416,6 +427,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['skater-step'],
     harder: [],
+    joints: { knee: 'high', hip: 'high', ankle: 'high' },
   },
   {
     id: 'bear-crawl',
@@ -442,7 +454,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['front-delts', 'quads'],
     secondaryMuscles: ['abs', 'chest', 'triceps', 'hip-flexors'],
     pattern: 'conditioning',
-    tags: ['compound'],
+    tags: ['compound', 'needs-space'],
     equipment: [[]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -450,6 +462,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { wrist: 'moderate' },
   },
   {
     id: 'shadow-boxing',
@@ -461,17 +474,17 @@ export const cardioExercises: readonly Exercise[] = [
       fr: [
         'Place-toi en garde, pieds à largeur d’épaules, genoux souples.',
         'Enchaîne directs, crochets et esquives dans le vide.',
-        'Garde les déplacements légers et un rythme régulier.',
+        'Transfère ton poids d’un pied à l’autre à un rythme régulier.',
       ],
       en: [
         'Take a boxing stance, feet shoulder-width apart, knees soft.',
         'Throw straight punches, hooks and slips at the air.',
-        'Stay light on your feet at a steady rhythm.',
+        'Shift your weight from foot to foot at a steady rhythm.',
       ],
     },
     keyCue: {
-      fr: 'Ne verrouille pas les coudes en fin de coup et reste mobile sur les pieds.',
-      en: 'Do not lock your elbows at the end of each punch and keep moving on your feet.',
+      fr: 'Ne verrouille pas les coudes en fin de coup ; déplace-toi en pas, sans sauter.',
+      en: 'Do not lock your elbows at the end of each punch; step, don’t hop.',
     },
     primaryMuscles: ['front-delts', 'obliques'],
     secondaryMuscles: ['triceps', 'abs', 'calves', 'side-delts'],
@@ -484,6 +497,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'dumbbell-thruster',
@@ -522,6 +536,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
+    joints: { knee: 'moderate', shoulder: 'moderate', 'lower-back': 'moderate' },
   },
   {
     id: 'stationary-bike-ride',
@@ -553,6 +568,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
   {
     id: 'rowing-machine',
@@ -586,6 +602,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: [],
     harder: [],
+    joints: { knee: 'moderate', 'lower-back': 'moderate' },
   },
   {
     id: 'jump-rope-bounce',
@@ -611,7 +628,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['calves'],
     secondaryMuscles: ['quads', 'front-delts', 'forearms'],
     pattern: 'conditioning',
-    tags: ['plyometric'],
+    tags: ['plyometric', 'impact', 'needs-space'],
     equipment: [[{ kind: 'jump-rope' }]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -619,6 +636,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 2,
     easier: ['jumping-jacks'],
     harder: ['jump-rope-alternate-foot', 'jump-rope-double-under'],
+    joints: { knee: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'jump-rope-alternate-foot',
@@ -644,7 +662,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['calves', 'quads'],
     secondaryMuscles: ['hip-flexors', 'forearms', 'glutes'],
     pattern: 'conditioning',
-    tags: ['plyometric'],
+    tags: ['plyometric', 'impact', 'needs-space'],
     equipment: [[{ kind: 'jump-rope' }]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -652,6 +670,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: ['jump-rope-bounce'],
     harder: ['jump-rope-high-knees'],
+    joints: { knee: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'jump-rope-high-knees',
@@ -677,7 +696,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['hip-flexors', 'calves'],
     secondaryMuscles: ['quads', 'abs', 'forearms'],
     pattern: 'conditioning',
-    tags: ['plyometric'],
+    tags: ['plyometric', 'impact', 'needs-space'],
     equipment: [[{ kind: 'jump-rope' }]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -685,6 +704,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 4,
     easier: ['jump-rope-alternate-foot'],
     harder: [],
+    joints: { knee: 'moderate', ankle: 'moderate' },
   },
   {
     id: 'jump-rope-double-under',
@@ -710,7 +730,7 @@ export const cardioExercises: readonly Exercise[] = [
     primaryMuscles: ['calves'],
     secondaryMuscles: ['forearms', 'quads', 'front-delts', 'abs'],
     pattern: 'conditioning',
-    tags: ['plyometric'],
+    tags: ['plyometric', 'impact', 'needs-space'],
     equipment: [[{ kind: 'jump-rope' }]],
     loadType: 'bodyweight',
     metric: 'time',
@@ -718,6 +738,7 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 5,
     easier: ['jump-rope-bounce'],
     harder: [],
+    joints: { knee: 'moderate', ankle: 'high' },
   },
   {
     id: 'kettlebell-high-pull',
@@ -749,18 +770,19 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 3,
     easier: [],
     harder: [],
+    joints: { shoulder: 'high', 'lower-back': 'high', hip: 'moderate' },
   },
   {
     id: 'brisk-walk',
     name: { fr: 'Marche rapide', en: 'Brisk walk' },
     execution: {
       fr: [
-        'Marche d’un pas soutenu, dehors ou en faisant des allers-retours dans ta maison si la météo ne s’y prête pas.',
+        'Marche d’un pas soutenu, dehors ; si la météo ne s’y prête pas, marche sur place.',
         'Garde le buste droit, le regard devant toi et les bras qui balancent.',
         'Maintiens un rythme régulier pendant toute la durée.',
       ],
       en: [
-        'Walk at a brisk pace, outdoors or back and forth around your home if the weather is poor.',
+        'Walk at a brisk pace outdoors; if the weather is poor, march in place.',
         'Stay tall, eyes forward, arms swinging.',
         'Keep a steady rhythm for the whole duration.',
       ],
@@ -780,5 +802,6 @@ export const cardioExercises: readonly Exercise[] = [
     difficulty: 1,
     easier: [],
     harder: [],
+    joints: {},
   },
 ];

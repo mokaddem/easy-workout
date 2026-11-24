@@ -118,6 +118,8 @@ export const SessionSchema = z.strictObject({
   name: LocalizedTextSchema,
   focus: LocalizedTextSchema.optional(),
   estimatedMinutes: int(1, 240),
+  /** Time to move into each block when the session sets its own, shorter than usual (a calm stretch sequence). */
+  transitionSec: int(0, 120).optional(),
   warmup: z.array(BlockSchema),
   main: z.array(BlockSchema).min(1),
   finisher: z.array(BlockSchema),

@@ -99,7 +99,7 @@ test('a superset shows its round, item tiles and what comes next, with no rest b
   await expect(page.getByText('Round', { exact: true })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Exercise a of 2' })).toBeVisible();
   await expect(page.getByText('Then', { exact: true })).toBeVisible();
-  await expect(page.getByText(/10 reps.*no rest/)).toBeVisible();
+  await expect(page.getByText(/10\sreps.*no rest/)).toBeVisible();
 
   await page.getByRole('button', { name: /^Done as planned/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Push-up' })).toBeVisible();

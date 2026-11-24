@@ -4,6 +4,7 @@ import type { Position } from '@/app/programme-state';
 import { Icon } from '@/ui/components';
 import { rotationMarks } from './edits';
 import { programmeIdentities } from './format';
+import { phaseLabel } from './lighterWeek';
 import styles from './Overview.module.css';
 
 /** Weeks down, sessions across: done, next, to do. Phases are bracketed on the right. */
@@ -84,7 +85,9 @@ export function RotationGrid({
           letters={columns.map((c) => identities[c % size]?.letter)}
         />
       ))}
-      {programme.phases.map((phase) => {
+      {programme.phases.map((phase, index) => {
+        const early = phase.origin === 'early';
+        const label = phaseLabel(t, lang, programme.phases, index);
         const now = position.week >= phase.fromWeek && position.week <= phase.toWeek;
         const style = {
           gridColumn: `${columns.length + 2}`,
@@ -98,7 +101,7 @@ export function RotationGrid({
             style={style}
             onClick={() => onPhase(phase)}
           >
-            {phase.name[lang]}
+            {early ? <span className={styles.phaseBadge}>{label}</span> : label}
           </button>
         ) : (
           <span
@@ -106,7 +109,7 @@ export function RotationGrid({
             className={`${styles.phase} ${styles.phaseStatic}`}
             style={style}
           >
-            {phase.name[lang]}
+            {early ? <span className={styles.phaseBadge}>{label}</span> : label}
           </span>
         );
       })}

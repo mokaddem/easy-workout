@@ -4,7 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { exerciseById } from '@/catalogue';
 import type { ProgrammeRecord } from '@/db';
 import type { Language, MaxTest, SessionLog } from '@/domain';
-import { groupsOf, testValue, type CycleReview, type LiftChange, type LiftReading } from '@/engine';
+import {
+  groupsOf,
+  testSkippedWeeks,
+  testValue,
+  type CycleReview,
+  type LiftChange,
+  type LiftReading,
+} from '@/engine';
 import { handleLinkClick, navigate, routeHref } from '@/app/router';
 import { Tick } from '@/motion';
 import {
@@ -269,6 +276,8 @@ function TestSection({
         l.source.programmeId === record.id &&
         l.test?.outcome === 'skipped',
     );
+    // A test week that ran away from home or at the lighter volume after a long break: "Test now".
+    const held = testSkippedWeeks(record, logs, data.maxTests);
     return (
       <section className={styles.sec}>
         <div className={styles.secHead}>
@@ -283,13 +292,21 @@ function TestSection({
             <p>
               {blocked
                 ? t('cycle.review.test.blockedBody', { week })
-                : skipped
-                  ? t('cycle.review.test.skippedBody', { week, next })
-                  : t('cycle.review.test.noneBody', { next })}
+                : held.length > 0
+                  ? t('cycle.review.test.heldBody', {
+                      count: held.length,
+                      weeks: new Intl.ListFormat(lang, { type: 'conjunction' }).format(
+                        held.map(String),
+                      ),
+                      next,
+                    })
+                  : skipped
+                    ? t('cycle.review.test.skippedBody', { week, next })
+                    : t('cycle.review.test.noneBody', { next })}
             </p>
             {!blocked && !readOnly ? (
               <Button variant="secondary" onClick={() => navigate({ name: 'tests' })}>
-                {t('cycle.review.test.action')}
+                {t(held.length > 0 ? 'cycle.review.test.now' : 'cycle.review.test.action')}
               </Button>
             ) : null}
           </div>

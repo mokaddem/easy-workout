@@ -11,6 +11,9 @@
     "exercisesCount_other": "{{count}} exercises",
     "equipment": "Equipment",
     "warmup": "Warm-up",
+    "rampTitle_one": "Ramp-up set",
+    "rampTitle_other": "Ramp-up sets",
+    "rampShare": "{{pct}}\u00A0% of {{kg}}\u00A0kg",
     "warmupMeta_one": "{{count}} exercise, about {{minutes}} min",
     "warmupMeta_other": "{{count}} exercises, about {{minutes}} min",
     "main": "Main work",
@@ -69,7 +72,10 @@
       "calves": "calves"
     },
     "testReps_one": "{{count}} rep",
-    "testReps_other": "{{count}} reps"
+    "testReps_other": "{{count}} reps",
+    "reentry": "Easing back in: {{percent}}% fewer sets on your first {{count}} sessions ({{n}} of {{count}}).",
+    "testHeldReentry": "No max test this week: you’re easing back in after a long break. Do it from Progress, with Take a test, whenever you like.",
+    "testHeldTravel": "No max test with your travel kit. Do it from Progress, with Take a test, when you’re back."
   },
   "week": {
     "group": "Programme week",
@@ -77,7 +83,14 @@
     "title": "Week {{week}}, {{phase}}",
     "current": "Current",
     "preview": "Preview",
-    "test": "This week’s test: as many {{names}} as possible."
+    "test": "This week’s test: as many {{names}} as possible.",
+    "lighterShort": "Light",
+    "today": "today",
+    "cell": "{{weekday}} {{day}}: session {{letter}}",
+    "cardio": "cardio",
+    "doneCell": "{{weekday}} {{day}}: session done",
+    "rest": "{{weekday}} {{day}}: rest",
+    "stripTitle": "Your next 7 days"
   },
   "changes": {
     "intro": "Compared with week {{week}}:",
@@ -187,7 +200,11 @@
       "maxTest": "<b>Max test</b> at the end of the week: {{names}}"
     },
     "sameLoads": "Same exercises; loads go up when you reach the top of the range.",
-    "close": "Close"
+    "close": "Close",
+    "lighter": {
+      "summary": "An extra lighter week: fewer sets and more reps in reserve, then the cycle picks up where it stopped.",
+      "goal": "Shake off the fatigue, then carry on with the same loads."
+    }
   },
   "whyCard": {
     "title": "Why this programme?",
@@ -204,7 +221,9 @@
     "outOfDate": "Your profile or equipment changed since this programme was made. A new programme can take that into account.",
     "needsNew": "Your goal or number of days changed: the session split no longer fits.",
     "generate": "Generate a new programme",
-    "keep": "Keep this one"
+    "keep": "Keep this one",
+    "constraints": "What you avoid has changed since this programme was made: joints, noise or space. It can be picked again in place, and you stay in your week.",
+    "apply": "See what changes"
   },
   "nudge": {
     "title_one": "{{count}} exercise adapted for lack of equipment",
@@ -215,7 +234,9 @@
     "label": "Next session",
     "details": "View session",
     "testFact": "Then a max test: {{name}}",
-    "testFactFirst": "Starts with a max test: {{name}}"
+    "testFactFirst": "Starts with a max test: {{name}}",
+    "today": "Next session, today",
+    "on": "Next session, {{weekday}} {{day}}"
   },
   "start": "Start session",
   "rotation": {
@@ -236,7 +257,8 @@
       "later": "Week {{week}}: later"
     },
     "mine": "Mine",
-    "mineSr": "{{letter}}, my session"
+    "mineSr": "{{letter}}, my session",
+    "continued": "{{name}} (cont.)"
   },
   "sessions": {
     "title": "Sessions",
@@ -255,7 +277,11 @@
     "variant": "Try another variation",
     "variantHint": "Changes secondary exercises. You see the changes before confirming.",
     "profile": "Edit profile",
-    "equipment": "Edit equipment"
+    "equipment": "Edit equipment",
+    "pause": "Pause programme",
+    "pauseHint": "Nothing is missed meanwhile",
+    "resume": "Resume programme",
+    "travel": "Travel kit"
   },
   "preview": {
     "variantEyebrow": "Another variation",
@@ -407,5 +433,81 @@
     "later": "Not this week",
     "hidden": "Reminder hidden until {{date}}",
     "undo": "Undo"
+  },
+  "lighter": {
+    "title": "A lighter week could help",
+    "intro": "A few signs say you are carrying some fatigue.",
+    "hardSets": "Over your last {{sessions}} sessions, {{misses}} of {{sets}} main sets were hard or short of the goal",
+    "stalledLifts": "{{lifts}} of your {{of}} main lifts haven’t moved up in {{sessions}} sessions",
+    "painStops": "Pain stopped {{exercises}} different exercises in the last {{days}} days",
+    "make": "Make week {{week}} lighter",
+    "later": "Not now",
+    "sheetEyebrow": "Lighter week",
+    "sheetTitle": "Make week {{week}} lighter?",
+    "what": "Week {{week}} gets fewer sets and more reps in reserve. Your weights stay the same.",
+    "moves_one": "Week {{from}} moves back one week.",
+    "moves_other": "Weeks {{from}} to {{to}} move back one week.",
+    "end": "The cycle now ends in week {{end}} instead of week {{old}}, with the same final week.",
+    "resume": "After it, you carry on where you stopped.",
+    "confirm": "Make week {{week}} lighter",
+    "keep": "Keep my plan",
+    "done": "Week {{week}} is now a lighter week",
+    "failed": "Couldn’t change the programme"
+  },
+  "missed": {
+    "line": "Planned {{weekday}}, still next.",
+    "ok": "Got it"
+  },
+  "paused": {
+    "title": "Paused",
+    "line_one": "Since {{date}}, {{count}} day. Nothing is missed: you pick up in week {{week}}, {{session}}.",
+    "line_other": "Since {{date}}, {{count}} days. Nothing is missed: you pick up in week {{week}}, {{session}}.",
+    "lineToday": "Since today. Nothing is missed: you pick up in week {{week}}, {{session}}.",
+    "reentry": "After {{weeks}} weeks, your first {{count}} sessions will be lighter.",
+    "resume": "Resume programme",
+    "startNote": "Starting a session resumes the programme.",
+    "toast": "Programme paused.",
+    "resumed": "Programme resumed: {{session}} {{when}}.",
+    "resumedToday": "Programme resumed: {{session}} today."
+  },
+  "restart": {
+    "title": "Start this programme again from week 1?",
+    "kicker": "Your last session was on {{date}}, <b>{{days}} days</b> ago.",
+    "again": "Start again from week 1",
+    "againSub": "Same sessions and exercises, re-adaptation starts over. Your loads restart carefully.",
+    "carry": "Carry on in week {{week}}",
+    "carrySub": "Your next {{count}} sessions with 30% fewer sets to ease back in.",
+    "dialogTitle": "Start again from week 1?",
+    "dialogBody": "Your current programme moves to your past programmes. Your sessions stay in your history.",
+    "confirm": "Start again",
+    "done": "Programme restarted from week 1.",
+    "carried": "Off you go: lighter sessions to ease back in.",
+    "fact": "Easing back in: lighter sets, session {{n}} of {{count}}"
+  },
+  "kit": {
+    "line": "{{until}}: {{what}}.",
+    "until": "Travel kit until {{date}}",
+    "manage": "Manage",
+    "swapped_one": "{{count}} exercise swapped",
+    "swapped_other": "{{count}} exercises swapped",
+    "dropped_one": "{{count}} dropped",
+    "dropped_other": "{{count}} dropped",
+    "all": "everything works",
+    "swapLine": "Travel kit. Replaces: {{name}}.",
+    "swapChip": "Travel kit. Replaces: {{name}}.",
+    "droppedRow": "Not possible with your kit: dropped from this session.",
+    "droppedShort": "Not possible with your kit: dropped."
+  },
+  "limits": {
+    "title": "Adapted for you: {{list}}",
+    "sub_one": "{{count}} exercise left out",
+    "sub_other": "{{count}} exercises left out",
+    "subNone": "Nothing is left out",
+    "sheetTitle": "What your programme works around",
+    "leftOut": "Left out",
+    "lessVolume": "Fewer sets",
+    "capped": "With at least 2 reps in the tank",
+    "sessionLine": "{{session}}: {{what}}",
+    "edit": "Change"
   }
 }

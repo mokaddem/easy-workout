@@ -1,8 +1,16 @@
 import { useState, type ReactNode } from 'react';
 import { Tick } from '@/motion';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { exerciseById } from '@/catalogue';
-import type { Feel, Language, SetActual, Target } from '@/domain';
+import {
+  isCooldownLog,
+  type Feel,
+  type Language,
+  type Load,
+  type SetActual,
+  type Target,
+} from '@/domain';
 import { playerUnit } from '@/features/adapt';
 import { equipmentInUse } from '@/features/figure';
 import type { FigurePacing } from '@/motion/figure';
@@ -23,6 +31,7 @@ import {
 import { setGoal } from '@/engine';
 import { clockSeconds, intervalClock, type PlayerState } from '../machine';
 import styles from '../Play.module.css';
+import { rampOf, type RampPosition } from '../ramp';
 import { AdjustSheet } from './AdjustSheet';
 import { usePlayerHowTo } from '@/features/howto';
 import { FigureSlot } from './FigureSlot';
@@ -206,15 +215,17 @@ function LeadIn({
 function Bar({
   percent,
   tick,
+  calm,
   children,
 }: {
   percent: number;
   tick?: number | undefined;
+  calm?: boolean;
   children?: ReactNode;
 }) {
   return (
     <div>
-      <div className={styles.hbar} aria-hidden="true">
+      <div className={calm ? `${styles.hbar} ${styles.calmFill}` : styles.hbar} aria-hidden="true">
         <i style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
         {tick !== undefined ? (
           <span className={styles.hbarTick} style={{ left: `${tick}%` }} />
@@ -233,6 +244,9 @@ export function HoldScreen(props: TimedProps) {
   const phase = state.phase;
   const exercise = exerciseById.get(step.item.exerciseId);
   const why = useWhy(props);
+  // A stretch in a cooldown: no feel to pick, and the stop button just moves on.
+  const stretch = isCooldownLog(props.log);
+  const lastStep = state.index >= state.steps.length - 1;
   // The countdown starts from the set's goal; the range's bottom stays as a tick while it is ahead.
   const goal = setGoal(step.planned) ?? target.minSec;
   const ticked = target.minSec < goal;
@@ -271,6 +285,7 @@ export function HoldScreen(props: TimedProps) {
             </div>
             <Bar
               percent={(elapsed / goal) * 100}
+              calm={stretch}
               tick={ticked ? (target.minSec / goal) * 100 : undefined}
             >
               {ticked ? (
@@ -287,13 +302,15 @@ export function HoldScreen(props: TimedProps) {
           <Slot ctx={props} hold />
         </div>
         <div className={styles.dock}>
-          <SegmentedControl
-            options={FEELS.map((value) => ({ value, label: t(`play.feel.${value}`) }))}
-            value={why.ask && !state.feelChosen ? null : state.feel}
-            onChange={player.setFeel}
-            label={why.ask ? t('adapt.player.feelAsk') : t('play.set.feel')}
-            {...(why.ask && !state.feelChosen && { ask: true })}
-          />
+          {stretch ? null : (
+            <SegmentedControl
+              options={FEELS.map((value) => ({ value, label: t(`play.feel.${value}`) }))}
+              value={why.ask && !state.feelChosen ? null : state.feel}
+              onChange={player.setFeel}
+              label={why.ask ? t('adapt.player.feelAsk') : t('play.set.feel')}
+              {...(why.ask && !state.feelChosen && { ask: true })}
+            />
+          )}
           <Button
             variant="secondary"
             size="player"
@@ -302,10 +319,22 @@ export function HoldScreen(props: TimedProps) {
             className={styles.dockSecond}
             onClick={player.finishTimer}
           >
-            <span className={styles.dockDoneText}>
-              <span>{t('play.timed.stop')}</span>
-              <small>{t('play.timed.logs', { seconds: held })}</small>
-            </span>
+            {stretch ? (
+              <span>
+                {t(
+                  lastStep
+                    ? 'play.cooldown.last'
+                    : step.side === 'left'
+                      ? 'play.cooldown.otherSide'
+                      : 'play.cooldown.next',
+                )}
+              </span>
+            ) : (
+              <span className={styles.dockDoneText}>
+                <span>{t('play.timed.stop')}</span>
+                <small>{t('play.timed.logs', { seconds: held })}</small>
+              </span>
+            )}
           </Button>
         </div>
       </>
@@ -358,7 +387,13 @@ export function HoldScreen(props: TimedProps) {
           <span>{t('play.timed.heldHint')}</span>
         </p>
         <div className={styles.dockRow}>
-          <Button size="player" className={styles.dockDone} icon="play" onClick={player.startTimer}>
+          <Button
+            {...(stretch && { variant: 'secondary' as const })}
+            size="player"
+            className={styles.dockDone}
+            icon="play"
+            onClick={player.startTimer}
+          >
             {t('play.timed.start')}
           </Button>
           <EditStop ctx={props} />
@@ -654,11 +689,58 @@ function warmupActual(target: Target): SetActual {
   return {};
 }
 
+/** The ramp-up set's pencil: reps and load for this set only, nothing is kept for next time. */
+function EditRamp({ ctx }: { ctx: PlayContext }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [key, setKey] = useState(0);
+  const { target } = ctx.step.planned;
+  return (
+    <>
+      <IconButton
+        icon="pencil"
+        size="player"
+        appearance="outline"
+        label={t('play.set.edit')}
+        onClick={() => {
+          setKey((k) => k + 1);
+          setOpen(true);
+        }}
+      />
+      <AdjustSheet
+        key={key}
+        open={open}
+        onClose={() => setOpen(false)}
+        initialReps={target.kind === 'reps' ? target.min : 0}
+        ramp
+        {...ctx}
+      />
+    </>
+  );
+}
+
+/** What a ramp set says about its weight: "50 % of 40 kg", or its own line when it is the only one. */
+function rampShareLine(
+  t: TFunction,
+  lang: Language,
+  ramp: RampPosition,
+  kind: Load['kind'] | undefined,
+): string {
+  if (ramp.sharePct === undefined || ramp.workingKg === undefined || kind !== 'kg')
+    return t('play.warmup.rampPlain');
+  const params = { pct: ramp.sharePct, kg: numberText(ramp.workingKg, lang) };
+  return ramp.count === 1
+    ? t('play.warmup.rampShareOne', params)
+    : t('play.warmup.rampShare', params);
+}
+
 /** A warm-up item: the same set screen without a feel, one tap, and a button to skip it. */
 export function WarmupScreen(props: PlayContext) {
   const { t } = useTranslation();
   const { lang, inventory, player, step } = props;
   const { planned } = step;
+  const ramp = rampOf(player.state.steps, step);
+  const left = ramp ? ramp.to - player.state.index + 1 : 0;
   const settings = useSettings();
   const pacer = useTempoPacer(planned.tempo, settings?.sounds ?? true);
   const pacing = useFigurePacing(planned.tempo, pacer);
@@ -666,14 +748,21 @@ export function WarmupScreen(props: PlayContext) {
   const cell = targetCell(t, planned.target);
   const load = loadParts(t, lang, planned.load, exercise, inventory);
   const sideWord = step.side ? t(`play.side.${step.side}`) : undefined;
-  const note = step.item.note?.[lang];
+  const note = ramp ? rampShareLine(t, lang, ramp, planned.load?.kind) : step.item.note?.[lang];
   const group = step.block.type === 'group';
   const summary = rxText(t, lang, planned.target, undefined) || `${cell.n} ${cell.unit}`;
   return (
     <>
       <div className={styles.set}>
+        {ramp ? (
+          <p className={styles.warmHead}>
+            {ramp.count > 1
+              ? t('play.warmup.rampSet', { set: ramp.set, sets: ramp.count })
+              : t('play.warmup.rampSetOne')}
+          </p>
+        ) : null}
         <Name ctx={props} />
-        {group || step.side || step.sets > 1 ? <SetHead step={step} bare /> : null}
+        {!ramp && (group || step.side || step.sets > 1) ? <SetHead step={step} bare /> : null}
         <div className={styles.score}>
           <div className={styles.scoreCell}>
             <span className={`${styles.num} ${styles.scoreN}`}>{cell.n}</span>
@@ -714,14 +803,20 @@ export function WarmupScreen(props: PlayContext) {
               <small>{summary}</small>
             </span>
           </Button>
+          {ramp ? <EditRamp ctx={props} /> : null}
           <IconButton
             icon="skip"
             size="player"
             appearance="outline"
-            label={t('play.warmup.skip')}
+            label={ramp ? t('play.warmup.skipSet') : t('play.warmup.skip')}
             onClick={player.skipWarmupItem}
           />
         </div>
+        {ramp && left > 1 ? (
+          <Button variant="ghost" onClick={player.skipRamp}>
+            {t('play.warmup.skipRamp')}
+          </Button>
+        ) : null}
       </div>
     </>
   );

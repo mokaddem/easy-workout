@@ -76,3 +76,15 @@ describe('history groups', () => {
     expect(painStop({ sets })).toEqual({ exerciseId: 'x', set: 2 });
   });
 });
+
+describe('history groups, cooldowns', () => {
+  it('lists a cooldown without counting it as a session or as training time', () => {
+    const [group] = historyGroups([
+      log('a', '2026-11-09T10:00:00'),
+      log('c', '2026-11-09T11:00:00', { source: { kind: 'cooldown', afterLogId: 'a' } }),
+    ]);
+    expect(group!.logs).toHaveLength(2);
+    expect(group!.sessions).toBe(1);
+    expect(group!.activeSec).toBe(1800);
+  });
+});

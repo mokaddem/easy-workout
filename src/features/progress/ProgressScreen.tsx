@@ -1,3 +1,4 @@
+import { isCooldownLog } from '@/domain';
 import { useTranslation } from 'react-i18next';
 import {
   useActiveProgramme,
@@ -62,7 +63,8 @@ export function ProgressScreen() {
       </div>
     );
 
-  const completed = logs.filter((l) => l.status === 'completed');
+  // A cooldown is stretching, not training: it never shows as a session.
+  const completed = logs.filter((l) => l.status === 'completed' && !isCooldownLog(l));
   const lastTest = [...tests].filter((x) => !x.stopped).sort((a, b) => b.at.localeCompare(a.at))[0];
   const lastCheckIn = [...checkIns].sort((a, b) => b.date.localeCompare(a.date))[0];
   const exercisesDone = exerciseList(logs, programmes).length;

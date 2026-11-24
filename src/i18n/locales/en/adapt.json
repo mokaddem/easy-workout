@@ -268,9 +268,29 @@
       "keepSubPlain": "{{name}} keeps its load. No increase before 2 pain-free sessions.",
       "oneOffSub": "{{name}} stays in your sessions. Nothing changes.",
       "notNowHarder": "{{name}} stays at {{goal}}. We’ll ask again after two more sessions at the top.",
-      "notNowOther": "{{name}} stays as it is. If it’s still hard after a few sessions, we’ll ask again."
+      "notNowOther": "{{name}} stays as it is. If it’s still hard after a few sessions, we’ll ask again.",
+      "limitTitle": "Going easy on {{joint}}",
+      "limitSwap_one": "{{name}} replaces this exercise, and {{count}} other changes. You can review it in Settings.",
+      "limitSwap_other": "{{name}} replaces this exercise, and {{count}} others change. You can review it in Settings.",
+      "limitRemoved_one": "This exercise leaves your programme, and {{count}} other changes.",
+      "limitRemoved_other": "This exercise leaves your programme, and {{count}} others change.",
+      "limitStays_one": "This exercise stays, with at least 2 reps in the tank. {{count}} other changes.",
+      "limitStays_other": "This exercise stays, with at least 2 reps in the tank. {{count}} others change."
     },
-    "undo": "Undo"
+    "undo": "Undo",
+    "limit": {
+      "title": "Go easy on {{joint}}",
+      "titlePick": "Go easy on a joint",
+      "suggested": "Suggested after a second pain.",
+      "removesSub": "It leaves your programme with the other exercises hard on {{joint}}. {{name}} instead.",
+      "removesNone": "It leaves your programme with the other exercises hard on {{joint}}. Nothing replaces it: its slot is removed.",
+      "stays": "It stays, with at least 2 reps in the tank. Exercises hard on {{joint}} leave your programme.",
+      "pickSub": "Pick which one, then see what changes.",
+      "pickTitle": "Which joint?",
+      "pickError": "Pick a joint.",
+      "pickConfirm": "See what changes",
+      "pickCancel": "Cancel"
+    }
   },
   "programme": {
     "nudge": {

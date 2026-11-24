@@ -1,0 +1,53 @@
+.scroll {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: var(--space-5);
+  min-height: 0;
+  padding: var(--space-4) 0 var(--space-6);
+  overflow-y: auto;
+}
+.intro {
+  margin: 0;
+  padding: 0 var(--layout-gutter);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--color-text-muted);
+}
+.block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+.heading {
+  margin: 0;
+  padding: 0 var(--layout-gutter);
+  font-size: var(--type-headline-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+  font-stretch: var(--type-title-width);
+}
+.rows {
+  margin: 0 var(--space-4);
+  overflow: hidden;
+}
+.care {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 var(--layout-gutter);
+  font-size: var(--type-meta-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.care svg {
+  color: var(--color-text-subtle);
+}
+.note {
+  margin: 0;
+  padding: 0 var(--layout-gutter);
+  font-size: var(--type-meta-size);
+  color: var(--color-text-subtle);
+}

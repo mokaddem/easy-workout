@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { EquipmentInventory, Profile, SessionLog } from '@/domain';
 import { generateProgramme } from '@/engine';
-import { nextSession, programmeFreshness } from './programme-state';
+import { nextSession, onlyConstraintsDiffer, programmeFreshness } from './programme-state';
 
 const profile: Profile = {
   goal: 'muscle',
@@ -81,5 +81,23 @@ describe('nextSession', () => {
       week: programme.weeks,
       finished: true,
     });
+  });
+});
+
+describe('onlyConstraintsDiffer', () => {
+  it('is true when only a joint, quiet or small space changed', () => {
+    const limited = { ...profile, limitations: [{ region: 'knee' as const, since: '2026-11-01' }] };
+    expect(onlyConstraintsDiffer(programme, limited, equipment)).toBe(true);
+    expect(onlyConstraintsDiffer(programme, { ...profile, quiet: true }, equipment)).toBe(true);
+  });
+
+  it('is false for a current programme or when something else changed too', () => {
+    expect(onlyConstraintsDiffer(programme, profile, equipment)).toBe(false);
+    expect(
+      onlyConstraintsDiffer(programme, { ...profile, quiet: true, sessionMinutes: 30 }, equipment),
+    ).toBe(false);
+    expect(onlyConstraintsDiffer(programme, { ...profile, quiet: true }, equipment.slice(1))).toBe(
+      false,
+    );
   });
 });

@@ -1,0 +1,115 @@
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.compact {
+  min-height: 56px;
+}
+/* Divider inset like the list rows. */
+.row::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: var(--space-4);
+  border-bottom: var(--border-hairline) solid var(--color-line);
+}
+.row:last-child::after {
+  display: none;
+}
+.row:active {
+  background: var(--color-press-overlay);
+}
+.row:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+}
+.row::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--color-text);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-move);
+}
+.changed::before {
+  opacity: 1;
+}
+.text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+.title {
+  font-size: var(--type-body-size-lg);
+  line-height: var(--type-label-line);
+  font-weight: var(--font-weight-semibold);
+}
+.meta {
+  font-size: var(--type-meta-size);
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+.leading {
+  display: inline-flex;
+  flex: none;
+}
+.box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: var(--border-strong) solid var(--color-line-strong);
+  transition:
+    background-color var(--duration-fast) var(--ease-move),
+    border-color var(--duration-fast) var(--ease-move);
+}
+.mark {
+  width: 18px;
+  height: 18px;
+  stroke-width: 3;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-move);
+}
+.row[aria-checked='true'] .box {
+  background: var(--color-surface-inverse);
+  border-color: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
+}
+.row[aria-checked='true'] .mark {
+  opacity: 1;
+}
+.disabled {
+  cursor: default;
+}
+.disabled .title,
+.disabled .meta {
+  /* Still readable (it names a day): the dashed box says it is out of reach. */
+  color: var(--color-text-subtle);
+}
+.disabled:not([aria-checked='true']) .box {
+  border-style: dashed;
+  border-color: var(--color-line);
+}
+.disabled:active {
+  background: none;
+}
