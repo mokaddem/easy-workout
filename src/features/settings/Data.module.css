@@ -241,3 +241,10 @@
   margin: 0 6px;
   color: var(--color-text);
 }
+
+/* The ghost button's text lines up with the hint above it. */
+.howTo {
+  justify-self: start;
+  text-align: start;
+  margin-left: calc(-1 * var(--space-3));
+}

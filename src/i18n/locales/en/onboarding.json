@@ -100,6 +100,7 @@
     "noProgramme": "It has no programme in progress: you’ll finish the set-up afterwards.",
     "copy": "What’s already on this phone is downloaded just before.",
     "doneSetup": "Backup restored. Finish the set-up to create your programme.",
-    "failed": "The backup couldn’t be restored. Nothing was changed."
+    "failed": "The backup couldn’t be restored. Nothing was changed.",
+    "leadSafari": "Already set up in Safari?"
   }
 }

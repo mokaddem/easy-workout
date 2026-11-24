@@ -1,0 +1,85 @@
+{
+  "title": "Install Easy Workout",
+  "lead": "Add it to your home screen and open it like an app.",
+  "leadComputer": "Install it on your computer and open it in its own window.",
+  "platform": {
+    "label": "Your device",
+    "ios": "iPhone / iPad",
+    "android": "Android",
+    "computer": "Computer"
+  },
+  "in": "In {{browser}}",
+  "inChromeEdge": "In Chrome or Edge",
+  "step": {
+    "share": "Tap <share/> <b>Share</b>",
+    "shareSafariMeta": "At the bottom or top of Safari. Not there? Tap <more/> first.",
+    "shareOtherMeta": "In the address bar, or in the <more/> or <menu/> menu.",
+    "addHome": "Choose <add/> <b>Add to Home Screen</b>",
+    "addHomeMeta": "Scroll down the list if you can’t see it.",
+    "add": "Tap <b>Add</b>",
+    "addMeta": "If an <b>Open as Web App</b> switch shows up, leave it on.",
+    "open": "Open <app/> <b>Easy Workout</b> from your home screen",
+    "openSetUpMeta": "That’s where you set it up.",
+    "openRestoreMeta": "Then choose <b>Restore a backup</b>.",
+    "openSharedMeta": "Your sessions and settings are already there.",
+    "tapInstall": "Tap <b>Install</b> at the bottom of the screen",
+    "confirm": "Confirm in the window that opens",
+    "confirmMeta": "The app lands on your home screen.",
+    "menu": "Open the <kebab/> menu",
+    "menuMeta": "At the top or bottom of the screen, depending on your browser.",
+    "installApp": "Tap <install/> <b>Install app</b>",
+    "installAppMeta": "Or <b>Add to Home screen</b>, depending on the browser.",
+    "confirmWith": "Confirm with <b>Install</b> or <b>Add</b>",
+    "clickInstall": "Click <b>Install</b> at the bottom",
+    "confirmComputerMeta": "Easy Workout opens in its own window.",
+    "addressBar": "Click <installDesktop/> in the address bar",
+    "addressBarMeta": "On the right of the address. Not there? Look for <b>Install</b> in the <kebab/> or <more/> menu.",
+    "clickInstallDialog": "Click <b>Install</b>",
+    "fileMenu": "In the menu bar, choose <b>File</b>, then <b>Add to Dock</b>",
+    "fileMenuMeta": "On macOS Sonoma or later.",
+    "clickAdd": "Click <b>Add</b>"
+  },
+  "promptFallback": "Nothing opens? Menu <kebab/>, then <b>Install app</b>.",
+  "firefox": {
+    "title": "Firefox can’t install web apps",
+    "text": "Easy Workout works here too, in a tab. To install it, open this page in Chrome, Edge or Safari.",
+    "data": "Your data doesn’t move between browsers: export a backup to take it with you."
+  },
+  "others": {
+    "title": "With another browser",
+    "ios": "<b>Chrome, Edge, Firefox</b>: same steps, from their <share/> Share button.",
+    "chromeEdge": "<b>Chrome, Edge</b>: <installDesktop/> in the address bar.",
+    "safariMac": "<b>Safari on Mac</b>: File, then Add to Dock.",
+    "firefox": "<b>Firefox</b>: can’t install, keep it in a tab."
+  },
+  "firstNote": "<b>Install first, then set up</b>: what you set up in {{browser}} stays in {{browser}}.",
+  "setupStays": "Your setup is in {{browser}} and won’t follow into the installed app. Export a backup, then restore it when you first open the app.",
+  "toData": "Open Data and backup",
+  "why": {
+    "title": "Why install it",
+    "data": "Your data is kept",
+    "dataMeta": "Safari can clear a site’s data after 7 days without a visit. Not the installed app’s.",
+    "screen": "Full screen, like an app",
+    "screenMeta": "No browser bars during your workout.",
+    "window": "In its own window",
+    "windowMeta": "No more hunting for the tab.",
+    "offline": "Works offline",
+    "offlineMeta": "It opens even without a connection.",
+    "home": "One tap from your home screen",
+    "homeMeta": "No more hunting for the tab."
+  },
+  "done": {
+    "title": "App installed",
+    "text": "Open it from your home screen.",
+    "textComputer": "It opens in its own window. You’ll find it with your other apps."
+  },
+  "install": "Install",
+  "continue": "Continue in {{browser}}",
+  "continueGeneric": "Continue in the browser",
+  "glyph": {
+    "more": "three dots",
+    "kebab": "three vertical dots",
+    "menu": "three lines",
+    "installDesktop": "install icon"
+  }
+}

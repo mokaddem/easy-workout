@@ -28,6 +28,10 @@ export type Route =
   /** `buy`: straight to the "what to buy next" view. */
   | { name: 'equipment'; view?: 'buy' }
   | { name: 'data' }
+  /** How to install the app on the home screen, from Settings. */
+  | { name: 'install' }
+  /** The same guide on a first visit from a phone browser, before set-up. */
+  | { name: 'install-first' }
   | { name: 'play'; source?: 'quick' }
   /** A max test on its own, outside any session. */
   | { name: 'test'; exerciseId: string }
@@ -52,6 +56,8 @@ const STATIC: Record<string, Route> = {
   '/settings/travel': { name: 'travel' },
   '/settings/equipment': { name: 'equipment' },
   '/settings/data': { name: 'data' },
+  '/settings/install': { name: 'install' },
+  '/install': { name: 'install-first' },
   '/play': { name: 'play' },
   '/quick/mine': { name: 'mine-list' },
   '/progress/history': { name: 'history' },
@@ -173,6 +179,10 @@ function routePath(route: Route): string {
       return route.view ? `/settings/equipment?view=${route.view}` : '/settings/equipment';
     case 'data':
       return '/settings/data';
+    case 'install':
+      return '/settings/install';
+    case 'install-first':
+      return '/install';
     case 'mine-list':
       return '/quick/mine';
     case 'mine':
@@ -233,6 +243,7 @@ export function tabOf(route: Route): Tab | null {
       return 'progress';
     case 'settings':
     case 'data':
+    case 'install':
       return 'settings';
     default:
       return null;
@@ -258,6 +269,7 @@ export function parentOf(route: Route): Route {
     case 'travel':
     case 'equipment':
     case 'data':
+    case 'install':
       return { name: 'settings' };
     case 'history':
     case 'exercises':

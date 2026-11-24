@@ -114,7 +114,8 @@
     "n_programmes_one": "{{count}} programme",
     "n_programmes_other": "{{count}} programmes",
     "ago_one": "il y a <num>{{count}}</num> jour",
-    "ago_other": "il y a <num>{{count}}</num> jours"
+    "ago_other": "il y a <num>{{count}}</num> jours",
+    "storageHowTo": "Voir comment l’installer"
   },
   "import": {
     "title": "Importer une sauvegarde",
@@ -312,5 +313,10 @@
     "body": "Tes changements seront perdus.",
     "confirm": "Quitter",
     "stay": "Continuer à modifier"
-  }
+  },
+  "installRow": "Installer l’app",
+  "installRowMeta": "Sur ton écran d’accueil, en plein écran",
+  "installRowMetaIos": "Sur ton écran d’accueil, pour garder tes données",
+  "installRowMetaComputer": "Dans sa propre fenêtre, comme une app",
+  "installRowMetaDone": "Installée : ouvre-la depuis ton écran d’accueil"
 }

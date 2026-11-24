@@ -17,6 +17,8 @@ describe('router', () => {
     { name: 'constraints' },
     { name: 'travel' },
     { name: 'equipment' },
+    { name: 'install' },
+    { name: 'install-first' },
     { name: 'play' },
     { name: 'play', source: 'quick' },
   ];
@@ -58,6 +60,9 @@ describe('router', () => {
     expect(tabOf({ name: 'equipment' })).toBeNull();
     expect(tabOf({ name: 'onboarding' })).toBeNull();
     expect(tabOf({ name: 'play' })).toBeNull();
+    expect(tabOf({ name: 'install' })).toBe('settings');
+    expect(tabOf({ name: 'install-first' })).toBeNull();
+    expect(parentOf({ name: 'install' })).toEqual({ name: 'settings' });
     expect(parentOf({ name: 'profile' })).toEqual({ name: 'settings' });
     expect(parentOf({ name: 'constraints' })).toEqual({ name: 'settings' });
     expect(parentOf({ name: 'travel' })).toEqual({ name: 'settings' });

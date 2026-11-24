@@ -464,6 +464,50 @@ export const PATHS = {
       <path d="M9 8V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8M12 8v11" />
     </>
   ),
+  share: (
+    <>
+      <path d="M8.5 9.5H7.5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1" />
+      <path d="M12 14.5V3.5M8.5 7L12 3.5 15.5 7" />
+    </>
+  ),
+  'add-square': (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="3.5" />
+      <path d="M12 8.5v7M8.5 12h7" />
+    </>
+  ),
+  'more-vertical': (
+    <>
+      <path d="M12 5.5h.01M12 12h.01M12 18.5h.01" strokeWidth="3" />
+    </>
+  ),
+  menu: (
+    <>
+      <path d="M4.5 7h15M4.5 12h15M4.5 17h15" />
+    </>
+  ),
+  install: (
+    <>
+      <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+      <path d="M12 6.5v7M9 10.5l3 3 3-3" />
+      <path d="M10.5 18h3" />
+    </>
+  ),
+  'install-desktop': (
+    <>
+      <rect x="3" y="4" width="18" height="12.5" rx="2" />
+      <path d="M8.5 20.5h7" />
+      <path d="M12 7v6M9.5 10.5L12 13l2.5-2.5" />
+    </>
+  ),
+  offline: (
+    <>
+      <path d="M3.5 9a12 12 0 0 1 4-2.6M11.5 5.5A12 12 0 0 1 20.5 9" />
+      <path d="M6.5 12.5a7.5 7.5 0 0 1 3.2-2M15.2 10.8a7.5 7.5 0 0 1 2.3 1.7" />
+      <path d="M12 18.5h.01" strokeWidth="3" />
+      <path d="M4 3.5l16 17" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;

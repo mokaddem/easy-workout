@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActiveProgramme, useProfile, useSettings } from '@/app/data';
+import { currentPlatform, isStandalone } from '@/app/install';
 import { navigate, useRoute, type Route } from '@/app/router';
 import { Shell } from '@/app/Shell';
 import { applyTheme } from '@/app/theme';
@@ -39,6 +40,7 @@ const TravelScreen = lazyScreen(
   'TravelScreen',
 );
 const DataScreen = lazyScreen(() => import('@/features/settings/DataScreen'), 'DataScreen');
+const InstallScreen = lazyScreen(() => import('@/features/install/InstallScreen'), 'InstallScreen');
 const EquipmentScreen = lazyScreen(
   () => import('@/features/equipment/EquipmentScreen'),
   'EquipmentScreen',
@@ -109,6 +111,10 @@ function Screen({ route }: { route: Route }) {
       return <EquipmentScreen route={route} />;
     case 'data':
       return <DataScreen />;
+    case 'install':
+      return <InstallScreen variant="settings" />;
+    case 'install-first':
+      return <InstallScreen variant="first" />;
     case 'play':
       return <PlayScreen route={route} />;
     case 'mine-list':
@@ -157,15 +163,23 @@ export default function App() {
   }, [language]);
   useEffect(() => (theme ? applyTheme(theme) : undefined), [theme]);
 
-  const loading = profile === undefined || programme === undefined;
+  const loading = profile === undefined || programme === undefined || settings === undefined;
   const setUp = Boolean(profile && programme);
-  const redirect: 'onboarding' | 'programme' | null = loading
+  // On a phone or tablet browser, installing comes before set-up: an iPhone keeps what was set
+  // up in Safari apart from the home-screen app.
+  const installFirst =
+    !setUp && !settings?.installSkippedAt && currentPlatform().os !== 'desktop' && !isStandalone();
+  const redirect: 'install' | 'install-first' | 'onboarding' | 'programme' | null = loading
     ? null
-    : !setUp && route.name !== 'onboarding'
-      ? 'onboarding'
-      : setUp && route.name === 'onboarding'
-        ? 'programme'
-        : null;
+    : installFirst && route.name !== 'install-first'
+      ? 'install-first'
+      : !setUp && !installFirst && route.name !== 'onboarding' && route.name !== 'install-first'
+        ? 'onboarding'
+        : setUp && route.name === 'onboarding'
+          ? 'programme'
+          : setUp && route.name === 'install-first'
+            ? 'install'
+            : null;
 
   useEffect(() => {
     if (redirect) navigate({ name: redirect }, { replace: true });

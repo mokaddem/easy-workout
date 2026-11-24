@@ -5,7 +5,8 @@ import { Trans, useTranslation } from 'react-i18next';
 import { EXIT_RATIO, useMotionTokens } from '@/motion';
 import { updateSettings, useOpenSession, useSessionLogs, useSettings } from '@/app/data';
 import { storagePersisted } from '@/app/backup';
-import { goBack } from '@/app/router';
+import { isStandalone } from '@/app/install';
+import { goBack, navigate } from '@/app/router';
 import { exerciseById } from '@/catalogue';
 import { db } from '@/db';
 import { importBackup, type BackupFile } from '@/db/backup';
@@ -298,6 +299,15 @@ export function DataScreen() {
               <p className={styles.statusMeta}>
                 <b>{t('settings.data.storageHint')}</b>
               </p>
+            ) : null}
+            {(storage === 'refused' || storage === 'unknown') && !isStandalone() ? (
+              <Button
+                variant="ghost"
+                className={styles.howTo}
+                onClick={() => navigate({ name: 'install' })}
+              >
+                {t('settings.data.storageHowTo')}
+              </Button>
             ) : null}
           </div>
         </Card>

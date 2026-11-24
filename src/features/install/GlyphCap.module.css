@@ -1,0 +1,39 @@
+.cap {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: -4px 1px;
+  vertical-align: middle;
+  border-radius: 8px;
+  background: var(--color-surface);
+  border: var(--border-control) solid var(--color-line-strong);
+  color: var(--color-text);
+}
+.cap svg {
+  width: 20px;
+  height: 20px;
+}
+.small {
+  width: 26px;
+  height: 26px;
+  margin-block: -6px;
+  border-radius: 7px;
+}
+.small svg {
+  width: 17px;
+  height: 17px;
+}
+.appCap {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  margin: -6px 2px;
+  vertical-align: middle;
+}
+.appIcon {
+  display: block;
+  flex: none;
+  border-radius: 22.5%;
+  box-shadow: 0 0 0 1px var(--color-line);
+}

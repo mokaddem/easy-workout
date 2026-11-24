@@ -1,0 +1,85 @@
+{
+  "title": "Installe Easy Workout",
+  "lead": "Ajoute-la à ton écran d’accueil pour l’ouvrir comme une app.",
+  "leadComputer": "Installe-la sur ton ordinateur pour l’ouvrir dans sa propre fenêtre.",
+  "platform": {
+    "label": "Ton appareil",
+    "ios": "iPhone / iPad",
+    "android": "Android",
+    "computer": "Ordinateur"
+  },
+  "in": "Dans {{browser}}",
+  "inChromeEdge": "Dans Chrome ou Edge",
+  "step": {
+    "share": "Touche <share/> <b>Partager</b>",
+    "shareSafariMeta": "En bas ou en haut de Safari. Pas là ? Touche d’abord <more/>.",
+    "shareOtherMeta": "Dans la barre d’adresse, ou dans le menu <more/> ou <menu/>.",
+    "addHome": "Choisis <add/> <b>Sur l’écran d’accueil</b>",
+    "addHomeMeta": "Fais défiler la liste si tu ne le vois pas.",
+    "add": "Touche <b>Ajouter</b>",
+    "addMeta": "Si un interrupteur pour l’ouvrir comme app web apparaît, laisse-le activé.",
+    "open": "Ouvre <app/> <b>Easy Workout</b> depuis ton écran d’accueil",
+    "openSetUpMeta": "C’est là que tu la configures.",
+    "openRestoreMeta": "Puis choisis <b>Restaurer une sauvegarde</b>.",
+    "openSharedMeta": "Tes séances et réglages y sont déjà.",
+    "tapInstall": "Touche <b>Installer</b>, en bas de l’écran",
+    "confirm": "Confirme dans la fenêtre qui s’ouvre",
+    "confirmMeta": "L’app arrive sur ton écran d’accueil.",
+    "menu": "Ouvre le menu <kebab/>",
+    "menuMeta": "En haut ou en bas de l’écran, selon ton navigateur.",
+    "installApp": "Touche <install/> <b>Installer l’application</b>",
+    "installAppMeta": "Ou <b>Ajouter à l’écran d’accueil</b>, selon le navigateur.",
+    "confirmWith": "Confirme avec <b>Installer</b> ou <b>Ajouter</b>",
+    "clickInstall": "Clique sur <b>Installer</b>, en bas",
+    "confirmComputerMeta": "Easy Workout s’ouvre dans sa propre fenêtre.",
+    "addressBar": "Clique sur <installDesktop/> dans la barre d’adresse",
+    "addressBarMeta": "À droite de l’adresse. Pas là ? Cherche <b>Installer</b> dans le menu <kebab/> ou <more/>.",
+    "clickInstallDialog": "Clique sur <b>Installer</b>",
+    "fileMenu": "Dans la barre des menus, choisis <b>Fichier</b>, puis <b>Ajouter au Dock</b>",
+    "fileMenuMeta": "Avec macOS Sonoma ou plus récent.",
+    "clickAdd": "Clique sur <b>Ajouter</b>"
+  },
+  "promptFallback": "Rien ne s’ouvre ? Menu <kebab/>, puis <b>Installer l’application</b>.",
+  "firefox": {
+    "title": "Firefox n’installe pas les apps web",
+    "text": "Easy Workout marche aussi ici, dans un onglet. Pour l’installer, ouvre cette page dans Chrome, Edge ou Safari.",
+    "data": "Tes données ne passent pas d’un navigateur à l’autre : exporte une sauvegarde pour les emmener."
+  },
+  "others": {
+    "title": "Avec un autre navigateur",
+    "ios": "<b>Chrome, Edge, Firefox</b> : même chemin, depuis leur bouton <share/> Partager.",
+    "chromeEdge": "<b>Chrome, Edge</b> : <installDesktop/> dans la barre d’adresse.",
+    "safariMac": "<b>Safari sur Mac</b> : Fichier, puis Ajouter au Dock.",
+    "firefox": "<b>Firefox</b> : ne sait pas installer, garde-la dans un onglet."
+  },
+  "firstNote": "<b>Installe d’abord, puis configure</b> : ce que tu prépares dans {{browser}} reste dans {{browser}}.",
+  "setupStays": "Ta configuration est dans {{browser}} et ne suivra pas dans l’app installée. Exporte une sauvegarde, puis restaure-la au premier lancement de l’app.",
+  "toData": "Ouvrir Données et sauvegarde",
+  "why": {
+    "title": "Pourquoi l’installer",
+    "data": "Tes données sont gardées",
+    "dataMeta": "Safari peut effacer les données d’un site après 7 jours sans visite. Pas celles de l’app installée.",
+    "screen": "En plein écran, comme une app",
+    "screenMeta": "Sans les barres du navigateur pendant ta séance.",
+    "window": "Dans sa propre fenêtre",
+    "windowMeta": "Plus besoin de retrouver l’onglet.",
+    "offline": "Marche hors ligne",
+    "offlineMeta": "Elle s’ouvre même sans réseau.",
+    "home": "À un tap de ton écran d’accueil",
+    "homeMeta": "Plus besoin de retrouver l’onglet."
+  },
+  "done": {
+    "title": "App installée",
+    "text": "Ouvre-la depuis ton écran d’accueil.",
+    "textComputer": "Elle s’ouvre dans sa propre fenêtre. Tu la retrouves avec tes autres apps."
+  },
+  "install": "Installer",
+  "continue": "Continuer dans {{browser}}",
+  "continueGeneric": "Continuer dans le navigateur",
+  "glyph": {
+    "more": "trois points",
+    "kebab": "trois points verticaux",
+    "menu": "trois traits",
+    "installDesktop": "icône d’installation"
+  }
+}

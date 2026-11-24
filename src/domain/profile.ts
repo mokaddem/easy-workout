@@ -63,6 +63,8 @@ export const SettingsSchema = z.strictObject({
   missedDayDismissedAt: DateTimeSchema.optional(),
   /** "Carry on" was chosen on the restart card then: it stays away until a new long gap starts after it. */
   restartDeclinedAt: DateTimeSchema.optional(),
+  /** "Continue in the browser" was chosen on the install screen then: set-up goes on in the browser. */
+  installSkippedAt: DateTimeSchema.optional(),
   /** The programme is paused since then. */
   pause: z.strictObject({ since: DateTimeSchema }).optional(),
   /** Equipment on hand while away, until the given day. */

@@ -114,7 +114,8 @@
     "n_programmes_one": "{{count}} programme",
     "n_programmes_other": "{{count}} programmes",
     "ago_one": "<num>{{count}}</num> day ago",
-    "ago_other": "<num>{{count}}</num> days ago"
+    "ago_other": "<num>{{count}}</num> days ago",
+    "storageHowTo": "See how to install it"
   },
   "import": {
     "title": "Import a backup",
@@ -312,5 +313,10 @@
     "body": "Your changes will be lost.",
     "confirm": "Leave",
     "stay": "Keep editing"
-  }
+  },
+  "installRow": "Install the app",
+  "installRowMeta": "On your home screen, full screen",
+  "installRowMetaIos": "On your home screen, to keep your data",
+  "installRowMetaComputer": "In its own window, like an app",
+  "installRowMetaDone": "Installed: open it from your home screen"
 }

@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Install guide: first-visit gate, Settings screen, Settings row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="../../src/ui/tokens.css">
+<style>
+/* ---------- mockup shell (outside the phone) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans); font-stretch: var(--font-width-text);
+  font-size: var(--type-body-size); line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-text));
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+:root[lang="fr"] .en, :root[lang="en"] .fr { display: none !important; }
+button, input { font: inherit; color: inherit; background: none; border: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+svg.i { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i--sm { width: 20px; height: 20px; }
+
+.mock-bar { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 12px 24px; background: color-mix(in srgb, var(--color-bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--color-line); font-size: 14px; }
+.mock-bar__title { font-weight: 700; font-stretch: var(--font-width-title); font-size: 18px; }
+.mock-bar__nav { display: flex; flex-wrap: wrap; gap: 4px; margin-right: auto; }
+.mock-bar__nav a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: var(--radius-pill); color: var(--color-text-muted); font-weight: 600; font-stretch: var(--font-width-label); }
+.mock-bar__nav a:hover { background: var(--color-surface-sunken); color: var(--color-text); }
+.mock-toggle { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--color-surface-sunken); }
+.mock-toggle button { min-height: 32px; padding: 0 14px; border-radius: var(--radius-pill); font-weight: 600; font-size: 14px; color: var(--color-text-muted); }
+.mock-toggle button[aria-pressed="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.mock-toggle button:focus-visible, .mock-bar__nav a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.mock-stage { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 40px; padding: 32px 24px 64px; }
+.mock-sec { flex: 0 0 100%; max-width: 1280px; display: grid; gap: 4px; padding-top: 24px; scroll-margin-top: 72px; }
+.mock-sec h2 { font-size: var(--font-size-24); font-weight: 800; font-stretch: var(--font-width-title); }
+.mock-sec p { color: var(--color-text-muted); font-size: 15px; max-width: 64ch; }
+.mock-shot { display: flex; flex-direction: column; gap: 14px; align-items: center; scroll-margin-top: 80px; }
+.mock-shot figcaption { font-size: 15px; font-weight: 600; color: var(--color-text-muted); max-width: 390px; text-align: center; text-wrap: balance; }
+.mock-shot.is-flash .device { box-shadow: 0 0 0 4px var(--color-focus), 0 24px 80px rgb(0 0 0 / 0.28); }
+[data-go] { cursor: pointer; }
+
+/* ---------- the phone: 390 × 844 ---------- */
+.device { position: relative; width: 390px; height: 844px; flex: none; display: flex; flex-direction: column; border-radius: 48px; overflow: hidden; isolation: isolate; background: var(--color-bg); color: var(--color-text); box-shadow: 0 0 0 1px var(--color-line), 0 24px 80px rgb(0 0 0 / 0.28); transition: box-shadow var(--duration-base) var(--ease-move); }
+@media (max-width: 440px) { .mock-stage { padding: 16px 0 48px; gap: 32px; } .mock-bar { padding: 10px 16px; } .device { border-radius: 0; box-shadow: none; } }
+.statusbar { height: 47px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 30px 0 40px; font-size: 16px; font-weight: 600; font-stretch: 100%; }
+.statusbar__icons { display: flex; gap: 6px; align-items: center; }
+.statusbar__icons svg { height: 12px; fill: currentColor; }
+.homebar { position: absolute; z-index: 60; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: currentColor; opacity: 0.85; pointer-events: none; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; position: relative; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* Computer: the same phone-width column inside a browser window (mockup chrome only) */
+.device--desk { border-radius: 14px; }
+.desk { flex: none; display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 12px; background: var(--color-surface-sunken); border-bottom: var(--border-hairline) solid var(--color-line); }
+.desk__dots { display: flex; gap: 6px; }
+.desk__dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--color-line-strong); }
+.desk__addr { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 6px 0 14px; border-radius: var(--radius-pill); background: var(--color-bg); font-size: 14px; color: var(--color-text-muted); }
+.desk__addr > span:first-child { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.desk__inst { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--color-text); box-shadow: 0 0 0 2px var(--color-text); }
+.desk__inst svg { width: 18px; height: 18px; }
+
+/* ---------- type roles ---------- */
+.num { font-stretch: var(--type-numeral-width); font-weight: var(--type-numeral-weight); font-variant-numeric: tabular-nums lining-nums; letter-spacing: var(--type-numeral-tracking); line-height: var(--type-numeral-line); }
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); font-stretch: var(--type-display-width); letter-spacing: var(--letter-spacing-display); text-wrap: balance; }
+.muted { color: var(--color-text-muted); }
+
+/* ---------- buttons ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--tap-comfort); padding: 0 var(--space-6); border-radius: var(--radius-md); border: var(--border-control) solid transparent; font-size: var(--type-label-size); line-height: var(--type-label-line); font-weight: var(--type-label-weight); font-stretch: var(--type-label-width); transition: transform var(--duration-instant) var(--ease-snap), background-color var(--duration-fast) var(--ease-move); text-align: center; }
+.btn:active { transform: scale(var(--motion-scale-press)); }
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--primary:active { background: var(--color-accent-pressed); }
+.btn--secondary { border-color: var(--color-line-strong); color: var(--color-text); }
+.btn--secondary:active { background: var(--color-press-overlay); }
+.btn--ghost { color: var(--color-text); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; padding: 0 var(--space-3); min-height: var(--tap-min); }
+.btn--block { width: 100%; }
+.btn--sm { min-height: var(--tap-min); padding: 0 var(--space-4); font-size: 16px; }
+.icon-btn { display: inline-grid; place-items: center; width: var(--tap-min); height: var(--tap-min); border-radius: var(--radius-md); color: var(--color-text); flex: none; }
+.icon-btn:active { background: var(--color-press-overlay); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ---------- shell ---------- */
+.ctxbar { flex: none; display: flex; align-items: center; gap: 4px; min-height: 56px; padding: 4px 8px 4px 4px; background: var(--color-bg); }
+.ctxbar__text { flex: 1; min-width: 0; font-size: var(--type-meta-size); font-weight: 600; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dock { flex: none; display: grid; gap: 8px; padding: 12px 16px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-sticky); }
+.dock--home { padding-bottom: 42px; }
+.dock--desk { padding-bottom: 16px; }
+.dock .btn--ghost { justify-self: center; }
+.dock-note { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); padding: 2px 4px 4px; }
+.dock-note .i { width: 20px; height: 20px; color: var(--color-text-subtle); }
+.dock-note b { color: var(--color-text); font-weight: 700; }
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 8px 34px; background: var(--color-bg); border-top: var(--border-hairline) solid var(--color-line); position: relative; z-index: var(--z-nav); }
+.tabbar--desk { padding-bottom: 4px; }
+.tab { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 64px; color: var(--color-text-subtle); font-size: 13px; font-weight: 600; font-stretch: var(--font-width-label); text-align: center; line-height: 1.1; }
+.tab__icon { display: grid; place-items: center; width: 56px; height: 30px; border-radius: var(--radius-pill); }
+.tab.is-current { color: var(--color-text); font-weight: 700; }
+.tab.is-current .tab__icon { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+
+/* ---------- shared bits ---------- */
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--elevation-1); border: var(--border-hairline) solid var(--color-line); }
+.well { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--color-surface-sunken); color: var(--color-text); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.seg__opt { min-height: var(--tap-min); padding: 0 4px; border-radius: 10px; font-weight: 700; font-stretch: var(--font-width-label); font-size: var(--type-label-size-sm); color: var(--color-text-muted); text-align: center; line-height: 1.15; transition: background-color var(--duration-fast) var(--ease-move), color var(--duration-fast) var(--ease-move); }
+.seg__opt[aria-selected="true"] { background: var(--color-surface-inverse); color: var(--color-on-inverse); }
+.seg__opt:active { background: var(--color-press-overlay); }
+.seg__opt[aria-selected="true"]:active { background: var(--color-surface-inverse); }
+.seg__opt:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Settings root */
+.set-head { padding: 12px var(--layout-gutter) 16px; }
+.set-sec { display: grid; gap: 10px; margin-top: 24px; }
+.set-sec__h { padding: 0 var(--layout-gutter); font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+.rows { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0 16px; overflow: hidden; }
+.row { position: relative; min-width: 0; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 12px 12px 12px 16px; text-align: left; width: 100%; }
+.row:active { background: var(--color-press-overlay); }
+.row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.row__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.row__title { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.row__meta { font-size: 14px; line-height: 1.4; color: var(--color-text-muted); }
+.row > .i { color: var(--color-text-muted); }
+.rows .row + .row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--color-line); }
+/* Nudge row (reused): the install row at the top of Settings */
+.nudge { margin: 0 16px; width: calc(100% - 32px); display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 12px 12px 14px; text-align: left; border-radius: var(--radius-lg); }
+.nudge:active { background: color-mix(in srgb, var(--color-surface) 100%, transparent); box-shadow: inset 0 0 0 999px var(--color-press-overlay); }
+.nudge:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--color-focus); }
+.nudge__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.nudge__t { font-size: 17px; font-weight: 700; line-height: 1.25; }
+.nudge__s { font-size: 14px; color: var(--color-text-muted); line-height: 1.35; }
+.nudge > .i { color: var(--color-text-muted); }
+
+/* ================================================================== */
+/* Install screen                                                       */
+/* ================================================================== */
+/* App icon: the real home-screen icon, drawn from the app's icon file */
+.appicon { display: block; flex: none; width: 64px; height: 64px; border-radius: 22.5%; overflow: hidden; box-shadow: 0 0 0 1px var(--color-line); }
+.appicon svg { display: block; width: 100%; height: 100%; }
+
+.ins { padding: 16px var(--layout-gutter) 32px; display: grid; gap: 28px; }
+.ins--gate { padding-top: 28px; }
+.ins__hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 16px; align-items: start; }
+.ins__hero .t-display { font-size: var(--font-size-48); }
+.ins__hero .appicon { margin-top: 4px; }
+.ins__lead { grid-column: 1 / -1; color: var(--color-text-muted); font-size: 17px; line-height: 1.45; max-width: 34ch; }
+
+/* Note line (reused): sunken block, glyph + text + a button sized to its label */
+.nline { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--type-meta-size); line-height: 1.4; }
+.nline > .i { width: 20px; height: 20px; color: var(--color-text-muted); margin-top: 1px; }
+.nline b { font-weight: 700; }
+.nline .btn { grid-column: 2; justify-self: start; margin-top: 4px; background: var(--color-surface); }
+
+.how { display: grid; gap: 18px; }
+.how__h { font-size: var(--font-size-21); font-weight: 700; font-stretch: var(--font-width-title); line-height: 1.2; }
+
+/* Steps: a real sequence, so real numbers. The numeral is the hero. */
+.steps { display: grid; gap: 22px; counter-reset: s; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; align-items: start; }
+.step__n { font-size: var(--font-size-48); line-height: 0.8; padding-top: 3px; }
+.step__body { display: grid; gap: 4px; min-width: 0; }
+.step__t { font-size: var(--font-size-18); font-weight: 600; line-height: 1.5; text-wrap: pretty; }
+.step__m { font-size: var(--type-meta-size); line-height: 1.6; color: var(--color-text-muted); text-wrap: pretty; }
+.step__t b { font-weight: 800; }
+.step__m b, .oth b, .ffx b { color: var(--color-text); font-weight: 700; }
+
+/* Glyph cap: the browser button to look for, drawn as a small key */
+.kc { display: inline-grid; place-items: center; width: 30px; height: 30px; margin: -6px 1px -4px; vertical-align: -8px; border-radius: 8px; background: var(--color-surface); border: var(--border-control) solid var(--color-line-strong); color: var(--color-text); }
+.kc svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.step__m .kc, .oth .kc, .dock-note .kc, .fallback .kc { width: 26px; height: 26px; border-radius: 7px; margin: -6px 1px -4px; vertical-align: -8px; }
+.fallback .kc svg { width: 17px; height: 17px; }
+.step__m .kc svg, .oth .kc svg { width: 17px; height: 17px; }
+.kc--app { background: none; border: 0; width: 26px; height: 26px; margin: -6px 2px -4px; vertical-align: -6px; }
+.kc--app .appicon { width: 26px; height: 26px; }
+
+.fallback { display: flex; gap: 10px; align-items: flex-start; font-size: var(--type-meta-size); line-height: 1.6; color: var(--color-text-muted); }
+.fallback > .i { width: 20px; height: 20px; color: var(--color-text-subtle); margin-top: 2px; }
+.fallback b { color: var(--color-text); font-weight: 700; }
+
+/* Other browsers: compact lines under the steps */
+.oth { display: grid; gap: 10px; padding-top: 18px; border-top: var(--border-hairline) solid var(--color-line); }
+.oth__h { font-size: 16px; font-weight: 700; font-stretch: var(--font-width-title); }
+.oth li { font-size: var(--type-meta-size); line-height: 1.6; color: var(--color-text-muted); }
+
+/* Firefox desktop: nothing to install */
+.ffx { color: var(--color-text-muted); font-size: 16px; line-height: 1.5; }
+
+/* Why install */
+.why { display: grid; gap: 14px; }
+.why__h { font-size: var(--font-size-18); font-weight: 700; font-stretch: var(--font-width-title); }
+.why ul { display: grid; gap: 16px; }
+.why li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 2px 14px; }
+.why li > .i { grid-row: 1 / span 2; color: var(--color-text-muted); margin-top: 1px; }
+.why__t { font-size: 16px; font-weight: 600; line-height: 1.35; }
+.why__m { font-size: var(--type-meta-size); line-height: 1.4; color: var(--color-text-muted); }
+
+/* Installed */
+.done { padding: 40px var(--layout-gutter) 32px; display: grid; gap: 16px; justify-items: start; }
+.done__icon { position: relative; margin-bottom: 12px; }
+.done__icon .appicon { width: 96px; height: 96px; }
+.done__badge { position: absolute; right: -10px; bottom: -10px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--color-surface-inverse); color: var(--color-on-inverse); box-shadow: 0 0 0 4px var(--color-bg); }
+.done__badge svg { width: 24px; height: 24px; stroke-width: 3; }
+.done p { color: var(--color-text-muted); font-size: 17px; line-height: 1.45; max-width: 32ch; }
+
+/* Glyph sheet (outside the phones) */
+.gsheet { width: min(100%, 860px); display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.gcard { display: grid; gap: 10px; padding: 16px; border-radius: var(--radius-lg); background: var(--color-bg); border: var(--border-hairline) solid var(--color-line); }
+.gcard__row { display: flex; align-items: center; gap: 14px; }
+.gcard__row .i { width: 32px; height: 32px; }
+.gcard code { font-family: inherit; font-size: 15px; font-weight: 700; font-stretch: var(--font-width-title); }
+.gcard p { font-size: 13px; line-height: 1.4; color: var(--color-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .seg__opt, .device { transition-duration: 1ms !important; }
+  .btn:active { transform: none; }
+}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><path d="M12 7.6h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h8l4.5 4.5v12.5H6z"/><path d="M14 3.5V8h4.5"/><path d="M9 13h6M9 16.5h4"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V12M11 20V5M17 20v-9M3 20h18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.5"/><circle cx="10" cy="17" r="2.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 3.8-6 7-6s6 2 7 6"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10v4M5.5 7v10M18.5 7v10M21.5 10v4M5.5 12h13"/></symbol>
+  <symbol id="i-joint" viewBox="0 0 24 24"><circle cx="11" cy="11.5" r="3.5"/><path d="M8.6 9L4 4.5M13.2 14.3L17 21"/><path d="M2.5 6l3-3M15.3 21.8l3.4-1.6"/></symbol>
+  <!-- Reused meaning glyphs -->
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-6 6M10 20H4v-6M4 20l6-6"/></symbol>
+  <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M12 3.5l7 2.6v5.4c0 4.4-2.9 7.7-7 9-4.1-1.3-7-4.6-7-9V6.1z"/><path d="M8.8 12.2l2.3 2.3 4.2-4.6"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M5.5 12h.01M12 12h.01M18.5 12h.01" stroke-width="3"/></symbol>
+  <!-- New: browser glyphs (generic, same 24 grid, 2 px stroke, round caps) -->
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M8.5 9.5H7.5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/><path d="M12 14.5V3.5M8.5 7L12 3.5 15.5 7"/></symbol>
+  <symbol id="i-add-square" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
+  <symbol id="i-more-vertical" viewBox="0 0 24 24"><path d="M12 5.5h.01M12 12h.01M12 18.5h.01" stroke-width="3"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4.5 7h15M4.5 12h15M4.5 17h15"/></symbol>
+  <symbol id="i-install" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 6.5v7M9 10.5l3 3 3-3"/><path d="M10.5 18h3"/></symbol>
+  <symbol id="i-install-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12.5" rx="2"/><path d="M8.5 20.5h7"/><path d="M12 7v6M9.5 10.5L12 13l2.5-2.5"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24"><path d="M3.5 9a12 12 0 0 1 4-2.6M11.5 5.5A12 12 0 0 1 20.5 9"/><path d="M6.5 12.5a7.5 7.5 0 0 1 3.2-2M15.2 10.8a7.5 7.5 0 0 1 2.3 1.7"/><path d="M12 18.5h.01" stroke-width="3"/><path d="M4 3.5l16 17"/></symbol>
+  <!-- The app icon, as on the home screen (graphite tile, chalk W, yellow last stroke) -->
+  <symbol id="app-icon" viewBox="0 0 512 512"><rect width="512" height="512" fill="#11131A"/><g fill="none" stroke-width="60" stroke-linecap="round" stroke-linejoin="round"><path d="M132 156 L190 356 L256 214 L322 356" stroke="#F3F4F6"/><path d="M322 356 L380 156" stroke="#FFC81E"/></g></symbol>
+</svg>
+
+<header class="mock-bar">
+  <span class="mock-bar__title" data-en="Install guide">Guide d’installation</span>
+  <nav class="mock-bar__nav" aria-label="Surfaces">
+    <a href="#s1" data-en="1 First visit">1 Première visite</a><a href="#s2" data-en="2 From Settings">2 Depuis Réglages</a><a href="#s3" data-en="3 Computer">3 Ordinateur</a><a href="#s4" data-en="4 Glyphs">4 Pictos</a>
+  </nav>
+  <div class="mock-toggle" role="group" aria-label="Langue" data-en-label="Language"><button type="button" data-set-lang="fr" lang="fr">FR</button><button type="button" data-set-lang="en" lang="en">EN</button></div>
+  <div class="mock-toggle" role="group" aria-label="Thème" data-en-label="Theme"><button type="button" data-set-theme="dark" data-en="Dark">Sombre</button><button type="button" data-set-theme="light" data-en="Light">Clair</button></div>
+</header>
+
+<main class="mock-stage">
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s1"><h2 data-en="1. First visit from a phone or tablet browser">1. Première visite depuis le navigateur d’un téléphone ou d’une tablette</h2><p data-en="Shown before onboarding step 1, no tab bar, no step bar. The steps carry the screen. Yellow only where the browser really offers an Install prompt; on iPhone the way out is an outlined button, with the reason to install first stated just above it. The platform switch is live: tap it in any phone.">Affiché avant l’étape 1 de la configuration, sans barre d’onglets ni barre d’étapes. Les étapes portent l’écran. Du jaune seulement quand le navigateur propose vraiment d’installer&#8239;; sur iPhone, la sortie est un bouton contour, avec juste au-dessus la raison d’installer d’abord. Le sélecteur d’appareil marche&#8239;: touche-le dans n’importe quel téléphone.</p></section>
+
+<figure class="mock-shot" id="g1" data-cfg='{"v":"gate","dev":"ios","br":"Safari"}'><div class="device"></div>
+  <figcaption data-en="iPhone, Safari: four steps, no primary. The dock note says why to install before setting up">iPhone, Safari&#8239;: quatre étapes, pas d’action principale. La note du dock dit pourquoi installer avant de configurer</figcaption></figure>
+
+<figure class="mock-shot" id="g1b" data-cfg='{"v":"gate","dev":"ios","br":"Safari","scroll":420}'><div class="device"></div>
+  <figcaption data-en="Same, scrolled: the other browsers line and why install, data first on iPhone">Même écran, défilé&#8239;: la ligne des autres navigateurs et pourquoi installer, les données en premier sur iPhone</figcaption></figure>
+
+<figure class="mock-shot" id="g2" data-cfg='{"v":"gate","dev":"ios","br":"Chrome"}'><div class="device"></div>
+  <figcaption data-en="iPhone, Chrome (same for Edge and Firefox): Share sits in the address bar or a menu; the note names the browser">iPhone, Chrome (pareil pour Edge et Firefox)&#8239;: Partager est dans la barre d’adresse ou un menu&#8239;; la note nomme le navigateur</figcaption></figure>
+
+<figure class="mock-shot" id="g3" data-cfg='{"v":"gate","dev":"android","br":"Chrome","prompt":true}'><div class="device"></div>
+  <figcaption data-en="Android, the browser offers Install: the only yellow on the screen. Tap it to see the installed state">Android, le navigateur propose d’installer&#8239;: le seul jaune de l’écran. Touche-le pour voir l’état installé</figcaption></figure>
+
+<figure class="mock-shot" id="g4" data-cfg='{"v":"gate","dev":"android","br":"Firefox"}'><div class="device"></div>
+  <figcaption data-en="Android, no prompt (Firefox, or the prompt was already used): menu steps, an outlined way out">Android, pas de proposition (Firefox, ou déjà utilisée)&#8239;: les étapes du menu, une sortie en contour</figcaption></figure>
+
+<figure class="mock-shot" id="g5" data-cfg='{"v":"gate","dev":"android","br":"Chrome","done":true}'><div class="device"></div>
+  <figcaption data-en="Just installed (after the browser confirms): the icon to look for, one sentence, the way out stays">Vient d’être installée (le navigateur l’a confirmé)&#8239;: l’icône à chercher, une phrase, la sortie reste</figcaption></figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s2"><h2 data-en="2. From Settings">2. Depuis Réglages</h2><p data-en="A nudge row at the top of Settings, above Your training, hidden when the app runs installed. The screen has a back button and the tab bar (it lives under Settings, like Data and backup), same content as the gate. On iPhone it adds the line about the Safari setup and the way to the backup.">Une ligne d’incitation en haut de Réglages, au-dessus de Ton entraînement, masquée quand l’app tourne installée. L’écran a un bouton retour et la barre d’onglets (il est sous Réglages, comme Données et sauvegarde), même contenu que l’accueil. Sur iPhone, il ajoute la ligne sur la configuration Safari et le chemin vers la sauvegarde.</p></section>
+
+<figure class="mock-shot" id="r1"><div class="device" data-static="settings"></div>
+  <figcaption data-en="Settings: the install row leads, with the iPhone meta. Tap it">Réglages&#8239;: la ligne d’installation en tête, avec le sous-titre iPhone. Touche-la</figcaption></figure>
+
+<figure class="mock-shot" id="r2" data-cfg='{"v":"settings","dev":"ios","br":"Safari"}'><div class="device"></div>
+  <figcaption data-en="iPhone, Safari, from Settings: the setup stays in Safari, so the backup comes first; step 4 ends on Restore a backup">iPhone, Safari, depuis Réglages&#8239;: la configuration reste dans Safari, donc d’abord la sauvegarde&#8239;; l’étape 4 finit sur Restaurer une sauvegarde</figcaption></figure>
+
+<figure class="mock-shot" id="r3" data-cfg='{"v":"settings","dev":"android","br":"Chrome","prompt":true}'><div class="device"></div>
+  <figcaption data-en="Android, from Settings, Install available: the primary sits in the dock above the tab bar">Android, depuis Réglages, installation possible&#8239;: l’action principale dans le dock, au-dessus des onglets</figcaption></figure>
+
+<figure class="mock-shot" id="r4" data-cfg='{"v":"settings","dev":"android","br":"Chrome","done":true}'><div class="device"></div>
+  <figcaption data-en="Android, installed from Settings: the data is already there (shared with the browser)">Android, installée depuis Réglages&#8239;: les données y sont déjà (partagées avec le navigateur)</figcaption></figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s3"><h2 data-en="3. Computer (from Settings only)">3. Ordinateur (depuis Réglages seulement)</h2><p data-en="Computers never get the gate. The app column is phone-width in the browser window; the window bar here is mockup chrome, drawn to show where the address-bar icon lives.">Les ordinateurs n’ont jamais l’écran d’accueil. La colonne de l’app garde la largeur d’un téléphone dans la fenêtre&#8239;; la barre de fenêtre est un décor de maquette, pour montrer où est l’icône de la barre d’adresse.</p></section>
+
+<figure class="mock-shot" id="c1" data-cfg='{"v":"settings","dev":"computer","br":"Chrome","prompt":true}'><div class="device device--desk"></div>
+  <figcaption data-en="Chrome or Edge, Install available">Chrome ou Edge, installation possible</figcaption></figure>
+
+<figure class="mock-shot" id="c2" data-cfg='{"v":"settings","dev":"computer","br":"Edge"}'><div class="device device--desk"></div>
+  <figcaption data-en="Edge (or Chrome) without the prompt: the address-bar icon">Edge (ou Chrome) sans proposition&#8239;: l’icône de la barre d’adresse</figcaption></figure>
+
+<figure class="mock-shot" id="c3" data-cfg='{"v":"settings","dev":"computer","br":"Safari"}'><div class="device device--desk"></div>
+  <figcaption data-en="Safari on Mac: File, then Add to Dock">Safari sur Mac&#8239;: Fichier, puis Ajouter au Dock</figcaption></figure>
+
+<figure class="mock-shot" id="c4" data-cfg='{"v":"settings","dev":"computer","br":"Firefox"}'><div class="device device--desk"></div>
+  <figcaption data-en="Firefox: can’t install. Keep using it here; the data note links to the backup">Firefox&#8239;: pas d’installation. On continue ici&#8239;; la note sur les données mène à la sauvegarde</figcaption></figure>
+
+<figure class="mock-shot" id="c5" data-cfg='{"v":"settings","dev":"computer","br":"Chrome","done":true}'><div class="device device--desk"></div>
+  <figcaption data-en="Computer, just installed">Ordinateur, vient d’être installée</figcaption></figure>
+
+<!-- ================================================================ -->
+<section class="mock-sec" id="s4"><h2 data-en="4. Glyphs">4. Pictos</h2><p data-en="Generic glyphs drawn on the app’s 24 px grid with its 2 px round stroke: they look like what people will find in their browser without copying anyone’s artwork. In the steps they sit in a small key (30 px in titles, 26 px in sub-lines).">Des pictos génériques dessinés sur la grille de 24&nbsp;px de l’app, trait rond de 2&nbsp;px&#8239;: ils ressemblent à ce qu’on trouve dans le navigateur sans copier le dessin de personne. Dans les étapes, ils sont posés dans une petite touche (30&nbsp;px dans les titres, 26&nbsp;px dans les sous-lignes).</p></section>
+
+<div class="gsheet" id="glyphs"></div>
+
+</main>
+
+<script>
+(function () {
+  /* ---------------- strings: [fr, en], keyed as proposed for i18n ---------------- */
+  var NN = ' '; // narrow no-break space before : ; ? ! in French
+  var S = {
+    'install.title': ['Installe Easy Workout', 'Install Easy Workout'],
+    'install.lead': ['Ajoute-la à ton écran d’accueil pour l’ouvrir comme une app.', 'Add it to your home screen and open it like an app.'],
+    'install.leadComputer': ['Installe-la sur ton ordinateur pour l’ouvrir dans sa propre fenêtre.', 'Install it on your computer and open it in its own window.'],
+    'install.platform.label': ['Ton appareil', 'Your device'],
+    'install.platform.ios': ['iPhone / iPad', 'iPhone / iPad'],
+    'install.platform.android': ['Android', 'Android'],
+    'install.platform.computer': ['Ordinateur', 'Computer'],
+    'install.in': ['Dans {{browser}}', 'In {{browser}}'],
+    'install.inChromeEdge': ['Dans Chrome ou Edge', 'In Chrome or Edge'],
+
+    'install.step.share': ['Touche <share/> <b>Partager</b>', 'Tap <share/> <b>Share</b>'],
+    'install.step.shareSafariMeta': ['En bas ou en haut de Safari. Pas là' + NN + '? Touche d’abord <more/>.', 'At the bottom or top of Safari. Not there? Tap <more/> first.'],
+    'install.step.shareOtherMeta': ['Dans la barre d’adresse, ou dans le menu <more/> ou <menu/>.', 'In the address bar, or in the <more/> or <menu/> menu.'],
+    'install.step.addHome': ['Choisis <add/> <b>Sur l’écran d’accueil</b>', 'Choose <add/> <b>Add to Home Screen</b>'],
+    'install.step.addHomeMeta': ['Fais défiler la liste si tu ne le vois pas.', 'Scroll down the list if you can’t see it.'],
+    'install.step.add': ['Touche <b>Ajouter</b>', 'Tap <b>Add</b>'],
+    'install.step.addMeta': ['Si un interrupteur pour l’ouvrir comme app web apparaît, laisse-le activé.', 'If an <b>Open as Web App</b> switch shows up, leave it on.'],
+    'install.step.open': ['Ouvre <app/> <b>Easy Workout</b> depuis ton écran d’accueil', 'Open <app/> <b>Easy Workout</b> from your home screen'],
+    'install.step.openSetUpMeta': ['C’est là que tu la configures.', 'That’s where you set it up.'],
+    'install.step.openRestoreMeta': ['Puis choisis <b>Restaurer une sauvegarde</b>.', 'Then choose <b>Restore a backup</b>.'],
+    'install.step.openSharedMeta': ['Tes séances et réglages y sont déjà.', 'Your sessions and settings are already there.'],
+
+    'install.step.tapInstall': ['Touche <b>Installer</b>, en bas de l’écran', 'Tap <b>Install</b> at the bottom of the screen'],
+    'install.step.confirm': ['Confirme dans la fenêtre qui s’ouvre', 'Confirm in the window that opens'],
+    'install.step.confirmMeta': ['L’app arrive sur ton écran d’accueil.', 'The app lands on your home screen.'],
+    'install.promptFallback': ['Rien ne s’ouvre' + NN + '? Menu <kebab/>, puis <b>Installer l’application</b>.', 'Nothing opens? Menu <kebab/>, then <b>Install app</b>.'],
+
+    'install.step.menu': ['Ouvre le menu <kebab/>', 'Open the <kebab/> menu'],
+    'install.step.menuMeta': ['En haut ou en bas de l’écran, selon ton navigateur.', 'At the top or bottom of the screen, depending on your browser.'],
+    'install.step.installApp': ['Touche <install/> <b>Installer l’application</b>', 'Tap <install/> <b>Install app</b>'],
+    'install.step.installAppMeta': ['Ou <b>Ajouter à l’écran d’accueil</b>, selon le navigateur.', 'Or <b>Add to Home screen</b>, depending on the browser.'],
+    'install.step.confirmWith': ['Confirme avec <b>Installer</b> ou <b>Ajouter</b>', 'Confirm with <b>Install</b> or <b>Add</b>'],
+
+    'install.step.clickInstall': ['Clique sur <b>Installer</b>, en bas', 'Click <b>Install</b> at the bottom'],
+    'install.step.confirmComputerMeta': ['Easy Workout s’ouvre dans sa propre fenêtre.', 'Easy Workout opens in its own window.'],
+    'install.step.addressBar': ['Clique sur <installDesktop/> dans la barre d’adresse', 'Click <installDesktop/> in the address bar'],
+    'install.step.addressBarMeta': ['À droite de l’adresse. Pas là' + NN + '? Cherche <b>Installer</b> dans le menu <kebab/> ou <more/>.', 'On the right of the address. Not there? Look for <b>Install</b> in the <kebab/> or <more/> menu.'],
+    'install.step.clickInstallDialog': ['Clique sur <b>Installer</b>', 'Click <b>Install</b>'],
+    'install.step.fileMenu': ['Dans la barre des menus, choisis <b>Fichier</b>, puis <b>Ajouter au Dock</b>', 'In the menu bar, choose <b>File</b>, then <b>Add to Dock</b>'],
+    'install.step.fileMenuMeta': ['Avec macOS Sonoma ou plus récent.', 'On macOS Sonoma or later.'],
+    'install.step.clickAdd': ['Clique sur <b>Ajouter</b>', 'Click <b>Add</b>'],
+
+    'install.firefox.title': ['Firefox n’installe pas les apps web', 'Firefox can’t install web apps'],
+    'install.firefox.text': ['Easy Workout marche aussi ici, dans un onglet. Pour l’installer, ouvre cette page dans Chrome, Edge ou Safari.', 'Easy Workout works here too, in a tab. To install it, open this page in Chrome, Edge or Safari.'],
+    'install.firefox.data': ['Tes données ne passent pas d’un navigateur à l’autre' + NN + ': exporte une sauvegarde pour les emmener.', 'Your data doesn’t move between browsers: export a backup to take it with you.'],
+
+    'install.others': ['Avec un autre navigateur', 'With another browser'],
+    'install.others.ios': ['<b>Chrome, Edge, Firefox</b>' + NN + ': même chemin, depuis leur bouton <share/> Partager.', '<b>Chrome, Edge, Firefox</b>: same steps, from their <share/> Share button.'],
+    'install.others.chromeEdge': ['<b>Chrome, Edge</b>' + NN + ': <installDesktop/> dans la barre d’adresse.', '<b>Chrome, Edge</b>: <installDesktop/> in the address bar.'],
+    'install.others.safariMac': ['<b>Safari sur Mac</b>' + NN + ': Fichier, puis Ajouter au Dock.', '<b>Safari on Mac</b>: File, then Add to Dock.'],
+    'install.others.firefox': ['<b>Firefox</b>' + NN + ': ne sait pas installer, garde-la dans un onglet.', '<b>Firefox</b>: can’t install, keep it in a tab.'],
+
+    'install.firstNote': ['<b>Installe d’abord, puis configure</b>' + NN + ': ce que tu prépares dans {{browser}} reste dans {{browser}}.', '<b>Install first, then set up</b>: what you set up in {{browser}} stays in {{browser}}.'],
+    'install.setupStays': ['Ta configuration est dans {{browser}} et ne suivra pas dans l’app installée. Exporte une sauvegarde, puis restaure-la au premier lancement de l’app.', 'Your setup is in {{browser}} and won’t follow into the installed app. Export a backup, then restore it when you first open the app.'],
+    'install.toData': ['Ouvrir Données et sauvegarde', 'Open Data and backup'],
+
+    'install.why.title': ['Pourquoi l’installer', 'Why install it'],
+    'install.why.data': ['Tes données sont gardées', 'Your data is kept'],
+    'install.why.dataMeta': ['Safari efface les données d’un site après 7 jours sans visite. Pas celles de l’app installée.', 'Safari clears a site’s data after 7 days without a visit. Not the installed app’s.'],
+    'install.why.screen': ['En plein écran, comme une app', 'Full screen, like an app'],
+    'install.why.screenMeta': ['Sans les barres du navigateur pendant ta séance.', 'No browser bars during your workout.'],
+    'install.why.window': ['Dans sa propre fenêtre', 'In its own window'],
+    'install.why.windowMeta': ['Plus besoin de retrouver l’onglet.', 'No more hunting for the tab.'],
+    'install.why.offline': ['Marche hors ligne', 'Works offline'],
+    'install.why.offlineMeta': ['Elle s’ouvre même sans réseau.', 'It opens even without a connection.'],
+    'install.why.home': ['À un tap de ton écran d’accueil', 'One tap from your home screen'],
+    'install.why.homeMeta': ['Plus besoin de retrouver l’onglet.', 'No more hunting for the tab.'],
+
+    'install.done.title': ['App installée', 'App installed'],
+    'install.done.text': ['Ouvre-la depuis ton écran d’accueil.', 'Open it from your home screen.'],
+    'install.done.textComputer': ['Elle s’ouvre dans sa propre fenêtre. Tu la retrouves avec tes autres apps.', 'It opens in its own window. You’ll find it with your other apps.'],
+
+    'install.install': ['Installer', 'Install'],
+    'install.continue': ['Continuer dans {{browser}}', 'Continue in {{browser}}'],
+    'install.continueGeneric': ['Continuer dans le navigateur', 'Continue in the browser'],
+
+    'install.glyph.more': ['trois points', 'three dots'],
+    'install.glyph.kebab': ['trois points verticaux', 'three vertical dots'],
+    'install.glyph.menu': ['trois traits', 'three lines'],
+    'install.glyph.installDesktop': ['icône d’installation', 'install icon'],
+
+    'common.back': ['Retour', 'Back'],
+    'settings.title': ['Réglages', 'Settings'],
+    'settings.installRow': ['Installer l’app', 'Install the app'],
+    'settings.installRowMeta': ['Sur ton écran d’accueil, en plein écran', 'On your home screen, full screen'],
+    'settings.installRowMetaIos': ['Sur ton écran d’accueil, pour garder tes données', 'On your home screen, to keep your data'],
+    'settings.installRowMetaComputer': ['Dans sa propre fenêtre, comme une app', 'In its own window, like an app'],
+    'settings.installRowMetaDone': ['Installée' + NN + ': ouvre-la depuis ton écran d’accueil', 'Installed: open it from your home screen']
+  };
+
+  var root = document.documentElement;
+  var params = new URLSearchParams(location.search);
+  var lang = params.get('lang') === 'en' ? 'en' : 'fr';
+  var theme = params.get('theme') === 'light' ? 'light' : 'dark';
+
+  function raw(k, vars) {
+    var v = S[k]; if (!v) { console.warn('missing', k); return k; }
+    var s = v[lang === 'en' ? 1 : 0];
+    if (vars) Object.keys(vars).forEach(function (n) { s = s.split('{{' + n + '}}').join(vars[n]); });
+    return s;
+  }
+  var GLYPH = { share: 'share', more: 'more', menu: 'menu', add: 'add-square', kebab: 'more-vertical', install: 'install', installDesktop: 'install-desktop' };
+  var LABELLED = { more: 1, kebab: 1, menu: 1, installDesktop: 1 };
+  function appIcon(cls) { return '<span class="appicon' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><svg viewBox="0 0 512 512"><use href="#app-icon"/></svg></span>'; }
+  function cap(name) {
+    if (name === 'app') return '<span class="kc kc--app">' + appIcon() + '</span>';
+    var a = LABELLED[name] ? ' role="img" aria-label="' + raw('install.glyph.' + name) + '"' : ' aria-hidden="true"';
+    return '<span class="kc"' + a + '><svg viewBox="0 0 24 24"><use href="#i-' + GLYPH[name] + '"/></svg></span>';
+  }
+  function t(k, vars) { return raw(k, vars).replace(/<(\w+)\/>/g, function (_, n) { return cap(n); }); }
+  function icon(id, cls) { return '<svg class="i' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + id + '"/></svg>'; }
+
+  /* ---------------- frame pieces ---------------- */
+  var SB = '<span>18:42</span><span class="statusbar__icons"><svg viewBox="0 0 18 12" width="18"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" width="16"><path d="M8 2.5c2.3 0 4.4.9 6 2.3l1.2-1.3A10.5 10.5 0 0 0 8 .7 10.5 10.5 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.3zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.3-1.3A6.6 6.6 0 0 0 8 4.3a6.6 6.6 0 0 0-4.7 1.8l1.3 1.3c.9-.8 2.1-1.3 3.4-1.3zM8 9.6l2-2a2.9 2.9 0 0 0-4 0z"/></svg><svg viewBox="0 0 27 12" width="27"><rect x="0.5" y="0.5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".45"/></svg></span>';
+  var TABS = [['calendar', 'Programme', 'Programme'], ['bolt', 'Séance rapide', 'Quick session'], ['chart', 'Progrès', 'Progress'], ['sliders', 'Réglages', 'Settings']];
+  function tabbar(desk) {
+    return '<nav class="tabbar' + (desk ? ' tabbar--desk' : '') + '" aria-label="Navigation">' + TABS.map(function (x, i) {
+      var cur = i === 3;
+      return '<a class="tab' + (cur ? ' is-current" aria-current="page' : '') + '"><span class="tab__icon">' + icon(x[0]) + '</span><span>' + x[lang === 'en' ? 2 : 1] + '</span></a>';
+    }).join('') + '</nav>';
+  }
+  function frameTop(desk, br) {
+    if (!desk) return '<div class="statusbar" aria-hidden="true">' + SB + '</div>';
+    var chromium = br === 'Chrome' || br === 'Edge';
+    return '<div class="desk" aria-hidden="true"><span class="desk__dots"><i></i><i></i><i></i></span><span class="desk__addr"><span>Easy Workout</span>' + (chromium ? '<span class="desk__inst"><svg class="i"><use href="#i-install-desktop"/></svg></span>' : '') + '</span></div>';
+  }
+
+  /* ---------------- install screen ---------------- */
+  function steps(list) {
+    return '<ol class="steps">' + list.map(function (s, i) {
+      return '<li class="step"><span class="num step__n" aria-hidden="true">' + (i + 1) + '</span><div class="step__body"><p class="step__t">' + t(s[0]) + '</p>' + (s[1] ? '<p class="step__m">' + t(s[1]) + '</p>' : '') + '</div></li>';
+    }).join('') + '</ol>';
+  }
+  function others(keys) {
+    if (!keys.length) return '';
+    return '<div class="oth"><h3 class="oth__h">' + t('install.others') + '</h3><ul>' + keys.map(function (k) { return '<li>' + t(k) + '</li>'; }).join('') + '</ul></div>';
+  }
+  function panel(c) {
+    var tab = c.tab || c.dev, v = c.v, dev = c.dev;
+    var h = '', body = '', oth = [], extra = '';
+    if (tab === 'ios') {
+      var other = dev === 'ios' && c.br !== 'Safari';
+      h = t('install.in', { browser: other ? c.br : 'Safari' });
+      var openMeta = dev !== 'ios' ? null : v === 'gate' ? 'install.step.openSetUpMeta' : 'install.step.openRestoreMeta';
+      body = steps([
+        ['install.step.share', other ? 'install.step.shareOtherMeta' : 'install.step.shareSafariMeta'],
+        ['install.step.addHome', 'install.step.addHomeMeta'],
+        ['install.step.add', 'install.step.addMeta'],
+        ['install.step.open', openMeta]
+      ]);
+      if (!other) oth = ['install.others.ios'];
+    } else if (tab === 'android') {
+      h = t('install.in', { browser: dev === 'android' ? c.br : 'Chrome' });
+      if (dev === 'android' && c.prompt) {
+        body = steps([['install.step.tapInstall'], ['install.step.confirm', 'install.step.confirmMeta']]);
+        extra = '<p class="fallback">' + icon('info') + '<span>' + t('install.promptFallback') + '</span></p>';
+      } else {
+        body = steps([
+          ['install.step.menu', 'install.step.menuMeta'],
+          ['install.step.installApp', 'install.step.installAppMeta'],
+          ['install.step.confirmWith'],
+          ['install.step.open', v === 'settings' && dev === 'android' ? 'install.step.openSharedMeta' : null]
+        ]);
+      }
+    } else {
+      var b = dev === 'computer' ? c.br : 'Chrome';
+      if (b === 'Firefox') {
+        h = t('install.firefox.title');
+        body = '<p class="ffx">' + t('install.firefox.text') + '</p>';
+        if (v === 'settings') extra = '<div class="nline">' + icon('file') + '<span>' + t('install.firefox.data') + '</span><button class="btn btn--secondary btn--sm" type="button">' + t('install.toData') + '</button></div>';
+      } else if (b === 'Safari') {
+        h = t('install.in', { browser: 'Safari' });
+        body = steps([['install.step.fileMenu', 'install.step.fileMenuMeta'], ['install.step.clickAdd', 'install.step.confirmComputerMeta']]);
+        oth = ['install.others.chromeEdge', 'install.others.firefox'];
+      } else {
+        h = dev === 'computer' ? t('install.in', { browser: b }) : t('install.inChromeEdge');
+        if (dev === 'computer' && c.prompt) body = steps([['install.step.clickInstall'], ['install.step.confirm', 'install.step.confirmComputerMeta']]);
+        else body = steps([['install.step.addressBar', 'install.step.addressBarMeta'], ['install.step.clickInstallDialog', 'install.step.confirmComputerMeta']]);
+        oth = ['install.others.safariMac', 'install.others.firefox'];
+      }
+    }
+    return '<div class="how__panel" role="tabpanel"><div class="how"><h2 class="how__h">' + h + '</h2>' + body + extra + others(oth) + '</div></div>';
+  }
+  function seg(c) {
+    var tab = c.tab || c.dev;
+    return '<div class="seg" role="tablist" aria-label="' + raw('install.platform.label') + '">' + ['ios', 'android', 'computer'].map(function (p) {
+      return '<button class="seg__opt" type="button" role="tab" data-tab="' + p + '" aria-selected="' + (p === tab) + '" tabindex="' + (p === tab ? 0 : -1) + '">' + t('install.platform.' + p) + '</button>';
+    }).join('') + '</div>';
+  }
+  function why(dev) {
+    var pts = dev === 'ios' ? [['shield-check', 'data'], ['expand', 'screen'], ['offline', 'offline']]
+      : dev === 'android' ? [['expand', 'screen'], ['offline', 'offline'], ['install', 'home']]
+      : [['expand', 'window'], ['offline', 'offline']];
+    return '<section class="why"><h2 class="why__h">' + t('install.why.title') + '</h2><ul>' + pts.map(function (p) {
+      return '<li>' + icon(p[0]) + '<span class="why__t">' + t('install.why.' + p[1]) + '</span><span class="why__m">' + t('install.why.' + p[1] + 'Meta') + '</span></li>';
+    }).join('') + '</ul></section>';
+  }
+  function browserName(c) { return c.br; }
+
+  function render(fig) {
+    var c = JSON.parse(fig.dataset.cfg);
+    var desk = c.dev === 'computer';
+    var dev = fig.querySelector('.device');
+    var h = frameTop(desk, c.br) + '<div class="screen">';
+    if (c.v === 'settings') h += '<div class="ctxbar"><button class="icon-btn" type="button" aria-label="' + raw('common.back') + '">' + icon('back') + '</button><span class="ctxbar__text">' + t('settings.title') + '</span></div>';
+    h += '<div class="scroll">';
+    if (c.done) {
+      h += '<div class="done" role="status"><div class="done__icon">' + appIcon() + '<span class="done__badge">' + icon('check') + '</span></div><h1 class="t-display">' + t('install.done.title') + '</h1><p>' + t(desk ? 'install.done.textComputer' : 'install.done.text') + (c.v === 'settings' && c.dev === 'android' ? ' ' + t('install.step.openSharedMeta') : '') + '</p></div>';
+    } else {
+      h += '<div class="ins' + (c.v === 'gate' ? ' ins--gate' : '') + '">';
+      h += '<div class="ins__hero"><h1 class="t-display">' + t('install.title') + '</h1>' + appIcon() + '<p class="ins__lead">' + t(desk ? 'install.leadComputer' : 'install.lead') + '</p></div>';
+      if (c.v === 'settings' && c.dev === 'ios') h += '<div class="nline">' + icon('file') + '<span>' + t('install.setupStays', { browser: browserName(c) }) + '</span><button class="btn btn--secondary btn--sm" type="button">' + t('install.toData') + '</button></div>';
+      h += '<div style="display:grid;gap:20px">' + seg(c) + panel(c) + '</div>';
+      h += why(c.dev);
+      h += '</div>';
+    }
+    h += '</div>';
+    // dock
+    var dock = '';
+    var pad = desk ? ' dock--desk' : c.v === 'gate' ? ' dock--home' : '';
+    if (c.v === 'gate') {
+      var cont = '<button class="btn btn--block ' + (c.dev === 'android' && c.prompt && !c.done ? 'btn--ghost' : 'btn--secondary') + '" type="button">' + t('install.continue', { browser: c.br }) + '</button>';
+      if (c.dev === 'ios') dock = '<p class="dock-note">' + icon('info') + '<span>' + t('install.firstNote', { browser: c.br }) + '</span></p>' + cont;
+      else if (c.prompt && !c.done) dock = '<button class="btn btn--primary btn--block" type="button" data-install>' + t('install.install') + '</button>' + cont;
+      else dock = cont;
+    } else if (c.prompt && !c.done && (c.tab || c.dev) === c.dev) {
+      dock = '<button class="btn btn--primary btn--block" type="button" data-install>' + t('install.install') + '</button>';
+    }
+    if (dock) h += '<div class="dock' + pad + '">' + dock + '</div>';
+    if (c.v === 'settings') h += tabbar(desk);
+    h += '</div>';
+    if (!desk) h += '<div class="homebar" aria-hidden="true"></div>';
+    dev.innerHTML = h;
+    if (c.scroll) { var sc = dev.querySelector('.scroll'); sc.scrollTop = c.scroll; }
+  }
+
+  function renderSettings(dev) {
+    var rows = [
+      ['user', lang === 'en' ? 'Profile' : 'Profil', lang === 'en' ? 'Muscle gain, intermediate, 4 × 45 min' : 'Prise de muscle, intermédiaire, 4 × 45 min'],
+      ['joint', lang === 'en' ? 'Joints, noise, space' : 'Articulations, bruit, place', lang === 'en' ? 'Nothing to go easy on' : 'Rien à ménager'],
+      ['calendar', lang === 'en' ? 'Training days' : 'Jours d’entraînement', lang === 'en' ? 'No fixed days' : 'Pas de jours fixes'],
+      ['dumbbell', lang === 'en' ? 'Equipment' : 'Matériel', lang === 'en' ? 'Adjustable dumbbells, bands. 6 items' : 'Haltères réglables, élastiques. 6 équipements']
+    ];
+    dev.innerHTML = '<div class="statusbar" aria-hidden="true">' + SB + '</div><div class="screen"><div class="scroll">' +
+      '<div class="set-head"><h1 class="t-display">' + t('settings.title') + '</h1></div>' +
+      '<button class="card nudge" type="button" data-go="r2">' + '<span class="well">' + icon('install') + '</span><span class="nudge__text"><span class="nudge__t">' + t('settings.installRow') + '</span><span class="nudge__s">' + t('settings.installRowMetaIos') + '</span></span>' + icon('chev-right', 'i--sm') + '</button>' +
+      '<section class="set-sec"><h2 class="set-sec__h">' + (lang === 'en' ? 'Your training' : 'Ton entraînement') + '</h2><div class="card rows">' +
+      rows.map(function (r) { return '<button class="row" type="button">' + icon(r[0]) + '<span class="row__text"><span class="row__title">' + r[1] + '</span><span class="row__meta">' + r[2] + '</span></span>' + icon('chev-right', 'i--sm') + '</button>'; }).join('') +
+      '</div></section></div>' + tabbar(false) + '</div><div class="homebar" aria-hidden="true"></div>';
+  }
+
+  function renderGlyphs() {
+    var G = [
+      ['share', 'share', 'Partager (iPhone, iPad). Carré ouvert en haut, flèche qui sort.', 'Share (iPhone, iPad). Open-top square, arrow leaving it.'],
+      ['more', 'more', 'Réutilisé. Menu ··· de Safari récent, Edge.', 'Reused. Recent Safari ··· menu, Edge.'],
+      ['add-square', 'add', 'Sur l’écran d’accueil. Carré arrondi, plus au centre.', 'Add to Home Screen. Rounded square, plus inside.'],
+      ['more-vertical', 'kebab', 'Menu ⋮ d’Android, Chrome sur ordinateur.', 'Android ⋮ menu, desktop Chrome.'],
+      ['menu', 'menu', 'Menu ≡ (Firefox sur iPhone).', '≡ menu (Firefox on iPhone).'],
+      ['install', 'install', 'Installer sur un téléphone. Aussi la ligne de Réglages et le point « un tap ».', 'Install on a phone. Also the Settings row and the “one tap” point.'],
+      ['install-desktop', 'installDesktop', 'Icône d’installation de la barre d’adresse.', 'Address-bar install icon.'],
+      ['offline', 'offline', 'Hors ligne (point « pourquoi »).', 'Offline (why point).'],
+      ['expand', 'expand', 'Réutilisé. Plein écran, propre fenêtre.', 'Reused. Full screen, own window.'],
+      ['shield-check', 'shield-check', 'Réutilisé. Données gardées (stockage durable).', 'Reused. Data kept (lasting storage).']
+    ];
+    document.getElementById('glyphs').innerHTML = G.map(function (g) {
+      var k = GLYPH[g[1]] ? cap(g[1]) : '';
+      return '<div class="gcard"><div class="gcard__row">' + icon(g[0]) + k + '<code>' + g[0] + '</code></div><p>' + g[lang === 'en' ? 3 : 2] + '</p></div>';
+    }).join('');
+  }
+
+  /* ---------------- mockup plumbing ---------------- */
+  function sync() {
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setLang === lang)); });
+    document.querySelectorAll('[data-set-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)); });
+  }
+  function renderAll() {
+    document.querySelectorAll('figure[data-cfg]').forEach(render);
+    document.querySelectorAll('[data-static="settings"]').forEach(renderSettings);
+    renderGlyphs();
+  }
+  function applyLang() {
+    root.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr')) el.setAttribute('data-fr', el.innerHTML);
+      el.innerHTML = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+    });
+    document.querySelectorAll('[data-en-label]').forEach(function (el) {
+      if (!el.hasAttribute('data-fr-label')) el.setAttribute('data-fr-label', el.getAttribute('aria-label'));
+      el.setAttribute('aria-label', lang === 'en' ? el.dataset.enLabel : el.dataset.frLabel);
+    });
+    renderAll(); sync();
+  }
+  function applyTheme() { root.dataset.theme = theme; sync(); }
+  function flash(id) {
+    var fig = document.getElementById(id); if (!fig) return;
+    fig.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    fig.classList.add('is-flash'); setTimeout(function () { fig.classList.remove('is-flash'); }, 1200);
+  }
+  function update(fig, change) {
+    var c = JSON.parse(fig.dataset.cfg); Object.keys(change).forEach(function (k) { c[k] = change[k]; });
+    delete c.scroll; fig.dataset.cfg = JSON.stringify(c); render(fig);
+  }
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest('[data-set-lang]'); if (l) { lang = l.dataset.setLang; applyLang(); return; }
+    var th = e.target.closest('[data-set-theme]'); if (th) { theme = th.dataset.setTheme; applyTheme(); return; }
+    var fig = e.target.closest('figure[data-cfg]');
+    var tb = e.target.closest('.seg__opt[data-tab]');
+    if (tb && fig) { update(fig, { tab: tb.dataset.tab }); var nb = fig.querySelector('.seg__opt[data-tab="' + tb.dataset.tab + '"]'); if (nb) nb.focus(); return; }
+    var ins = e.target.closest('[data-install]');
+    if (ins && fig) { update(fig, { done: true }); return; }
+    var go = e.target.closest('[data-go]');
+    if (go) { e.preventDefault(); flash(go.dataset.go); }
+  });
+  document.addEventListener('keydown', function (e) {
+    var tb = e.target.closest && e.target.closest('.seg__opt[data-tab]');
+    if (!tb || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+    var order = ['ios', 'android', 'computer'], i = order.indexOf(tb.dataset.tab);
+    var next = order[(i + (e.key === 'ArrowRight' ? 1 : 2)) % 3];
+    var fig = tb.closest('figure[data-cfg]'); update(fig, { tab: next });
+    fig.querySelector('.seg__opt[data-tab="' + next + '"]').focus(); e.preventDefault();
+  });
+  applyTheme();
+  applyLang();
+  function rescroll() { document.querySelectorAll('figure[data-cfg]').forEach(function (f) { var c = JSON.parse(f.dataset.cfg); if (c.scroll) f.querySelector('.scroll').scrollTop = c.scroll; }); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(rescroll);
+  window.addEventListener('load', rescroll);
+})();
+</script>
+</body>
+</html>

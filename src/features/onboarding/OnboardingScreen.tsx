@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { currentPlatform, isStandalone } from '@/app/install';
 import { navigate, goBack, useRoute } from '@/app/router';
 import { repo } from '@/db/repo';
 import { GOALS, LEVELS, type EquipmentInventory, type Goal, type Level } from '@/domain';
@@ -235,6 +236,8 @@ interface StepProps {
 
 function GoalStep({ draft, update, error, headingRef }: StepProps & { error: boolean }) {
   const { t } = useTranslation();
+  // The installed iPhone app starts empty, apart from what was set up in Safari.
+  const [safariLead] = useState(() => isStandalone() && currentPlatform().os === 'ios');
   const options = useMemo(
     () =>
       GOALS.map((goal) => ({
@@ -262,7 +265,9 @@ function GoalStep({ draft, update, error, headingRef }: StepProps & { error: boo
         onChange={(goal: Goal) => update({ goal })}
       />
       <div className={styles.restore}>
-        <p className={styles.restoreLead}>{t('onboarding.restore.lead')}</p>
+        <p className={styles.restoreLead}>
+          {t(safariLead ? 'onboarding.restore.leadSafari' : 'onboarding.restore.lead')}
+        </p>
         <RestoreBackup onRestored={clearDraft} />
       </div>
       <p className={styles.health}>{t('onboarding.health')}</p>

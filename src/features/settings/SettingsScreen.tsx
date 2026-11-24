@@ -8,12 +8,13 @@ import {
   useSessionLogs,
   useSettings,
 } from '@/app/data';
+import { currentPlatform, isStandalone, useInstallState } from '@/app/install';
 import { navigate } from '@/app/router';
 import { repo } from '@/db/repo';
 import type { Language, Settings } from '@/domain';
 import { activeTravelKit } from '@/engine';
 import { equipmentSummary } from '@/features/onboarding/summary';
-import { Card, Dialog, ListRow, SegmentedControl, SwitchRow } from '@/ui/components';
+import { Card, Dialog, Icon, ListRow, SegmentedControl, SwitchRow } from '@/ui/components';
 import { canVibrate } from '../play/signals';
 import { constraintsMeta } from './constraints/joints';
 import { draftOf } from './constraints/model';
@@ -41,6 +42,9 @@ export function SettingsScreen() {
   const [confirmNew, setConfirmNew] = useState(false);
   const [daysOpen, setDaysOpen] = useState(false);
   const [now] = useState(() => Date.now());
+  const { installed } = useInstallState();
+  const [standalone] = useState(isStandalone);
+  const [os] = useState(() => currentPlatform().os);
 
   const language: Language = settings?.language ?? (i18n.language === 'fr' ? 'fr' : 'en');
   const themeOptions: { value: Settings['theme']; label: string }[] = [
@@ -82,7 +86,34 @@ export function SettingsScreen() {
         <h1 className={styles.title}>{t('settings.title')}</h1>
       </div>
 
-      <section className={styles.section}>
+      {standalone ? null : (
+        <button
+          type="button"
+          className={styles.nudge}
+          onClick={() => navigate({ name: 'install' })}
+        >
+          <span className={styles.nudgeWell}>
+            <Icon name="install" size={24} />
+          </span>
+          <span className={styles.nudgeText}>
+            <span className={styles.nudgeTitle}>{t('settings.installRow')}</span>
+            <span className={styles.nudgeMeta}>
+              {t(
+                installed
+                  ? 'settings.installRowMetaDone'
+                  : os === 'ios'
+                    ? 'settings.installRowMetaIos'
+                    : os === 'desktop'
+                      ? 'settings.installRowMetaComputer'
+                      : 'settings.installRowMeta',
+              )}
+            </span>
+          </span>
+          <Icon name="chev-right" size={24} />
+        </button>
+      )}
+
+      <section className={`${styles.section} ${standalone ? '' : styles.afterNudge}`}>
         <h2 className={styles.heading}>{t('settings.training')}</h2>
         <Card className={styles.rows}>
           <ListRow

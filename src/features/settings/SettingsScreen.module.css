@@ -80,3 +80,61 @@ button.checkRow {
 button.checkRow:not(:last-child)::after {
   left: calc(var(--space-4) + 48px + var(--space-3));
 }
+
+/* The one row about the app itself; it goes away once the app is installed. */
+.nudge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: calc(100% - 2 * var(--space-4));
+  min-height: 76px;
+  margin: 0 var(--space-4);
+  padding: 12px 12px 12px 14px;
+  border: var(--border-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--elevation-1);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.nudge:active {
+  background: var(--color-press-overlay);
+}
+.nudge:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.nudge > svg {
+  color: var(--color-text-muted);
+}
+.nudgeWell {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.nudgeText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+.nudgeTitle {
+  font-size: 17px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.25;
+}
+.nudgeMeta {
+  font-size: var(--type-meta-size);
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+.afterNudge {
+  margin-top: 24px;
+}

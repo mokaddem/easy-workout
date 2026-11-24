@@ -100,6 +100,7 @@
     "noProgramme": "Elle n’a pas de programme en cours : tu finiras la configuration ensuite.",
     "copy": "Ce qui est déjà sur ce téléphone est téléchargé juste avant.",
     "doneSetup": "Sauvegarde restaurée. Termine la configuration pour créer ton programme.",
-    "failed": "La sauvegarde n’a pas pu être restaurée. Rien n’a été modifié."
+    "failed": "La sauvegarde n’a pas pu être restaurée. Rien n’a été modifié.",
+    "leadSafari": "Déjà configurée dans Safari ?"
   }
 }
