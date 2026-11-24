@@ -71,8 +71,19 @@ const PAST_SESSION_PATH = /^\/progress\/programmes\/([^/]+)\/session\/([^/]+)$/;
 const REVIEW_PATH = /^\/programme\/review\/([^/]+)$/;
 const TEST_PATH = /^\/test\/([^/]+)$/;
 
+/** Where the app is served from, without the trailing slash: empty at the site root. */
+const BASE = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+/** The pathname inside the app, without the base it is served under. */
+function appPath(pathname: string): string {
+  if (!BASE) return pathname;
+  if (pathname === BASE) return '/';
+  return pathname.startsWith(`${BASE}/`) ? pathname.slice(BASE.length) : pathname;
+}
+
 export function parseLocation(pathname: string, search = ''): Route {
-  const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  const inApp = appPath(pathname);
+  const path = inApp.length > 1 ? inApp.replace(/\/+$/, '') : inApp;
   if (path === '/onboarding') {
     const step = Number(new URLSearchParams(search).get('step'));
     return Number.isInteger(step) && step > 1
@@ -133,7 +144,12 @@ export function parseLocation(pathname: string, search = ''): Route {
   return { name: 'not-found', path };
 }
 
+/** The address of a screen, under the base the app is served from. */
 export function routeHref(route: Route): string {
+  return BASE + routePath(route);
+}
+
+function routePath(route: Route): string {
   switch (route.name) {
     case 'session': {
       const base = `/programme/session/${encodeURIComponent(route.sessionId)}`;

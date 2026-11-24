@@ -19,7 +19,7 @@ No account, no server. Everything you enter is stored by your browser on your de
 
 ## Install
 
-Open the app in your phone's browser, then add it to the home screen:
+Open **https://mokaddem.github.io/easy-workout/** in your phone's browser, then add it to the home screen:
 
 - **iPhone (Safari):** Share → Add to Home Screen.
 - **Android (Chrome):** menu → Install app.

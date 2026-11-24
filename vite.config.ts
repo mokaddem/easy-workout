@@ -53,7 +53,6 @@ export default defineConfig({
         name: 'Easy Workout',
         short_name: 'Workout',
         display: 'standalone',
-        start_url: '/',
         background_color: '#11131A',
         theme_color: '#11131A',
         icons: [
