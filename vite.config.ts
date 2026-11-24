@@ -45,7 +45,7 @@ export default defineConfig({
     preloadFont(FIRST_SCREEN_FONT),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png', 'favicon-32.png'],
       workbox: {
         globPatterns: ['**/*.{js,wasm,css,html}', '**/archivo-latin*-wdth-normal-*.woff2'],
       },
@@ -56,8 +56,17 @@ export default defineConfig({
         start_url: '/',
         background_color: '#11131A',
         theme_color: '#11131A',
-        // TODO: final icons
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
+        icons: [
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          {
+            src: 'icons/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
       },
     }),
   ],
